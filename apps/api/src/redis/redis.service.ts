@@ -6,13 +6,14 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private client!: Redis;
   private publisher!: Redis;
   private subscriber!: Redis;
+  private connected = false;
 
   async onModuleInit() {
     const redisUrl = process.env.REDIS_URL;
     console.log(`[RedisService] REDIS_URL present: ${!!redisUrl}, starts with: ${redisUrl?.substring(0, 20)}...`);
 
     const retryStrategy = (times: number) => {
-      if (times > 5) return null as any; // stop retrying after 5 attempts
+      if (times > 5) return null as any;
       return Math.min(times * 200, 2000);
     };
 
@@ -42,16 +43,19 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       await this.client.connect();
       await this.publisher.connect();
       await this.subscriber.connect();
+      this.connected = true;
       console.log('✅ Redis connected');
     } catch (err) {
+      this.connected = false;
       console.warn('⚠️ Redis connection failed — caching disabled:', (err as Error).message);
     }
   }
 
   async onModuleDestroy() {
-    await this.client.quit();
-    await this.publisher.quit();
-    await this.subscriber.quit();
+    if (!this.connected) return;
+    await this.client.quit().catch(() => {});
+    await this.publisher.quit().catch(() => {});
+    await this.subscriber.quit().catch(() => {});
   }
 
   getClient(): Redis {
@@ -68,66 +72,84 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   // Cache operations
   async get<T>(key: string): Promise<T | null> {
-    const data = await this.client.get(key);
-    return data ? JSON.parse(data) : null;
+    if (!this.connected) return null;
+    try {
+      const data = await this.client.get(key);
+      return data ? JSON.parse(data) : null;
+    } catch { return null; }
   }
 
   async set(key: string, value: any, ttlSeconds?: number): Promise<void> {
-    const serialized = JSON.stringify(value);
-    if (ttlSeconds) {
-      await this.client.setex(key, ttlSeconds, serialized);
-    } else {
-      await this.client.set(key, serialized);
-    }
+    if (!this.connected) return;
+    try {
+      const serialized = JSON.stringify(value);
+      if (ttlSeconds) {
+        await this.client.setex(key, ttlSeconds, serialized);
+      } else {
+        await this.client.set(key, serialized);
+      }
+    } catch {}
   }
 
   async del(key: string): Promise<void> {
-    await this.client.del(key);
+    if (!this.connected) return;
+    try { await this.client.del(key); } catch {}
   }
 
   async delPattern(pattern: string): Promise<void> {
-    const keys = await this.client.keys(pattern);
-    if (keys.length > 0) {
-      await this.client.del(...keys);
-    }
+    if (!this.connected) return;
+    try {
+      const keys = await this.client.keys(pattern);
+      if (keys.length > 0) {
+        await this.client.del(...keys);
+      }
+    } catch {}
   }
 
   async exists(key: string): Promise<boolean> {
-    const result = await this.client.exists(key);
-    return result === 1;
+    if (!this.connected) return false;
+    try {
+      const result = await this.client.exists(key);
+      return result === 1;
+    } catch { return false; }
   }
 
   async expire(key: string, seconds: number): Promise<void> {
-    await this.client.expire(key, seconds);
+    if (!this.connected) return;
+    try { await this.client.expire(key, seconds); } catch {}
   }
 
   isReady(): boolean {
-    return !!this.subscriber && this.subscriber.status === 'ready';
+    return this.connected && !!this.subscriber && this.subscriber.status === 'ready';
   }
 
   // Pub/Sub operations
   async publish(channel: string, message: any): Promise<void> {
-    await this.publisher.publish(channel, JSON.stringify(message));
+    if (!this.connected) return;
+    try { await this.publisher.publish(channel, JSON.stringify(message)); } catch {}
   }
 
   async subscribe(channel: string, callback: (message: any) => void): Promise<void> {
-    if (!this.subscriber) {
+    if (!this.connected || !this.subscriber) {
       console.warn('Redis subscriber not ready, skipping subscribe for:', channel);
       return;
     }
-    await this.subscriber.subscribe(channel);
-    this.subscriber.on('message', (ch, msg) => {
-      if (ch === channel) {
-        try {
-          callback(JSON.parse(msg));
-        } catch (err) {
-          console.error('Error parsing Redis message:', err);
+    try {
+      await this.subscriber.subscribe(channel);
+      this.subscriber.on('message', (ch, msg) => {
+        if (ch === channel) {
+          try {
+            callback(JSON.parse(msg));
+          } catch (err) {
+            console.error('Error parsing Redis message:', err);
+          }
         }
-      }
-    });
+      });
+    } catch {}
   }
 
   async unsubscribe(channel: string): Promise<void> {
-    await this.subscriber.unsubscribe(channel);
+    if (!this.connected) return;
+    try { await this.subscriber.unsubscribe(channel); } catch {}
   }
 }
