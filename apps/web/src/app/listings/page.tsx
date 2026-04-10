@@ -196,87 +196,48 @@ function ListingsContent() {
   const currentPage = parseInt(page);
   const totalPages = data?.meta.totalPages ?? 1;
 
+  const bodyTypes = [
+    { value: 'SEDAN', label: 'سيدان', icon: 'directions_car' },
+    { value: 'SUV', label: 'دفع رباعي', icon: 'airport_shuttle' },
+    { value: 'HATCHBACK', label: 'هاتشباك', icon: 'electric_car' },
+    { value: 'TRUCK', label: 'بيك أب', icon: 'local_shipping' },
+    { value: 'COUPE', label: 'كوبيه', icon: 'sports_score' },
+    { value: 'VAN', label: 'ڤان', icon: 'commute' },
+    { value: 'CONVERTIBLE', label: 'مكشوفة', icon: 'no_crash' },
+    { value: 'WAGON', label: 'واغن', icon: 'rv_hookup' },
+  ];
+
+  const selectedBody = searchParams.get('bodyType') || '';
+
+  function applyBodyFilter(body: string) {
+    const p = new URLSearchParams(searchParams.toString());
+    if (selectedBody === body) p.delete('bodyType'); else p.set('bodyType', body);
+    p.set('page', '1');
+    router.push(`/listings?${p.toString()}`);
+  }
+
   return (
     <>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-7xl mx-auto px-6">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* ── Sidebar Filters ── */}
-          <aside className="lg:w-72 shrink-0">
-            <div className="sticky top-24 space-y-6 bg-surface-container-lowest border border-outline-variant/10 p-6 shadow-sm">
-              <div>
-                <h2 className="text-xl font-black mb-1">الفلاتر</h2>
-                <p className="text-on-surface-variant text-sm">تخصيص نتائج البحث</p>
-              </div>
 
-              {/* Price Range */}
-              <div>
-                <label className="text-xs font-black text-on-surface-variant uppercase tracking-widest block mb-3">السعر الأقصى</label>
-                <input
-                  type="number"
-                  value={priceMax}
-                  onChange={(e) => setPriceMax(e.target.value)}
-                  placeholder="مثال: 15000"
-                  className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none text-sm"
-                />
-              </div>
+      {/* ═══════════ HERO SECTION ═══════════ */}
+      <section className="relative overflow-hidden" dir="rtl">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-container to-brand-navy" />
+        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
+        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-white/[0.05] blur-3xl" />
+        <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-blue-300/[0.08] blur-3xl" />
 
-              {/* Condition */}
-              <div>
-                <label className="text-xs font-black text-on-surface-variant uppercase tracking-widest block mb-3">الحالة</label>
-                <div className="space-y-2">
-                  {conditionOptions.map((opt) => (
-                    <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
-                      <input
-                        type="radio"
-                        name="condition"
-                        checked={selectedCondition === opt.value}
-                        onChange={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)}
-                        className="w-5 h-5 accent-primary"
-                      />
-                      <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">{opt.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+        <div className="relative z-10 pt-24 pb-10 md:pt-28 md:pb-14">
+          <div className="max-w-5xl mx-auto px-6 text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-3 drop-shadow-sm">
+              اختر سيارتك من سوق وان
+            </h1>
+            <p className="text-white/70 text-sm md:text-base mb-8 max-w-lg mx-auto">
+              سيارات جديدة ومستعملة للبيع والإيجار في سلطنة عمان
+            </p>
 
-              {/* Fuel Type */}
-              <div>
-                <label className="text-xs font-black text-on-surface-variant uppercase tracking-widest block mb-3">نوع الوقود</label>
-                <div className="flex flex-wrap gap-2">
-                  {fuelOptions.map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => toggleFuel(opt.value)}
-                      className={`px-4 py-2 text-sm font-black transition-all ${
-                        selectedFuels.includes(opt.value)
-                          ? 'bg-primary text-on-primary'
-                          : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button onClick={applyFilters} className="bg-primary text-on-primary w-full py-3 text-sm font-black hover:brightness-110 transition-colors">
-                تطبيق الفلاتر
-              </button>
-
-              <Link
-                href="/add-listing"
-                className="block bg-on-surface text-surface font-black text-center py-3 hover:bg-primary hover:text-on-primary transition-all text-sm"
-              >
-                أضف إعلانك
-              </Link>
-            </div>
-          </aside>
-
-          {/* ── Main Content ── */}
-          <div className="flex-1 min-w-0">
-            {/* Listing type tabs */}
-            <div className="flex items-center gap-1 mb-6 border-b border-outline-variant/10">
+            {/* Listing Type Tabs */}
+            <div className="flex justify-center gap-2 mb-6">
               {[
                 { value: '', label: 'الكل', icon: 'apps' },
                 { value: 'SALE', label: 'للبيع', icon: 'sell' },
@@ -285,10 +246,10 @@ function ListingsContent() {
                 <button
                   key={tab.value}
                   onClick={() => setListingType(tab.value)}
-                  className={`flex items-center gap-1.5 px-5 py-3 text-sm font-bold transition-all border-b-2 -mb-px ${
+                  className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
                     listingType === tab.value
-                      ? 'text-primary border-primary'
-                      : 'text-on-surface-variant border-transparent hover:text-on-surface'
+                      ? 'bg-white text-primary shadow-lg'
+                      : 'bg-white/10 text-white/80 hover:bg-white/20 backdrop-blur-sm'
                   }`}
                 >
                   <span className="material-symbols-outlined text-base">{tab.icon}</span>
@@ -297,35 +258,223 @@ function ListingsContent() {
               ))}
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            {/* Search Box — Glass */}
+            <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 md:p-4 shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="flex-1 flex items-center gap-2 bg-white/90 dark:bg-white/10 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-white/40 transition-all">
+                    <span className="material-symbols-outlined text-primary/50 dark:text-white/40 text-xl shrink-0">search</span>
+                    <input
+                      type="text"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      placeholder="ابحث عن ماركة، موديل، سنة..."
+                      className="flex-1 bg-transparent text-sm font-medium text-on-surface dark:text-white placeholder:text-on-surface-variant/50 dark:placeholder:text-white/40 focus:outline-none min-w-0"
+                    />
+                    {searchInput && (
+                      <button type="button" onClick={() => setSearchInput('')} className="text-on-surface-variant/40 hover:text-on-surface-variant shrink-0">
+                        <span className="material-symbols-outlined text-lg">close</span>
+                      </button>
+                    )}
+                  </div>
+                  <button type="submit" className="shrink-0 bg-white text-primary px-6 md:px-8 py-3 font-black text-sm rounded-xl hover:bg-white/90 active:scale-[0.97] transition-all flex items-center gap-1.5 shadow-lg">
+                    <span className="material-symbols-outlined text-base">search</span>
+                    <span className="hidden sm:inline">بحث</span>
+                  </button>
+                </div>
+
+                {/* Quick filter chips */}
+                <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/10">
+                  {conditionOptions.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                        selectedCondition === opt.value
+                          ? 'bg-white text-primary'
+                          : 'bg-white/10 text-white/70 hover:bg-white/20'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                  <span className="w-px h-6 bg-white/20 mx-1 self-center" />
+                  {fuelOptions.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => toggleFuel(opt.value)}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                        selectedFuels.includes(opt.value)
+                          ? 'bg-white text-primary'
+                          : 'bg-white/10 text-white/70 hover:bg-white/20'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </form>
+
+            {/* Stats */}
+            <div className="flex justify-center gap-6 mt-6">
+              <div className="flex items-center gap-1.5 text-white/60">
+                <span className="material-symbols-outlined text-sm">directions_car</span>
+                <span className="text-xs font-bold text-white">{data?.meta.total ?? '...'}</span>
+                <span className="text-xs">إعلان</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-white/60">
+                <span className="material-symbols-outlined text-sm">verified</span>
+                <span className="text-xs">بائعين موثوقين</span>
+              </div>
+              <Link href="/add-listing" className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors">
+                <span className="material-symbols-outlined text-sm">add_circle</span>
+                <span className="text-xs font-bold">أضف إعلانك مجاناً</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ BROWSE BY TYPE ═══════════ */}
+      <section className="bg-surface-container-lowest dark:bg-surface-dim border-b border-outline-variant/10" dir="rtl">
+        <div className="max-w-7xl mx-auto px-6 py-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-7 w-1 bg-primary rounded-full" />
+            <h2 className="text-xl font-black text-on-surface">تصفح حسب نوع السيارة</h2>
+          </div>
+          <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
+            {bodyTypes.map((bt) => (
+              <button
+                key={bt.value}
+                onClick={() => applyBodyFilter(bt.value)}
+                className={`group flex flex-col items-center gap-2.5 p-4 rounded-2xl border transition-all duration-200 ${
+                  selectedBody === bt.value
+                    ? 'bg-primary/10 dark:bg-primary/20 border-primary/30 shadow-sm'
+                    : 'bg-surface-container-low/50 dark:bg-surface-container/50 border-outline-variant/10 hover:border-primary/20 hover:shadow-sm'
+                }`}
+              >
+                <span className={`material-symbols-outlined text-3xl transition-colors ${
+                  selectedBody === bt.value ? 'text-primary' : 'text-on-surface-variant group-hover:text-primary'
+                }`}>{bt.icon}</span>
+                <span className={`text-[11px] sm:text-xs font-bold text-center leading-tight transition-colors ${
+                  selectedBody === bt.value ? 'text-primary' : 'text-on-surface-variant'
+                }`}>{bt.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ MAIN LISTINGS ═══════════ */}
+      <main className="max-w-7xl mx-auto px-6 py-8" dir="rtl">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* ── Sidebar Filters ── */}
+          <aside className="lg:w-64 shrink-0">
+            <div className="sticky top-24 space-y-5 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl p-5 shadow-sm">
               <div>
-                <h1 className="text-3xl md:text-4xl font-black">السوق</h1>
-                <p className="text-on-surface-variant text-sm mt-1">
+                <h2 className="text-lg font-black mb-0.5">تصفية النتائج</h2>
+                <p className="text-on-surface-variant text-xs">خصص بحثك</p>
+              </div>
+
+              {/* Price Range */}
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">السعر الأقصى (ر.ع)</label>
+                <input
+                  type="number"
+                  value={priceMax}
+                  onChange={(e) => setPriceMax(e.target.value)}
+                  placeholder="مثال: 15000"
+                  className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm"
+                />
+              </div>
+
+              {/* Condition */}
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">الحالة</label>
+                <div className="space-y-1.5">
+                  {conditionOptions.map((opt) => (
+                    <label key={opt.value} className="flex items-center gap-2.5 cursor-pointer group py-1">
+                      <input
+                        type="radio"
+                        name="condition-sidebar"
+                        checked={selectedCondition === opt.value}
+                        onChange={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)}
+                        className="w-4 h-4 accent-primary"
+                      />
+                      <span className="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Fuel Type */}
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">نوع الوقود</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {fuelOptions.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => toggleFuel(opt.value)}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                        selectedFuels.includes(opt.value)
+                          ? 'bg-primary text-on-primary'
+                          : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button onClick={applyFilters} className="bg-primary text-on-primary w-full py-2.5 text-sm font-black rounded-xl hover:brightness-110 transition-colors">
+                تطبيق الفلاتر
+              </button>
+
+              <Link
+                href="/add-listing"
+                className="block bg-on-surface text-surface font-black text-center py-2.5 rounded-xl hover:bg-primary hover:text-on-primary transition-all text-sm"
+              >
+                أضف إعلانك
+              </Link>
+            </div>
+          </aside>
+
+          {/* ── Main Content ── */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-2xl font-black">
+                  {listingType === 'SALE' ? 'سيارات للبيع' : listingType === 'RENTAL' ? 'سيارات للإيجار' : 'جميع السيارات'}
+                </h2>
+                <p className="text-on-surface-variant text-sm mt-0.5">
                   {data ? `${data.meta.total} إعلان متاح` : 'تصفح أحدث إعلانات السيارات'}
                 </p>
               </div>
-              <div className="flex items-center gap-3">
-                {/* Map/List Toggle */}
-                <div className="flex border border-outline-variant/10 overflow-hidden">
+              <div className="flex items-center gap-2">
+                <div className="flex border border-outline-variant/10 rounded-xl overflow-hidden">
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`px-4 py-2.5 text-sm font-black flex items-center gap-1.5 transition-all ${viewMode === 'list' ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:bg-surface-container'}`}
+                    className={`px-3.5 py-2 text-xs font-black flex items-center gap-1 transition-all ${viewMode === 'list' ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:bg-surface-container'}`}
                   >
-                    <span className="material-symbols-outlined text-base">view_list</span>
+                    <span className="material-symbols-outlined text-sm">view_list</span>
                     قائمة
                   </button>
                   <button
                     onClick={() => setViewMode('map')}
-                    className={`px-4 py-2.5 text-sm font-black flex items-center gap-1.5 transition-all ${viewMode === 'map' ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:bg-surface-container'}`}
+                    className={`px-3.5 py-2 text-xs font-black flex items-center gap-1 transition-all ${viewMode === 'map' ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:bg-surface-container'}`}
                   >
-                    <span className="material-symbols-outlined text-base">map</span>
+                    <span className="material-symbols-outlined text-sm">map</span>
                     خريطة
                   </button>
                 </div>
                 <select
                   value={sortBy}
                   onChange={(e) => setSort(e.target.value)}
-                  className="bg-surface-container-lowest border border-outline-variant/10 py-2.5 px-4 focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none text-sm font-bold"
+                  className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl py-2 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-xs font-bold"
                 >
                   <option value="">الأحدث</option>
                   <option value="price_asc">السعر: الأقل</option>
@@ -335,43 +484,17 @@ function ListingsContent() {
               </div>
             </div>
 
-            {/* Search Bar */}
-            <form onSubmit={handleSearch} className="flex gap-0 mb-8">
-              <div className="relative flex-1">
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-lg">search</span>
-                <input
-                  type="text"
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder="ابحث عن ماركة، موديل..."
-                  className="w-full bg-surface-container-lowest border border-outline-variant/10 py-3 pr-12 pl-4 focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none text-sm"
-                />
-              </div>
-              <button type="submit" className="bg-primary text-on-primary px-8 py-3 text-sm font-black hover:brightness-110 transition-colors">بحث</button>
-            </form>
-
-            {/* Radius Filter (when map view or location available) */}
+            {/* Radius Filter (when map view) */}
             {viewMode === 'map' && (
-              <div className="mb-6 bg-surface-container-lowest border border-outline-variant/10 p-4 flex flex-wrap items-center gap-4">
+              <div className="mb-6 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-2xl p-4 flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-3 flex-1 min-w-[200px]">
                   <span className="material-symbols-outlined text-primary">radar</span>
                   <span className="text-sm font-black text-on-surface">نطاق البحث:</span>
-                  <input
-                    type="range"
-                    min={5}
-                    max={200}
-                    step={5}
-                    value={radius}
-                    onChange={(e) => setRadius(parseInt(e.target.value))}
-                    className="flex-1 accent-primary"
-                  />
+                  <input type="range" min={5} max={200} step={5} value={radius} onChange={(e) => setRadius(parseInt(e.target.value))} className="flex-1 accent-primary" />
                   <span className="text-sm font-black text-primary min-w-[50px]">{radius} كم</span>
                 </div>
                 {!userLocation && (
-                  <button
-                    onClick={requestLocation}
-                    className="flex items-center gap-2 bg-on-surface text-surface px-4 py-2 text-xs font-black hover:bg-primary hover:text-on-primary transition-all"
-                  >
+                  <button onClick={requestLocation} className="flex items-center gap-2 bg-on-surface text-surface px-4 py-2 text-xs font-black rounded-xl hover:bg-primary hover:text-on-primary transition-all">
                     <span className="material-symbols-outlined text-sm">my_location</span>
                     حدد موقعي
                   </button>
@@ -386,7 +509,6 @@ function ListingsContent() {
               <ErrorState onRetry={() => refetch()} />
             ) : data && data.items.length > 0 ? (
               viewMode === 'map' ? (
-                /* Map View */
                 <ListingsMap
                   height="h-[600px]"
                   userLocation={userLocation}
@@ -456,7 +578,7 @@ function ListingsContent() {
                     <button
                       onClick={() => goToPage(currentPage - 1)}
                       disabled={currentPage <= 1}
-                      className="w-11 h-11 border border-outline-variant/10 flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30"
+                      className="w-10 h-10 border border-outline-variant/10 rounded-xl flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30"
                     >
                       <span className="material-symbols-outlined">chevron_right</span>
                     </button>
@@ -466,9 +588,9 @@ function ListingsContent() {
                         <button
                           key={p}
                           onClick={() => goToPage(p)}
-                          className={`w-11 h-11 flex items-center justify-center font-black text-sm transition-all ${
+                          className={`w-10 h-10 flex items-center justify-center font-black text-sm rounded-xl transition-all ${
                             p === currentPage
-                              ? 'bg-on-surface text-surface'
+                              ? 'bg-primary text-on-primary'
                               : 'border border-outline-variant/10 text-on-surface hover:bg-surface-container'
                           }`}
                         >
@@ -481,9 +603,9 @@ function ListingsContent() {
                         <span className="text-on-surface-variant">...</span>
                         <button
                           onClick={() => goToPage(totalPages)}
-                          className={`w-11 h-11 flex items-center justify-center font-black text-sm transition-all ${
+                          className={`w-10 h-10 flex items-center justify-center font-black text-sm rounded-xl transition-all ${
                             currentPage === totalPages
-                              ? 'bg-on-surface text-surface'
+                              ? 'bg-primary text-on-primary'
                               : 'border border-outline-variant/10 text-on-surface hover:bg-surface-container'
                           }`}
                         >
@@ -494,7 +616,7 @@ function ListingsContent() {
                     <button
                       onClick={() => goToPage(currentPage + 1)}
                       disabled={currentPage >= totalPages}
-                      className="w-11 h-11 border border-outline-variant/10 flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30"
+                      className="w-10 h-10 border border-outline-variant/10 rounded-xl flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30"
                     >
                       <span className="material-symbols-outlined">chevron_left</span>
                     </button>
