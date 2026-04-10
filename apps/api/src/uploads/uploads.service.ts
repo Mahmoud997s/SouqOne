@@ -213,6 +213,27 @@ export class UploadsService {
     });
   }
 
+  // ─── Bus Listing Images ───
+
+  async addImageToBus(busId: string, userId: string, url: string, isPrimary: boolean) {
+    const bus = await this.prisma.busListing.findUnique({ where: { id: busId } });
+    if (!bus) throw new NotFoundException('إعلان الحافلة غير موجود');
+    if (bus.userId !== userId) throw new ForbiddenException('لا يمكنك تعديل إعلان غيرك');
+
+    const maxOrder = await this.prisma.busListingImage.aggregate({ where: { busListingId: busId }, _max: { order: true } });
+    const nextOrder = (maxOrder._max.order ?? -1) + 1;
+
+    if (isPrimary) {
+      await this.prisma.busListingImage.updateMany({ where: { busListingId: busId }, data: { isPrimary: false } });
+    }
+    const imageCount = await this.prisma.busListingImage.count({ where: { busListingId: busId } });
+    const shouldBePrimary = isPrimary || imageCount === 0;
+
+    return this.prisma.busListingImage.create({
+      data: { url, order: nextOrder, isPrimary: shouldBePrimary, busListingId: busId },
+    });
+  }
+
   // ─── Transport Images ───
 
   async addImageToTransport(transportId: string, userId: string, url: string, isPrimary: boolean) {

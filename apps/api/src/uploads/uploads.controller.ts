@@ -144,6 +144,22 @@ export class UploadsController {
     return this.uploadsService.addImageToService(serviceId, user.sub, url, isPrimary === 'true');
   }
 
+  // ─── Bus Listing Image Management ───
+
+  @UseGuards(JwtAuthGuard)
+  @Post('buses/:busId/images')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  async addBusImage(
+    @Param('busId') busId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('isPrimary') isPrimary: string,
+    @Req() req: Request,
+  ) {
+    const user = req.user as JwtPayload;
+    const { url } = await this.uploadsService.uploadFile(file);
+    return this.uploadsService.addImageToBus(busId, user.sub, url, isPrimary === 'true');
+  }
+
   // ─── Transport Image Management ───
 
   @UseGuards(JwtAuthGuard)

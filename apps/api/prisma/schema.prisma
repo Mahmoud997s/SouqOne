@@ -55,6 +55,7 @@ model User {
   transportServices TransportService[] @relation("UserTransportServices")
   tripServices      TripService[]      @relation("UserTripServices")
   insuranceOffers   InsuranceOffer[]   @relation("UserInsuranceOffers")
+  busListings       BusListing[]       @relation("UserBusListings")
 
   @@index([email])
   @@index([username])
@@ -980,4 +981,112 @@ model InsuranceOffer {
   @@index([status])
   @@index([slug])
   @@map("insurance_offers")
+}
+
+// ══════════════════════════════════════════════════
+// قسم الحافلات — Bus Marketplace
+// ══════════════════════════════════════════════════
+
+enum BusListingType {
+  BUS_SALE
+  BUS_SALE_WITH_CONTRACT
+  BUS_RENT
+  BUS_CONTRACT
+}
+
+enum BusType {
+  MINI_BUS
+  MEDIUM_BUS
+  LARGE_BUS
+  COASTER
+  SCHOOL_BUS
+}
+
+enum ContractType {
+  SCHOOL
+  COMPANY
+  GOVERNMENT
+  TOURISM
+  OTHER_CONTRACT
+}
+
+model BusListing {
+  id                String          @id @default(cuid())
+  title             String
+  slug              String          @unique
+  description       String
+
+  busListingType    BusListingType
+  busType           BusType
+
+  make              String
+  model             String
+  year              Int
+  capacity          Int
+  mileage           Int?
+  fuelType          FuelType?
+  transmission      Transmission?
+  condition         ItemCondition   @default(USED)
+  features          String[]
+  plateNumber       String?
+
+  price             Decimal?        @db.Decimal(12, 2)
+  currency          String          @default("OMR")
+  isPriceNegotiable Boolean         @default(false)
+
+  contractType      ContractType?
+  contractClient    String?
+  contractMonthly   Decimal?        @db.Decimal(12, 2)
+  contractDuration  Int?
+  contractExpiry    DateTime?
+
+  dailyPrice        Decimal?        @db.Decimal(12, 2)
+  monthlyPrice      Decimal?        @db.Decimal(12, 2)
+  minRentalDays     Int?
+  withDriver        Boolean         @default(false)
+  deliveryAvailable Boolean         @default(false)
+
+  requestPassengers Int?
+  requestRoute      String?
+  requestSchedule   String?
+
+  governorate       String?
+  city              String?
+  latitude          Float?
+  longitude         Float?
+
+  contactPhone      String?
+  whatsapp          String?
+
+  status            ListingStatus   @default(ACTIVE)
+  viewCount         Int             @default(0)
+
+  userId            String
+  user              User            @relation("UserBusListings", fields: [userId], references: [id], onDelete: Cascade)
+  images            BusListingImage[]
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([busListingType])
+  @@index([busType])
+  @@index([status])
+  @@index([governorate])
+  @@index([createdAt])
+  @@index([slug])
+  @@map("bus_listings")
+}
+
+model BusListingImage {
+  id             String      @id @default(cuid())
+  url            String
+  isPrimary      Boolean     @default(false)
+  order          Int         @default(0)
+  busListingId   String
+  busListing     BusListing  @relation(fields: [busListingId], references: [id], onDelete: Cascade)
+  createdAt      DateTime    @default(now())
+
+  @@index([busListingId])
+  @@map("bus_listing_images")
 }
