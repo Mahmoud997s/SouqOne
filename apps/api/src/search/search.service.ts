@@ -73,6 +73,10 @@ export class SearchService implements OnModuleInit {
   // Module initialization — configure all indexes
   // ══════════════════════════════════════════
   async onModuleInit() {
+    if (!this.meili) {
+      this.logger.warn('Meilisearch client is null — search features disabled');
+      return;
+    }
     try {
       // Health check
       const health = await this.meili.health();
@@ -135,7 +139,8 @@ export class SearchService implements OnModuleInit {
   /**
    * Add or update a document in an index. Fire-and-forget.
    */
-  async indexDocument(indexName: IndexName, document: Record<string, unknown>): Promise<void> {
+  async indexDocument(indexName: IndexName, document: Record<string, any>): Promise<void> {
+    if (!this.meili) return;
     try {
       const index = this.meili.index(indexName);
       await index.addDocuments([this.serializeDocument(document)]);
@@ -148,6 +153,7 @@ export class SearchService implements OnModuleInit {
    * Remove a document from an index by ID. Fire-and-forget.
    */
   async removeDocument(indexName: IndexName, docId: string): Promise<void> {
+    if (!this.meili) return;
     try {
       const index = this.meili.index(indexName);
       await index.deleteDocument(docId);
@@ -161,6 +167,7 @@ export class SearchService implements OnModuleInit {
   // ══════════════════════════════════════════
 
   async search(dto: SearchQueryDto) {
+    if (!this.meili) return { hits: [], totalHits: 0, page: 1, totalPages: 0, limit: 20 };
     const { q = '', entityType, page = 1, limit = 20, sortBy } = dto;
     const offset = (page - 1) * limit;
 
