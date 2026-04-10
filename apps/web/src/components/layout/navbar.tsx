@@ -30,17 +30,17 @@ const navLinks: NavLinkItem[] = [
     ],
   },
   {
-    href: '/coming-soon?section=services', label: 'خدمات',
+    href: '/services', label: 'خدمات',
     children: [
-      { href: '/coming-soon?section=services', label: 'خدمات سيارات', icon: 'build', desc: 'صيانة، فحص، سمكرة' },
-      { href: '/coming-soon?section=insurance', label: 'تأمين وتمويل', icon: 'shield', desc: 'تأمين شامل وتمويل' },
+      { href: '/services', label: 'خدمات سيارات', icon: 'build', desc: 'صيانة، فحص، سمكرة' },
+      { href: '/insurance', label: 'تأمين وتمويل', icon: 'shield', desc: 'تأمين شامل وتمويل' },
     ],
   },
   {
-    href: '/coming-soon?section=transport', label: 'نقل ورحلات',
+    href: '/transport', label: 'نقل ورحلات',
     children: [
-      { href: '/coming-soon?section=transport', label: 'نقل وشحن', icon: 'local_shipping', desc: 'بضائع، أثاث، شاحنات' },
-      { href: '/coming-soon?section=trips', label: 'رحلات واشتراكات', icon: 'departure_board', desc: 'باصات، مدارس، سياحة' },
+      { href: '/transport', label: 'نقل وشحن', icon: 'local_shipping', desc: 'بضائع، أثاث، شاحنات' },
+      { href: '/trips', label: 'رحلات واشتراكات', icon: 'departure_board', desc: 'باصات، مدارس، سياحة' },
     ],
   },
   { href: '/jobs', label: 'وظائف' },
@@ -51,10 +51,10 @@ const flatNavLinks = [
   { href: '/', label: 'الرئيسية' },
   { href: '/listings', label: 'سيارات' },
   { href: '/parts', label: 'قطع غيار' },
-  { href: '/coming-soon?section=services', label: 'خدمات' },
-  { href: '/coming-soon?section=transport', label: 'نقل' },
-  { href: '/coming-soon?section=trips', label: 'رحلات' },
-  { href: '/coming-soon?section=insurance', label: 'تأمين' },
+  { href: '/services', label: 'خدمات' },
+  { href: '/transport', label: 'نقل' },
+  { href: '/trips', label: 'رحلات' },
+  { href: '/insurance', label: 'تأمين' },
   { href: '/jobs', label: 'وظائف' },
 ];
 
