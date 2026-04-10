@@ -1,0 +1,197 @@
+/** Realistic Omani marketplace test data */
+
+export const CAR_IMGS = [
+  // Land Cruiser
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/2021_Toyota_Land_Cruiser_300_Sahara.jpg/960px-2021_Toyota_Land_Cruiser_300_Sahara.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Toyota_Land_Cruiser_300.jpg/960px-Toyota_Land_Cruiser_300.jpg',
+  // Nissan Patrol
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/2023_Nissan_Patrol_Royale_5.6_LE_V8.jpg/960px-2023_Nissan_Patrol_Royale_5.6_LE_V8.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/2024_Nissan_Patrol_Royale_3.5_V6_%281%29.jpg/960px-2024_Nissan_Patrol_Royale_3.5_V6_%281%29.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/2017_Nissan_Patrol_Royale_5.6_LE_V8_in_Pearl_White%2C_06-09-2024.jpg/960px-2017_Nissan_Patrol_Royale_5.6_LE_V8_in_Pearl_White%2C_06-09-2024.jpg',
+  // Camry
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Toyota_Camry_XV70_facelift_Sanming_01_2022-08-13.jpg/960px-Toyota_Camry_XV70_facelift_Sanming_01_2022-08-13.jpg',
+  // Lexus LX 600
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/2023_Lexus_LX_600%2C_front_6.13.24.jpg/960px-2023_Lexus_LX_600%2C_front_6.13.24.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Lexus_LX_600_F_Sport_2022_%282%29.jpg/960px-Lexus_LX_600_F_Sport_2022_%282%29.jpg',
+  // Pajero
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/2021_Mitsubishi_Pajero_Sport_%28facelift%29.jpg/960px-2021_Mitsubishi_Pajero_Sport_%28facelift%29.jpg',
+  // Hilux
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Toyota_Hilux_4x2_G_2023_%281%29.jpg/960px-Toyota_Hilux_4x2_G_2023_%281%29.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/2024_Toyota_Hilux_2.8_GR_Sport_4x4_in_Attitude_Black_Mica%2C_front_right%2C_06-27-2024.jpg/960px-2024_Toyota_Hilux_2.8_GR_Sport_4x4_in_Attitude_Black_Mica%2C_front_right%2C_06-27-2024.jpg',
+  // Hyundai Tucson
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/2024_Hyundai_Tucson_Limited%2C_rear_12.10.24.jpg/960px-2024_Hyundai_Tucson_Limited%2C_rear_12.10.24.jpg',
+  // Kia Sportage
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Moscow%2C_Kia_Sportage_black%2C_Mar_2026_01.jpg/960px-Moscow%2C_Kia_Sportage_black%2C_Mar_2026_01.jpg',
+  // Patrol Ti
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/2019_Nissan_Patrol_Ti_%2849325469561%29.jpg/960px-2019_Nissan_Patrol_Ti_%2849325469561%29.jpg',
+  // Fortuner
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Toyota_Fortuner_2.8_Q_4x2_2023.jpg/960px-Toyota_Fortuner_2.8_Q_4x2_2023.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/2024_Toyota_Fortuner_Leader_2.4_S.jpg/960px-2024_Toyota_Fortuner_Leader_2.4_S.jpg',
+  // Corolla
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Toyota_Corolla_Sedan.jpg/960px-Toyota_Corolla_Sedan.jpg',
+  // Lexus ES
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/2022_Lexus_ES_350_%28GSZ10%29_1X7A5794.jpg/960px-2022_Lexus_ES_350_%28GSZ10%29_1X7A5794.jpg',
+];
+
+export const PART_IMGS = [
+  // Engine parts
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/BMW_1.6-litre_turbo_engine_2011_WTCC_Race_of_Japan.jpg/960px-BMW_1.6-litre_turbo_engine_2011_WTCC_Race_of_Japan.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Close-up_of_an_engine_extracted_from_a_car%2C_with_many_disassembled_parts_%2851145344822%29.jpg/960px-Close-up_of_an_engine_extracted_from_a_car%2C_with_many_disassembled_parts_%2851145344822%29.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Close_view_of_an_old_car_engine_showing_various_parts_and_machinery_in_a_garage_setting.jpg/960px-Close_view_of_an_old_car_engine_showing_various_parts_and_machinery_in_a_garage_setting.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Engine_and_Speed_Parts_Collection_%281717080506%29.jpg/960px-Engine_and_Speed_Parts_Collection_%281717080506%29.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Plymouth_Satellite_engine_Leimershof_-20190907-RM-163141.jpg/960px-Plymouth_Satellite_engine_Leimershof_-20190907-RM-163141.jpg',
+  // Wheels and tires
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Damaged_car_parts_and_wrecked_vehicle_at_junkyard_in_broad_daylight_near_city_outskirts.jpg/960px-Damaged_car_parts_and_wrecked_vehicle_at_junkyard_in_broad_daylight_near_city_outskirts.jpg',
+  // Keep original Unsplash for variety
+  'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?w=800&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1625047509248-ec889cbff17f?w=800&h=600&fit=crop',
+];
+
+export const SVC_IMGS = [
+  // Car wash and detailing
+  'https://images.unsplash.com/photo-1520340356584-5c48b366e9a3?w=800&h=600&fit=crop',
+  // Workshop/mechanic
+  'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=800&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1581092918056-0c4c3acd3786?w=800&h=600&fit=crop',
+  // Tires/shop
+  'https://images.unsplash.com/photo-1578844251757-36b5c7fd19bb?w=800&h=600&fit=crop',
+  // Oil change service
+  'https://images.unsplash.com/photo-1485281446805-9281998f3a9e?w=800&h=600&fit=crop',
+  // Engine work
+  'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&h=600&fit=crop',
+  // Tow truck
+  'https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?w=800&h=600&fit=crop',
+];
+
+export const TRUCK_IMGS = [
+  // Delivery truck
+  'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&h=600&fit=crop',
+  // Moving truck
+  'https://images.unsplash.com/photo-1616432043562-3671ea2e5242?w=800&h=600&fit=crop',
+  // Cargo/container
+  'https://images.unsplash.com/photo-1570710898543-e7b5cf27d872?w=800&h=600&fit=crop',
+  // Van
+  'https://images.unsplash.com/photo-1464219789935-c2d9d9aba644?w=800&h=600&fit=crop',
+  // Large truck
+  'https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=800&h=600&fit=crop',
+  // Refrigerated truck
+  'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=800&h=600&fit=crop',
+  // Tow truck
+  'https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?w=800&h=600&fit=crop',
+];
+
+// ── Cars ──
+export const CARS: any[] = [
+  { title:'تويوتا لاندكروزر GXR 2023 - فل كامل', desc:'لاندكروزر GXR موديل 2023 فل كامل، لون أبيض لؤلؤي، مالك أول، صيانة وكالة بهوان، ممشى 35,000 كم فقط. جلد بيج، شاشة كبيرة، كاميرات 360، حساسات. التسجيل والتأمين ساريين.', make:'Toyota', model:'Land Cruiser', year:2023, mileage:35000, fuel:'PETROL', trans:'AUTOMATIC', body:'SUV', color:'أبيض لؤلؤي', interior:'جلد بيج', engine:'4.0L V6', hp:271, doors:5, seats:8, drive:'4WD', price:22500, cond:'LIKE_NEW', gov:'مسقط', city:'بوشر' },
+  { title:'نيسان باترول بلاتينيوم 2024 - وارد الوكالة', desc:'باترول بلاتينيوم V8 موديل 2024 فضي، صفر كم وارد الصولجان. فل أوبشن سقف بانوراما، مقاعد مبردة ومدفأة، صوت بوز. ضمان 5 سنوات.', make:'Nissan', model:'Patrol', year:2024, mileage:0, fuel:'PETROL', trans:'AUTOMATIC', body:'SUV', color:'فضي معدني', interior:'جلد أسود', engine:'5.6L V8', hp:400, doors:5, seats:8, drive:'4WD', price:28000, cond:'NEW', gov:'مسقط', city:'السيب' },
+  { title:'تويوتا كامري LE 2022 - اقتصادية ونظيفة', desc:'كامري 2022 فئة LE فضي، ممشى 45,000 كم، صيانة دورية بالوكالة. اقتصادية، مكيف ممتاز، بلوتوث وشاشة. السعر قابل للتفاوض.', make:'Toyota', model:'Camry', year:2022, mileage:45000, fuel:'PETROL', trans:'AUTOMATIC', body:'Sedan', color:'فضي', interior:'قماش رمادي', engine:'2.5L', hp:203, doors:4, seats:5, drive:'FWD', price:8500, cond:'GOOD', gov:'شمال الباطنة', city:'صحار', neg:true },
+  { title:'لكزس LX 600 بريستيج 2023', desc:'لكزس LX 600 بريستيج أسود ميتاليك، مالك أول، ممشى 20,000 كم. جلد طبيعي، شاشات خلفية، مارك ليفنسون، كاميرا 360. لا حوادث لا صبغ.', make:'Lexus', model:'LX 600', year:2023, mileage:20000, fuel:'PETROL', trans:'AUTOMATIC', body:'SUV', color:'أسود ميتاليك', interior:'جلد بيج طبيعي', engine:'3.5L V6 TT', hp:409, doors:5, seats:7, drive:'4WD', price:38000, cond:'LIKE_NEW', gov:'مسقط', city:'الخوض' },
+  { title:'ميتسوبيشي باجيرو 2021 - حالة ممتازة', desc:'باجيرو 3.8 موديل 2021 ذهبي، ممشى 60,000 كم. فل كامل جنوط جلد شاشة. مناسبة للبر واليومي. بدون حوادث.', make:'Mitsubishi', model:'Pajero', year:2021, mileage:60000, fuel:'PETROL', trans:'AUTOMATIC', body:'SUV', color:'ذهبي', interior:'جلد بيج', engine:'3.8L V6', hp:250, doors:5, seats:7, drive:'4WD', price:11500, cond:'GOOD', gov:'الداخلية', city:'نزوى' },
+  { title:'تويوتا هايلكس 2023 دبل كابين', desc:'هايلكس دبل كابين 2023 أبيض، ممشى 25,000 كم. فئة SR5 كاميرا خلفية بلوتوث ملاحة. ديزل اقتصادي دفع رباعي.', make:'Toyota', model:'Hilux', year:2023, mileage:25000, fuel:'DIESEL', trans:'AUTOMATIC', body:'Pickup', color:'أبيض', interior:'قماش رمادي', engine:'2.8L Diesel', hp:204, doors:4, seats:5, drive:'4WD', price:14500, cond:'LIKE_NEW', gov:'شمال الباطنة', city:'صحم' },
+  { title:'هيونداي توسان 2024 - صفر كم', desc:'توسان 2024 الشكل الجديد رمادي غامق، صفر كم وكالة الجنيبي. فل أوبشن سقف بانوراما جلد شاشة 10 إنش أبل كاربلاي. ضمان 5 سنوات.', make:'Hyundai', model:'Tucson', year:2024, mileage:0, fuel:'PETROL', trans:'AUTOMATIC', body:'SUV', color:'رمادي غامق', interior:'جلد أسود', engine:'2.0L', hp:187, doors:5, seats:5, drive:'AWD', price:12800, cond:'NEW', gov:'مسقط', city:'الغبرة' },
+  { title:'كيا سبورتاج 2023 GT Line', desc:'سبورتاج GT Line 2023 أحمر، ممشى 15,000 كم. جنوط 19 إنش LED شاشة مزدوجة 12 إنش هارمان كاردون. حالة ممتازة.', make:'Kia', model:'Sportage', year:2023, mileage:15000, fuel:'PETROL', trans:'AUTOMATIC', body:'SUV', color:'أحمر', interior:'جلد أسود', engine:'1.6L Turbo', hp:180, doors:5, seats:5, drive:'FWD', price:10500, cond:'LIKE_NEW', gov:'ظفار', city:'صلالة' },
+  { title:'نيسان اكستيرا 2022 - دفع رباعي', desc:'اكستيرا S 2022 رمادي، ممشى 40,000 كم. محرك 2.5 اقتصادي دفع رباعي حقيقي. كاميرا خلفية بلوتوث مثبت سرعة. نظيفة جداً.', make:'Nissan', model:'X-Terra', year:2022, mileage:40000, fuel:'PETROL', trans:'AUTOMATIC', body:'SUV', color:'رمادي', interior:'قماش بيج', engine:'2.5L', hp:171, doors:5, seats:5, drive:'4WD', price:9800, cond:'GOOD', gov:'الظاهرة', city:'عبري', neg:true },
+  { title:'تويوتا فورتشنر VX 2024 - جديدة', desc:'فورتشنر VX ديزل 2024 أبيض، صفر كم وارد بهوان. فل أوبشن كاميرات 360 جلد 7 ركاب. ديزل 2.8 اقتصادي. ضمان 3 سنوات.', make:'Toyota', model:'Fortuner', year:2024, mileage:0, fuel:'DIESEL', trans:'AUTOMATIC', body:'SUV', color:'أبيض', interior:'جلد بيج', engine:'2.8L Diesel', hp:204, doors:5, seats:7, drive:'4WD', price:17500, cond:'NEW', gov:'مسقط', city:'المعبيلة' },
+];
+
+// ── Spare Parts ──
+export const PARTS: any[] = [
+  { title:'مكينة تويوتا لاندكروزر 4.0 V6 مستعملة', desc:'مكينة 1GR-FE سعة 4.0 لتر V6 مستعملة بحالة ممتازة، ممشى 80,000 كم. مفحوصة ومضمونة 3 شهور.', cat:'ENGINE', cond:'USED', makes:['Toyota'], models:['Land Cruiser','Prado'], yf:2016, yt:2023, orig:true, price:2800, gov:'مسقط', city:'غلا', phone:'+96892111222' },
+  { title:'بودي كامل نيسان باترول Y62 أبيض', desc:'بودي كامل (كبوت + أجناب + أبواب) باترول Y62 أبيض أصلي بدون رش. يناسب 2020-2024.', cat:'BODY', cond:'USED', makes:['Nissan'], models:['Patrol'], yf:2020, yt:2024, orig:true, price:3500, gov:'مسقط', city:'الرسيل', phone:'+96893222333' },
+  { title:'كمبيوتر ECU لكزس ES 350 أصلي', desc:'كمبيوتر سيارة ECU لكزس ES 350 أصلي وكالة مفحوص. يناسب 2018-2022. البرمجة مطلوبة.', cat:'ELECTRICAL', cond:'USED', makes:['Lexus'], models:['ES 350'], yf:2018, yt:2022, orig:true, price:450, gov:'مسقط', city:'وادي الكبير', phone:'+96894333444' },
+  { title:'جنوط ألمنيوم OZ Racing 20 إنش - 4 حبات', desc:'طقم جنوط OZ Racing 20 إنش 5 مسامير أسود مع حواف مصقولة. تناسب أغلب اليابانية. بدون خدوش.', cat:'ACCESSORIES', cond:'USED', makes:['Toyota','Nissan','Lexus'], models:[], yf:2015, yt:2024, orig:false, price:320, gov:'شمال الباطنة', city:'صحار', phone:'+96895444555' },
+  { title:'كفرات بريدجستون Dueler 265/65R17 جديدة', desc:'4 كفرات بريدجستون Dueler H/T 684 مقاس 265/65R17 جديدة بالكرتون. تناسب لاندكروزر باترول باجيرو.', cat:'TIRES', cond:'NEW', makes:['Toyota','Nissan','Mitsubishi'], models:['Land Cruiser','Patrol','Pajero'], yf:2010, yt:2024, orig:false, price:280, gov:'مسقط', city:'الخوض', phone:'+96891555666' },
+  { title:'بطارية فارتا 80 أمبير ضمان سنة', desc:'بطارية VARTA 80 أمبير جديدة بالكرتون. ضمان سنة. تناسب أغلب اليابانية والكورية. تركيب مجاني بمسقط.', cat:'BATTERIES', cond:'NEW', makes:['Toyota','Nissan','Hyundai','Kia'], models:[], yf:2005, yt:2024, orig:false, price:35, gov:'مسقط', city:'السيب', phone:'+96892666777' },
+  { title:'زيت موبيل 1 5W-30 صناعي كرتون 12 حبة', desc:'كرتون Mobil 1 5W-30 صناعي بالكامل 12×1 لتر. أصلي مستورد. مناسب لجميع المحركات الحديثة.', cat:'OILS', cond:'NEW', makes:[], models:[], yf:2000, yt:2025, orig:false, price:65, gov:'مسقط', city:'الغبرة', phone:'+96893777888' },
+  { title:'فرامل سيراميك تويوتا كامري أمامي + خلفي', desc:'طقم بريك بادز سيراميك أمامية وخلفية كامري. هادئة بدون صوت. تناسب 2018-2024.', cat:'BRAKES', cond:'NEW', makes:['Toyota'], models:['Camry'], yf:2018, yt:2024, orig:false, price:45, gov:'ظفار', city:'صلالة', phone:'+96894888999' },
+  { title:'ممتص صدمات كايابا أمامي باجيرو', desc:'زوج شوكات أمامية KYB Excel-G غاز لميتسوبيشي باجيرو. جديدة بالكرتون ضمان سنة.', cat:'SUSPENSION', cond:'NEW', makes:['Mitsubishi'], models:['Pajero'], yf:2015, yt:2023, orig:false, price:85, gov:'مسقط', city:'المعبيلة', phone:'+96891999000' },
+  { title:'مقاعد جلد أصلي بيج لاندكروزر GXR', desc:'طقم مقاعد جلد بيج أصلي من لاندكروزر GXR 2021. نظيفة بدون قطع أو حروق. 3 صفوف.', cat:'INTERIOR', cond:'USED', makes:['Toyota'], models:['Land Cruiser'], yf:2016, yt:2023, orig:true, price:550, gov:'الداخلية', city:'نزوى', phone:'+96892000111' },
+];
+
+// ── Car Services ──
+export const SERVICES: any[] = [
+  { title:'مركز الخليج لصيانة السيارات', type:'MAINTENANCE', ptype:'WORKSHOP', pname:'مركز الخليج', desc:'مركز متكامل لصيانة جميع السيارات. تغيير زيت فلاتر فحص شامل. فنيين معتمدين وخبرة 15 سنة.', specs:['صيانة دورية','تغيير زيوت','فحص شامل'], pf:15, pt:500, home:false, open:'08:00', close:'20:00', days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], gov:'مسقط', city:'الرسيل', phone:'+96891100200' },
+  { title:'بريميوم كار واش — غسيل بالبخار', type:'CLEANING', ptype:'COMPANY', pname:'بريميوم كار واش', desc:'غسيل احترافي بتقنية البخار. تنظيف داخلي وخارجي تلميع حماية سيراميك. خدمة توصيل للمنزل.', specs:['غسيل بخار','تلميع','حماية سيراميك'], pf:5, pt:150, home:true, open:'07:00', close:'22:00', days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'], gov:'مسقط', city:'بوشر', phone:'+96892200300' },
+  { title:'ورشة المحترف للسمكرة والدهان', type:'BODYWORK', ptype:'WORKSHOP', pname:'ورشة المحترف', desc:'سمكرة ودهان احترافي. إصلاح حوادث رش بوية كمبيوتر إزالة خدوش. أسعار معقولة وضمان.', specs:['سمكرة','دهان','إصلاح حوادث'], pf:20, pt:2000, home:false, open:'08:00', close:'18:00', days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], gov:'شمال الباطنة', city:'صحار', phone:'+96893300400' },
+  { title:'مركز تركيب إكسسوارات السيارات', type:'ACCESSORIES_INSTALL', ptype:'WORKSHOP', pname:'عالم الإكسسوارات', desc:'تركيب جميع الإكسسوارات: تظليل إضاءة LED كاميرات شاشات بدي كيت. منتجات أصلية.', specs:['تظليل','إضاءة LED','كاميرات','شاشات'], pf:10, pt:800, home:false, open:'09:00', close:'21:00', days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], gov:'مسقط', city:'السيب', phone:'+96894400500' },
+  { title:'مركز فحص السيارات المعتمد', type:'INSPECTION', ptype:'COMPANY', pname:'فحص عمان', desc:'فحص شامل قبل الشراء. ميكانيكي كهربائي بودي كشف صبغ كمبيوتر. تقرير مفصل مع صور.', specs:['فحص قبل الشراء','كشف الصبغ','فحص كمبيوتر'], pf:25, pt:50, home:true, open:'08:00', close:'18:00', days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], gov:'مسقط', city:'الخوض', phone:'+96895500600' },
+  { title:'ورشة التعديل والتيونينغ', type:'MODIFICATION', ptype:'WORKSHOP', pname:'سبيد تيون', desc:'تعديل وتطوير أداء السيارات. برمجة ECU توربو عادم سبورت. متخصصين يابانية وألمانية.', specs:['برمجة ECU','تعديل عادم','توربو'], pf:200, pt:5000, home:false, open:'09:00', close:'19:00', days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء'], gov:'مسقط', city:'غلا', phone:'+96891600700' },
+  { title:'مفاتيح السيارات الذكية — نسخ وبرمجة', type:'KEYS_LOCKS', ptype:'MOBILE', pname:'مفتاح عمان', desc:'نسخ وبرمجة مفاتيح ذكية وعادية. فتح سيارات مقفلة. خدمة متنقلة. أرخص من الوكالة بنص.', specs:['نسخ مفاتيح','برمجة ريموت','فتح مقفلات'], pf:15, pt:200, home:true, open:'07:00', close:'23:00', days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'], gov:'مسقط', city:'مسقط', phone:'+96892700800' },
+  { title:'سطحة ونش — خدمة 24 ساعة', type:'TOWING', ptype:'COMPANY', pname:'سطحة عمان', desc:'سطحة ونقل سيارات 24/7 كل عمان. معطلة حوادث استيراد. شاحنات حديثة هيدروليك.', specs:['نقل سيارات','طوارئ 24/7','نقل حوادث'], pf:15, pt:200, home:true, open:'00:00', close:'23:59', days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'], gov:'مسقط', city:'مسقط', phone:'+96893800900' },
+  { title:'مركز صيانة متنقل — نجيك لعندك', type:'MAINTENANCE', ptype:'MOBILE', pname:'الفني المتنقل', desc:'صيانة عند بيتك أو مكتبك. تغيير زيت فلاتر بطارية فرامل كشف أعطال. فني معتمد خبرة 12 سنة.', specs:['صيانة منزلية','تغيير زيوت','كشف أعطال'], pf:10, pt:300, home:true, open:'07:00', close:'20:00', days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], gov:'مسقط', city:'السيب', phone:'+96894900100' },
+  { title:'ورشة كهرباء وإلكترونيات السيارات', type:'OTHER_SERVICE', ptype:'WORKSHOP', pname:'ورشة التقنية', desc:'إصلاح كهرباء وإلكترونيات. شاشات حساسات ABS إير باق برمجة. خبرة أوروبية ويابانية.', specs:['كهرباء سيارات','برمجة','إصلاح شاشات'], pf:10, pt:500, home:false, open:'08:00', close:'18:00', days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], gov:'ظفار', city:'صلالة', phone:'+96895100200' },
+];
+
+// ── Transport ──
+export const TRANSPORTS: any[] = [
+  { title:'نقل بضائع عام — مسقط والباطنة', desc:'نقل بضائع بشاحنات مغلقة ومفتوحة. نغطي مسقط وشمال الباطنة والداخلية. تأمين شامل على البضاعة.', type:'CARGO', veh:'شاحنة مغلقة', cap:'10 طن', areas:['مسقط','شمال الباطنة','الداخلية'], pricing:'PER_TRIP', base:50, pkm:0.3, ins:true, track:true, pname:'شركة النقل العُمانية', ptype:'COMPANY', gov:'مسقط', city:'غلا', phone:'+96891200300' },
+  { title:'نقل أثاث منازل — فك وتركيب وتغليف', desc:'نقل أثاث متكامل. فك تركيب تغليف احترافي. عمال مدربين ومعدات حديثة. خبرة 8 سنوات.', type:'FURNITURE', veh:'شاحنة مغلقة', cap:'7 طن', areas:['مسقط','شمال الباطنة','الداخلية'], pricing:'FIXED', base:80, ins:true, track:false, pname:'نقل الأمان', ptype:'COMPANY', gov:'مسقط', city:'السيب', phone:'+96892300400' },
+  { title:'خدمة توصيل سريع داخل مسقط', desc:'توصيل سريع خلال ساعتين. طرود صغيرة ومتوسطة. دفع عند الاستلام. تتبع مباشر.', type:'DELIVERY', veh:'فان', cap:'500 كجم', areas:['مسقط'], pricing:'FIXED', base:3, ins:false, track:true, pname:'توصيل إكسبرس', ptype:'COMPANY', gov:'مسقط', city:'مسقط', phone:'+96893400500' },
+  { title:'نقل معدات ثقيلة وحاويات', desc:'نقل معدات ثقيلة وحاويات ومواد بناء بتريلر. رافعات هيدروليكية. نغطي كل عمان.', type:'HEAVY_TRANSPORT', veh:'تريلر', cap:'40 طن', areas:['كل عمان'], pricing:'PER_KM', base:100, pkm:1.5, ins:true, track:true, pname:'شركة الثقيل للنقل', ptype:'COMPANY', gov:'مسقط', city:'الرسيل', phone:'+96894500600' },
+  { title:'تأجير شاحنات بالسائق يومي وشهري', desc:'شاحنات بأحجام مختلفة مع سائقين. عقود يومية أسبوعية شهرية. شاحنات حديثة مكيفة.', type:'TRUCK_RENTAL', veh:'شاحنة متعددة', cap:'3-10 طن', areas:['مسقط','شمال الباطنة','ظفار'], pricing:'FIXED', base:35, ins:true, track:true, pname:'أسطول عمان', ptype:'COMPANY', gov:'مسقط', city:'بوشر', phone:'+96895600700' },
+  { title:'نقل بضائع مبردة — خضار وفواكه', desc:'شاحنات تبريد لنقل المواد الغذائية. نظام تبريد حديث. نغطي مسقط والباطنة وصلالة.', type:'CARGO', veh:'شاحنة مبردة', cap:'5 طن', areas:['مسقط','شمال الباطنة','ظفار'], pricing:'PER_TRIP', base:70, pkm:0.5, ins:true, track:true, pname:'النقل المبرد', ptype:'COMPANY', gov:'مسقط', city:'السيب', phone:'+96891700800' },
+  { title:'سطحة نقل سيارات بين المحافظات', desc:'نقل سيارات بسطحة هيدروليكية بين كل المحافظات. نقل آمن 24 ساعة للطوارئ.', type:'OTHER_TRANSPORT', veh:'سطحة هيدروليكية', cap:'سيارتين', areas:['كل عمان'], pricing:'PER_TRIP', base:40, ins:true, track:false, pname:'سطحة السلامة', ptype:'INDIVIDUAL', gov:'مسقط', city:'مسقط', phone:'+96892800900' },
+  { title:'نقل أثاث مكاتب وشركات', desc:'نقل أثاث مكتبي احترافي. فك تركيب. نقل أجهزة كمبيوتر وسيرفرات. فريق عطلة نهاية الأسبوع.', type:'FURNITURE', veh:'شاحنة مغلقة', cap:'7 طن', areas:['مسقط','شمال الباطنة'], pricing:'FIXED', base:120, ins:true, track:false, pname:'نقل الأعمال', ptype:'COMPANY', gov:'مسقط', city:'الخوض', phone:'+96893900100' },
+  { title:'توصيل طلبات تجارية B2B', desc:'توصيل طلبات للشركات والمتاجر الإلكترونية. تتبع متقدم وإشعارات. دفع COD. باقات شهرية.', type:'DELIVERY', veh:'فان', cap:'1 طن', areas:['مسقط','شمال الباطنة'], pricing:'PER_TRIP', base:2, ins:false, track:true, pname:'وصّل للتوصيل', ptype:'COMPANY', gov:'مسقط', city:'الغبرة', phone:'+96894100200' },
+  { title:'نقل حاويات من وإلى الميناء', desc:'نقل حاويات 20 و40 قدم من وإلى ميناء السلطان قابوس وصحار. تصاريح جاهزة. خبرة 20 سنة.', type:'HEAVY_TRANSPORT', veh:'تريلر حاويات', cap:'40 قدم', areas:['مسقط','صحار','صلالة'], pricing:'FIXED', base:150, ins:true, track:true, pname:'شركة الحاويات العُمانية', ptype:'COMPANY', gov:'مسقط', city:'مطرح', phone:'+96895200300' },
+];
+
+// ── Trips ──
+export const TRIPS: any[] = [
+  { title:'اشتراك باص مسقط - صلالة يومي', desc:'رحلات يومية باص VIP مسقط-صلالة. مقاعد مريحة واي فاي مكيف. محطات في نزوى وهيماء.', type:'BUS_SUBSCRIPTION', from:'مسقط', to:'صلالة', stops:['نزوى','هيماء','ثمريت'], sched:'SCHEDULE_DAILY', times:['06:00','14:00','20:00'], days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'], pt:12, pm:200, veh:'باص VIP 50 مقعد', cap:50, seats:15, feat:['واي فاي','مكيف','مقاعد مريحة','USB شحن'], pname:'مواصلات عمان', gov:'مسقط', city:'مسقط', phone:'+96891300400' },
+  { title:'نقل طلاب مدرسة النور الخاصة', desc:'نقل طلاب من وإلى مدرسة النور بوشر. باصات حديثة مع مشرفات. تغطية السيب الخوض المعبيلة.', type:'SCHOOL_TRANSPORT', from:'مناطق متعددة', to:'مدرسة النور - بوشر', stops:['السيب','الخوض','المعبيلة'], sched:'SCHEDULE_DAILY', times:['06:30','13:00'], days:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], pt:null, pm:45, veh:'باص مدرسي 30 مقعد', cap:30, seats:8, feat:['مشرفة','كاميرات مراقبة','تتبع GPS','مكيف'], pname:'النقل التعليمي', gov:'مسقط', city:'بوشر', phone:'+96892400500' },
+  { title:'رحلة سياحية جبل شمس يوم كامل', desc:'يوم كامل جبل شمس وبلكونة عمان. نقل ذهاب إياب مرشد غداء تصوير. مناسبة للعائلات.', type:'TOURISM', from:'مسقط', to:'جبل شمس', stops:['نزوى','الحمراء'], sched:'SCHEDULE_WEEKLY', times:['06:00'], days:['الجمعة','السبت'], pt:25, pm:null, veh:'تويوتا كوستر', cap:25, seats:10, feat:['مرشد سياحي','غداء','تصوير','مرطبات'], pname:'سياحة عمان', gov:'مسقط', city:'مسقط', phone:'+96893500600' },
+  { title:'نقل موظفين مسقط - فهود', desc:'نقل موظفين يومي مسقط إلى فهود. باصات مكيفة سائقين محترفين. عقود سنوية.', type:'CORPORATE', from:'مسقط', to:'فهود', stops:['نزوى','أدم'], sched:'SCHEDULE_DAILY', times:['05:00','17:00'], days:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], pt:null, pm:120, veh:'باص 45 مقعد', cap:45, seats:0, feat:['مكيف','واي فاي','مقاعد مريحة'], pname:'شركة النقل المتحدة', gov:'مسقط', city:'مسقط', phone:'+96894600700' },
+  { title:'مشاركة رحلة يومية مسقط - صحار', desc:'رحلة مشتركة يومية السيب-صحار. مغادرة 6 صباحاً عودة 4 عصراً. سيارة مريحة 4 ركاب.', type:'CARPOOLING', from:'السيب', to:'صحار', stops:['بركاء','المصنعة'], sched:'SCHEDULE_DAILY', times:['06:00'], days:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], pt:5, pm:80, veh:'سيدان', cap:4, seats:2, feat:['مكيف','مقاعد مريحة'], pname:'أحمد المحرزي', gov:'مسقط', city:'السيب', phone:'+96895700800' },
+  { title:'اشتراك شهري مسقط - نزوى', desc:'رحلات يومية مسقط-نزوى. مناسب للموظفين والطلاب. مغادرة 5:30 من السيب. عودة 3:30.', type:'BUS_SUBSCRIPTION', from:'مسقط', to:'نزوى', stops:['بدبد','سمائل'], sched:'SCHEDULE_DAILY', times:['05:30','06:00'], days:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], pt:5, pm:80, veh:'باص 30 مقعد', cap:30, seats:5, feat:['مكيف','واي فاي'], pname:'باصات الداخلية', gov:'مسقط', city:'السيب', phone:'+96891800900' },
+  { title:'نقل طلاب جامعة السلطان قابوس', desc:'نقل طلاب من الخوض والسيب والمعبيلة إلى الجامعة. رحلات صباحية ومسائية. أسعار مخفضة.', type:'SCHOOL_TRANSPORT', from:'مناطق متعددة', to:'جامعة السلطان قابوس', stops:['الخوض','السيب','المعبيلة'], sched:'SCHEDULE_DAILY', times:['07:00','07:30','16:00'], days:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], pt:1.5, pm:30, veh:'باص 25 مقعد', cap:25, seats:7, feat:['مكيف','واي فاي','USB شحن'], pname:'نقل الطلاب', gov:'مسقط', city:'الخوض', phone:'+96892900100' },
+  { title:'رحلة سياحية رمال الشرقية مخيم بدوي', desc:'تجربة صحراوية أصيلة. دفع رباعي كثبان مخيم بدوي عشاء تقليدي مبيت تحت النجوم. يومين/ليلة.', type:'TOURISM', from:'مسقط', to:'رمال الشرقية', stops:['بدية','المنترب'], sched:'SCHEDULE_WEEKLY', times:['08:00'], days:['الخميس','الجمعة'], pt:45, pm:null, veh:'لاندكروزر 4x4', cap:6, seats:4, feat:['دفع رباعي','مخيم بدوي','عشاء تقليدي','مرشد'], pname:'مغامرات عمان', gov:'مسقط', city:'مسقط', phone:'+96893100200' },
+  { title:'نقل عمال المنطقة الصناعية الرسيل', desc:'نقل عمال يومي إلى المنطقة الصناعية الرسيل. 3 رحلات يومياً. عقود شهرية وسنوية.', type:'CORPORATE', from:'مناطق متعددة', to:'المنطقة الصناعية - الرسيل', stops:['الغبرة','الخوير','القرم'], sched:'SCHEDULE_DAILY', times:['06:00','14:00','22:00'], days:['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], pt:null, pm:25, veh:'باص 50 مقعد', cap:50, seats:0, feat:['مكيف','3 ورديات'], pname:'نقل القوى العاملة', gov:'مسقط', city:'الرسيل', phone:'+96894200300' },
+  { title:'مشاركة رحلة يومية صحار - مسقط', desc:'رحلة مشتركة صحار-مسقط. مغادرة 5:30 صباحاً عودة 4:00 عصراً. SUV مريحة.', type:'CARPOOLING', from:'صحار', to:'مسقط', stops:['المصنعة','بركاء'], sched:'SCHEDULE_DAILY', times:['05:30'], days:['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], pt:5, pm:75, veh:'نيسان باترول', cap:4, seats:3, feat:['مكيف','مريحة'], pname:'سالم البلوشي', gov:'شمال الباطنة', city:'صحار', phone:'+96895300400' },
+];
+
+// ── Insurance ──
+export const INSURANCE: any[] = [
+  { title:'تأمين شامل — ظفار للتأمين', desc:'تأمين شامل يغطي حوادث سرقة كوارث طبيعية. خصم 30% للسجل النظيف. إصلاح بالوكالة. سيارة بديلة.', type:'CAR_COMPREHENSIVE', pname:'ظفار للتأمين', cov:'شامل بالوكالة', price:250, feat:['تغطية حوادث','تغطية سرقة','إصلاح بالوكالة','سيارة بديلة','خصم 30%'], phone:'+96824501000', gov:'مسقط' },
+  { title:'تأمين ضد الغير — الأهلية', desc:'تأمين ضد الغير بأسعار تنافسية. إصدار فوري أونلاين. صالح لتجديد الملكية. ملف مطالبات سريع.', type:'CAR_THIRD_PARTY', pname:'الأهلية للتأمين', cov:'ضد الغير', price:45, feat:['تغطية أضرار الغير','إصدار فوري','صالح لتجديد الملكية'], phone:'+96824502000', gov:'مسقط' },
+  { title:'تمويل سيارات — بنك مسقط', desc:'تمويل سيارات جديدة ومستعملة. فائدة من 4.5%. سداد حتى 7 سنوات. موافقة خلال 24 ساعة.', type:'FINANCING', pname:'بنك مسقط', cov:'تمويل سيارات', price:null, feat:['نسبة 4.5%','سداد 7 سنوات','موافقة 24 ساعة','بدون كفيل للحكوميين'], phone:'+96824680680', gov:'مسقط' },
+  { title:'تأجير تمويلي — ليز كار عمان', desc:'تأجير منتهي بالتملك. أقساط شهرية تشمل تأمين وصيانة. موديلات 2024. بدون دفعة أولى.', type:'LEASE', pname:'ليز كار عمان', cov:'إيجار تمويلي', price:180, feat:['بدون دفعة أولى','تأمين شامل','صيانة مجانية','تملك بعد العقد'], phone:'+96824503000', gov:'مسقط' },
+  { title:'تأمين شامل VIP — عمان للتأمين', desc:'تأمين VIP للسيارات الفاخرة. تغطية بلا حد. إصلاح وكالة. سيارة بديلة فاخرة. مدير حساب شخصي.', type:'CAR_COMPREHENSIVE', pname:'عمان للتأمين', cov:'VIP شامل', price:800, feat:['تغطية بلا حد','إصلاح وكالة','سيارة بديلة فاخرة','مدير حساب','مساعدة 24/7'], phone:'+96824504000', gov:'مسقط' },
+  { title:'تأمين ضد الغير اقتصادي — الاتحاد', desc:'أرخص تأمين ضد الغير في عمان. يبدأ من 35 ريال. إصدار فوري عبر التطبيق.', type:'CAR_THIRD_PARTY', pname:'الاتحاد للتأمين', cov:'ضد الغير اقتصادي', price:35, feat:['أرخص سعر','إصدار فوري','تطبيق جوال'], phone:'+96824505000', gov:'مسقط' },
+  { title:'تمويل بدون دفعة أولى — بنك ظفار', desc:'تمويل سيارات بدون دفعة أولى. موافقة سريعة. فترات مرنة. لجميع الموظفين.', type:'FINANCING', pname:'بنك ظفار', cov:'تمويل سيارات', price:null, feat:['بدون دفعة أولى','فترات مرنة','موافقة سريعة','لجميع الموظفين'], phone:'+96824506000', gov:'مسقط' },
+  { title:'تأمين بحري للقوارب واليخوت', desc:'تأمين شامل للقوارب واليخوت والجت سكي. تغطية أضرار المياه والحوادث والسرقة.', type:'MARINE_INSURANCE', pname:'خليج عمان للتأمين', cov:'تأمين بحري شامل', price:500, feat:['تغطية أضرار المياه','حوادث بحرية','سرقة','إنقاذ بحري'], phone:'+96824507000', gov:'مسقط' },
+  { title:'تأجير منتهي بالتملك — الأولى للتأجير', desc:'تأجير سيارات منتهي بالتملك. أقساط مرنة. موديلات متنوعة. صيانة وتأمين شامل ضمن القسط.', type:'LEASE', pname:'الأولى للتأجير', cov:'إيجار منتهي بالتملك', price:200, feat:['أقساط مرنة','صيانة شاملة','تأمين شامل','موديلات متنوعة'], phone:'+96824508000', gov:'مسقط' },
+  { title:'تأمين شامل للسيارات الفاخرة — AXA', desc:'تأمين شامل خاص بالسيارات الفاخرة والرياضية. قطع غيار أصلية. ورش معتمدة فقط.', type:'CAR_COMPREHENSIVE', pname:'AXA عمان', cov:'شامل فاخر', price:600, feat:['قطع أصلية فقط','ورش معتمدة','سيارة بديلة','تغطية عالمية'], phone:'+96824509000', gov:'مسقط' },
+];
+
+// ── Rentals (cars for rent) ──
+export const RENTALS: any[] = [
+  { title:'كامري 2023 للإيجار اليومي — نظيفة ومكيفة', desc:'تويوتا كامري 2023 فضي فل كامل للإيجار. نظيفة جداً مكيفة بلوتوث كاميرا خلفية. مناسبة للتنقل اليومي والرحلات. تأمين شامل. استلام من المطار متاح.', make:'Toyota', model:'Camry', year:2023, mileage:30000, fuel:'PETROL', trans:'AUTOMATIC', body:'Sedan', color:'فضي', interior:'قماش رمادي', engine:'2.5L', hp:203, doors:4, seats:5, drive:'FWD', daily:12, weekly:70, monthly:250, deposit:100, kmLimit:250, withDriver:false, delivery:true, insurance:true, cancel:'FLEXIBLE', gov:'مسقط', city:'السيب' },
+  { title:'باترول 2024 VIP للإيجار — فخامة ورحابة', desc:'نيسان باترول بلاتينيوم 2024 أبيض فل أوبشن. مقاعد جلد مبردة سقف بانوراما شاشات خلفية. مثالية للعائلات والمناسبات. مع سائق أو بدون.', make:'Nissan', model:'Patrol', year:2024, mileage:15000, fuel:'PETROL', trans:'AUTOMATIC', body:'SUV', color:'أبيض', interior:'جلد بيج', engine:'5.6L V8', hp:400, doors:5, seats:8, drive:'4WD', daily:35, weekly:210, monthly:750, deposit:300, kmLimit:300, withDriver:true, delivery:true, insurance:true, cancel:'MODERATE', gov:'مسقط', city:'بوشر' },
+  { title:'لاندكروزر GXR 2023 للإيجار — مناسبة للبر', desc:'تويوتا لاندكروزر GXR 2023 أبيض. دفع رباعي مناسبة للبر والرحلات الطويلة. تأمين شامل ومساعدة على الطريق. حد كيلومترات مفتوح للعقود الشهرية.', make:'Toyota', model:'Land Cruiser', year:2023, mileage:40000, fuel:'PETROL', trans:'AUTOMATIC', body:'SUV', color:'أبيض لؤلؤي', interior:'جلد بيج', engine:'4.0L V6', hp:271, doors:5, seats:8, drive:'4WD', daily:30, weekly:180, monthly:600, deposit:250, kmLimit:300, withDriver:false, delivery:true, insurance:true, cancel:'MODERATE', gov:'مسقط', city:'الخوض' },
+  { title:'كورولا 2024 اقتصادية للإيجار الشهري', desc:'تويوتا كورولا 2024 أبيض صفر كم. أوتوماتيك مكيفة اقتصادية في البنزين. مثالية للموظفين والطلاب. عقود شهرية بأسعار خاصة.', make:'Toyota', model:'Corolla', year:2024, mileage:5000, fuel:'PETROL', trans:'AUTOMATIC', body:'Sedan', color:'أبيض', interior:'قماش رمادي', engine:'1.8L', hp:139, doors:4, seats:5, drive:'FWD', daily:8, weekly:50, monthly:180, deposit:80, kmLimit:200, withDriver:false, delivery:false, insurance:true, cancel:'FLEXIBLE', gov:'مسقط', city:'الغبرة' },
+  { title:'فورتشنر 2023 عائلية للإيجار', desc:'تويوتا فورتشنر VX 2023 رمادي 7 ركاب. ديزل اقتصادي دفع رباعي. مناسبة للرحلات العائلية والسفر بين المحافظات. تأمين شامل.', make:'Toyota', model:'Fortuner', year:2023, mileage:35000, fuel:'DIESEL', trans:'AUTOMATIC', body:'SUV', color:'رمادي غامق', interior:'جلد أسود', engine:'2.8L Diesel', hp:204, doors:5, seats:7, drive:'4WD', daily:20, weekly:120, monthly:400, deposit:150, kmLimit:250, withDriver:false, delivery:true, insurance:true, cancel:'MODERATE', gov:'شمال الباطنة', city:'صحار' },
+  { title:'هيونداي أكسنت 2024 — أرخص إيجار يومي', desc:'هيونداي أكسنت 2024 أبيض أوتوماتيك. سيارة اقتصادية جداً مناسبة للميزانية المحدودة. مكيفة نظيفة بلوتوث. أرخص سعر إيجار يومي في مسقط.', make:'Hyundai', model:'Accent', year:2024, mileage:8000, fuel:'PETROL', trans:'AUTOMATIC', body:'Sedan', color:'أبيض', interior:'قماش رمادي', engine:'1.6L', hp:121, doors:4, seats:5, drive:'FWD', daily:6, weekly:38, monthly:140, deposit:50, kmLimit:200, withDriver:false, delivery:false, insurance:true, cancel:'FLEXIBLE', gov:'مسقط', city:'المعبيلة' },
+  { title:'لكزس ES 350 2023 بريستيج للإيجار', desc:'لكزس ES 350 2023 أسود بريستيج. جلد طبيعي مارك ليفنسون سقف بانوراما. للمناسبات والأعمال. مع سائق محترف. استلام من أي مكان في مسقط.', make:'Lexus', model:'ES 350', year:2023, mileage:20000, fuel:'PETROL', trans:'AUTOMATIC', body:'Sedan', color:'أسود', interior:'جلد بيج طبيعي', engine:'3.5L V6', hp:302, doors:4, seats:5, drive:'FWD', daily:28, weekly:170, monthly:580, deposit:200, kmLimit:250, withDriver:true, delivery:true, insurance:true, cancel:'STRICT', gov:'مسقط', city:'القرم' },
+  { title:'كيا سبورتاج 2024 للإيجار — عائلية مريحة', desc:'كيا سبورتاج 2024 أزرق الشكل الجديد. شاشة كبيرة أبل كاربلاي كاميرات. مريحة للعائلات الصغيرة. تأمين شامل وتوصيل مجاني.', make:'Kia', model:'Sportage', year:2024, mileage:10000, fuel:'PETROL', trans:'AUTOMATIC', body:'SUV', color:'أزرق', interior:'جلد أسود', engine:'1.6L Turbo', hp:180, doors:5, seats:5, drive:'FWD', daily:15, weekly:90, monthly:320, deposit:120, kmLimit:250, withDriver:false, delivery:true, insurance:true, cancel:'FLEXIBLE', gov:'ظفار', city:'صلالة' },
+  { title:'نيسان صني 2023 للإيجار — توصيل واستلام', desc:'نيسان صني 2023 فضي أوتوماتيك. سيارة اقتصادية مكيفة نظيفة. خدمة توصيل واستلام مجانية داخل مسقط. أسعار خاصة للشركات.', make:'Nissan', model:'Sunny', year:2023, mileage:25000, fuel:'PETROL', trans:'AUTOMATIC', body:'Sedan', color:'فضي', interior:'قماش رمادي', engine:'1.6L', hp:118, doors:4, seats:5, drive:'FWD', daily:7, weekly:42, monthly:150, deposit:60, kmLimit:200, withDriver:false, delivery:true, insurance:true, cancel:'FLEXIBLE', gov:'مسقط', city:'السيب' },
+  { title:'تويوتا هايلكس 2023 دبل كابين للإيجار', desc:'هايلكس دبل كابين 2023 أبيض ديزل دفع رباعي. مناسبة لرحلات البر والعمل. تأمين شامل ومساعدة طريق. حد كيلومترات مرن.', make:'Toyota', model:'Hilux', year:2023, mileage:30000, fuel:'DIESEL', trans:'AUTOMATIC', body:'Pickup', color:'أبيض', interior:'قماش رمادي', engine:'2.8L Diesel', hp:204, doors:4, seats:5, drive:'4WD', daily:22, weekly:130, monthly:450, deposit:200, kmLimit:300, withDriver:false, delivery:true, insurance:true, cancel:'MODERATE', gov:'الداخلية', city:'نزوى' },
+];
+
+// ── Jobs ──
+export const JOBS: any[] = [
+  { title:'مطلوب سائق توصيل — مسقط', desc:'مطلوب سائق توصيل طلبات في مسقط. دوام كامل. يشترط رخصة خفيفة وخبرة سنة. راتب + عمولة.', jtype:'HIRING', etype:'FULL_TIME', salary:350, period:'MONTHLY', license:['LIGHT'], exp:1, minAge:21, maxAge:40, langs:['العربية'], veh:['سيدان','فان'], gov:'مسقط', city:'مسقط', phone:'+96891400500' },
+  { title:'سائق خاص متفرغ — خبرة 5 سنوات', desc:'سائق عماني متفرغ أبحث عن عمل كسائق خاص. خبرة 5 سنوات. رخصة خفيفة. أجيد مسقط كاملة.', jtype:'OFFERING', etype:'FULL_TIME', salary:400, period:'MONTHLY', license:['LIGHT'], exp:5, minAge:null, maxAge:null, langs:['العربية','الإنجليزية'], veh:['سيدان','SUV'], gov:'مسقط', city:'السيب', phone:'+96892500600' },
+  { title:'مطلوب سائق شاحنة — صحار', desc:'مطلوب سائق شاحنة لنقل بضائع بين صحار ومسقط. رخصة ثقيلة مطلوبة. خبرة 3 سنوات. سكن مؤمن.', jtype:'HIRING', etype:'FULL_TIME', salary:500, period:'MONTHLY', license:['HEAVY'], exp:3, minAge:25, maxAge:45, langs:['العربية'], veh:['شاحنة'], gov:'شمال الباطنة', city:'صحار', phone:'+96893600700' },
+  { title:'مطلوب سائق باص مدارس', desc:'مطلوب سائق باص لنقل طلاب مدارس في مسقط. رخصة نقل مطلوبة. دوام جزئي صباحي ومسائي.', jtype:'HIRING', etype:'PART_TIME', salary:250, period:'MONTHLY', license:['BUS','TRANSPORT'], exp:2, minAge:25, maxAge:50, langs:['العربية'], veh:['باص'], gov:'مسقط', city:'بوشر', phone:'+96894700800' },
+  { title:'مطلوب سائق ليموزين — فندق 5 نجوم', desc:'مطلوب سائق ليموزين لفندق 5 نجوم في مسقط. مظهر أنيق ولغة إنجليزية ممتازة. راتب مجزي + بدلات.', jtype:'HIRING', etype:'FULL_TIME', salary:600, period:'MONTHLY', license:['LIGHT'], exp:3, minAge:25, maxAge:45, langs:['العربية','الإنجليزية'], veh:['سيدان فاخر'], gov:'مسقط', city:'القرم', phone:'+96895800900' },
+  { title:'سائق توصيل طلبات — لدي سيارة', desc:'سائق عماني متفرغ لتوصيل الطلبات. لدي سيارة خاصة ورخصة سارية. أعرف مسقط والباطنة.', jtype:'OFFERING', etype:'FULL_TIME', salary:300, period:'MONTHLY', license:['LIGHT'], exp:2, minAge:null, maxAge:null, langs:['العربية'], veh:['سيدان'], gov:'مسقط', city:'السيب', phone:'+96891900100', hasVeh:true },
+  { title:'مطلوب سائقين شركة لوجستية', desc:'مطلوب 5 سائقين لشركة لوجستية كبرى. رخصة ثقيلة أو نقل. خبرة سنتين. رواتب ممتازة + تأمين صحي.', jtype:'HIRING', etype:'FULL_TIME', salary:450, period:'MONTHLY', license:['HEAVY','TRANSPORT'], exp:2, minAge:23, maxAge:45, langs:['العربية'], veh:['شاحنة','تريلر'], gov:'مسقط', city:'الرسيل', phone:'+96892100200' },
+  { title:'سائق خاص عائلي — متفرغ', desc:'سائق متفرغ للعمل كسائق خاص لعائلة. رخصة سارية خبرة 4 سنوات. ملتزم وأمين.', jtype:'OFFERING', etype:'FULL_TIME', salary:350, period:'MONTHLY', license:['LIGHT'], exp:4, minAge:null, maxAge:null, langs:['العربية','الإنجليزية'], veh:['سيدان','SUV'], gov:'مسقط', city:'الخوض', phone:'+96893200300' },
+  { title:'مطلوب سائق نقل ثقيل — صلالة', desc:'مطلوب سائق نقل ثقيل لشركة مقاولات في صلالة. رخصة ثقيلة. خبرة في المعدات. سكن + مواصلات.', jtype:'HIRING', etype:'FULL_TIME', salary:550, period:'MONTHLY', license:['HEAVY'], exp:3, minAge:25, maxAge:50, langs:['العربية'], veh:['معدات ثقيلة'], gov:'ظفار', city:'صلالة', phone:'+96894300400' },
+  { title:'سائق تاكسي متفرغ — لدي سيارة', desc:'سائق تاكسي متفرغ بسيارة حديثة. خبرة 6 سنوات في مسقط. متاح للعمل مع تطبيقات التوصيل.', jtype:'OFFERING', etype:'FULL_TIME', salary:null, period:'NEGOTIABLE', license:['LIGHT','TRANSPORT'], exp:6, minAge:null, maxAge:null, langs:['العربية','الإنجليزية','الهندية'], veh:['سيدان'], gov:'مسقط', city:'مسقط', phone:'+96895400500', hasVeh:true },
+];

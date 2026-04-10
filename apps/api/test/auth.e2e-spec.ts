@@ -1,0 +1,176 @@
+import request from 'supertest';
+import { createTestApp, closeTestApp, getApp, uniqueId, registerUser } from './setup';
+
+beforeAll(async () => { await createTestApp(); });
+afterAll(async () => { await closeTestApp(); });
+
+describe('Auth API (e2e)', () => {
+  // ─── Signup ───
+  describe('POST /api/auth/signup', () => {
+    it('should register a new user and return tokens', async () => {
+      const uid = uniqueId();
+      const res = await request(getApp().getHttpServer())
+        .post('/api/auth/signup')
+        .send({ email: `signup_${uid}@test.com`, username: `signup_${uid}`, password: 'Test1234!' })
+        .expect(201);
+
+      expect(res.body.accessToken).toBeDefined();
+      expect(res.body.refreshToken).toBeDefined();
+      expect(res.body.user.email).toBe(`signup_${uid}@test.com`);
+    });
+
+    it('should reject duplicate email', async () => {
+      const uid = uniqueId();
+      const email = `dup_${uid}@test.com`;
+      await request(getApp().getHttpServer())
+        .post('/api/auth/signup')
+        .send({ email, username: `dup1_${uid}`, password: 'Test1234!' })
+        .expect(201);
+
+      await request(getApp().getHttpServer())
+        .post('/api/auth/signup')
+        .send({ email, username: `dup2_${uid}`, password: 'Test1234!' })
+        .expect(400);
+    });
+
+    it('should reject invalid email format', async () => {
+      await request(getApp().getHttpServer())
+        .post('/api/auth/signup')
+        .send({ email: 'not-an-email', username: `bad_${uniqueId()}`, password: 'Test1234!' })
+        .expect(400);
+    });
+  });
+
+  // ─── Login ───
+  describe('POST /api/auth/login', () => {
+    let testEmail: string;
+    const testPassword = 'LoginPass123!';
+
+    beforeAll(async () => {
+      const uid = uniqueId();
+      testEmail = `login_${uid}@test.com`;
+      await request(getApp().getHttpServer())
+        .post('/api/auth/signup')
+        .send({ email: testEmail, username: `login_${uid}`, password: testPassword });
+    });
+
+    it('should login with correct credentials', async () => {
+      const res = await request(getApp().getHttpServer())
+        .post('/api/auth/login')
+        .send({ email: testEmail, password: testPassword })
+        .expect(201);
+
+      expect(res.body.accessToken).toBeDefined();
+      expect(res.body.refreshToken).toBeDefined();
+    });
+
+    it('should reject wrong password', async () => {
+      await request(getApp().getHttpServer())
+        .post('/api/auth/login')
+        .send({ email: testEmail, password: 'WrongPass!' })
+        .expect(401);
+    });
+
+    it('should reject non-existent email', async () => {
+      await request(getApp().getHttpServer())
+        .post('/api/auth/login')
+        .send({ email: 'nonexistent@test.com', password: 'Test1234!' })
+        .expect(401);
+    });
+  });
+
+  // ─── Me ───
+  describe('GET /api/auth/me', () => {
+    it('should return current user with valid token', async () => {
+      const { accessToken } = await registerUser();
+      const res = await request(getApp().getHttpServer())
+        .get('/api/auth/me')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(res.body.sub).toBeDefined();
+      expect(res.body.email).toBeDefined();
+    });
+
+    it('should reject request without token', async () => {
+      await request(getApp().getHttpServer())
+        .get('/api/auth/me')
+        .expect(401);
+    });
+
+    it('should reject invalid token', async () => {
+      await request(getApp().getHttpServer())
+        .get('/api/auth/me')
+        .set('Authorization', 'Bearer invalid-token-here')
+        .expect(401);
+    });
+  });
+
+  // ─── Refresh ───
+  describe('POST /api/auth/refresh', () => {
+    it('should return new tokens with valid refresh token', async () => {
+      const { refreshToken } = await registerUser();
+      const res = await request(getApp().getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken })
+        .expect(201);
+
+      expect(res.body.accessToken).toBeDefined();
+      expect(res.body.refreshToken).toBeDefined();
+    });
+
+    it('should reject invalid refresh token', async () => {
+      await request(getApp().getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken: 'invalid-refresh-token' })
+        .expect(401);
+    });
+
+    it('should reject already-used refresh token', async () => {
+      const { refreshToken } = await registerUser();
+      // Use it once
+      await request(getApp().getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken })
+        .expect(201);
+      // Try again — should fail (token rotated/revoked)
+      await request(getApp().getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken })
+        .expect(401);
+    });
+  });
+
+  // ─── Logout ───
+  describe('POST /api/auth/logout', () => {
+    it('should logout successfully', async () => {
+      const { refreshToken } = await registerUser();
+      const res = await request(getApp().getHttpServer())
+        .post('/api/auth/logout')
+        .send({ refreshToken })
+        .expect(201);
+
+      expect(res.body.message).toBeDefined();
+    });
+
+    it('should invalidate refresh token after logout', async () => {
+      const { refreshToken } = await registerUser();
+      await request(getApp().getHttpServer())
+        .post('/api/auth/logout')
+        .send({ refreshToken })
+        .expect(201);
+
+      await request(getApp().getHttpServer())
+        .post('/api/auth/refresh')
+        .send({ refreshToken })
+        .expect(401);
+    });
+
+    it('should not fail on invalid refresh token logout', async () => {
+      await request(getApp().getHttpServer())
+        .post('/api/auth/logout')
+        .send({ refreshToken: 'non-existent-token' })
+        .expect(201);
+    });
+  });
+});

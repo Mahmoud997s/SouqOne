@@ -1,0 +1,91 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '../auth';
+
+export interface CarServiceItem {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  serviceType: string;
+  providerType: string;
+  providerName: string;
+  specializations: string[];
+  priceFrom?: string;
+  priceTo?: string;
+  currency: string;
+  isHomeService: boolean;
+  workingHoursOpen?: string;
+  workingHoursClose?: string;
+  workingDays: string[];
+  governorate: string;
+  city?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  contactPhone?: string;
+  whatsapp?: string;
+  website?: string;
+  status: string;
+  viewCount: number;
+  userId: string;
+  user: { id: string; username: string; displayName?: string; avatarUrl?: string; phone?: string; governorate?: string; isVerified?: boolean; createdAt?: string };
+  images: { id: string; url: string; isPrimary: boolean; order: number }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PaginatedServices {
+  items: CarServiceItem[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+export function useCarServices(params?: Record<string, string>) {
+  const searchParams = new URLSearchParams(params);
+  const qs = searchParams.toString();
+  return useQuery<PaginatedServices>({
+    queryKey: ['services', params],
+    queryFn: () => apiRequest(`/services${qs ? `?${qs}` : ''}`),
+  });
+}
+
+export function useCarService(id: string) {
+  return useQuery<CarServiceItem>({
+    queryKey: ['services', id],
+    queryFn: () => apiRequest(`/services/${id}`),
+    enabled: !!id,
+  });
+}
+
+export function useMyCarServices() {
+  return useQuery<CarServiceItem[]>({
+    queryKey: ['services', 'my'],
+    queryFn: () => apiRequest('/services/my'),
+  });
+}
+
+export function useCreateCarService() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) =>
+      apiRequest<CarServiceItem>('/services', { method: 'POST', body: JSON.stringify(data) }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['services'] }); },
+  });
+}
+
+export function useUpdateCarService() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
+      apiRequest<CarServiceItem>(`/services/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['services'] }); },
+  });
+}
+
+export function useDeleteCarService() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiRequest(`/services/${id}`, { method: 'DELETE' }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['services'] }); },
+  });
+}

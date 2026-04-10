@@ -1,0 +1,123 @@
+export interface SubCategory {
+  value: string;
+  label: string;
+  route: string;
+  available: boolean;
+}
+
+export interface MainCategory {
+  value: string;
+  label: string;
+  icon: string;
+  color: string;
+  subcategories: SubCategory[];
+}
+
+export const MAIN_CATEGORIES: MainCategory[] = [
+  {
+    value: 'vehicles-parts',
+    label: 'عربيات وقطع غيار',
+    icon: '🚗',
+    color: 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400',
+    subcategories: [
+      { value: 'car-sale', label: 'سيارات للبيع', route: '/add-listing/car?type=SALE', available: true },
+      { value: 'car-rental', label: 'سيارات للإيجار', route: '/add-listing/car?type=RENTAL', available: true },
+      { value: 'spare-parts', label: 'قطع غيار', route: '/add-listing/parts', available: true },
+      { value: 'tires-batteries', label: 'إطارات وبطاريات وزيوت', route: '/add-listing/parts?cat=TIRES', available: true },
+      { value: 'accessories', label: 'إكسسوارات سيارات', route: '/add-listing/parts?cat=ACCESSORIES', available: true },
+    ],
+  },
+  {
+    value: 'jobs',
+    label: 'وظائف',
+    icon: '💼',
+    color: 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400',
+    subcategories: [
+      { value: 'job-offering', label: 'سائق يبحث عن عمل', route: '/jobs/new?type=OFFERING', available: true },
+      { value: 'job-hiring', label: 'شركة تبحث عن سائق', route: '/jobs/new?type=HIRING', available: true },
+    ],
+  },
+  {
+    value: 'car-services',
+    label: 'خدمات سيارات',
+    icon: '🔧',
+    color: 'bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-400',
+    subcategories: [
+      { value: 'maintenance', label: 'صيانة وإصلاح', route: '/add-listing/service?type=MAINTENANCE', available: false },
+      { value: 'cleaning', label: 'تلميع وتنظيف', route: '/add-listing/service?type=CLEANING', available: false },
+      { value: 'inspection', label: 'فحص سيارات', route: '/add-listing/service?type=INSPECTION', available: false },
+      { value: 'bodywork', label: 'سمكرة ودهان', route: '/add-listing/service?type=BODYWORK', available: false },
+      { value: 'towing', label: 'سطحة ونجدة', route: '/add-listing/service?type=TOWING', available: false },
+      { value: 'modification', label: 'تعديل وتيونينج', route: '/add-listing/service?type=MODIFICATION', available: false },
+      { value: 'keys', label: 'مفاتيح وأقفال', route: '/add-listing/service?type=KEYS_LOCKS', available: false },
+      { value: 'accessories-install', label: 'تركيب إكسسوارات', route: '/add-listing/service?type=ACCESSORIES_INSTALL', available: false },
+    ],
+  },
+  {
+    value: 'transport',
+    label: 'خدمات نقل ولوجستيك',
+    icon: '🚛',
+    color: 'bg-green-50 text-green-600 dark:bg-green-950 dark:text-green-400',
+    subcategories: [
+      { value: 'cargo', label: 'نقل بضائع', route: '/add-listing/transport?type=CARGO', available: false },
+      { value: 'furniture', label: 'نقل أثاث', route: '/add-listing/transport?type=FURNITURE', available: false },
+      { value: 'delivery', label: 'توصيل طرود', route: '/add-listing/transport?type=DELIVERY', available: false },
+      { value: 'heavy', label: 'نقل ثقيل', route: '/add-listing/transport?type=HEAVY_TRANSPORT', available: false },
+      { value: 'truck-rental', label: 'تأجير شاحنات', route: '/add-listing/transport?type=TRUCK_RENTAL', available: false },
+    ],
+  },
+  {
+    value: 'trips',
+    label: 'اشتراكات ورحلات',
+    icon: '🚌',
+    color: 'bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-400',
+    subcategories: [
+      { value: 'bus-subscription', label: 'اشتراكات باصات', route: '/add-listing/trip?type=BUS_SUBSCRIPTION', available: false },
+      { value: 'school-transport', label: 'توصيل مدارس', route: '/add-listing/trip?type=SCHOOL_TRANSPORT', available: false },
+      { value: 'tourism', label: 'رحلات سياحية', route: '/add-listing/trip?type=TOURISM', available: false },
+      { value: 'corporate', label: 'توصيل موظفين', route: '/add-listing/trip?type=CORPORATE', available: false },
+      { value: 'carpooling', label: 'مشاركة رحلات', route: '/add-listing/trip?type=CARPOOLING', available: false },
+    ],
+  },
+  {
+    value: 'motorcycles',
+    label: 'دراجات نارية',
+    icon: '🏍️',
+    color: 'bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-400',
+    subcategories: [
+      { value: 'motorcycle-sale', label: 'دراجات للبيع', route: '/add-listing/car?type=SALE&vehicle=MOTORCYCLE', available: false },
+      { value: 'motorcycle-parts', label: 'قطع غيار دراجات', route: '/add-listing/parts?vehicle=MOTORCYCLE', available: false },
+    ],
+  },
+  {
+    value: 'marine',
+    label: 'مركبات بحرية',
+    icon: '🚤',
+    color: 'bg-cyan-50 text-cyan-600 dark:bg-cyan-950 dark:text-cyan-400',
+    subcategories: [
+      { value: 'boat-sale', label: 'قوارب للبيع', route: '/add-listing/car?type=SALE&vehicle=MARINE', available: false },
+      { value: 'boat-rental', label: 'تأجير بحري', route: '/add-listing/car?type=RENTAL&vehicle=MARINE', available: false },
+      { value: 'marine-parts', label: 'معدات بحرية', route: '/add-listing/parts?vehicle=MARINE', available: false },
+    ],
+  },
+  {
+    value: 'heavy-equipment',
+    label: 'معدات ثقيلة',
+    icon: '🏗️',
+    color: 'bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400',
+    subcategories: [
+      { value: 'equipment-sale', label: 'بيع معدات', route: '/add-listing/car?type=SALE&vehicle=HEAVY_EQUIPMENT', available: false },
+      { value: 'equipment-rental', label: 'تأجير معدات', route: '/add-listing/car?type=RENTAL&vehicle=HEAVY_EQUIPMENT', available: false },
+    ],
+  },
+  {
+    value: 'insurance',
+    label: 'تأمين وتمويل',
+    icon: '🛡️',
+    color: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400',
+    subcategories: [
+      { value: 'car-insurance', label: 'تأمين سيارات', route: '/add-listing/insurance?type=CAR_COMPREHENSIVE', available: false },
+      { value: 'financing', label: 'تمويل سيارات', route: '/add-listing/insurance?type=FINANCING', available: false },
+    ],
+  },
+];

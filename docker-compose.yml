@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16
+    container_name: carone-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: carOne
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5400:5432"
+    volumes:
+      - carone_pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: carone-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - carone_redis_data:/data
+    command: redis-server --appendonly yes
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.12
+    container_name: carone-meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: carone_meili_master_key_2024
+      MEILI_ENV: development
+      MEILI_NO_ANALYTICS: true
+    ports:
+      - "7700:7700"
+    volumes:
+      - carone_meili_data:/meili_data
+
+volumes:
+  carone_pgdata:
+  carone_redis_data:
+  carone_meili_data:
