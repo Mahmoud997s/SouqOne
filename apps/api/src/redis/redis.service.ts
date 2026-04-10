@@ -8,16 +8,19 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private subscriber!: Redis;
 
   async onModuleInit() {
-    const redisConfig = {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379', 10),
-      password: process.env.REDIS_PASSWORD || undefined,
-      retryStrategy: (times: number) => Math.min(times * 50, 2000),
-    };
+    const redisUrl = process.env.REDIS_URL;
+    const redisConfig = redisUrl
+      ? redisUrl
+      : {
+          host: process.env.REDIS_HOST || 'localhost',
+          port: parseInt(process.env.REDIS_PORT || '6379', 10),
+          password: process.env.REDIS_PASSWORD || undefined,
+        };
+    const retryStrategy = (times: number) => Math.min(times * 50, 2000);
 
-    this.client = new Redis(redisConfig);
-    this.publisher = new Redis(redisConfig);
-    this.subscriber = new Redis(redisConfig);
+    this.client = new Redis(redisConfig as any, { retryStrategy } as any);
+    this.publisher = new Redis(redisConfig as any, { retryStrategy } as any);
+    this.subscriber = new Redis(redisConfig as any, { retryStrategy } as any);
 
     this.client.on('error', (err) => console.error('Redis Client Error:', err));
     this.publisher.on('error', (err) => console.error('Redis Publisher Error:', err));

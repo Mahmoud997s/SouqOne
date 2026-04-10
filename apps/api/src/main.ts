@@ -41,7 +41,7 @@ async function bootstrap() {
   // بادئة API
   app.setGlobalPrefix('api');
 
-  const port = process.env.API_PORT || 4000;
+  const port = process.env.PORT || process.env.API_PORT || 4000;
   await app.listen(port);
 
   console.warn(`🚀 كار وان API يعمل على: http://localhost:${port}/api`);
