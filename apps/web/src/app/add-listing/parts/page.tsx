@@ -12,7 +12,7 @@ import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
 import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
-import { inputCls, labelCls } from '@/lib/constants/form-styles';
+import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
 import dynamic from 'next/dynamic';
 
@@ -168,32 +168,32 @@ function AddPartContent() {
         >
           {step === 0 && (
             <div className="space-y-8">
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">القسم</h2>
-                <div className="flex items-center gap-3 bg-surface-container-lowest rounded-lg px-4 py-3 mb-4 border border-outline-variant/10">
-                  <span className="text-primary text-lg">🔩</span>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">settings</span>القسم</h2>
+                <div className="flex items-center gap-3 bg-surface-container-low/50 dark:bg-surface-container-high/30 rounded-xl px-4 py-3 mb-4 border border-outline-variant/10">
+                  <span className="material-symbols-outlined text-primary text-lg">garage_home</span>
                   <span className="text-sm text-on-surface-variant">عربيات وقطع غيار</span>
-                  <span className="text-on-surface-variant/40 mx-1">›</span>
+                  <span className="material-symbols-outlined text-on-surface-variant/30 text-xs">chevron_left</span>
                   <span className="text-sm font-bold text-on-surface">قطع غيار</span>
                 </div>
                 <label className={labelCls}>نوع القطعة *</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {PART_CATEGORIES.map(c => (
                     <button key={c.value} type="button" onClick={() => set('partCategory', c.value)}
-                      className={`py-2.5 rounded-lg text-sm font-bold transition-all ${form.partCategory === c.value ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
+                      className={chipCls(form.partCategory === c.value)}>
                       {c.label}
                     </button>
                   ))}
                 </div>
               </section>
 
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-6">تحميل الصور</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">add_photo_alternate</span>تحميل الصور</h2>
                 <ImageUploader images={images} onChange={setImages} disabled={isLoading} />
               </section>
 
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">البيانات الأساسية</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">edit_note</span>البيانات الأساسية</h2>
                 <div className="space-y-4">
                   <div>
                     <label className={labelCls}>عنوان الإعلان *</label>
@@ -204,7 +204,7 @@ function AddPartContent() {
                     <div className="flex gap-3">
                       {PART_CONDITIONS.map(c => (
                         <button key={c.value} type="button" onClick={() => set('condition', c.value)}
-                          className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${form.condition === c.value ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
+                          className={chipCls(form.condition === c.value) + ' flex-1'}>
                           {c.label}
                         </button>
                       ))}
@@ -217,8 +217,8 @@ function AddPartContent() {
 
           {step === 1 && (
             <div className="space-y-8">
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">تفاصيل القطعة</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">info</span>تفاصيل القطعة</h2>
                 <div className="space-y-4">
                   <div>
                     <label className={labelCls}>رقم القطعة OEM</label>
@@ -256,8 +256,8 @@ function AddPartContent() {
 
           {step === 2 && (
             <div className="space-y-8">
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">السعر</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">sell</span>السعر</h2>
                 <div className="space-y-4">
                   <div>
                     <label className={labelCls}>السعر (ر.ع.) *</label>
@@ -270,8 +270,8 @@ function AddPartContent() {
                 </div>
               </section>
 
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">الموقع والاتصال</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>الموقع والاتصال</h2>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
