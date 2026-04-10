@@ -4,7 +4,7 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient } from 'redis';
 
 export class RedisIoAdapter extends IoAdapter {
-  private adapterConstructor!: ReturnType<typeof createAdapter>;
+  private adapterConstructor: ReturnType<typeof createAdapter> | null = null;
 
   async connectToRedis(): Promise<void> {
     const redisUrl = process.env.REDIS_URL;
@@ -28,13 +28,16 @@ export class RedisIoAdapter extends IoAdapter {
       this.adapterConstructor = createAdapter(pubClient, subClient);
       console.log('✅ Redis Socket.IO Adapter connected');
     } catch (err) {
-      console.warn('⚠️ Redis Socket.IO Adapter failed — WebSocket scaling disabled:', (err as Error).message);
+      console.warn('⚠️ Redis Socket.IO Adapter failed — using default adapter:', (err as Error).message);
+      this.adapterConstructor = null;
     }
   }
 
   createIOServer(port: number, options?: ServerOptions): any {
     const server = super.createIOServer(port, options);
-    server.adapter(this.adapterConstructor);
+    if (this.adapterConstructor) {
+      server.adapter(this.adapterConstructor);
+    }
     return server;
   }
 }
