@@ -255,92 +255,92 @@ export default function CarDetailsPage() {
             <div className="lg:col-span-4 space-y-4">
               {/* Price Card */}
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm">
-                <div className="p-5 md:p-6">
-                  <h1 className="text-xl md:text-2xl font-black text-on-surface mb-1 leading-tight">{car.title}</h1>
-                  <p className="text-on-surface-variant text-sm mb-5 flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-sm text-primary">directions_car</span>
+                <div className="p-4 md:p-5">
+                  <h1 className="text-lg md:text-xl font-black text-on-surface mb-0.5 leading-tight">{car.title}</h1>
+                  <p className="text-on-surface-variant text-xs mb-4 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-xs text-primary">directions_car</span>
                     {car.year} · {car.make} {car.model}
                   </p>
 
                   {isRental ? (
                     <>
                       {/* Rental Prices */}
-                      <div className="bg-surface-container-low/50 dark:bg-surface-container-high/30 rounded-xl overflow-hidden mb-4">
+                      <div className="bg-blue-50/80 dark:bg-blue-950/30 rounded-xl overflow-hidden mb-3 border border-blue-100 dark:border-blue-900/30">
                         {car.dailyPrice && (
-                          <div className="flex justify-between items-center px-4 py-3 border-b border-outline-variant/5 dark:border-outline-variant/10">
-                            <div className="flex items-center gap-2">
-                              <span className="material-symbols-outlined text-primary text-base">today</span>
-                              <span className="text-on-surface-variant text-sm font-medium">يومي</span>
+                          <div className="flex justify-between items-center px-3 py-2.5 border-b border-blue-100/60 dark:border-blue-900/20">
+                            <div className="flex items-center gap-1.5">
+                              <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-sm">today</span>
+                              <span className="text-blue-900 dark:text-blue-200 text-xs font-bold">يومي</span>
                             </div>
-                            <span className="text-xl font-black text-primary">{Number(car.dailyPrice).toLocaleString('en-US')} <small className="text-xs font-bold text-on-surface-variant">ر.ع.</small></span>
+                            <span className="text-lg font-black text-blue-700 dark:text-blue-300">{Number(car.dailyPrice).toLocaleString('en-US')} <small className="text-[10px] font-bold text-blue-500 dark:text-blue-400">ر.ع./يوم</small></span>
                           </div>
                         )}
                         {car.weeklyPrice && (
-                          <div className="flex justify-between items-center px-4 py-3 border-b border-outline-variant/5 dark:border-outline-variant/10">
-                            <div className="flex items-center gap-2">
-                              <span className="material-symbols-outlined text-on-surface-variant/60 text-base">date_range</span>
-                              <span className="text-on-surface-variant text-sm font-medium">أسبوعي</span>
+                          <div className="flex justify-between items-center px-3 py-2.5 border-b border-blue-100/60 dark:border-blue-900/20">
+                            <div className="flex items-center gap-1.5">
+                              <span className="material-symbols-outlined text-blue-500 dark:text-blue-400 text-sm">date_range</span>
+                              <span className="text-blue-800 dark:text-blue-300 text-xs font-bold">أسبوعي</span>
                             </div>
-                            <span className="font-black text-on-surface">{Number(car.weeklyPrice).toLocaleString('en-US')} <small className="text-xs text-on-surface-variant font-bold">ر.ع.</small></span>
+                            <span className="font-black text-on-surface text-sm">{Number(car.weeklyPrice).toLocaleString('en-US')} <small className="text-[10px] text-on-surface-variant font-bold">ر.ع.</small></span>
                           </div>
                         )}
                         {car.monthlyPrice && (
-                          <div className="flex justify-between items-center px-4 py-3">
-                            <div className="flex items-center gap-2">
-                              <span className="material-symbols-outlined text-on-surface-variant/60 text-base">calendar_month</span>
-                              <span className="text-on-surface-variant text-sm font-medium">شهري</span>
+                          <div className="flex justify-between items-center px-3 py-2.5">
+                            <div className="flex items-center gap-1.5">
+                              <span className="material-symbols-outlined text-blue-500 dark:text-blue-400 text-sm">calendar_month</span>
+                              <span className="text-blue-800 dark:text-blue-300 text-xs font-bold">شهري</span>
                             </div>
-                            <span className="font-black text-on-surface">{Number(car.monthlyPrice).toLocaleString('en-US')} <small className="text-xs text-on-surface-variant font-bold">ر.ع.</small></span>
+                            <span className="font-black text-on-surface text-sm">{Number(car.monthlyPrice).toLocaleString('en-US')} <small className="text-[10px] text-on-surface-variant font-bold">ر.ع.</small></span>
                           </div>
                         )}
                       </div>
 
                       {/* Rental Badges */}
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-1.5 mb-3">
                         {car.deliveryAvailable && (
-                          <span className="inline-flex items-center gap-1.5 bg-on-surface text-surface text-xs font-black px-3 py-1.5 rounded-lg">
-                            <span className="material-symbols-outlined text-xs">local_shipping</span>توصيل متاح
+                          <span className="inline-flex items-center gap-1 bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 text-[11px] font-black px-2.5 py-1 rounded-md">
+                            <span className="material-symbols-outlined text-[11px]">local_shipping</span>توصيل متاح
                           </span>
                         )}
                         {car.insuranceIncluded && (
-                          <span className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-black px-3 py-1.5 rounded-lg">
-                            <span className="material-symbols-outlined text-xs">shield</span>تأمين شامل
+                          <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-[11px] font-black px-2.5 py-1 rounded-md">
+                            <span className="material-symbols-outlined text-[11px]">shield</span>تأمين شامل
                           </span>
                         )}
                         {car.withDriver && (
-                          <span className="inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-black px-3 py-1.5 rounded-lg">
-                            <span className="material-symbols-outlined text-xs">person</span>مع سائق
+                          <span className="inline-flex items-center gap-1 bg-emerald-100 dark:bg-emerald-800/40 text-emerald-700 dark:text-emerald-300 text-[11px] font-black px-2.5 py-1 rounded-md">
+                            <span className="material-symbols-outlined text-[11px]">person</span>مع سائق
                           </span>
                         )}
                         {car.cancellationPolicy && (
-                          <span className="inline-flex items-center gap-1.5 bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant text-xs font-black px-3 py-1.5 rounded-lg">
-                            <span className="material-symbols-outlined text-xs">event_busy</span>{cancelMap[car.cancellationPolicy] ?? car.cancellationPolicy}
+                          <span className="inline-flex items-center gap-1 bg-orange-100 dark:bg-orange-800/40 text-orange-700 dark:text-orange-300 text-[11px] font-black px-2.5 py-1 rounded-md">
+                            <span className="material-symbols-outlined text-[11px]">event_busy</span>{cancelMap[car.cancellationPolicy] ?? car.cancellationPolicy}
                           </span>
                         )}
                       </div>
 
                       {/* Rental Info */}
                       {(car.minRentalDays || car.kmLimitPerDay || car.depositAmount) && (
-                        <div className="grid grid-cols-3 gap-2 mb-5">
+                        <div className="grid grid-cols-3 gap-1.5 mb-4">
                           {car.minRentalDays && (
-                            <div className="bg-surface-container-low/50 dark:bg-surface-container-high/30 rounded-xl p-3 text-center">
-                              <span className="material-symbols-outlined text-primary text-lg block mb-1">timer</span>
-                              <p className="text-[10px] text-on-surface-variant mb-0.5">أقل مدة</p>
-                              <p className="text-sm font-black text-on-surface">{car.minRentalDays} يوم</p>
+                            <div className="bg-violet-50 dark:bg-violet-950/40 border border-violet-100 dark:border-violet-800/30 rounded-lg p-2 text-center">
+                              <span className="material-symbols-outlined text-violet-600 dark:text-violet-400 text-base block mb-0.5">timer</span>
+                              <p className="text-[9px] text-violet-500 dark:text-violet-400 font-medium">أقل مدة</p>
+                              <p className="text-xs font-black text-violet-800 dark:text-violet-200">{car.minRentalDays} يوم</p>
                             </div>
                           )}
                           {car.kmLimitPerDay && (
-                            <div className="bg-surface-container-low/50 dark:bg-surface-container-high/30 rounded-xl p-3 text-center">
-                              <span className="material-symbols-outlined text-primary text-lg block mb-1">speed</span>
-                              <p className="text-[10px] text-on-surface-variant mb-0.5">حد يومي</p>
-                              <p className="text-sm font-black text-on-surface">{car.kmLimitPerDay} كم</p>
+                            <div className="bg-teal-50 dark:bg-teal-950/40 border border-teal-100 dark:border-teal-800/30 rounded-lg p-2 text-center">
+                              <span className="material-symbols-outlined text-teal-600 dark:text-teal-400 text-base block mb-0.5">speed</span>
+                              <p className="text-[9px] text-teal-500 dark:text-teal-400 font-medium">حد يومي</p>
+                              <p className="text-xs font-black text-teal-800 dark:text-teal-200">{car.kmLimitPerDay} كم</p>
                             </div>
                           )}
                           {car.depositAmount && (
-                            <div className="bg-surface-container-low/50 dark:bg-surface-container-high/30 rounded-xl p-3 text-center">
-                              <span className="material-symbols-outlined text-primary text-lg block mb-1">account_balance_wallet</span>
-                              <p className="text-[10px] text-on-surface-variant mb-0.5">تأمين</p>
-                              <p className="text-sm font-black text-on-surface">{Number(car.depositAmount).toLocaleString('en-US')} ر.ع.</p>
+                            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-800/30 rounded-lg p-2 text-center">
+                              <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-base block mb-0.5">account_balance_wallet</span>
+                              <p className="text-[9px] text-amber-500 dark:text-amber-400 font-medium">تأمين</p>
+                              <p className="text-xs font-black text-amber-800 dark:text-amber-200">{Number(car.depositAmount).toLocaleString('en-US')} ر.ع.</p>
                             </div>
                           )}
                         </div>
@@ -348,51 +348,52 @@ export default function CarDetailsPage() {
 
                       {/* Date Picker */}
                       {!isOwner && (
-                        <div className="space-y-3">
-                          <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2.5">
+                          <p className="text-[11px] font-bold text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-xs text-primary">calendar_month</span>اختر موعد الإيجار</p>
+                          <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <label className="text-xs font-bold text-on-surface-variant block mb-1.5">من</label>
+                              <label className="text-[10px] font-bold text-on-surface-variant block mb-1">من</label>
                               <input
                                 type="date"
                                 value={startDate}
                                 min={new Date().toISOString().split('T')[0]}
                                 onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full bg-surface-container-low dark:bg-surface-container-high/50 border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl py-2.5 px-3 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none text-sm transition-all"
+                                className="w-full bg-surface-container-low dark:bg-surface-container-high/50 border border-outline-variant/20 dark:border-outline-variant/30 rounded-lg py-2 px-2.5 focus:border-primary focus:ring-2 focus:ring-primary/15 outline-none text-xs transition-all"
                               />
                             </div>
                             <div>
-                              <label className="text-xs font-bold text-on-surface-variant block mb-1.5">إلى</label>
+                              <label className="text-[10px] font-bold text-on-surface-variant block mb-1">إلى</label>
                               <input
                                 type="date"
                                 value={endDate}
                                 min={startDate || new Date().toISOString().split('T')[0]}
                                 onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full bg-surface-container-low dark:bg-surface-container-high/50 border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl py-2.5 px-3 focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none text-sm transition-all"
+                                className="w-full bg-surface-container-low dark:bg-surface-container-high/50 border border-outline-variant/20 dark:border-outline-variant/30 rounded-lg py-2 px-2.5 focus:border-primary focus:ring-2 focus:ring-primary/15 outline-none text-xs transition-all"
                               />
                             </div>
                           </div>
 
                           {priceCalc && (
-                            <div className="bg-primary/5 dark:bg-primary/10 border border-primary/15 rounded-xl p-4">
-                              <div className="flex justify-between items-center mb-1.5">
-                                <span className="text-sm text-on-surface-variant">{priceCalc.breakdown}</span>
+                            <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 rounded-lg p-3">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs text-emerald-700 dark:text-emerald-300">{priceCalc.breakdown}</span>
                               </div>
                               <div className="flex justify-between items-center">
-                                <span className="font-black text-on-surface text-sm">المجموع</span>
-                                <span className="text-xl font-black text-primary">{priceCalc.totalPrice.toLocaleString('en-US')} ر.ع.</span>
+                                <span className="font-black text-on-surface text-xs">المجموع</span>
+                                <span className="text-lg font-black text-emerald-700 dark:text-emerald-300">{priceCalc.totalPrice.toLocaleString('en-US')} ر.ع.</span>
                               </div>
                               {priceCalc.depositAmount && (
-                                <p className="text-xs text-on-surface-variant mt-1.5">+ تأمين {priceCalc.depositAmount.toLocaleString('en-US')} ر.ع. (مسترد)</p>
+                                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">+ تأمين {priceCalc.depositAmount.toLocaleString('en-US')} ر.ع. (مسترد)</p>
                               )}
                             </div>
                           )}
 
                           {/* Booked dates warning */}
                           {availability && availability.length > 0 && (
-                            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
-                              <p className="text-xs font-black text-amber-700 dark:text-amber-400 mb-1 flex items-center gap-1"><span className="material-symbols-outlined text-sm">event_busy</span>فترات محجوزة:</p>
+                            <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/40 rounded-lg p-2.5">
+                              <p className="text-[11px] font-black text-amber-700 dark:text-amber-400 mb-0.5 flex items-center gap-1"><span className="material-symbols-outlined text-xs">event_busy</span>فترات محجوزة:</p>
                               {availability.map((a, i) => (
-                                <p key={i} className="text-xs text-amber-600 dark:text-amber-500 mr-5">
+                                <p key={i} className="text-[10px] text-amber-600 dark:text-amber-400 mr-4">
                                   {new Date(a.startDate).toLocaleDateString('ar-OM')} — {new Date(a.endDate).toLocaleDateString('ar-OM')}
                                 </p>
                               ))}
@@ -402,36 +403,36 @@ export default function CarDetailsPage() {
                           <button
                             onClick={handleBooking}
                             disabled={createBooking.isPending || !startDate || !endDate}
-                            className="btn-green w-full py-3.5 rounded-xl text-base font-black hover:brightness-110 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-2"
+                            className="btn-green w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-1.5"
                           >
-                            <span className="material-symbols-outlined text-lg">event_available</span>
+                            <span className="material-symbols-outlined text-base">event_available</span>
                             {createBooking.isPending ? 'جارٍ الحجز...' : 'احجز الآن'}
                           </button>
                         </div>
                       )}
 
                       {isOwner && (
-                        <Link href={`/edit-listing/${car.id}`} className="bg-on-surface text-surface w-full py-3.5 rounded-xl text-center block text-base font-black hover:bg-primary hover:text-on-primary transition-colors">
+                        <Link href={`/edit-listing/${car.id}`} className="bg-on-surface text-surface w-full py-2.5 rounded-xl text-center block text-sm font-black hover:bg-primary hover:text-on-primary transition-colors">
                           تعديل الإعلان
                         </Link>
                       )}
                     </>
                   ) : (
                     <>
-                      <p className="text-3xl font-black text-primary mb-1" style={{ fontFamily: 'var(--font-body)' }}>
-                        {priceFormatted} <small className="text-base font-bold text-on-surface-variant">{car.currency}</small>
+                      <p className="text-2xl font-black text-primary mb-0.5" style={{ fontFamily: 'var(--font-body)' }}>
+                        {priceFormatted} <small className="text-sm font-bold text-on-surface-variant">{car.currency}</small>
                       </p>
                       {car.isPriceNegotiable && (
-                        <p className="text-primary text-sm font-bold mb-4 flex items-center gap-1"><span className="material-symbols-outlined text-sm">swap_horiz</span>قابل للتفاوض</p>
+                        <p className="text-primary text-xs font-bold mb-3 flex items-center gap-1"><span className="material-symbols-outlined text-xs">swap_horiz</span>قابل للتفاوض</p>
                       )}
 
                       {isOwner ? (
-                        <Link href={`/edit-listing/${car.id}`} className="bg-on-surface text-surface w-full py-3.5 rounded-xl text-center block text-base font-black hover:bg-primary hover:text-on-primary transition-colors">
+                        <Link href={`/edit-listing/${car.id}`} className="bg-on-surface text-surface w-full py-2.5 rounded-xl text-center block text-sm font-black hover:bg-primary hover:text-on-primary transition-colors">
                           تعديل الإعلان
                         </Link>
                       ) : (
-                        <button onClick={handleBuyNow} disabled={createConv.isPending} className="bg-primary text-on-primary w-full py-3.5 rounded-xl text-base font-black hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-2">
-                          <span className="material-symbols-outlined text-lg">shopping_cart</span>
+                        <button onClick={handleBuyNow} disabled={createConv.isPending} className="bg-primary text-on-primary w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-1.5">
+                          <span className="material-symbols-outlined text-base">shopping_cart</span>
                           {createConv.isPending ? 'جارٍ التواصل...' : 'اشترِ الآن'}
                         </button>
                       )}
@@ -442,49 +443,49 @@ export default function CarDetailsPage() {
 
               {/* Seller Info */}
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm">
-                <div className="px-5 py-3.5 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-lg">storefront</span>
-                  <h3 className="font-black text-on-surface text-sm">معلومات البائع</h3>
+                <div className="px-4 py-3 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-primary text-base">storefront</span>
+                  <h3 className="font-black text-on-surface text-xs">معلومات البائع</h3>
                 </div>
-                <div className="p-5">
-                  <Link href={`/seller/${car.seller.id}`} className="flex items-center gap-3.5 mb-4 group">
+                <div className="p-4">
+                  <Link href={`/seller/${car.seller.id}`} className="flex items-center gap-3 mb-3 group">
                     <div className="relative shrink-0">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-lg shadow-md">
+                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-black text-sm shadow-md">
                         {(car.seller.displayName || car.seller.username)[0]?.toUpperCase()}
                       </div>
                       {car.seller.isVerified && (
-                        <div className="absolute -bottom-1 -left-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
-                          <span className="material-symbols-outlined text-white text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                        <div className="absolute -bottom-0.5 -left-0.5 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
+                          <span className="material-symbols-outlined text-white text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                         </div>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-black text-on-surface group-hover:text-primary transition-colors truncate">
+                      <p className="font-black text-on-surface text-sm group-hover:text-primary transition-colors truncate">
                         {car.seller.displayName || car.seller.username}
                       </p>
                       {car.seller.isVerified && <VerifiedBadge label="بائع موثق" />}
                       {car.seller.governorate && (
-                        <p className="text-xs text-on-surface-variant mt-0.5 flex items-center gap-1"><span className="material-symbols-outlined text-xs text-primary">location_on</span>{car.seller.governorate}</p>
+                        <p className="text-[11px] text-on-surface-variant mt-0.5 flex items-center gap-0.5"><span className="material-symbols-outlined text-[11px] text-primary">location_on</span>{car.seller.governorate}</p>
                       )}
                     </div>
                   </Link>
 
                   {!isOwner && (
-                    <div className="grid grid-cols-2 gap-2.5">
+                    <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={handleMessage}
                         disabled={createConv.isPending}
-                        className="bg-surface-container-low dark:bg-surface-container-high text-on-surface py-3 rounded-xl font-black text-sm hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-2"
+                        className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 py-2.5 rounded-lg font-black text-xs hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-1.5"
                       >
-                        <span className="material-symbols-outlined text-base">chat</span>
+                        <span className="material-symbols-outlined text-sm">chat</span>
                         {createConv.isPending ? 'جارٍ...' : 'مراسلة'}
                       </button>
                       {car.seller.phone && (
                         <a
                           href={`tel:${car.seller.phone}`}
-                          className="bg-primary text-on-primary py-3 rounded-xl font-black text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2"
+                          className="bg-primary text-on-primary py-2.5 rounded-lg font-black text-xs hover:brightness-110 transition-all flex items-center justify-center gap-1.5"
                         >
-                          <span className="material-symbols-outlined text-base">call</span>
+                          <span className="material-symbols-outlined text-sm">call</span>
                           اتصال
                         </a>
                       )}
@@ -494,22 +495,22 @@ export default function CarDetailsPage() {
               </div>
 
               {/* Social Proof — Urgency Bar */}
-              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm p-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 text-on-surface-variant text-sm">
-                    <span className="material-symbols-outlined text-base text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm p-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 text-on-surface-variant text-xs">
+                    <span className="material-symbols-outlined text-sm text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
                     <span className="font-black text-on-surface">{car.viewCount}</span>
                     <span>مشاهدة</span>
                   </div>
-                  <span className="text-outline-variant/30">|</span>
-                  <div className="flex items-center gap-1.5 text-on-surface-variant text-sm">
-                    <span className="material-symbols-outlined text-base text-primary">schedule</span>
+                  <span className="text-outline-variant/20">|</span>
+                  <div className="flex items-center gap-1 text-on-surface-variant text-xs">
+                    <span className="material-symbols-outlined text-sm text-primary">schedule</span>
                     <span>{relativeTime(car.createdAt)}</span>
                   </div>
                 </div>
                 {car.viewCount >= 10 && (
-                  <div className="mt-3 flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-3 py-2 rounded-lg text-xs font-black">
-                    <span className="material-symbols-outlined text-sm">local_fire_department</span>
+                  <div className="mt-2 flex items-center gap-1.5 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2.5 py-1.5 rounded-md text-[11px] font-black">
+                    <span className="material-symbols-outlined text-xs">local_fire_department</span>
                     إعلان مطلوب — {car.viewCount} شخص شاهد هذا الإعلان
                   </div>
                 )}
