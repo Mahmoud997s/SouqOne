@@ -22,15 +22,29 @@ export function useChatRoom(conversationId: string) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastTypingRef = useRef(0);
-  const notifSoundRef = useRef<HTMLAudioElement | null>(null);
 
   const convInfo = allConversations?.find(c => c.id === conversationId) ?? null;
   const otherParticipant = convInfo?.participants?.find(p => p.id !== user?.id) ?? null;
 
-  // Notification sound
+  // Notification sound — short beep via AudioContext (no external file needed)
+  const audioCtxRef = useRef<AudioContext | null>(null);
   useEffect(() => {
-    notifSoundRef.current = new Audio('/sounds/notification.mp3');
-    notifSoundRef.current.volume = 0.3;
+    try {
+      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    } catch { audioCtxRef.current = null; }
+  }, []);
+  const playNotifSound = useCallback(() => {
+    try {
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      osc.connect(gain).connect(ctx.destination);
+      ctx.resume().then(() => { osc.start(); osc.stop(ctx.currentTime + 0.15); });
+    } catch {}
   }, []);
 
   // Load initial messages from API
@@ -61,7 +75,7 @@ export function useChatRoom(conversationId: string) {
         return [...withoutTemp, msg];
       });
       if (msg.senderId !== user.id) {
-        notifSoundRef.current?.play().catch(() => {});
+        playNotifSound();
         markRead.mutate();
       }
     };
