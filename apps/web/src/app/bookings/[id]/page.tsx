@@ -9,11 +9,19 @@ import { useBooking, useUpdateBookingStatus } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
 import { useToast } from '@/components/toast';
 import { getImageUrl } from '@/lib/image-utils';
-import { BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS_BORDER, CANCEL_LABELS } from '@/lib/constants/mappings';
+import { BOOKING_STATUS_LABELS, CANCEL_LABELS } from '@/lib/constants/mappings';
 
 const statusLabels = BOOKING_STATUS_LABELS;
-const statusColors = BOOKING_STATUS_COLORS_BORDER;
 const cancelLabels = CANCEL_LABELS;
+
+const statusConfig: Record<string, { icon: string; bg: string; text: string; border: string; badge: string; desc: string }> = {
+  PENDING:   { icon: 'hourglass_top', bg: 'bg-amber-50 dark:bg-amber-950/30',  text: 'text-amber-700 dark:text-amber-400',  border: 'border-amber-200 dark:border-amber-800', badge: 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400', desc: 'في انتظار موافقة المؤجر' },
+  CONFIRMED: { icon: 'check_circle',  bg: 'bg-emerald-50 dark:bg-emerald-950/30', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800', badge: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400', desc: 'تم تأكيد الحجز بنجاح' },
+  ACTIVE:    { icon: 'play_circle',   bg: 'bg-blue-50 dark:bg-blue-950/30',    text: 'text-blue-700 dark:text-blue-400',    border: 'border-blue-200 dark:border-blue-800', badge: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400', desc: 'السيارة مع المستأجر حالياً' },
+  COMPLETED: { icon: 'task_alt',      bg: 'bg-emerald-50 dark:bg-emerald-950/30', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800', badge: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400', desc: 'تم إكمال الحجز بنجاح' },
+  CANCELLED: { icon: 'cancel',       bg: 'bg-red-50 dark:bg-red-950/30',      text: 'text-red-700 dark:text-red-400',      border: 'border-red-200 dark:border-red-800', badge: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400', desc: 'تم إلغاء هذا الحجز' },
+  REJECTED:  { icon: 'block',        bg: 'bg-red-50 dark:bg-red-950/30',      text: 'text-red-700 dark:text-red-400',      border: 'border-red-200 dark:border-red-800', badge: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400', desc: 'تم رفض هذا الحجز' },
+};
 
 export default function BookingDetailPage() {
   return (
@@ -42,260 +50,340 @@ function BookingDetailContent() {
     }
   }
 
+  /* ── Loading ── */
   if (isLoading) {
     return (
       <>
         <Navbar />
-        <main className="pt-28 pb-16 max-w-[900px] mx-auto px-4 md:px-8">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-surface-container-low rounded-xl w-1/3" />
-            <div className="h-64 bg-surface-container-low rounded-xl" />
-            <div className="h-48 bg-surface-container-low rounded-xl" />
-          </div>
-        </main>
+        <div className="min-h-screen bg-background">
+          <div className="h-40 bg-gradient-to-bl from-primary via-primary-container to-brand-navy" />
+          <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-16">
+            <div className="animate-pulse space-y-5">
+              <div className="h-24 bg-surface-container-lowest dark:bg-surface-container" />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <div className="lg:col-span-2 space-y-5">
+                  <div className="h-48 bg-surface-container-lowest dark:bg-surface-container" />
+                  <div className="h-40 bg-surface-container-lowest dark:bg-surface-container" />
+                </div>
+                <div className="h-64 bg-surface-container-lowest dark:bg-surface-container" />
+              </div>
+            </div>
+          </main>
+        </div>
       </>
     );
   }
 
+  /* ── Error ── */
   if (isError || !booking) {
     return (
       <>
         <Navbar />
-        <main className="pt-28 pb-16 max-w-[900px] mx-auto px-4 md:px-8 text-center">
-          <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4 block">error</span>
-          <p className="text-xl font-bold mb-2">الحجز غير موجود</p>
-          <Link href="/bookings" className="text-primary font-bold">العودة للحجوزات</Link>
-        </main>
+        <div className="min-h-screen bg-background pt-28">
+          <main className="max-w-lg mx-auto px-6 text-center">
+            <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-error/10 flex items-center justify-center">
+              <span className="material-symbols-outlined text-4xl text-error">error</span>
+            </div>
+            <h2 className="text-xl font-black text-on-surface mb-2">الحجز غير موجود</h2>
+            <p className="text-sm text-on-surface-variant mb-6">قد يكون تم حذف هذا الحجز أو لا تملك صلاحية الوصول إليه</p>
+            <Link href="/bookings" className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 text-sm font-black hover:brightness-110 transition-all">
+              <span className="material-symbols-outlined text-lg">arrow_forward</span>
+              العودة للحجوزات
+            </Link>
+          </main>
+        </div>
       </>
     );
   }
 
   const img = booking.listing?.images?.find((i: any) => i.isPrimary) ?? booking.listing?.images?.[0];
   const otherUser = isOwner ? booking.renter : booking.owner;
+  const sc = statusConfig[booking.status] ?? statusConfig.PENDING;
 
   return (
     <>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-[900px] mx-auto px-4 md:px-8">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-on-surface-variant mb-6">
-          <Link href="/bookings" className="hover:text-primary transition-colors">الحجوزات</Link>
-          <span className="material-symbols-outlined text-xs">chevron_left</span>
-          <span className="text-on-surface font-medium">تفاصيل الحجز</span>
-        </nav>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Info */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Status Banner */}
-            <div className={`rounded-xl p-5 border ${statusColors[booking.status] ?? 'bg-gray-100 text-gray-600 border-gray-200'}`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-2xl">
-                    {booking.status === 'PENDING' ? 'hourglass_top' :
-                     booking.status === 'CONFIRMED' ? 'check_circle' :
-                     booking.status === 'ACTIVE' ? 'play_circle' :
-                     booking.status === 'COMPLETED' ? 'task_alt' : 'cancel'}
-                  </span>
-                  <div>
-                    <p className="font-extrabold text-lg">{statusLabels[booking.status]}</p>
-                    <p className="text-xs opacity-75">
-                      {booking.status === 'PENDING' && 'في انتظار موافقة المؤجر'}
-                      {booking.status === 'CONFIRMED' && 'تم تأكيد الحجز'}
-                      {booking.status === 'ACTIVE' && 'السيارة مع المستأجر حالياً'}
-                      {booking.status === 'COMPLETED' && 'تم إكمال الحجز بنجاح'}
-                      {booking.status === 'CANCELLED' && 'تم إلغاء هذا الحجز'}
-                      {booking.status === 'REJECTED' && 'تم رفض هذا الحجز'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Car Info */}
-            <div className="bg-surface-container-lowest rounded-xl p-6 flex gap-4">
-              <div className="w-28 h-20 rounded-xl overflow-hidden bg-surface-container-low shrink-0">
-                {getImageUrl(img?.url) ? (
-                  <img src={getImageUrl(img?.url)!} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-on-surface-variant">
-                    <span className="material-symbols-outlined text-3xl">car_rental</span>
-                  </div>
-                )}
-              </div>
-              <div>
-                <Link href={`/cars/${booking.listingId}`} className="font-bold text-on-surface hover:text-primary transition-colors">
-                  {booking.listing?.title ?? 'سيارة'}
-                </Link>
-                <p className="text-xs text-on-surface-variant mt-1">
-                  {booking.listing?.year} · {booking.listing?.make} {booking.listing?.model}
-                </p>
-                {booking.listing?.governorate && (
-                  <p className="text-xs text-on-surface-variant mt-1 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">location_on</span>
-                    {booking.listing.governorate}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Booking Details */}
-            <div className="bg-surface-container-lowest rounded-xl p-6">
-              <h2 className="font-extrabold text-lg mb-4">تفاصيل الحجز</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-1">تاريخ البداية</p>
-                  <p className="font-bold text-sm">{new Date(booking.startDate).toLocaleDateString('ar-OM', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-1">تاريخ النهاية</p>
-                  <p className="font-bold text-sm">{new Date(booking.endDate).toLocaleDateString('ar-OM', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-1">المدة</p>
-                  <p className="font-bold text-sm">{booking.totalDays} يوم</p>
-                </div>
-                <div>
-                  <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-1">سياسة الإلغاء</p>
-                  <p className="font-bold text-sm">{cancelLabels[booking.cancellationPolicy] ?? booking.cancellationPolicy}</p>
-                </div>
-                {booking.pickupLocation && (
-                  <div>
-                    <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-1">موقع الاستلام</p>
-                    <p className="font-bold text-sm">{booking.pickupLocation}</p>
-                  </div>
-                )}
-                {booking.dropoffLocation && (
-                  <div>
-                    <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-1">موقع التسليم</p>
-                    <p className="font-bold text-sm">{booking.dropoffLocation}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Badges */}
-              <div className="flex flex-wrap gap-2 mt-4">
-                {booking.driverRequested && <span className="bg-primary/10 text-primary text-xs font-bold px-3 py-1.5 rounded-full">مع سائق</span>}
-                {booking.insuranceSelected && <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full">تأمين شامل</span>}
-              </div>
-
-              {booking.notes && (
-                <div className="mt-4 bg-surface-container-low rounded-xl p-4">
-                  <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">ملاحظات</p>
-                  <p className="text-sm text-on-surface">{booking.notes}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Timeline */}
-            <div className="bg-surface-container-lowest rounded-xl p-6">
-              <h2 className="font-extrabold text-lg mb-4">السجل الزمني</h2>
-              <div className="space-y-3">
-                <TimelineItem date={booking.createdAt} label="تم إنشاء الحجز" icon="add_circle" />
-                {booking.confirmedAt && <TimelineItem date={booking.confirmedAt} label="تم تأكيد الحجز" icon="check_circle" />}
-                {booking.cancelledAt && <TimelineItem date={booking.cancelledAt} label="تم إلغاء الحجز" icon="cancel" />}
-                {booking.completedAt && <TimelineItem date={booking.completedAt} label="تم إكمال الحجز" icon="task_alt" />}
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Price Card */}
-            <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
-              <h3 className="text-sm font-bold text-on-surface-variant uppercase tracking-widest mb-4">ملخص الدفع</h3>
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-on-surface-variant">المبلغ الإجمالي</span>
-                  <span className="font-bold text-on-surface">{Number(booking.totalPrice).toLocaleString('en-US')} ر.ع.</span>
-                </div>
-                {booking.depositAmount && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-on-surface-variant">مبلغ التأمين</span>
-                    <span className="font-bold text-on-surface">{Number(booking.depositAmount).toLocaleString('en-US')} ر.ع.</span>
-                  </div>
-                )}
-              </div>
-              <div className="border-t border-surface-container pt-3">
-                <div className="flex justify-between">
-                  <span className="font-bold text-on-surface">الإجمالي</span>
-                  <span className="text-2xl font-extrabold text-primary">
-                    {Number(booking.totalPrice).toLocaleString('en-US')} <small className="text-xs text-on-surface-variant">ر.ع.</small>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Other User */}
-            {otherUser && (
-              <div className="bg-surface-container-lowest rounded-xl p-6">
-                <h3 className="text-sm font-bold text-on-surface-variant uppercase tracking-widest mb-4">
-                  {isOwner ? 'المستأجر' : 'المؤجر'}
-                </h3>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold shrink-0">
-                    {(otherUser.displayName || otherUser.username)[0]?.toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-bold text-on-surface text-sm">{otherUser.displayName || otherUser.username}</p>
-                  </div>
-                </div>
-                {otherUser.phone && (
-                  <a href={`tel:${otherUser.phone}`} className="flex items-center gap-2 text-sm text-primary font-bold hover:underline">
-                    <span className="material-symbols-outlined text-lg">call</span>
-                    {otherUser.phone}
-                  </a>
-                )}
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="space-y-3">
-              {isOwner && booking.status === 'PENDING' && (
-                <>
-                  <button onClick={() => handleStatus('CONFIRMED')} disabled={updateStatus.isPending} className="bg-primary text-on-primary hover:brightness-110 rounded-lg shadow-ambient w-full py-3 text-sm font-bold disabled:opacity-60">
-                    قبول الحجز
-                  </button>
-                  <button onClick={() => handleStatus('REJECTED')} disabled={updateStatus.isPending} className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold text-sm hover:bg-red-100 transition-colors disabled:opacity-60">
-                    رفض الحجز
-                  </button>
-                </>
-              )}
-              {isOwner && booking.status === 'CONFIRMED' && (
-                <button onClick={() => handleStatus('ACTIVE')} disabled={updateStatus.isPending} className="bg-primary text-on-primary hover:brightness-110 rounded-lg w-full py-3 text-sm font-bold disabled:opacity-60">
-                  تفعيل الحجز (تم استلام السيارة)
-                </button>
-              )}
-              {isOwner && booking.status === 'ACTIVE' && (
-                <button onClick={() => handleStatus('COMPLETED')} disabled={updateStatus.isPending} className="bg-primary text-on-primary hover:brightness-110 rounded-lg shadow-ambient w-full py-3 text-sm font-bold disabled:opacity-60">
-                  إكمال الحجز (تم إرجاع السيارة)
-                </button>
-              )}
-              {isRenter && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
-                <button onClick={() => handleStatus('CANCELLED')} disabled={updateStatus.isPending} className="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold text-sm hover:bg-red-100 transition-colors disabled:opacity-60">
-                  إلغاء الحجز
-                </button>
-              )}
-
-              <Link href="/bookings" className="block text-center text-primary font-bold text-sm hover:underline">
-                العودة للحجوزات
-              </Link>
-            </div>
-          </div>
+      <div className="min-h-screen bg-background" dir="rtl">
+        {/* Cover gradient */}
+        <div className="h-40 md:h-48 bg-gradient-to-bl from-primary via-primary-container to-brand-navy relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
         </div>
-      </main>
+
+        <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 md:-mt-24 relative z-10 pb-16">
+
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
+            <Link href="/bookings" className="hover:text-white transition-colors flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">event</span>
+              الحجوزات
+            </Link>
+            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <span className="text-white font-bold">تفاصيل الحجز</span>
+          </nav>
+
+          {/* Status Banner Card */}
+          <div className={`${sc.bg} ${sc.border} border p-5 md:p-6 mb-6 shadow-sm`}>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-xl ${sc.badge} flex items-center justify-center`}>
+                  <span className={`material-symbols-outlined text-2xl ${sc.text}`}>{sc.icon}</span>
+                </div>
+                <div>
+                  <p className={`font-black text-lg ${sc.text}`}>{statusLabels[booking.status]}</p>
+                  <p className={`text-xs ${sc.text} opacity-80`}>{sc.desc}</p>
+                </div>
+              </div>
+              <span className={`text-xs font-black px-3 py-1.5 rounded-full ${sc.badge}`}>
+                #{booking.id.slice(-6).toUpperCase()}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* ── Main Column ── */}
+            <div className="lg:col-span-2 space-y-6">
+
+              {/* Car Info Card */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="flex gap-0">
+                  <div className="w-36 md:w-44 shrink-0 bg-surface-container-low dark:bg-surface-container-high">
+                    {getImageUrl(img?.url) ? (
+                      <img src={getImageUrl(img?.url)!} alt="" className="w-full h-full object-cover aspect-[4/3]" />
+                    ) : (
+                      <div className="w-full aspect-[4/3] flex items-center justify-center text-on-surface-variant/30">
+                        <span className="material-symbols-outlined text-5xl">directions_car</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 p-5 md:p-6 flex flex-col justify-center">
+                    <Link href={`/cars/${booking.listingId}`} className="font-black text-on-surface text-base md:text-lg hover:text-primary transition-colors line-clamp-2">
+                      {booking.listing?.title ?? 'سيارة'}
+                    </Link>
+                    <p className="text-xs text-on-surface-variant mt-1.5 flex items-center gap-1.5">
+                      <span className="font-bold">{booking.listing?.make} {booking.listing?.model}</span>
+                      <span className="w-1 h-1 rounded-full bg-outline/40" />
+                      <span>{booking.listing?.year}</span>
+                    </p>
+                    {booking.listing?.governorate && (
+                      <p className="text-xs text-on-surface-variant mt-2 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm text-primary">location_on</span>
+                        {booking.listing.governorate}
+                      </p>
+                    )}
+                    <Link href={`/cars/${booking.listingId}`} className="mt-3 inline-flex items-center gap-1 text-primary text-xs font-bold hover:underline">
+                      عرض السيارة
+                      <span className="material-symbols-outlined text-sm">arrow_back</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Booking Details Card */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">event_note</span>
+                  <h2 className="font-black text-on-surface">تفاصيل الحجز</h2>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+                    <DetailCell icon="event" label="تاريخ البداية" value={new Date(booking.startDate).toLocaleDateString('ar-OM', { year: 'numeric', month: 'long', day: 'numeric' })} />
+                    <DetailCell icon="event_upcoming" label="تاريخ النهاية" value={new Date(booking.endDate).toLocaleDateString('ar-OM', { year: 'numeric', month: 'long', day: 'numeric' })} />
+                    <DetailCell icon="timelapse" label="المدة" value={`${booking.totalDays} يوم`} />
+                    <DetailCell icon="gavel" label="سياسة الإلغاء" value={cancelLabels[booking.cancellationPolicy] ?? booking.cancellationPolicy} />
+                    {booking.pickupLocation && <DetailCell icon="pin_drop" label="موقع الاستلام" value={booking.pickupLocation} />}
+                    {booking.dropoffLocation && <DetailCell icon="flag" label="موقع التسليم" value={booking.dropoffLocation} />}
+                  </div>
+
+                  {/* Service badges */}
+                  {(booking.driverRequested || booking.insuranceSelected) && (
+                    <div className="flex flex-wrap gap-2 mt-5 pt-5 border-t border-outline-variant/10 dark:border-outline-variant/20">
+                      {booking.driverRequested && (
+                        <span className="inline-flex items-center gap-1.5 bg-primary/10 dark:bg-primary/20 text-primary text-xs font-bold px-3 py-2 rounded-lg">
+                          <span className="material-symbols-outlined text-sm">person</span>
+                          مع سائق
+                        </span>
+                      )}
+                      {booking.insuranceSelected && (
+                        <span className="inline-flex items-center gap-1.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-3 py-2 rounded-lg">
+                          <span className="material-symbols-outlined text-sm">verified_user</span>
+                          تأمين شامل
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Notes */}
+                  {booking.notes && (
+                    <div className="mt-5 pt-5 border-t border-outline-variant/10 dark:border-outline-variant/20">
+                      <p className="text-xs font-bold text-on-surface-variant mb-2 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">sticky_note_2</span>
+                        ملاحظات
+                      </p>
+                      <p className="text-sm text-on-surface bg-surface-container-low dark:bg-surface-container-high p-4 rounded-lg leading-relaxed">{booking.notes}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Timeline Card */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">timeline</span>
+                  <h2 className="font-black text-on-surface">السجل الزمني</h2>
+                </div>
+                <div className="p-6">
+                  <div className="relative pr-4">
+                    {/* Timeline line */}
+                    <div className="absolute right-[7px] top-2 bottom-2 w-0.5 bg-outline-variant/20 dark:bg-outline-variant/30" />
+                    <div className="space-y-5">
+                      <TimelineItem date={booking.createdAt} label="تم إنشاء الحجز" color="bg-primary" />
+                      {booking.confirmedAt && <TimelineItem date={booking.confirmedAt} label="تم تأكيد الحجز" color="bg-emerald-500" />}
+                      {booking.cancelledAt && <TimelineItem date={booking.cancelledAt} label="تم إلغاء الحجز" color="bg-red-500" />}
+                      {booking.completedAt && <TimelineItem date={booking.completedAt} label="تم إكمال الحجز" color="bg-emerald-500" />}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Sidebar ── */}
+            <div className="space-y-6">
+
+              {/* Price Summary Card */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">receipt_long</span>
+                  <h3 className="font-black text-on-surface text-sm">ملخص الدفع</h3>
+                </div>
+                <div className="p-6">
+                  <div className="space-y-3 mb-5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-on-surface-variant">إيجار {booking.totalDays} يوم</span>
+                      <span className="font-bold text-sm text-on-surface">{Number(booking.totalPrice).toLocaleString('en-US')} ر.ع.</span>
+                    </div>
+                    {booking.depositAmount && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-on-surface-variant flex items-center gap-1">
+                          مبلغ التأمين
+                          <span className="text-[10px] text-on-surface-variant/60">(مسترد)</span>
+                        </span>
+                        <span className="font-bold text-sm text-on-surface">{Number(booking.depositAmount).toLocaleString('en-US')} ر.ع.</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="border-t border-outline-variant/10 dark:border-outline-variant/20 pt-4">
+                    <div className="flex justify-between items-center">
+                      <span className="font-black text-on-surface">الإجمالي</span>
+                      <div className="text-left">
+                        <span className="text-2xl font-black text-primary">{Number(booking.totalPrice).toLocaleString('en-US')}</span>
+                        <span className="text-xs text-on-surface-variant mr-1">ر.ع.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Other User Card */}
+              {otherUser && (
+                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">person</span>
+                    <h3 className="font-black text-on-surface text-sm">{isOwner ? 'المستأجر' : 'المؤجر'}</h3>
+                  </div>
+                  <div className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-lg shrink-0">
+                        {(otherUser.displayName || otherUser.username)[0]?.toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-black text-on-surface text-sm">{otherUser.displayName || otherUser.username}</p>
+                        <p className="text-xs text-on-surface-variant">@{otherUser.username}</p>
+                      </div>
+                    </div>
+                    {otherUser.phone && (
+                      <div className="space-y-2">
+                        <a href={`tel:${otherUser.phone}`} className="flex items-center gap-2.5 p-3 bg-surface-container-low dark:bg-surface-container-high rounded-lg text-sm font-bold text-on-surface hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors" dir="ltr">
+                          <span className="material-symbols-outlined text-primary text-lg">call</span>
+                          {otherUser.phone}
+                        </a>
+                        <a href={`https://wa.me/${otherUser.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener" className="flex items-center justify-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-lg text-sm font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
+                          <span className="material-symbols-outlined text-lg">chat</span>
+                          واتساب
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions Card */}
+              <div className="space-y-3">
+                {isOwner && booking.status === 'PENDING' && (
+                  <>
+                    <button onClick={() => handleStatus('CONFIRMED')} disabled={updateStatus.isPending} className="w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all shadow-ambient disabled:opacity-60 flex items-center justify-center gap-2">
+                      <span className="material-symbols-outlined text-lg">check_circle</span>
+                      قبول الحجز
+                    </button>
+                    <button onClick={() => handleStatus('REJECTED')} disabled={updateStatus.isPending} className="w-full py-3.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 font-black text-sm hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+                      <span className="material-symbols-outlined text-lg">block</span>
+                      رفض الحجز
+                    </button>
+                  </>
+                )}
+                {isOwner && booking.status === 'CONFIRMED' && (
+                  <button onClick={() => handleStatus('ACTIVE')} disabled={updateStatus.isPending} className="w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-lg">play_circle</span>
+                    تفعيل الحجز (تم استلام السيارة)
+                  </button>
+                )}
+                {isOwner && booking.status === 'ACTIVE' && (
+                  <button onClick={() => handleStatus('COMPLETED')} disabled={updateStatus.isPending} className="w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all shadow-ambient disabled:opacity-60 flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-lg">task_alt</span>
+                    إكمال الحجز (تم إرجاع السيارة)
+                  </button>
+                )}
+                {isRenter && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
+                  <button onClick={() => handleStatus('CANCELLED')} disabled={updateStatus.isPending} className="w-full py-3.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 font-black text-sm hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+                    <span className="material-symbols-outlined text-lg">cancel</span>
+                    إلغاء الحجز
+                  </button>
+                )}
+
+                <Link href="/bookings" className="flex items-center justify-center gap-2 py-3 text-primary font-bold text-sm hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition-colors">
+                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                  العودة للحجوزات
+                </Link>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
       <Footer />
     </>
   );
 }
 
-function TimelineItem({ date, label, icon }: { date: string; label: string; icon: string }) {
+/* ── Sub-components ── */
+
+function DetailCell({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3">
-      <span className="material-symbols-outlined text-primary text-lg">{icon}</span>
-      <div>
-        <p className="text-sm font-bold text-on-surface">{label}</p>
-        <p className="text-xs text-on-surface-variant">
+    <div className="bg-surface-container-low/50 dark:bg-surface-container-high/30 p-4 rounded-lg">
+      <div className="flex items-center gap-1.5 mb-2">
+        <span className="material-symbols-outlined text-primary text-sm">{icon}</span>
+        <p className="text-[11px] text-on-surface-variant font-bold">{label}</p>
+      </div>
+      <p className="font-black text-sm text-on-surface">{value}</p>
+    </div>
+  );
+}
+
+function TimelineItem({ date, label, color }: { date: string; label: string; color: string }) {
+  return (
+    <div className="flex items-start gap-4 relative">
+      <div className={`w-3.5 h-3.5 rounded-full ${color} ring-4 ring-background shrink-0 mt-0.5 relative z-10`} />
+      <div className="pb-1">
+        <p className="text-sm font-black text-on-surface">{label}</p>
+        <p className="text-xs text-on-surface-variant mt-0.5">
           {new Date(date).toLocaleDateString('ar-OM', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>
