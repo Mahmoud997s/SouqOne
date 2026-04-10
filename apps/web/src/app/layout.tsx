@@ -30,11 +30,22 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={tajawal.variable} suppressHydrationWarning>
       <head>
+        <style dangerouslySetInnerHTML={{ __html: `
+          body { opacity: 0; }
+          body.ready { opacity: 1; transition: opacity 0.1s ease; }
+        `}} />
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"
         />
         <script src="https://accounts.google.com/gsi/client" async defer />
+        <script dangerouslySetInnerHTML={{ __html: `
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() { document.body.classList.add('ready'); });
+          } else {
+            document.body.classList.add('ready');
+          }
+        `}} />
       </head>
       <body className="bg-surface text-on-surface antialiased">
         <ThemeProvider>
