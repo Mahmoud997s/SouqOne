@@ -61,7 +61,7 @@ export function HeroSection() {
             <div className="absolute top-[10%] right-[-10%] w-[50%] h-[70%] bg-orange-400/[0.10] dark:bg-orange-400/[0.06] rounded-[50%] blur-[60px]" />
           </div>
           <img
-            src="/hero-banner.png"
+            src="/hero-banner.webp"
             alt="SouqOne - سوق وان"
             className="relative w-full h-auto object-contain drop-shadow-[0_8px_24px_rgba(15,23,42,0.10)] dark:drop-shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
             style={{ animation: 'hero-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards, hero-glow 4s ease-in-out 1.2s infinite' }}
