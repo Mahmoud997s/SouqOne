@@ -9,24 +9,43 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     const redisUrl = process.env.REDIS_URL;
-    const redisConfig = redisUrl
-      ? redisUrl
-      : {
-          host: process.env.REDIS_HOST || 'localhost',
-          port: parseInt(process.env.REDIS_PORT || '6379', 10),
-          password: process.env.REDIS_PASSWORD || undefined,
-        };
-    const retryStrategy = (times: number) => Math.min(times * 50, 2000);
+    console.log(`[RedisService] REDIS_URL present: ${!!redisUrl}, starts with: ${redisUrl?.substring(0, 20)}...`);
 
-    this.client = new Redis(redisConfig as any, { retryStrategy } as any);
-    this.publisher = new Redis(redisConfig as any, { retryStrategy } as any);
-    this.subscriber = new Redis(redisConfig as any, { retryStrategy } as any);
+    const retryStrategy = (times: number) => {
+      if (times > 5) return null as any; // stop retrying after 5 attempts
+      return Math.min(times * 200, 2000);
+    };
 
-    this.client.on('error', (err) => console.error('Redis Client Error:', err));
-    this.publisher.on('error', (err) => console.error('Redis Publisher Error:', err));
-    this.subscriber.on('error', (err) => console.error('Redis Subscriber Error:', err));
+    const opts: any = { retryStrategy, maxRetriesPerRequest: 3, lazyConnect: true };
 
-    console.log('✅ Redis connected');
+    if (redisUrl) {
+      this.client = new Redis(redisUrl, opts);
+      this.publisher = new Redis(redisUrl, opts);
+      this.subscriber = new Redis(redisUrl, opts);
+    } else {
+      const config = {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
+        password: process.env.REDIS_PASSWORD || undefined,
+        ...opts,
+      };
+      this.client = new Redis(config);
+      this.publisher = new Redis(config);
+      this.subscriber = new Redis(config);
+    }
+
+    this.client.on('error', (err) => console.error('Redis Client Error:', err.message));
+    this.publisher.on('error', (err) => console.error('Redis Publisher Error:', err.message));
+    this.subscriber.on('error', (err) => console.error('Redis Subscriber Error:', err.message));
+
+    try {
+      await this.client.connect();
+      await this.publisher.connect();
+      await this.subscriber.connect();
+      console.log('✅ Redis connected');
+    } catch (err) {
+      console.warn('⚠️ Redis connection failed — caching disabled:', (err as Error).message);
+    }
   }
 
   async onModuleDestroy() {

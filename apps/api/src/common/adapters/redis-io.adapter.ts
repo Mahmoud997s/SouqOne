@@ -8,23 +8,28 @@ export class RedisIoAdapter extends IoAdapter {
 
   async connectToRedis(): Promise<void> {
     const redisUrl = process.env.REDIS_URL;
-    const pubClient = redisUrl
-      ? createClient({ url: redisUrl })
-      : createClient({
-          socket: {
-            host: process.env.REDIS_HOST || 'localhost',
-            port: parseInt(process.env.REDIS_PORT || '6379', 10),
-          },
-          password: process.env.REDIS_PASSWORD || undefined,
-        });
+    console.log(`[RedisIoAdapter] REDIS_URL present: ${!!redisUrl}, starts with: ${redisUrl?.substring(0, 20)}...`);
 
-    const subClient = pubClient.duplicate();
+    try {
+      const pubClient = redisUrl
+        ? createClient({ url: redisUrl })
+        : createClient({
+            socket: {
+              host: process.env.REDIS_HOST || 'localhost',
+              port: parseInt(process.env.REDIS_PORT || '6379', 10),
+            },
+            password: process.env.REDIS_PASSWORD || undefined,
+          });
 
-    await Promise.all([pubClient.connect(), subClient.connect()]);
+      const subClient = pubClient.duplicate();
 
-    this.adapterConstructor = createAdapter(pubClient, subClient);
+      await Promise.all([pubClient.connect(), subClient.connect()]);
 
-    console.log('✅ Redis Socket.IO Adapter connected');
+      this.adapterConstructor = createAdapter(pubClient, subClient);
+      console.log('✅ Redis Socket.IO Adapter connected');
+    } catch (err) {
+      console.warn('⚠️ Redis Socket.IO Adapter failed — WebSocket scaling disabled:', (err as Error).message);
+    }
   }
 
   createIOServer(port: number, options?: ServerOptions): any {
