@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
-import { SEED_BRANDS } from './data/seed-brands';
+import { SEED_BRANDS } from './data/seed-brands-v2';
 import { firstValueFrom } from 'rxjs';
 
 /* ── CarQuery API types ── */
