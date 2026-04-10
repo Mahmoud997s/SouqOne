@@ -37,10 +37,10 @@ const navLinks: NavLinkItem[] = [
     ],
   },
   {
-    href: '/transport', label: 'نقل ورحلات',
+    href: '/coming-soon?section=transport', label: 'نقل ورحلات',
     children: [
-      { href: '/transport', label: 'نقل وشحن', icon: 'local_shipping', desc: 'بضائع، أثاث، شاحنات' },
-      { href: '/trips', label: 'رحلات واشتراكات', icon: 'departure_board', desc: 'باصات، مدارس، سياحة' },
+      { href: '/coming-soon?section=transport', label: 'نقل وشحن', icon: 'local_shipping', desc: 'بضائع، أثاث، شاحنات' },
+      { href: '/coming-soon?section=trips', label: 'رحلات واشتراكات', icon: 'departure_board', desc: 'باصات، مدارس، سياحة' },
     ],
   },
   { href: '/jobs', label: 'وظائف' },
@@ -52,8 +52,8 @@ const flatNavLinks = [
   { href: '/listings', label: 'سيارات' },
   { href: '/parts', label: 'قطع غيار' },
   { href: '/services', label: 'خدمات' },
-  { href: '/transport', label: 'نقل' },
-  { href: '/trips', label: 'رحلات' },
+  { href: '/coming-soon?section=transport', label: 'نقل' },
+  { href: '/coming-soon?section=trips', label: 'رحلات' },
   { href: '/insurance', label: 'تأمين' },
   { href: '/jobs', label: 'وظائف' },
 ];

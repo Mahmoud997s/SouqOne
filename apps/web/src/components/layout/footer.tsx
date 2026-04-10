@@ -14,8 +14,8 @@ const quickLinks = [
 
 const servicesLinks = [
   { label: 'خدمات سيارات', href: '/services' },
-  { label: 'نقل وشحن', href: '/transport' },
-  { label: 'رحلات واشتراكات', href: '/trips' },
+  { label: 'نقل وشحن', href: '/coming-soon?section=transport' },
+  { label: 'رحلات واشتراكات', href: '/coming-soon?section=trips' },
   { label: 'تأمين وتمويل', href: '/insurance' },
   { label: 'أضف إعلانك', href: '/add-listing' },
 ];
