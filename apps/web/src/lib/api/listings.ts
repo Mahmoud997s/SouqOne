@@ -18,6 +18,7 @@ export interface ListingItem {
   bodyType: string | null;
   exteriorColor: string | null;
   interior: string | null;
+  features: string[];
   engineSize: string | null;
   horsepower: number | null;
   doors: number | null;

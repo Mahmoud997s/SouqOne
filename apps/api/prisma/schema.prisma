@@ -102,6 +102,7 @@ model Listing {
   doors             Int?
   seats             Int?
   driveType         String?
+  features          String[]
 
   // نوع الإعلان
   listingType       ListingType    @default(SALE)

@@ -143,7 +143,7 @@ function ListingsContent() {
           createdAt: typeof hit.createdAt === 'number' ? new Date(hit.createdAt).toISOString() : (hit.createdAt || ''),
           latitude: null,
           longitude: null,
-          bodyType: null, exteriorColor: null, interior: null, engineSize: null, horsepower: null, doors: null, seats: null, driveType: null,
+          bodyType: null, exteriorColor: null, interior: null, features: [], engineSize: null, horsepower: null, doors: null, seats: null, driveType: null,
           images: hit.imageUrl ? [{ id: 'meili', url: hit.imageUrl, isPrimary: true }] : [],
           seller: { id: '', username: '', displayName: null, avatarUrl: null, phone: null, governorate: null, isVerified: false, createdAt: '' },
         })),

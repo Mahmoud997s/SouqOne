@@ -25,6 +25,7 @@ export interface ListingFormData {
   bodyType: string;
   exteriorColor: string;
   interiorColor: string;
+  features: string[];
   engineSize: string;
   horsepower: string;
   doors: string;
@@ -63,6 +64,7 @@ const defaultData: ListingFormData = {
   bodyType: '',
   exteriorColor: '',
   interiorColor: '',
+  features: [],
   engineSize: '',
   horsepower: '',
   doors: '',
@@ -96,6 +98,16 @@ interface ListingFormProps {
   onClearErrors: () => void;
   submitLabel: string;
 }
+
+const CAR_FEATURES = [
+  'شاشة لمس', 'كاميرا خلفية', 'كاميرا 360°', 'حساسات ركن',
+  'نظام ملاحة GPS', 'سخانات مقاعد', 'تبريد مقاعد', 'مقاعد جلد',
+  'فتحة سقف', 'بلوتوث', 'Apple CarPlay', 'Android Auto',
+  'مثبت سرعة', 'مفتاح ذكي', 'تشغيل عن بعد', 'مكيف أوتوماتيك',
+  'إضاءة LED', 'نظام صوتي متقدم', 'حساسات مطر', 'ريموت فتح',
+  'مرايا كهربائية', 'شبابيك كهربائية', 'مساعد المسار', 'فرامل تلقائية',
+  'شاحن لاسلكي', 'مراقبة النقطة العمياء', 'تحكم كروز تكيفي',
+];
 
 const fuelOptions = ['PETROL', 'DIESEL', 'HYBRID', 'ELECTRIC'];
 const transOptions = ['AUTOMATIC', 'MANUAL'];
@@ -157,6 +169,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
     if (form.bodyType) payload.bodyType = form.bodyType;
     if (form.exteriorColor) payload.exteriorColor = form.exteriorColor;
     if (form.interiorColor) payload.interior = form.interiorColor;
+    if (form.features.length > 0) payload.features = form.features;
     if (form.engineSize) payload.engineSize = form.engineSize;
     if (form.horsepower) payload.horsepower = parseInt(form.horsepower);
     if (form.doors) payload.doors = parseInt(form.doors);
@@ -391,6 +404,40 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
                   <input type="number" value={form.doors} onChange={(e) => set('doors', e.target.value)} placeholder="4" className={inputCls} />
                 </div>
               </div>
+            </div>
+          </section>
+
+          {/* Features / Amenities */}
+          <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
+            <div className="flex items-center gap-2 mb-6">
+              <h2 className="text-lg font-extrabold">كماليات السيارة</h2>
+              <span className="text-xs text-on-surface-variant">({form.features.length} مختارة)</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {CAR_FEATURES.map((feat) => {
+                const selected = form.features.includes(feat);
+                return (
+                  <button
+                    key={feat}
+                    type="button"
+                    onClick={() => {
+                      setForm((prev) => ({
+                        ...prev,
+                        features: selected
+                          ? prev.features.filter((f) => f !== feat)
+                          : [...prev.features, feat],
+                      }));
+                    }}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                      selected
+                        ? 'bg-primary text-white shadow-md'
+                        : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                    }`}
+                  >
+                    {selected && <span className="ml-1">✓</span>} {feat}
+                  </button>
+                );
+              })}
             </div>
           </section>
 

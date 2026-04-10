@@ -54,6 +54,7 @@ export class ListingsService {
         doors: dto.doors,
         seats: dto.seats,
         driveType: dto.driveType,
+        features: dto.features ?? [],
         currency: dto.currency ?? 'OMR',
         isPriceNegotiable: dto.isPriceNegotiable ?? false,
         condition: dto.condition ?? 'USED',
@@ -259,6 +260,7 @@ export class ListingsService {
     if (dto.doors !== undefined) data.doors = dto.doors;
     if (dto.seats !== undefined) data.seats = dto.seats;
     if (dto.driveType !== undefined) data.driveType = dto.driveType;
+    if (dto.features !== undefined) data.features = dto.features;
     if (dto.currency !== undefined) data.currency = dto.currency;
     if (dto.isPriceNegotiable !== undefined) data.isPriceNegotiable = dto.isPriceNegotiable;
     if (dto.condition !== undefined) data.condition = dto.condition;

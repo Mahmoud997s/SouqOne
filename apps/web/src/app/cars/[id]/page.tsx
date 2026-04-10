@@ -192,6 +192,21 @@ export default function CarDetailsPage() {
               </div>
             </section>
 
+            {/* Features / Amenities */}
+            {car.features && car.features.length > 0 && (
+              <section className="bg-surface-container-lowest border border-outline-variant/10 p-6 md:p-8">
+                <h2 className="text-xl font-black mb-4">كماليات السيارة</h2>
+                <div className="flex flex-wrap gap-2">
+                  {car.features.map((feat: string) => (
+                    <span key={feat} className="inline-flex items-center gap-1 bg-primary/5 text-primary px-3 py-1.5 rounded-lg text-xs font-bold">
+                      <span className="material-symbols-outlined text-sm">check_circle</span>
+                      {feat}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* Description */}
             {car.description && (
               <section className="bg-surface-container-lowest border border-outline-variant/10 p-6 md:p-8">

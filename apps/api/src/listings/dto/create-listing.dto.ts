@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsNumber, IsOptional, IsEnum, IsBoolean, IsDateString, Min, Max, MaxLength } from 'class-validator';
+import { IsString, IsInt, IsNumber, IsOptional, IsEnum, IsBoolean, IsDateString, IsArray, Min, Max, MaxLength } from 'class-validator';
 import { FuelType, Transmission, ItemCondition, ListingType, CancellationPolicy } from '@prisma/client';
 
 export class CreateListingDto {
@@ -70,6 +70,11 @@ export class CreateListingDto {
   @IsOptional()
   @IsString()
   driveType?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  features?: string[];
 
   @IsOptional()
   @IsString()
