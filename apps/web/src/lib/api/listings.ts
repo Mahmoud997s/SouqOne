@@ -17,6 +17,7 @@ export interface ListingItem {
   governorate: string | null;
   bodyType: string | null;
   exteriorColor: string | null;
+  interior: string | null;
   engineSize: string | null;
   horsepower: number | null;
   doors: number | null;
