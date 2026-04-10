@@ -52,115 +52,161 @@ export default function TransportDetailPage({ params }: { params: Promise<{ id: 
   return (
     <>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-[1200px] mx-auto px-4 md:px-8" dir="rtl">
-        <div className="flex items-center gap-2 text-sm text-on-surface-variant mb-6">
-          <Link href="/transport" className="hover:text-primary">خدمات النقل</Link>
-          <span>›</span>
-          <span className="text-on-surface font-bold">{TYPE_LABELS[item.transportType] || item.transportType}</span>
+      <div className="min-h-screen bg-background" dir="rtl">
+        <div className="h-40 md:h-48 bg-gradient-to-bl from-primary via-primary-container to-brand-navy relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-3">
-            <div className="glass-card rounded-xl overflow-hidden">
-              <div className="aspect-[16/9] bg-surface-container-low relative">
-                {images[activeImg]?.url ? (
-                  <img src={getImageUrl(images[activeImg].url) || ''} alt={item.title} className="w-full h-full object-contain" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-on-surface-variant/30"><span className="material-symbols-outlined text-7xl">local_shipping</span></div>
-                )}
-              </div>
-              {images.length > 1 && (
-                <div className="flex gap-2 p-3 overflow-x-auto">
-                  {images.map((img, i) => (
-                    <button key={img.id} onClick={() => setActiveImg(i)}
-                      className={`w-16 h-16 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${i === activeImg ? 'border-primary' : 'border-transparent'}`}>
-                      <img src={getImageUrl(img.url) || ''} alt="" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
+        <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 md:-mt-24 relative z-10 pb-16">
+          <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
+            <Link href="/transport" className="hover:text-white transition-colors flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">local_shipping</span> خدمات النقل
+            </Link>
+            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <span className="text-white font-bold">{TYPE_LABELS[item.transportType] || item.transportType}</span>
+          </nav>
+
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Images */}
+            <div className="lg:col-span-3">
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="aspect-[16/9] bg-surface-container-low dark:bg-surface-container-high relative">
+                  {images[activeImg]?.url ? (
+                    <img src={getImageUrl(images[activeImg].url) || ''} alt={item.title} className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-on-surface-variant/30">
+                      <span className="material-symbols-outlined text-7xl">local_shipping</span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-
-            {item.description && (
-              <div className="glass-card rounded-xl p-6 mt-4">
-                <h2 className="font-bold text-lg mb-3">الوصف</h2>
-                <p className="text-sm text-on-surface-variant whitespace-pre-line leading-relaxed">{item.description}</p>
-              </div>
-            )}
-          </div>
-
-          <div className="lg:col-span-2 space-y-4">
-            <div className="glass-card rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-3 flex-wrap">
-                <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-red-600 text-white">{TYPE_LABELS[item.transportType]}</span>
-                {item.hasInsurance && <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-red-600 text-white flex items-center gap-1"><span className="material-symbols-outlined text-xs">shield</span> تأمين</span>}
-                {item.hasTracking && <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-500 text-white flex items-center gap-1"><span className="material-symbols-outlined text-xs">my_location</span> تتبع</span>}
-              </div>
-              <h1 className="text-xl font-black text-on-surface mb-1">{item.title}</h1>
-              <p className="text-sm text-on-surface-variant mb-4">{item.providerName}</p>
-
-              <div className="space-y-2 text-sm mb-4">
-                {item.basePrice && (
-                  <div className="flex justify-between"><span className="text-on-surface-variant">السعر الأساسي</span><span className="font-black text-primary">{parseFloat(item.basePrice).toFixed(3)} ر.ع.</span></div>
-                )}
-                {item.pricePerKm && (
-                  <div className="flex justify-between"><span className="text-on-surface-variant">سعر الكيلومتر</span><span className="font-bold">{parseFloat(item.pricePerKm).toFixed(3)} ر.ع.</span></div>
-                )}
-                <div className="flex justify-between"><span className="text-on-surface-variant">نوع التسعير</span><span className="font-bold">{PRICING_LABELS[item.pricingType] || item.pricingType}</span></div>
-                {item.vehicleType && <div className="flex justify-between"><span className="text-on-surface-variant">نوع المركبة</span><span className="font-bold">{item.vehicleType}</span></div>}
-                {item.vehicleCapacity && <div className="flex justify-between"><span className="text-on-surface-variant">سعة الحمولة</span><span className="font-bold">{item.vehicleCapacity}</span></div>}
-              </div>
-
-              <div className="flex items-center gap-4 text-xs text-on-surface-variant mb-4">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {item.viewCount}</span>
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(item.createdAt).toLocaleDateString('ar-OM')}</span>
-              </div>
-
-              <div className="space-y-2">
-                {user?.id !== item.user?.id && (
-                  <button onClick={handleMessage} disabled={createConv.isPending}
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-on-surface text-surface rounded-lg font-bold text-sm hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-60">
-                    <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? 'جاري...' : 'تواصل عبر الشات'}
-                  </button>
-                )}
-                {item.contactPhone && (
-                  <a href={`tel:${item.contactPhone}`} className="flex items-center justify-center gap-2 w-full py-3 bg-red-600 text-white rounded-lg font-bold text-sm"><span className="material-symbols-outlined text-lg">call</span> اتصل</a>
-                )}
-                {item.whatsapp && (
-                  <a href={`https://wa.me/${item.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-[#25D366] text-white rounded-lg font-bold text-sm hover:bg-[#25D366]/90 transition-colors">واتساب</a>
-                )}
-              </div>
-            </div>
-
-            <div className="glass-card rounded-xl p-5">
-              <h2 className="font-bold text-sm mb-3">الموقع</h2>
-              <p className="text-sm flex items-center gap-2"><span className="material-symbols-outlined text-base text-on-surface-variant">location_on</span> {item.governorate}{item.city ? ` - ${item.city}` : ''}</p>
-              {item.latitude && item.longitude && (
-                <div className="mt-3">
-                  <MapView latitude={item.latitude} longitude={item.longitude} title={item.title} sellerPhone={item.contactPhone} />
-                </div>
-              )}
-            </div>
-
-            <div className="glass-card rounded-xl p-5">
-              <div className="flex items-center gap-3">
-                {item.user.avatarUrl ? (
-                  <img src={getImageUrl(item.user.avatarUrl) || ''} alt="" className="w-10 h-10 rounded-full object-cover" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
-                    {(item.user.displayName || item.user.username)?.[0]?.toUpperCase()}
+                {images.length > 1 && (
+                  <div className="flex gap-2 p-3 overflow-x-auto">
+                    {images.map((img, i) => (
+                      <button key={img.id} onClick={() => setActiveImg(i)}
+                        className={`w-16 h-16 overflow-hidden shrink-0 border-2 transition-all ${i === activeImg ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant/20 dark:border-outline-variant/30'}`}>
+                        <img src={getImageUrl(img.url) || ''} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
                   </div>
                 )}
-                <div>
-                  <p className="font-bold text-sm">{item.user.displayName || item.user.username}</p>
-                  {item.user.isVerified && <span className="text-[11px] text-primary font-bold">موثّق ✓</span>}
+              </div>
+
+              {item.description && (
+                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm mt-6">
+                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">description</span>
+                    <h2 className="font-black text-on-surface">الوصف</h2>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-sm text-on-surface-variant whitespace-pre-line leading-relaxed">{item.description}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Sidebar */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Title & Price */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
+                    <span className="px-2.5 py-1 text-[11px] font-black bg-primary/10 dark:bg-primary/20 text-primary">{TYPE_LABELS[item.transportType]}</span>
+                    {item.hasInsurance && <span className="px-2.5 py-1 text-[11px] font-black bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 flex items-center gap-1"><span className="material-symbols-outlined text-xs">shield</span> تأمين</span>}
+                    {item.hasTracking && <span className="px-2.5 py-1 text-[11px] font-black bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 flex items-center gap-1"><span className="material-symbols-outlined text-xs">my_location</span> تتبع</span>}
+                  </div>
+                  <h1 className="text-xl font-black text-on-surface mb-1">{item.title}</h1>
+                  <p className="text-sm text-on-surface-variant mb-4">{item.providerName}</p>
+
+                  <div className="space-y-2.5 text-sm mb-4">
+                    {item.basePrice && (
+                      <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20">
+                        <span className="text-on-surface-variant">السعر الأساسي</span><span className="font-black text-primary">{parseFloat(item.basePrice).toFixed(3)} ر.ع.</span>
+                      </div>
+                    )}
+                    {item.pricePerKm && (
+                      <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20">
+                        <span className="text-on-surface-variant">سعر الكيلومتر</span><span className="font-black text-on-surface">{parseFloat(item.pricePerKm).toFixed(3)} ر.ع.</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20">
+                      <span className="text-on-surface-variant">نوع التسعير</span><span className="font-black text-on-surface">{PRICING_LABELS[item.pricingType] || item.pricingType}</span>
+                    </div>
+                    {item.vehicleType && <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20"><span className="text-on-surface-variant">نوع المركبة</span><span className="font-black text-on-surface">{item.vehicleType}</span></div>}
+                    {item.vehicleCapacity && <div className="flex justify-between items-center py-2"><span className="text-on-surface-variant">سعة الحمولة</span><span className="font-black text-on-surface">{item.vehicleCapacity}</span></div>}
+                  </div>
+
+                  <div className="flex items-center gap-4 text-xs text-on-surface-variant pt-4 border-t border-outline-variant/10 dark:border-outline-variant/20">
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {item.viewCount}</span>
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(item.createdAt).toLocaleDateString('ar-OM')}</span>
+                  </div>
+                </div>
+
+                <div className="p-6 pt-0 space-y-2.5">
+                  {user?.id !== item.user?.id && (
+                    <button onClick={handleMessage} disabled={createConv.isPending}
+                      className="flex items-center justify-center gap-2 w-full py-3.5 bg-on-surface text-surface font-black text-sm hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-60">
+                      <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? 'جاري...' : 'تواصل عبر الشات'}
+                    </button>
+                  )}
+                  {item.contactPhone && (
+                    <a href={`tel:${item.contactPhone}`} className="flex items-center justify-center gap-2 w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all">
+                      <span className="material-symbols-outlined text-lg">call</span> اتصل
+                    </a>
+                  )}
+                  {item.whatsapp && (
+                    <a href={`https://wa.me/${item.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-black text-sm hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
+                      <span className="material-symbols-outlined text-lg">chat</span> واتساب
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Location */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">location_on</span>
+                  <h3 className="font-black text-on-surface text-sm">الموقع</h3>
+                </div>
+                <div className="p-6">
+                  <p className="text-sm font-bold text-on-surface flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-base">pin_drop</span>
+                    {item.governorate}{item.city ? ` - ${item.city}` : ''}
+                  </p>
+                  {item.latitude && item.longitude && (
+                    <div className="mt-4">
+                      <MapView latitude={item.latitude} longitude={item.longitude} title={item.title} sellerPhone={item.contactPhone} />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* User */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">person</span>
+                  <h3 className="font-black text-on-surface text-sm">مقدم الخدمة</h3>
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-3">
+                    {item.user.avatarUrl ? (
+                      <img src={getImageUrl(item.user.avatarUrl) || ''} alt="" className="w-12 h-12 rounded-xl object-cover" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-lg shrink-0">
+                        {(item.user.displayName || item.user.username)?.[0]?.toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-black text-on-surface text-sm">{item.user.displayName || item.user.username}</p>
+                      {item.user.isVerified && <span className="text-[11px] text-primary font-black flex items-center gap-0.5"><span className="material-symbols-outlined text-xs">verified</span> موثّق</span>}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
       <Footer />
     </>
   );

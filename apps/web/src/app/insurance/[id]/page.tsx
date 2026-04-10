@@ -47,140 +47,177 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
   return (
     <>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-[1200px] mx-auto px-4 md:px-8" dir="rtl">
-        <div className="flex items-center gap-2 text-sm text-on-surface-variant mb-6">
-          <Link href="/insurance" className="hover:text-primary">تأمين وتمويل</Link>
-          <span>›</span>
-          <span className="text-on-surface font-bold">{TYPE_LABELS[offer.offerType] || offer.offerType}</span>
+      <div className="min-h-screen bg-background" dir="rtl">
+        <div className="h-40 md:h-48 bg-gradient-to-bl from-primary via-primary-container to-brand-navy relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-3 space-y-4">
-            {/* Main info */}
-            <div className="glass-card rounded-xl p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                  <span className="material-symbols-outlined text-3xl">shield</span>
-                </div>
-                <div>
-                  <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-600 text-white mb-1 inline-block">
-                    {TYPE_LABELS[offer.offerType]}
-                  </span>
-                  <p className="text-sm text-on-surface-variant">{offer.providerName}</p>
+        <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 md:-mt-24 relative z-10 pb-16">
+          <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
+            <Link href="/insurance" className="hover:text-white transition-colors flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">shield</span> تأمين وتمويل
+            </Link>
+            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <span className="text-white font-bold">{TYPE_LABELS[offer.offerType] || offer.offerType}</span>
+          </nav>
+
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Main Content */}
+            <div className="lg:col-span-3 space-y-6">
+              {/* Title Card */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 dark:bg-primary/20 text-primary flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-3xl">shield</span>
+                    </div>
+                    <div>
+                      <span className="px-2.5 py-1 text-[11px] font-black bg-primary/10 dark:bg-primary/20 text-primary mb-1 inline-block">{TYPE_LABELS[offer.offerType]}</span>
+                      <p className="text-sm text-on-surface-variant">{offer.providerName}</p>
+                    </div>
+                  </div>
+                  <h1 className="text-xl font-black text-on-surface mb-4">{offer.title}</h1>
+
+                  {offer.priceFrom && (
+                    <div className="bg-surface-container-low/50 dark:bg-surface-container-high/30 p-4 rounded-lg mb-4">
+                      <p className="text-xs text-on-surface-variant mb-1">يبدأ من</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-black text-primary">{parseFloat(offer.priceFrom).toFixed(3)}</span>
+                        <span className="text-sm text-on-surface-variant">ر.ع.</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {offer.coverageType && (
+                    <div className="bg-surface-container-low/50 dark:bg-surface-container-high/30 p-4 rounded-lg">
+                      <p className="text-xs text-on-surface-variant mb-1">نوع التغطية</p>
+                      <p className="font-black text-sm text-on-surface">{offer.coverageType}</p>
+                    </div>
+                  )}
                 </div>
               </div>
-              <h1 className="text-xl font-black text-on-surface mb-4">{offer.title}</h1>
 
-              {offer.priceFrom && (
-                <div className="bg-primary/5 rounded-xl p-4 mb-4">
-                  <p className="text-xs text-on-surface-variant mb-1">يبدأ من</p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-black text-primary">{parseFloat(offer.priceFrom).toFixed(3)}</span>
-                    <span className="text-sm text-on-surface-variant">ر.ع.</span>
+              {/* Description */}
+              {offer.description && (
+                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">description</span>
+                    <h2 className="font-black text-on-surface">تفاصيل العرض</h2>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-sm text-on-surface-variant whitespace-pre-line leading-relaxed">{offer.description}</p>
                   </div>
                 </div>
               )}
 
-              {offer.coverageType && (
-                <div className="mb-4">
-                  <p className="text-xs text-on-surface-variant mb-1">نوع التغطية</p>
-                  <p className="font-bold text-sm">{offer.coverageType}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Description */}
-            {offer.description && (
-              <div className="glass-card rounded-xl p-6">
-                <h2 className="font-bold text-lg mb-3">تفاصيل العرض</h2>
-                <p className="text-sm text-on-surface-variant whitespace-pre-line leading-relaxed">{offer.description}</p>
-              </div>
-            )}
-
-            {/* Features */}
-            {offer.features.length > 0 && (
-              <div className="glass-card rounded-xl p-6">
-                <h2 className="font-bold text-lg mb-4">المميزات</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {offer.features.map((f, i) => (
-                    <div key={i} className="flex items-start gap-3 bg-surface-container-low rounded-lg p-3">
-                      <span className="material-symbols-outlined text-primary text-base mt-0.5 shrink-0">check_circle</span>
-                      <span className="text-sm">{f}</span>
+              {/* Features */}
+              {offer.features.length > 0 && (
+                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">verified</span>
+                    <h2 className="font-black text-on-surface">المميزات</h2>
+                  </div>
+                  <div className="p-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {offer.features.map((f, i) => (
+                        <div key={i} className="flex items-start gap-3 bg-surface-container-low/50 dark:bg-surface-container-high/30 rounded-lg p-3">
+                          <span className="material-symbols-outlined text-primary text-base mt-0.5 shrink-0">check_circle</span>
+                          <span className="text-sm text-on-surface">{f}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="lg:col-span-2 space-y-4">
-            {/* Contact */}
-            <div className="glass-card rounded-xl p-6">
-              <h2 className="font-bold text-sm mb-4">تواصل مع المزود</h2>
-              <div className="space-y-2">
-                {user?.id !== offer.user?.id && (
-                  <button onClick={handleMessage} disabled={createConv.isPending}
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-on-surface text-surface rounded-lg font-bold text-sm hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-60">
-                    <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? 'جاري...' : 'تواصل عبر الشات'}
-                  </button>
-                )}
-                {offer.contactPhone && (
-                  <a href={`tel:${offer.contactPhone}`} className="flex items-center justify-center gap-2 w-full py-3 bg-indigo-600 text-white rounded-lg font-bold text-sm">
-                    <span className="material-symbols-outlined text-lg">call</span> اتصل
-                  </a>
-                )}
-                {offer.whatsapp && (
-                  <a href={`https://wa.me/${offer.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-[#25D366] text-white rounded-lg font-bold text-sm hover:bg-[#25D366]/90 transition-colors">
-                    واتساب
-                  </a>
-                )}
-                {offer.website && (
-                  <a href={offer.website} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-surface-container-low text-on-surface rounded-lg font-bold text-sm">
-                    <span className="material-symbols-outlined text-lg">language</span> زيارة الموقع
-                  </a>
-                )}
-                {offer.termsUrl && (
-                  <a href={offer.termsUrl} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-2.5 text-on-surface-variant text-xs hover:text-primary transition-colors">
-                    <span className="material-symbols-outlined text-sm">open_in_new</span> الشروط والأحكام
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {/* Meta */}
-            <div className="glass-card rounded-xl p-5">
-              <div className="flex items-center gap-4 text-xs text-on-surface-variant">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {offer.viewCount} مشاهدة</span>
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(offer.createdAt).toLocaleDateString('ar-OM')}</span>
-              </div>
-              {offer.governorate && (
-                <p className="text-sm flex items-center gap-2 mt-3"><span className="material-symbols-outlined text-base text-on-surface-variant">location_on</span> {offer.governorate}</p>
-              )}
-              {offer.latitude && offer.longitude && (
-                <div className="mt-3">
-                  <MapView latitude={offer.latitude} longitude={offer.longitude} title={offer.title} sellerPhone={offer.contactPhone} />
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* User */}
-            <div className="glass-card rounded-xl p-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
-                  {(offer.user.displayName || offer.user.username)?.[0]?.toUpperCase()}
+            {/* Sidebar */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Contact */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">contact_phone</span>
+                  <h3 className="font-black text-on-surface text-sm">تواصل مع المزود</h3>
                 </div>
-                <div>
-                  <p className="font-bold text-sm">{offer.user.displayName || offer.user.username}</p>
-                  {offer.user.isVerified && <span className="text-[11px] text-primary font-bold">موثّق ✓</span>}
+                <div className="p-6 space-y-2.5">
+                  {user?.id !== offer.user?.id && (
+                    <button onClick={handleMessage} disabled={createConv.isPending}
+                      className="flex items-center justify-center gap-2 w-full py-3.5 bg-on-surface text-surface font-black text-sm hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-60">
+                      <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? 'جاري...' : 'تواصل عبر الشات'}
+                    </button>
+                  )}
+                  {offer.contactPhone && (
+                    <a href={`tel:${offer.contactPhone}`} className="flex items-center justify-center gap-2 w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all">
+                      <span className="material-symbols-outlined text-lg">call</span> اتصل
+                    </a>
+                  )}
+                  {offer.whatsapp && (
+                    <a href={`https://wa.me/${offer.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-black text-sm hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
+                      <span className="material-symbols-outlined text-lg">chat</span> واتساب
+                    </a>
+                  )}
+                  {offer.website && (
+                    <a href={offer.website} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3.5 bg-surface-container-low dark:bg-surface-container-high text-on-surface font-black text-sm hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors">
+                      <span className="material-symbols-outlined text-lg">language</span> زيارة الموقع
+                    </a>
+                  )}
+                  {offer.termsUrl && (
+                    <a href={offer.termsUrl} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-2.5 text-on-surface-variant text-xs font-bold hover:text-primary transition-colors">
+                      <span className="material-symbols-outlined text-sm">open_in_new</span> الشروط والأحكام
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Meta & Location */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">info</span>
+                  <h3 className="font-black text-on-surface text-sm">معلومات</h3>
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-4 text-xs text-on-surface-variant">
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {offer.viewCount} مشاهدة</span>
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(offer.createdAt).toLocaleDateString('ar-OM')}</span>
+                  </div>
+                  {offer.governorate && (
+                    <p className="text-sm font-bold text-on-surface flex items-center gap-2 mt-4 pt-4 border-t border-outline-variant/10 dark:border-outline-variant/20">
+                      <span className="material-symbols-outlined text-primary text-base">pin_drop</span> {offer.governorate}
+                    </p>
+                  )}
+                  {offer.latitude && offer.longitude && (
+                    <div className="mt-4">
+                      <MapView latitude={offer.latitude} longitude={offer.longitude} title={offer.title} sellerPhone={offer.contactPhone} />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* User */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">person</span>
+                  <h3 className="font-black text-on-surface text-sm">المزود</h3>
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-lg shrink-0">
+                      {(offer.user.displayName || offer.user.username)?.[0]?.toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-black text-on-surface text-sm">{offer.user.displayName || offer.user.username}</p>
+                      {offer.user.isVerified && <span className="text-[11px] text-primary font-black flex items-center gap-0.5"><span className="material-symbols-outlined text-xs">verified</span> موثّق</span>}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
       <Footer />
     </>
   );
