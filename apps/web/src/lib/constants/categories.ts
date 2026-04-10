@@ -43,14 +43,14 @@ export const MAIN_CATEGORIES: MainCategory[] = [
     icon: '🔧',
     color: 'bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-400',
     subcategories: [
-      { value: 'maintenance', label: 'صيانة وإصلاح', route: '/add-listing/service?type=MAINTENANCE', available: false },
-      { value: 'cleaning', label: 'تلميع وتنظيف', route: '/add-listing/service?type=CLEANING', available: false },
-      { value: 'inspection', label: 'فحص سيارات', route: '/add-listing/service?type=INSPECTION', available: false },
-      { value: 'bodywork', label: 'سمكرة ودهان', route: '/add-listing/service?type=BODYWORK', available: false },
-      { value: 'towing', label: 'سطحة ونجدة', route: '/add-listing/service?type=TOWING', available: false },
-      { value: 'modification', label: 'تعديل وتيونينج', route: '/add-listing/service?type=MODIFICATION', available: false },
-      { value: 'keys', label: 'مفاتيح وأقفال', route: '/add-listing/service?type=KEYS_LOCKS', available: false },
-      { value: 'accessories-install', label: 'تركيب إكسسوارات', route: '/add-listing/service?type=ACCESSORIES_INSTALL', available: false },
+      { value: 'maintenance', label: 'صيانة وإصلاح', route: '/add-listing/service?type=MAINTENANCE', available: true },
+      { value: 'cleaning', label: 'تلميع وتنظيف', route: '/add-listing/service?type=CLEANING', available: true },
+      { value: 'inspection', label: 'فحص سيارات', route: '/add-listing/service?type=INSPECTION', available: true },
+      { value: 'bodywork', label: 'سمكرة ودهان', route: '/add-listing/service?type=BODYWORK', available: true },
+      { value: 'towing', label: 'سطحة ونجدة', route: '/add-listing/service?type=TOWING', available: true },
+      { value: 'modification', label: 'تعديل وتيونينج', route: '/add-listing/service?type=MODIFICATION', available: true },
+      { value: 'keys', label: 'مفاتيح وأقفال', route: '/add-listing/service?type=KEYS_LOCKS', available: true },
+      { value: 'accessories-install', label: 'تركيب إكسسوارات', route: '/add-listing/service?type=ACCESSORIES_INSTALL', available: true },
     ],
   },
   {
@@ -116,8 +116,8 @@ export const MAIN_CATEGORIES: MainCategory[] = [
     icon: '🛡️',
     color: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400',
     subcategories: [
-      { value: 'car-insurance', label: 'تأمين سيارات', route: '/add-listing/insurance?type=CAR_COMPREHENSIVE', available: false },
-      { value: 'financing', label: 'تمويل سيارات', route: '/add-listing/insurance?type=FINANCING', available: false },
+      { value: 'car-insurance', label: 'تأمين سيارات', route: '/add-listing/insurance?type=CAR_COMPREHENSIVE', available: true },
+      { value: 'financing', label: 'تمويل سيارات', route: '/add-listing/insurance?type=FINANCING', available: true },
     ],
   },
 ];
