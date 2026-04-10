@@ -182,22 +182,22 @@ export default function CarDetailsPage() {
                   <h2 className="font-black text-on-surface">المواصفات</h2>
                 </div>
                 <div className="p-6 md:p-8">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     {specs.map((s) => (
                       <div key={s.label} className="bg-surface-container-low/50 dark:bg-surface-container-high/30 p-4 text-center">
                         <span className="material-symbols-outlined text-primary text-2xl mb-2 block">{s.icon}</span>
-                        <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-1">{s.label}</p>
+                        <p className="text-xs text-on-surface-variant mb-1">{s.label}</p>
                         <p className="font-black text-on-surface text-sm">{s.value}</p>
                       </div>
                     ))}
                   </div>
 
                   {/* Detail Table */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
                     {detailRows.map((row) => (
-                      <div key={row.label}>
-                        <p className="text-xs text-on-surface-variant uppercase tracking-widest">{row.label}</p>
-                        <p className="font-black text-on-surface text-sm">{row.value}</p>
+                      <div key={row.label} className="flex justify-between items-center py-3 border-b border-outline-variant/10 dark:border-outline-variant/20">
+                        <span className="text-sm text-on-surface-variant">{row.label}</span>
+                        <span className="font-black text-on-surface text-sm">{row.value}</span>
                       </div>
                     ))}
                   </div>
