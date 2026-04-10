@@ -7,29 +7,19 @@ import { Footer } from '@/components/layout/footer';
 import { AuthGuard } from '@/components/auth-guard';
 import { MAIN_CATEGORIES } from '@/lib/constants/categories';
 
-const ICON_MAP: Record<string, string> = {
-  'vehicles-parts': 'directions_car',
-  'jobs': 'work',
-  'car-services': 'build',
-  'transport': 'local_shipping',
-  'trips': 'departure_board',
-  'motorcycles': 'two_wheeler',
-  'marine': 'sailing',
-  'heavy-equipment': 'construction',
-  'insurance': 'shield',
+const CATEGORY_STYLE: Record<string, { icon: string; bg: string; text: string }> = {
+  'vehicles-parts': { icon: 'garage_home', bg: 'bg-sky-50 dark:bg-sky-950/40', text: 'text-sky-600 dark:text-sky-400' },
+  'jobs': { icon: 'badge', bg: 'bg-violet-50 dark:bg-violet-950/40', text: 'text-violet-600 dark:text-violet-400' },
+  'car-services': { icon: 'home_repair_service', bg: 'bg-orange-50 dark:bg-orange-950/40', text: 'text-orange-600 dark:text-orange-400' },
+  'transport': { icon: 'fire_truck', bg: 'bg-emerald-50 dark:bg-emerald-950/40', text: 'text-emerald-600 dark:text-emerald-400' },
+  'trips': { icon: 'airport_shuttle', bg: 'bg-fuchsia-50 dark:bg-fuchsia-950/40', text: 'text-fuchsia-600 dark:text-fuchsia-400' },
+  'motorcycles': { icon: 'two_wheeler', bg: 'bg-rose-50 dark:bg-rose-950/40', text: 'text-rose-600 dark:text-rose-400' },
+  'marine': { icon: 'directions_boat', bg: 'bg-teal-50 dark:bg-teal-950/40', text: 'text-teal-600 dark:text-teal-400' },
+  'heavy-equipment': { icon: 'front_loader', bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-600 dark:text-amber-400' },
+  'insurance': { icon: 'verified_user', bg: 'bg-indigo-50 dark:bg-indigo-950/40', text: 'text-indigo-600 dark:text-indigo-400' },
 };
 
-const GRADIENT_MAP: Record<string, string> = {
-  'vehicles-parts': 'from-blue-500 to-blue-600',
-  'jobs': 'from-amber-500 to-amber-600',
-  'car-services': 'from-orange-500 to-orange-600',
-  'transport': 'from-green-500 to-green-600',
-  'trips': 'from-purple-500 to-purple-600',
-  'motorcycles': 'from-yellow-500 to-yellow-600',
-  'marine': 'from-cyan-500 to-cyan-600',
-  'heavy-equipment': 'from-stone-500 to-stone-600',
-  'insurance': 'from-indigo-500 to-indigo-600',
-};
+const DEFAULT_STYLE = { icon: 'category', bg: 'bg-slate-50 dark:bg-slate-950/40', text: 'text-slate-600 dark:text-slate-400' };
 
 export default function AddListingPage() {
   const router = useRouter();
@@ -67,8 +57,7 @@ export default function AddListingPage() {
       <main className="max-w-5xl mx-auto px-6 -mt-6 relative z-20 pb-16" dir="rtl">
         <div className="space-y-4">
           {available.map((cat) => {
-            const icon = ICON_MAP[cat.value] || 'category';
-            const gradient = GRADIENT_MAP[cat.value] || 'from-primary to-primary-container';
+            const style = CATEGORY_STYLE[cat.value] || DEFAULT_STYLE;
             const availableSubs = cat.subcategories.filter(s => s.available);
 
             return (
@@ -78,8 +67,8 @@ export default function AddListingPage() {
               >
                 {/* Category Header */}
                 <div className="flex items-center gap-4 p-5 md:p-6">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center shrink-0 shadow-lg`}>
-                    <span className="material-symbols-outlined text-white text-2xl">{icon}</span>
+                  <div className={`w-14 h-14 rounded-2xl ${style.bg} flex items-center justify-center shrink-0`}>
+                    <span className={`material-symbols-outlined text-2xl ${style.text}`}>{style.icon}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <h2 className="font-black text-on-surface text-base md:text-lg">{cat.label}</h2>
@@ -119,14 +108,14 @@ export default function AddListingPage() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {comingSoon.map((cat) => {
-                const icon = ICON_MAP[cat.value] || 'category';
+                const style = CATEGORY_STYLE[cat.value] || DEFAULT_STYLE;
                 return (
                   <div
                     key={cat.value}
                     className="bg-surface-container-lowest/60 dark:bg-surface-container/40 border border-outline-variant/5 rounded-2xl p-4 flex flex-col items-center text-center gap-2.5 opacity-50"
                   >
-                    <div className="w-11 h-11 rounded-xl bg-surface-container-low dark:bg-surface-container-high flex items-center justify-center">
-                      <span className="material-symbols-outlined text-on-surface-variant/50 text-xl">{icon}</span>
+                    <div className={`w-11 h-11 rounded-xl ${style.bg} flex items-center justify-center`}>
+                      <span className={`material-symbols-outlined text-xl ${style.text} opacity-50`}>{style.icon}</span>
                     </div>
                     <div>
                       <p className="font-bold text-on-surface-variant text-xs">{cat.label}</p>
