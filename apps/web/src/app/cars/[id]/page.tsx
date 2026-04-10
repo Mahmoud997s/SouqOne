@@ -110,7 +110,7 @@ export default function CarDetailsPage() {
   const detailRows = [
     { label: 'سنة الصنع', value: car.year },
     { label: 'اللون الخارجي', value: car.exteriorColor || '—' },
-    { label: 'اللون الداخلي', value: car.interior || '—' },
+    { label: 'اللون الداخلي', value: '—' },
     { label: 'نوع الوقود', value: car.fuelType ? (fuelMap[car.fuelType] ?? car.fuelType) : '—' },
     { label: 'نوع الدفع', value: car.driveType ? (driveMap[car.driveType] ?? car.driveType) : '—' },
     { label: 'الأبواب', value: car.doors || '—' },
