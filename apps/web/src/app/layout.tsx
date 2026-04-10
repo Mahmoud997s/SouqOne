@@ -40,11 +40,8 @@ export default function RootLayout({
         />
         <script src="https://accounts.google.com/gsi/client" async defer />
         <script dangerouslySetInnerHTML={{ __html: `
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() { document.body.classList.add('ready'); });
-          } else {
-            document.body.classList.add('ready');
-          }
+          document.fonts.ready.then(function() { document.body.classList.add('ready'); });
+          setTimeout(function() { document.body.classList.add('ready'); }, 2000);
         `}} />
       </head>
       <body className="bg-surface text-on-surface antialiased">
