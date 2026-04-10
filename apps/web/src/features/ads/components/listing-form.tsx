@@ -24,6 +24,7 @@ export interface ListingFormData {
   condition: string;
   bodyType: string;
   exteriorColor: string;
+  interiorColor: string;
   engineSize: string;
   horsepower: string;
   doors: string;
@@ -61,6 +62,7 @@ const defaultData: ListingFormData = {
   condition: '',
   bodyType: '',
   exteriorColor: '',
+  interiorColor: '',
   engineSize: '',
   horsepower: '',
   doors: '',
@@ -154,6 +156,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
     if (form.condition) payload.condition = form.condition;
     if (form.bodyType) payload.bodyType = form.bodyType;
     if (form.exteriorColor) payload.exteriorColor = form.exteriorColor;
+    if (form.interiorColor) payload.interior = form.interiorColor;
     if (form.engineSize) payload.engineSize = form.engineSize;
     if (form.horsepower) payload.horsepower = parseInt(form.horsepower);
     if (form.doors) payload.doors = parseInt(form.doors);
@@ -362,8 +365,15 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
                   </select>
                 </div>
                 <div>
-                  <label className={labelCls}>اللون</label>
+                  <label className={labelCls}>اللون الخارجي</label>
                   <input type="text" value={form.exteriorColor} onChange={(e) => set('exteriorColor', e.target.value)} placeholder="أبيض" className={inputCls} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className={labelCls}>اللون الداخلي</label>
+                  <input type="text" value={form.interiorColor} onChange={(e) => set('interiorColor', e.target.value)} placeholder="جلد بيج" className={inputCls} />
                 </div>
               </div>
 
