@@ -34,6 +34,13 @@ export class ListingsController {
     return this.listingsService.findAll(query);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('my')
+  findMy(@Query() query: QueryListingsDto, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.listingsService.findMyListings({ ...query, sellerId: user.sub });
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.listingsService.findOne(id);

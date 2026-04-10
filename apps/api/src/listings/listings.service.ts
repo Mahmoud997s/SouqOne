@@ -192,6 +192,43 @@ export class ListingsService {
     return result;
   }
 
+  async findMyListings(query: QueryListingsDto) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.ListingWhereInput = {};
+    if (query.sellerId) where.sellerId = query.sellerId;
+    if (query.status) where.status = query.status;
+    if (query.search) {
+      where.OR = [
+        { title: { contains: query.search, mode: 'insensitive' } },
+        { make: { contains: query.search, mode: 'insensitive' } },
+        { model: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+
+    const orderBy: Prisma.ListingOrderByWithRelationInput = {
+      [query.sortBy ?? 'createdAt']: query.sortOrder ?? 'desc',
+    };
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.listing.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy,
+        include: { seller: { select: this.sellerSelect }, images: true },
+      }),
+      this.prisma.listing.count({ where }),
+    ]);
+
+    return {
+      items,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
   async findOne(id: string) {
     const cacheKey = `listing:${id}`;
     

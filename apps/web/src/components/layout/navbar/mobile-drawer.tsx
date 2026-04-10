@@ -17,6 +17,7 @@ interface MobileDrawerProps {
 
 const accountLinks = [
   { href: '/profile', icon: 'person', label: 'الملف الشخصي' },
+  { href: '/my-listings', icon: 'directions_car', label: 'إعلاناتي' },
   { href: '/messages', icon: 'chat', label: 'الرسائل' },
   { href: '/favorites', icon: 'favorite', label: 'المفضلة' },
   { href: '/profile?tab=settings', icon: 'settings', label: 'الإعدادات' },

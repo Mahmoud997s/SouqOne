@@ -13,6 +13,7 @@ interface ProfileDropdownProps {
 
 const menuItems = [
   { href: '/profile', icon: 'person', label: 'الملف الشخصي' },
+  { href: '/my-listings', icon: 'directions_car', label: 'إعلاناتي' },
   { href: '/bookings', icon: 'schedule', label: 'حجوزاتي' },
   { href: '/jobs/my', icon: 'work', label: 'إعلاناتي الوظيفية' },
   { href: '/messages', icon: 'chat', label: 'الرسائل' },

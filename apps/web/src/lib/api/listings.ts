@@ -71,6 +71,14 @@ export function useListings(params: Record<string, string> = {}) {
   });
 }
 
+export function useMyListings(params: Record<string, string> = {}) {
+  const searchParams = new URLSearchParams(params);
+  return useQuery<ListingsResponse>({
+    queryKey: ['my-listings', params],
+    queryFn: () => apiRequest<ListingsResponse>(`/listings/my?${searchParams.toString()}`),
+  });
+}
+
 export function useListing(id: string) {
   return useQuery<ListingItem>({
     queryKey: ['listing', id],
