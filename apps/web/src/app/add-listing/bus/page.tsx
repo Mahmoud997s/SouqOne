@@ -236,8 +236,8 @@ function AddBusContent() {
         <MultiStepForm
           steps={steps}
           currentStep={step}
-          onNext={() => setStep(s => Math.min(s + 1, maxStep))}
-          onBack={() => setStep(s => Math.max(s - 1, 0))}
+          onNext={() => { setStep(s => Math.min(s + 1, maxStep)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          onBack={() => { setStep(s => Math.max(s - 1, 0)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
           onSubmit={handleSubmit}
           isLoading={isLoading}
           submitLabel="نشر الإعلان"

@@ -66,6 +66,7 @@ export default function BusesPage() {
     <>
       <Navbar />
       <main className="pt-24 pb-16" dir="rtl">
+        <style>{`.scrollbar-hide::-webkit-scrollbar{display:none} .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}`}</style>
         {/* Hero */}
         <div className="bg-gradient-to-b from-primary/5 to-transparent dark:from-primary/10 pb-8">
           <div className="max-w-7xl mx-auto px-4 md:px-8 pt-6">
@@ -84,7 +85,7 @@ export default function BusesPage() {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
               {TABS.map(tab => (
                 <button key={tab.value} onClick={() => { setActiveTab(tab.value); setPage(1); }}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all ${activeTab === tab.value ? 'bg-primary text-on-primary shadow-md' : 'bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 text-on-surface-variant hover:border-primary/30'}`}>
@@ -115,7 +116,7 @@ export default function BusesPage() {
             </div>
           ) : items.length === 0 ? (
             <div className="text-center py-20">
-              <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4">directions_bus</span>
+              <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4 block">directions_bus</span>
               <p className="text-on-surface-variant text-lg font-bold">لا توجد إعلانات حالياً</p>
               <p className="text-on-surface-variant/60 text-sm mt-1">كن أول من ينشر إعلان حافلة</p>
               <Link href="/add-listing/bus" className="inline-flex items-center gap-1.5 bg-primary text-on-primary px-6 py-3 rounded-xl text-sm font-black mt-6 hover:brightness-110 transition-all">

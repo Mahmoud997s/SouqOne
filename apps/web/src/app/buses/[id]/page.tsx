@@ -99,8 +99,9 @@ function BusDetailContent({ bus }: { bus: BusListingItem }) {
   return (
     <>
       <Navbar />
+      <style>{`.scrollbar-hide::-webkit-scrollbar{display:none} .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}`}</style>
       <div className="min-h-screen bg-surface-container-low/30 dark:bg-surface-container-lowest">
-        <main className="pt-24 pb-16 max-w-6xl mx-auto px-4 md:px-8" dir="rtl">
+        <main className="pt-24 pb-32 lg:pb-16 max-w-6xl mx-auto px-4 md:px-8" dir="rtl" style={{ scrollBehavior: 'smooth' }}>
           {/* Breadcrumb */}
           <nav className="flex items-center gap-1.5 text-xs text-on-surface-variant mb-4">
             <Link href="/" className="hover:text-primary transition-colors">الرئيسية</Link>
@@ -127,7 +128,7 @@ function BusDetailContent({ bus }: { bus: BusListingItem }) {
                     </span>
                   </div>
                   {images.length > 1 && (
-                    <div className="flex gap-1.5 p-2 overflow-x-auto">
+                    <div className="flex gap-1.5 p-2 overflow-x-auto scrollbar-hide">
                       {images.map((img, i) => (
                         <button key={img.id} onClick={() => setCurrentImg(i)}
                           className={`relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${i === currentImg ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'}`}>
@@ -285,7 +286,7 @@ function BusDetailContent({ bus }: { bus: BusListingItem }) {
             </div>
 
             {/* ── Right Column ── */}
-            <div className="lg:col-span-4 space-y-4">
+            <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-28 lg:self-start">
               {/* Price Card */}
               <div className="bg-surface-container-lowest dark:bg-surface-container rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden">
                 <div className="p-4">
@@ -436,7 +437,7 @@ function BusDetailContent({ bus }: { bus: BusListingItem }) {
       {/* Mobile sticky CTA */}
       {!isOwner && (
         <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-surface-container-lowest/95 dark:bg-surface-container/95 backdrop-blur-xl border-t border-outline-variant/10 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-          <div className="flex items-center gap-3 px-4 py-3 max-w-lg mx-auto">
+          <div className="flex items-center gap-3 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] max-w-lg mx-auto">
             <div className="shrink-0">
               {bus.price ? (
                 <div>
