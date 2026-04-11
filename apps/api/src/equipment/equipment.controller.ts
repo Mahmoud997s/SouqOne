@@ -5,62 +5,63 @@ import {
 import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { JwtPayload } from '../auth/auth.types';
-import { EquipmentService } from './equipment.service';
+import { EquipmentListingsService } from './equipment-listings.service';
 import { CreateEquipmentListingDto } from './dto/create-equipment-listing.dto';
+import { UpdateEquipmentListingDto } from './dto/update-equipment-listing.dto';
 import { QueryEquipmentListingsDto } from './dto/query-equipment-listings.dto';
 
 @Controller('equipment')
 export class EquipmentController {
-  constructor(private readonly svc: EquipmentService) {}
+  constructor(private readonly svc: EquipmentListingsService) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() dto: CreateEquipmentListingDto, @Req() req: Request) {
-    return this.svc.createListing(dto, (req.user as JwtPayload).sub);
+    return this.svc.create(dto, (req.user as JwtPayload).sub);
   }
 
   @Get()
   findAll(@Query() query: QueryEquipmentListingsDto) {
-    return this.svc.findAllListings(query);
+    return this.svc.findAll(query);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('my')
   my(@Req() req: Request) {
-    return this.svc.myListings((req.user as JwtPayload).sub);
+    return this.svc.my((req.user as JwtPayload).sub);
   }
 
   @Get('slug/:slug')
   findBySlug(@Param('slug') slug: string) {
-    return this.svc.findListingBySlug(slug);
+    return this.svc.findBySlug(slug);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.svc.findOneListing(id);
+    return this.svc.findOne(id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: Partial<CreateEquipmentListingDto>, @Req() req: Request) {
-    return this.svc.updateListing(id, (req.user as JwtPayload).sub, dto);
+  update(@Param('id') id: string, @Body() dto: UpdateEquipmentListingDto, @Req() req: Request) {
+    return this.svc.update(id, (req.user as JwtPayload).sub, dto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: Request) {
-    return this.svc.removeListing(id, (req.user as JwtPayload).sub);
+    return this.svc.remove(id, (req.user as JwtPayload).sub);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/images')
   addImages(@Param('id') id: string, @Body() body: { urls: string[] }, @Req() req: Request) {
-    return this.svc.addListingImages(id, (req.user as JwtPayload).sub, body.urls);
+    return this.svc.addImages(id, (req.user as JwtPayload).sub, body.urls);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('images/:imageId')
   removeImage(@Param('imageId') imageId: string, @Req() req: Request) {
-    return this.svc.removeListingImage(imageId, (req.user as JwtPayload).sub);
+    return this.svc.removeImage(imageId, (req.user as JwtPayload).sub);
   }
 }

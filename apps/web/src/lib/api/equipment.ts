@@ -240,6 +240,15 @@ export function useUpdateEquipmentRequest() {
   });
 }
 
+export function useChangeRequestStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, requestStatus }: { id: string; requestStatus: string }) =>
+      apiRequest<EquipmentRequestItem>(`/equipment-requests/${id}/status`, { method: 'PATCH', body: JSON.stringify({ requestStatus }) }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['equipment-requests'] }); },
+  });
+}
+
 export function useDeleteEquipmentRequest() {
   const qc = useQueryClient();
   return useMutation({

@@ -262,13 +262,15 @@ export class UploadsService {
     if (!equipment) throw new NotFoundException('إعلان المعدة غير موجود');
     if (equipment.userId !== userId) throw new ForbiddenException('لا يمكنك تعديل إعلان غيرك');
 
+    const imageCount = await this.prisma.equipmentListingImage.count({ where: { equipmentListingId: equipmentId } });
+    if (imageCount >= 10) throw new BadRequestException('الحد الأقصى 10 صور لكل إعلان');
+
     const maxOrder = await this.prisma.equipmentListingImage.aggregate({ where: { equipmentListingId: equipmentId }, _max: { order: true } });
     const nextOrder = (maxOrder._max.order ?? -1) + 1;
 
     if (isPrimary) {
       await this.prisma.equipmentListingImage.updateMany({ where: { equipmentListingId: equipmentId }, data: { isPrimary: false } });
     }
-    const imageCount = await this.prisma.equipmentListingImage.count({ where: { equipmentListingId: equipmentId } });
     const shouldBePrimary = isPrimary || imageCount === 0;
 
     return this.prisma.equipmentListingImage.create({
