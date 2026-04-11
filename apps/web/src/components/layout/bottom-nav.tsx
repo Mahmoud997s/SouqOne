@@ -1,0 +1,79 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/providers/auth-provider';
+
+const NAV_ITEMS = [
+  { href: '/', label: 'الرئيسية', icon: 'home' },
+  { href: '/listings', label: 'البحث', icon: 'search' },
+  { href: '/add-listing', label: 'أضف إعلان', icon: 'add_circle', accent: true },
+  { href: '/messages', label: 'الرسائل', icon: 'chat', authRequired: true },
+  { href: '/profile', label: 'حسابي', icon: 'person', authRequired: true },
+];
+
+export function BottomNav() {
+  const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
+  const unreadMessages = 0; // TODO: wire up unread messages count
+
+  // Hide on chat detail pages (full-screen chat)
+  const hiddenPaths = ['/messages/'];
+  if (hiddenPaths.some(p => pathname.startsWith(p) && pathname !== '/messages')) return null;
+
+  return (
+    <nav className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-surface-container-lowest/95 dark:bg-surface-container/95 backdrop-blur-xl border-t border-outline-variant/10 dark:border-outline-variant/20 safe-area-bottom" dir="rtl">
+      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
+        {NAV_ITEMS.map((item) => {
+          // Redirect to login if auth required and not authenticated
+          const href = item.authRequired && !isAuthenticated ? `/login?returnUrl=${encodeURIComponent(item.href)}` : item.href;
+          const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+
+          if (item.accent) {
+            return (
+              <Link
+                key={item.href}
+                href={href}
+                className="flex flex-col items-center justify-center -mt-4"
+              >
+                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                  <span className="material-symbols-outlined text-on-primary text-2xl">
+                    {item.icon}
+                  </span>
+                </div>
+                <span className="text-[10px] font-bold text-primary mt-0.5">{item.label}</span>
+              </Link>
+            );
+          }
+
+          return (
+            <Link
+              key={item.href}
+              href={href}
+              className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] py-1 transition-colors ${
+                isActive
+                  ? 'text-primary'
+                  : 'text-on-surface-variant/60 hover:text-on-surface-variant'
+              }`}
+            >
+              <div className="relative">
+                <span className={`material-symbols-outlined text-[22px] ${isActive ? 'font-variation-settings: "FILL" 1' : ''}`}>
+                  {item.icon}
+                </span>
+                {/* Unread badge for messages */}
+                {item.href === '/messages' && unreadMessages > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-error text-on-error text-[9px] font-black rounded-full flex items-center justify-center">
+                    {unreadMessages > 9 ? '9+' : unreadMessages}
+                  </span>
+                )}
+              </div>
+              <span className={`text-[10px] ${isActive ? 'font-bold' : 'font-medium'}`}>
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}

@@ -85,7 +85,7 @@ function BookingsContent() {
             <button
               key={s || 'all'}
               onClick={() => setStatusFilter(s)}
-              className={`px-4 py-2 text-xs font-black transition-all ${
+              className={`px-4 py-2.5 min-h-[44px] text-xs font-black transition-all ${
                 statusFilter === s
                   ? 'bg-primary text-on-primary'
                   : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'

@@ -3,6 +3,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAutocomplete } from '@/lib/api/search';
+
+const RECENT_KEY = 'carone.recent_searches';
+const MAX_RECENT = 5;
+function getRecent(): string[] { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch { return []; } }
+function saveRecent(q: string) { const r = getRecent().filter(s => s !== q); r.unshift(q); localStorage.setItem(RECENT_KEY, JSON.stringify(r.slice(0, MAX_RECENT))); }
 
 const searchCategories = [
   { value: 'all', label: 'الكل', placeholder: 'ابحث في سوق وان...', route: '/listings' },
@@ -31,6 +37,9 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
   const catRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestRef = useRef<HTMLDivElement>(null);
+  const { data: suggestions } = useAutocomplete(searchQuery);
   const activeCat = searchCategories.find(c => c.value === searchCategory) ?? searchCategories[0];
 
   useEffect(() => {
@@ -45,13 +54,32 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
     return () => document.removeEventListener('mousedown', onOutside);
   }, []);
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
+  function handleSearch(e?: React.FormEvent) {
+    e?.preventDefault();
     if (!searchQuery.trim()) return;
+    saveRecent(searchQuery.trim());
     router.push(`${activeCat.route}?search=${encodeURIComponent(searchQuery.trim())}`);
     onSearchOpenChange(false);
+    setShowSuggestions(false);
     onCloseMobile?.();
   }
+
+  function handleSuggestionClick(title: string) {
+    setSearchQuery(title);
+    saveRecent(title);
+    router.push(`${activeCat.route}?search=${encodeURIComponent(title)}`);
+    onSearchOpenChange(false);
+    setShowSuggestions(false);
+    onCloseMobile?.();
+  }
+
+  useEffect(() => {
+    const onOutside = (e: MouseEvent) => {
+      if (suggestRef.current && !suggestRef.current.contains(e.target as Node)) setShowSuggestions(false);
+    };
+    document.addEventListener('mousedown', onOutside);
+    return () => document.removeEventListener('mousedown', onOutside);
+  }, []);
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-center" style={{ height }} dir="rtl">
@@ -85,14 +113,44 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
               </div>
             )}
           </div>
-          <input
-            ref={searchRef}
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder={activeCat.placeholder}
-            className="flex-1 h-full px-3 sm:px-4 text-[13px] sm:text-sm font-medium text-on-surface bg-transparent focus:outline-none placeholder:text-on-surface-variant/40 min-w-0"
-          />
+          <div className="relative flex-1" ref={suggestRef}>
+            <input
+              ref={searchRef}
+              type="text"
+              value={searchQuery}
+              onChange={e => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
+              onFocus={() => setShowSuggestions(true)}
+              placeholder={activeCat.placeholder}
+              className="w-full h-full px-3 sm:px-4 text-[13px] sm:text-sm font-medium text-on-surface bg-transparent focus:outline-none placeholder:text-on-surface-variant/40 min-w-0"
+            />
+            {/* Suggestions dropdown */}
+            {showSuggestions && (searchQuery.length >= 2 && suggestions && suggestions.length > 0 || searchQuery.length < 2) && (
+              <div className="absolute top-[calc(100%+8px)] right-0 left-0 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl shadow-lg z-50 max-h-[50vh] overflow-y-auto py-1" dir="rtl">
+                {searchQuery.length >= 2 && suggestions && suggestions.length > 0 ? (
+                  suggestions.map((s) => (
+                    <button key={s.id} onClick={() => handleSuggestionClick(s.title)} className="w-full flex items-center gap-2 px-3 py-2 text-right hover:bg-surface-container transition-colors">
+                      <span className="material-symbols-outlined text-sm text-on-surface-variant/40">search</span>
+                      <span className="text-sm text-on-surface truncate" dangerouslySetInnerHTML={{ __html: s.highlighted || s.title }} />
+                    </button>
+                  ))
+                ) : searchQuery.length < 2 ? (
+                  <>
+                    {getRecent().length > 0 && (
+                      <div className="px-3 py-1.5">
+                        <span className="text-[11px] font-bold text-on-surface-variant">بحث سابق</span>
+                        {getRecent().map((r, i) => (
+                          <button key={i} onClick={() => handleSuggestionClick(r)} className="w-full flex items-center gap-2 py-1.5 text-right hover:text-primary transition-colors">
+                            <span className="material-symbols-outlined text-sm text-on-surface-variant/30">history</span>
+                            <span className="text-sm text-on-surface">{r}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : null}
+              </div>
+            )}
+          </div>
           <button
             type="submit"
             className="h-full px-3 sm:px-4 bg-primary text-on-primary flex items-center justify-center hover:brightness-110 transition-colors rounded-l-xl"

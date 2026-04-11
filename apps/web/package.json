@@ -2,6 +2,7 @@
   "name": "@carone/web",
   "version": "0.0.1",
   "private": true,
+  "sideEffects": false,
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",

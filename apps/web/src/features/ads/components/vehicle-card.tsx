@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { getImageUrl } from '@/lib/image-utils';
 import { FUEL_LABELS, TRANSMISSION_LABELS, CONDITION_BADGE, PILL_COLORS } from '@/lib/constants/mappings';
 import { VerifiedBadge } from '@/components/verified-badge';
@@ -50,11 +51,12 @@ export function VehicleCard(props: VehicleCardProps) {
         {/* ── Image ── */}
         <div className="relative aspect-[16/10] overflow-hidden bg-surface-container-low">
           {imgSrc ? (
-            <img
+            <Image
               src={imgSrc}
               alt={props.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
             />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-on-surface-variant/30">

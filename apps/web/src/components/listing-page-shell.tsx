@@ -162,16 +162,38 @@ function ListingPageContent<T>({
         )}
 
         {/* Pagination */}
-        {data && data.meta.totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-8">
-            {Array.from({ length: data.meta.totalPages }, (_, i) => i + 1).map(p => (
-              <button key={p} onClick={() => { const sp = new URLSearchParams(searchParams.toString()); sp.set('page', String(p)); router.push(`${basePath}?${sp.toString()}`); }}
-                className={`w-10 h-10 rounded-lg text-sm font-bold transition-all ${p === data.meta.page ? 'bg-primary text-on-primary shadow-ambient' : 'border border-outline/30 text-on-surface-variant hover:border-primary hover:text-primary'}`}>
-                {p}
+        {data && data.meta.totalPages > 1 && (() => {
+          const current = data.meta.page;
+          const total = data.meta.totalPages;
+          const goTo = (p: number) => { const sp = new URLSearchParams(searchParams.toString()); sp.set('page', String(p)); router.push(`${basePath}?${sp.toString()}`); };
+          const btnCls = (active: boolean) => `w-11 h-11 rounded-lg text-sm font-bold transition-all ${active ? 'bg-primary text-on-primary shadow-ambient' : 'border border-outline/30 text-on-surface-variant hover:border-primary hover:text-primary'}`;
+
+          // Build page numbers with ellipsis
+          const pages: (number | '...')[] = [];
+          pages.push(1);
+          if (current > 3) pages.push('...');
+          for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+          if (current < total - 2) pages.push('...');
+          if (total > 1) pages.push(total);
+
+          return (
+            <div className="flex justify-center items-center gap-2 mt-8">
+              <button onClick={() => goTo(Math.max(1, current - 1))} disabled={current <= 1} className="w-11 h-11 rounded-lg border border-outline/30 text-on-surface-variant hover:border-primary hover:text-primary disabled:opacity-30 transition-all flex items-center justify-center">
+                <span className="material-symbols-outlined text-lg">chevron_right</span>
               </button>
-            ))}
-          </div>
-        )}
+              {pages.map((p, i) =>
+                p === '...' ? (
+                  <span key={`e${i}`} className="w-8 text-center text-on-surface-variant/50">...</span>
+                ) : (
+                  <button key={p} onClick={() => goTo(p)} className={btnCls(p === current)}>{p}</button>
+                )
+              )}
+              <button onClick={() => goTo(Math.min(total, current + 1))} disabled={current >= total} className="w-11 h-11 rounded-lg border border-outline/30 text-on-surface-variant hover:border-primary hover:text-primary disabled:opacity-30 transition-all flex items-center justify-center">
+                <span className="material-symbols-outlined text-lg">chevron_left</span>
+              </button>
+            </div>
+          );
+        })()}
       </main>
       <Footer />
     </>

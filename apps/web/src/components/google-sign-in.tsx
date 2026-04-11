@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Script from 'next/script';
 import { apiRequest } from '@/lib/auth';
 import { useAuth } from '@/providers/auth-provider';
 
@@ -88,6 +89,7 @@ export function GoogleSignInButton({ onError, onSuccess }: GoogleSignInProps) {
 
   return (
     <div className="w-full">
+      <Script src="https://accounts.google.com/gsi/client" strategy="lazyOnload" />
       {loading ? (
         <div className="flex items-center justify-center gap-3 w-full py-3.5 border border-outline-variant rounded-full text-on-surface-variant text-sm font-medium">
           <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">

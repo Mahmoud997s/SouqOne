@@ -13,6 +13,7 @@ import { ErrorState } from '@/components/error-state';
 import { useListings, useSearch, type SearchHit } from '@/lib/api';
 import { haversineDistance } from '@/lib/geo-utils';
 import { getImageUrl } from '@/lib/image-utils';
+import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { FUEL_OPTIONS, CONDITION_OPTIONS } from '@/lib/constants/mappings';
 
 const ListingsMap = dynamic(() => import('@/components/map/listings-map'), { ssr: false });
@@ -374,16 +375,35 @@ function ListingsContent() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* ── Mobile Filter Toggle ── */}
           <button
-            onClick={() => setShowMobileFilters(!showMobileFilters)}
-            className="lg:hidden flex items-center gap-2 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl px-4 py-2.5 text-sm font-black text-on-surface-variant hover:border-primary/30 transition-all"
+            onClick={() => setShowMobileFilters(true)}
+            className="lg:hidden flex items-center gap-2 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl px-4 py-2.5 min-h-[44px] text-sm font-black text-on-surface-variant hover:border-primary/30 transition-all"
           >
             <span className="material-symbols-outlined text-base">tune</span>
             تصفية النتائج
-            <span className={`material-symbols-outlined text-sm transition-transform ${showMobileFilters ? 'rotate-180' : ''}`}>expand_more</span>
+            <span className="material-symbols-outlined text-sm">expand_more</span>
           </button>
 
-          {/* ── Sidebar Filters ── */}
-          <aside className={`lg:w-64 shrink-0 ${showMobileFilters ? 'block' : 'hidden lg:block'}`}>
+          {/* ── Mobile Bottom Sheet Filters ── */}
+          <BottomSheet open={showMobileFilters} onClose={() => setShowMobileFilters(false)} title="تصفية النتائج">
+            <div className="space-y-5">
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">السعر الأقصى (ر.ع)</label>
+                <input type="number" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} placeholder="مثال: 15000" className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">الحالة</label>
+                <div className="space-y-1.5">{conditionOptions.map((opt) => (<label key={opt.value} className="flex items-center gap-2.5 cursor-pointer group py-1.5"><input type="radio" name="condition-mobile" checked={selectedCondition === opt.value} onChange={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)} className="w-4 h-4 accent-primary" /><span className="text-sm font-medium text-on-surface">{opt.label}</span></label>))}</div>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">نوع الوقود</label>
+                <div className="flex flex-wrap gap-2">{fuelOptions.map((opt) => (<button key={opt.value} onClick={() => toggleFuel(opt.value)} className={`px-3.5 py-2 min-h-[44px] text-xs font-bold rounded-lg transition-all ${selectedFuels.includes(opt.value) ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant'}`}>{opt.label}</button>))}</div>
+              </div>
+              <button onClick={() => { applyFilters(); setShowMobileFilters(false); }} className="bg-primary text-on-primary w-full py-3 min-h-[44px] text-sm font-black rounded-xl hover:brightness-110 transition-colors">تطبيق الفلاتر</button>
+            </div>
+          </BottomSheet>
+
+          {/* ── Desktop Sidebar Filters ── */}
+          <aside className="hidden lg:block lg:w-64 shrink-0">
             <div className="sticky top-24 space-y-5 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl p-5 shadow-sm">
               <div>
                 <h2 className="text-lg font-black mb-0.5">تصفية النتائج</h2>
@@ -429,7 +449,7 @@ function ListingsContent() {
                     <button
                       key={opt.value}
                       onClick={() => toggleFuel(opt.value)}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                      className={`px-3.5 py-2 min-h-[44px] text-xs font-bold rounded-lg transition-all ${
                         selectedFuels.includes(opt.value)
                           ? 'bg-primary text-on-primary'
                           : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'
@@ -469,14 +489,14 @@ function ListingsContent() {
                 <div className="flex border border-outline-variant/10 rounded-xl overflow-hidden">
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`px-3.5 py-2 text-xs font-black flex items-center gap-1 transition-all ${viewMode === 'list' ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:bg-surface-container'}`}
+                    className={`px-4 py-2.5 min-h-[44px] text-xs font-black flex items-center gap-1 transition-all ${viewMode === 'list' ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:bg-surface-container'}`}
                   >
                     <span className="material-symbols-outlined text-sm">view_list</span>
                     قائمة
                   </button>
                   <button
                     onClick={() => setViewMode('map')}
-                    className={`px-3.5 py-2 text-xs font-black flex items-center gap-1 transition-all ${viewMode === 'map' ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:bg-surface-container'}`}
+                    className={`px-4 py-2.5 min-h-[44px] text-xs font-black flex items-center gap-1 transition-all ${viewMode === 'map' ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:bg-surface-container'}`}
                   >
                     <span className="material-symbols-outlined text-sm">map</span>
                     خريطة

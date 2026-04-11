@@ -49,22 +49,11 @@ export default function NotificationsPage() {
   const markRead = useMarkNotificationRead();
   const markAllRead = useMarkAllNotificationsRead();
 
-  if (authLoading) {
-    return (
-      <>
-        <Navbar />
-        <div className="min-h-screen flex items-center justify-center pt-32">
-          <Loader2 className="animate-spin text-primary" size={32} />
-        </div>
-      </>
-    );
-  }
-
   useEffect(() => {
     if (!authLoading && !isAuthenticated) router.push(`/login?returnUrl=${encodeURIComponent('/notifications')}`);
   }, [authLoading, isAuthenticated, router]);
 
-  if (!isAuthenticated) {
+  if (authLoading || !isAuthenticated) {
     return (
       <>
         <Navbar />
