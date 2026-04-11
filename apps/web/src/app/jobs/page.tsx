@@ -13,19 +13,18 @@ import { employmentOptions } from '@/lib/constants/jobs';
 
 export default function JobsPage() {
   return (
-    <Suspense fallback={<><Navbar /><main className="pt-28 pb-16 max-w-7xl mx-auto px-6"><ListingSkeleton count={6} /></main></>}>
+    <Suspense fallback={<><Navbar /><main className="pt-24 pb-16"><div className="max-w-7xl mx-auto px-4 md:px-8"><ListingSkeleton count={8} /></div></main></>}>
       <JobsContent />
     </Suspense>
   );
 }
 
-
 const licenseOptions = [
-  { value: 'LIGHT', label: 'خفيفة' },
-  { value: 'HEAVY', label: 'ثقيلة' },
-  { value: 'TRANSPORT', label: 'نقل' },
-  { value: 'BUS', label: 'حافلات' },
-  { value: 'MOTORCYCLE', label: 'دراجة' },
+  { value: 'LIGHT', label: 'خفيفة', icon: 'directions_car' },
+  { value: 'HEAVY', label: 'ثقيلة', icon: 'local_shipping' },
+  { value: 'TRANSPORT', label: 'نقل', icon: 'fire_truck' },
+  { value: 'BUS', label: 'حافلات', icon: 'directions_bus' },
+  { value: 'MOTORCYCLE', label: 'دراجة', icon: 'two_wheeler' },
 ];
 
 const sortOptions = [
@@ -33,6 +32,12 @@ const sortOptions = [
   { value: 'createdAt_asc', label: 'الأقدم' },
   { value: 'salary_desc', label: 'الراتب: الأعلى' },
   { value: 'salary_asc', label: 'الراتب: الأقل' },
+];
+
+const TABS = [
+  { value: '', label: 'الكل', icon: 'grid_view' },
+  { value: 'OFFERING', label: 'يبحثون عن عمل', icon: 'person_search' },
+  { value: 'HIRING', label: 'يبحثون عن سائق', icon: 'person_add' },
 ];
 
 function JobsContent() {
@@ -48,6 +53,9 @@ function JobsContent() {
   const sortBy = searchParams.get('sortBy') || '';
 
   const [searchInput, setSearchInput] = useState(search);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const activeFilterCount = [employmentType, licenseType, governorate, sortBy].filter(Boolean).length;
 
   const params = useMemo(() => {
     const p: Record<string, string> = { page, limit: '12' };
@@ -82,167 +90,279 @@ function JobsContent() {
     router.push(`/jobs?${sp.toString()}`);
   }
 
+  function clearFilters() {
+    router.push('/jobs');
+  }
+
   const govs = getGovernorates('OM');
 
   return (
     <>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-7xl mx-auto px-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-black mb-1">
-              <span className="material-symbols-outlined text-primary align-middle text-3xl ml-2">badge</span>
-              وظائف السائقين
-            </h1>
-            <p className="text-on-surface-variant">ابحث عن سائق أو اعرض خدماتك كسائق محترف</p>
-          </div>
-          <Link href="/jobs/new" className="btn-orange px-6 py-3 text-sm font-black shrink-0 hover:brightness-110 transition-colors">
-            <span className="material-symbols-outlined text-lg align-middle ml-1">add</span>
-            أضف إعلان وظيفة
-          </Link>
-        </div>
-
-        {/* Tabs: OFFERING / HIRING / ALL */}
-        <div className="flex gap-2 mb-6">
-          {[
-            { value: '', label: 'الكل', icon: 'apps' },
-            { value: 'OFFERING', label: 'يبحثون عن عمل', icon: 'person_search' },
-            { value: 'HIRING', label: 'يبحثون عن سائق', icon: 'person_add' },
-          ].map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => updateParam('jobType', tab.value)}
-              className={`flex items-center gap-2 px-5 py-3 font-black text-sm transition-all ${
-                jobType === tab.value
-                  ? 'bg-on-surface text-surface'
-                  : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-              }`}
-            >
-              <span className="material-symbols-outlined text-lg">{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Filters */}
-        <div className="bg-surface-container-lowest border border-outline-variant/10 p-4 md:p-6 mb-8 space-y-4">
-          <div className="flex flex-col md:flex-row gap-3">
-            <div className="flex-1 relative">
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-lg">search</span>
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="ابحث بالعنوان أو الوصف..."
-                className="w-full bg-surface-container-lowest border border-outline-variant/30 py-3 pr-10 pl-4 focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none text-sm"
-                dir="rtl"
-              />
+      <style>{`.scrollbar-hide::-webkit-scrollbar{display:none} .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}`}</style>
+      <main className="pt-24 pb-16" dir="rtl">
+        {/* ── Hero Section ── */}
+        <div className="bg-gradient-to-b from-amber-50/80 via-amber-50/30 to-transparent dark:from-amber-950/20 dark:via-amber-950/5 dark:to-transparent pb-6">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 pt-6">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-black text-on-surface flex items-center gap-2">
+                  <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-3xl">badge</span>
+                  وظائف السائقين
+                </h1>
+                <p className="text-on-surface-variant text-sm mt-1">ابحث عن سائق محترف أو اعرض خدماتك</p>
+              </div>
+              <Link href="/jobs/new" className="btn-orange px-5 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all flex items-center gap-1.5 shadow-lg">
+                <span className="material-symbols-outlined text-base">add</span>
+                أضف إعلان وظيفة
+              </Link>
             </div>
-            <select
-              value={governorate}
-              onChange={(e) => updateParam('governorate', e.target.value)}
-              className="bg-surface-container border border-outline-variant/10 py-3 px-4 text-sm min-w-[160px]"
-            >
-              <option value="">كل المحافظات</option>
-              {govs.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
-            </select>
-            <select
-              value={sortBy}
-              onChange={(e) => updateParam('sortBy', e.target.value)}
-              className="bg-surface-container border border-outline-variant/10 py-3 px-4 text-sm min-w-[140px]"
-            >
-              <option value="">الترتيب</option>
-              {sortOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-            <button onClick={handleSearch} className="btn-editorial px-6 py-3 text-sm font-black hover:brightness-110 transition-colors">بحث</button>
-          </div>
 
-          {/* Filter chips */}
-          <div className="flex flex-wrap gap-2">
-            <span className="text-xs text-on-surface-variant font-bold self-center ml-2">نوع الدوام:</span>
-            {employmentOptions.map((o) => (
-              <button
-                key={o.value}
-                onClick={() => updateParam('employmentType', employmentType === o.value ? '' : o.value)}
-                className={`px-3 py-1.5 text-xs font-black transition-all ${
-                  employmentType === o.value
-                    ? 'bg-primary text-on-primary'
-                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-                }`}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <span className="text-xs text-on-surface-variant font-bold self-center ml-2">الرخصة:</span>
-            {licenseOptions.map((o) => (
-              <button
-                key={o.value}
-                onClick={() => updateParam('licenseType', licenseType === o.value ? '' : o.value)}
-                className={`px-3 py-1.5 text-xs font-black transition-all ${
-                  licenseType === o.value
-                    ? 'bg-on-surface text-surface'
-                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-                }`}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
-        </div>
+            {/* Stats bar */}
+            {meta && (
+              <div className="flex items-center gap-4 mb-5">
+                <div className="flex items-center gap-1.5 bg-white/70 dark:bg-surface-container backdrop-blur-sm border border-outline-variant/10 rounded-xl px-3 py-1.5">
+                  <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-sm">work</span>
+                  <span className="text-xs font-black text-on-surface">{meta.total}</span>
+                  <span className="text-xs text-on-surface-variant">وظيفة متاحة</span>
+                </div>
+              </div>
+            )}
 
-        {/* Results */}
-        {isLoading ? (
-          <ListingSkeleton count={6} />
-        ) : isError ? (
-          <div className="text-center py-20">
-            <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4 block">error</span>
-            <p className="text-xl font-bold mb-4">حدث خطأ في تحميل البيانات</p>
-            <button onClick={() => refetch()} className="bg-primary text-on-primary px-6 py-3 text-sm font-black hover:brightness-110 transition-colors">إعادة المحاولة</button>
-          </div>
-        ) : items.length === 0 ? (
-          <div className="text-center py-20">
-            <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4 block">work_off</span>
-            <p className="text-xl font-bold text-on-surface mb-2">لا توجد وظائف</p>
-            <p className="text-on-surface-variant mb-6">جرب تغيير معايير البحث أو أضف إعلان جديد</p>
-            <Link href="/jobs/new" className="btn-orange px-6 py-3 text-sm font-black hover:brightness-110 transition-colors">أضف إعلان وظيفة</Link>
-          </div>
-        ) : (
-          <>
-            <p className="text-sm text-on-surface-variant mb-6">{meta?.total ?? 0} وظيفة</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {items.map((job) => (
-                <JobCard key={job.id} job={job} />
+            {/* Tabs */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.value}
+                  onClick={() => updateParam('jobType', tab.value)}
+                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black whitespace-nowrap transition-all ${
+                    jobType === tab.value
+                      ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20 dark:bg-amber-500'
+                      : 'bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 text-on-surface-variant hover:border-amber-500/30 hover:text-amber-700 dark:hover:text-amber-400'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-sm">{tab.icon}</span>
+                  {tab.label}
+                </button>
               ))}
             </div>
 
-            {/* Pagination */}
-            {meta && meta.totalPages > 1 && (
-              <div className="flex justify-center gap-2 mt-12">
-                {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => {
-                      const sp = new URLSearchParams(searchParams);
-                      sp.set('page', String(p));
-                      router.push(`/jobs?${sp.toString()}`);
-                    }}
-                    className={`w-10 h-10 text-sm font-black transition-all ${
-                      p === Number(page)
-                        ? 'bg-on-surface text-surface'
-                        : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-                    }`}
+            {/* Search bar */}
+            <div className="mt-4 flex gap-2">
+              <div className="flex-1 relative">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/60 text-lg">search</span>
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  placeholder="ابحث بالعنوان أو الوصف..."
+                  className="w-full bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl py-2.5 pr-10 pl-4 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none text-sm transition-all"
+                  dir="rtl"
+                />
+              </div>
+              <button onClick={handleSearch} className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-xl text-sm font-black transition-all shadow-md shadow-amber-600/20 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-sm">search</span>
+                بحث
+              </button>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-3 py-2.5 rounded-xl text-sm font-black transition-all flex items-center gap-1 border relative ${
+                  showFilters || activeFilterCount > 0
+                    ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400'
+                    : 'bg-surface-container-lowest dark:bg-surface-container border-outline-variant/10 text-on-surface-variant hover:border-amber-500/30'
+                }`}
+              >
+                <span className="material-symbols-outlined text-sm">tune</span>
+                <span className="hidden sm:inline">فلاتر</span>
+                {activeFilterCount > 0 && (
+                  <span className="absolute -top-1.5 -left-1.5 w-5 h-5 bg-amber-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Expandable filters panel */}
+            {showFilters && (
+              <div className="mt-3 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-2xl p-4 md:p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                {/* Row 1: Selects */}
+                <div className="flex flex-wrap gap-3">
+                  <select
+                    value={governorate}
+                    onChange={(e) => updateParam('governorate', e.target.value)}
+                    className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-amber-500/40 min-w-[150px]"
                   >
-                    {p}
-                  </button>
-                ))}
+                    <option value="">كل المحافظات</option>
+                    {govs.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+                  </select>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => updateParam('sortBy', e.target.value)}
+                    className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-amber-500/40 min-w-[130px]"
+                  >
+                    <option value="">الترتيب</option>
+                    {sortOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                  {activeFilterCount > 0 && (
+                    <button onClick={clearFilters} className="text-xs text-red-500 hover:text-red-600 font-bold flex items-center gap-1 transition-colors">
+                      <span className="material-symbols-outlined text-sm">close</span>
+                      مسح الكل
+                    </button>
+                  )}
+                </div>
+
+                {/* Row 2: Employment Type */}
+                <div>
+                  <p className="text-[11px] text-on-surface-variant font-bold mb-2 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-xs">work</span>
+                    نوع الدوام
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {employmentOptions.map((o) => (
+                      <button
+                        key={o.value}
+                        onClick={() => updateParam('employmentType', employmentType === o.value ? '' : o.value)}
+                        className={`px-3 py-1.5 rounded-lg text-[11px] font-black transition-all ${
+                          employmentType === o.value
+                            ? 'bg-amber-600 text-white shadow-sm'
+                            : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-950/30 dark:hover:text-amber-400'
+                        }`}
+                      >
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Row 3: License Type */}
+                <div>
+                  <p className="text-[11px] text-on-surface-variant font-bold mb-2 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-xs">card_membership</span>
+                    نوع الرخصة
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {licenseOptions.map((o) => (
+                      <button
+                        key={o.value}
+                        onClick={() => updateParam('licenseType', licenseType === o.value ? '' : o.value)}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-black transition-all ${
+                          licenseType === o.value
+                            ? 'bg-amber-600 text-white shadow-sm'
+                            : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-950/30 dark:hover:text-amber-400'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-xs">{o.icon}</span>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
-          </>
-        )}
+          </div>
+        </div>
+
+        {/* ── Results ── */}
+        <div className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="animate-pulse bg-surface-container-low dark:bg-surface-container rounded-2xl h-56" />
+              ))}
+            </div>
+          ) : isError ? (
+            <div className="text-center py-20">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+                <span className="material-symbols-outlined text-4xl text-red-400">error</span>
+              </div>
+              <p className="text-lg font-black text-on-surface mb-2">حدث خطأ في تحميل البيانات</p>
+              <p className="text-sm text-on-surface-variant mb-6">يرجى المحاولة مرة أخرى</p>
+              <button onClick={() => refetch()} className="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all">إعادة المحاولة</button>
+            </div>
+          ) : items.length === 0 ? (
+            <div className="text-center py-20">
+              <div className="w-24 h-24 mx-auto mb-5 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
+                <span className="material-symbols-outlined text-5xl text-amber-400">work_off</span>
+              </div>
+              <p className="text-xl font-black text-on-surface mb-2">لا توجد وظائف</p>
+              <p className="text-on-surface-variant text-sm mb-6">جرّب تغيير معايير البحث أو كن أول من ينشر إعلان</p>
+              <Link href="/jobs/new" className="inline-flex items-center gap-1.5 btn-orange px-6 py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg">
+                <span className="material-symbols-outlined text-base">add</span>
+                أضف إعلان وظيفة
+              </Link>
+            </div>
+          ) : (
+            <>
+              {/* Results count + active filters */}
+              <div className="flex items-center justify-between mb-5">
+                <p className="text-sm text-on-surface-variant font-bold">
+                  <span className="text-on-surface font-black">{meta?.total ?? 0}</span> وظيفة
+                </p>
+                {activeFilterCount > 0 && (
+                  <button onClick={clearFilters} className="text-xs text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1 transition-colors">
+                    <span className="material-symbols-outlined text-sm">filter_alt_off</span>
+                    مسح الفلاتر
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {items.map((job) => (
+                  <JobCard key={job.id} job={job} />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {meta && meta.totalPages > 1 && (
+                <div className="flex justify-center gap-2 mt-10">
+                  {Number(page) > 1 && (
+                    <button
+                      onClick={() => {
+                        const sp = new URLSearchParams(searchParams);
+                        sp.set('page', String(Number(page) - 1));
+                        router.push(`/jobs?${sp.toString()}`);
+                      }}
+                      className="w-9 h-9 rounded-lg text-xs font-black bg-surface-container-low text-on-surface-variant hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-950/30 transition-all flex items-center justify-center"
+                    >
+                      <span className="material-symbols-outlined text-sm">chevron_right</span>
+                    </button>
+                  )}
+                  {Array.from({ length: meta.totalPages }, (_, i) => i + 1).slice(0, 10).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => {
+                        const sp = new URLSearchParams(searchParams);
+                        sp.set('page', String(p));
+                        router.push(`/jobs?${sp.toString()}`);
+                      }}
+                      className={`w-9 h-9 rounded-lg text-xs font-black transition-all ${
+                        p === Number(page)
+                          ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
+                          : 'bg-surface-container-low text-on-surface-variant hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-950/30'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                  {Number(page) < meta.totalPages && (
+                    <button
+                      onClick={() => {
+                        const sp = new URLSearchParams(searchParams);
+                        sp.set('page', String(Number(page) + 1));
+                        router.push(`/jobs?${sp.toString()}`);
+                      }}
+                      className="w-9 h-9 rounded-lg text-xs font-black bg-surface-container-low text-on-surface-variant hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-950/30 transition-all flex items-center justify-center"
+                    >
+                      <span className="material-symbols-outlined text-sm">chevron_left</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </main>
       <Footer />
     </>
