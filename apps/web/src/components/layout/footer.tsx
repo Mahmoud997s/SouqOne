@@ -51,10 +51,10 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
 
 export function Footer() {
   return (
-    <footer className="bg-brand-navy dark:bg-black w-full border-t border-white/10 mt-20" dir="rtl">
+    <footer className="hidden lg:block bg-brand-navy dark:bg-black w-full border-t border-white/10 mt-20" dir="rtl">
 
-      {/* ══ Desktop: compact 280px footer ══ */}
-      <div className="hidden md:block" style={{ height: 280 }}>
+      {/* ══ Desktop-only footer ══ */}
+      <div style={{ height: 280 }}>
         <div className="max-w-7xl mx-auto px-6 lg:px-10 h-full flex flex-col justify-between py-8">
 
           {/* Top row */}
@@ -123,32 +123,6 @@ export function Footer() {
             <p className="text-white/30 text-[10px]" dir="ltr">SouqOne</p>
           </div>
         </div>
-      </div>
-
-      {/* ══ Mobile: minimal footer ══ */}
-      <div className="md:hidden px-6 py-6 flex flex-col items-center gap-4">
-        {/* Logo + name */}
-        <Link href="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="SouqOne" className="h-7 w-auto object-contain" />
-          <img src="/name.png" alt="سوق وان" className="h-4 w-auto object-contain brightness-0 invert" />
-        </Link>
-
-        {/* Social icons */}
-        <div className="flex items-center gap-3">
-          {socialLinks.map((s) => (
-            <a key={s.label} href={s.href} aria-label={s.label}
-              className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-white/40 hover:border-tertiary hover:text-tertiary transition-all">
-              <span className="material-symbols-outlined text-[15px]">{s.icon}</span>
-            </a>
-          ))}
-        </div>
-
-        {/* Copyright */}
-        <p className="text-white/30 text-[10px] text-center">
-          © {new Date().getFullYear()}{' '}
-          <span className="text-tertiary font-bold">سوق وان</span>
-          {' '}. جميع الحقوق محفوظة.
-        </p>
       </div>
     </footer>
   );

@@ -389,7 +389,7 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Add bottom padding to pages so content doesn't hide behind bottom nav on mobile */
+/* Add bottom padding so content doesn't hide behind bottom nav on mobile */
 @media (max-width: 1023px) {
-  main, footer { padding-bottom: 80px; }
+  main { padding-bottom: 80px; }
 }
