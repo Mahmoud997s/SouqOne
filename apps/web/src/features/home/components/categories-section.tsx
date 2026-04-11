@@ -19,19 +19,19 @@ export function CategoriesSection() {
         <h2 className="text-2xl font-black">تصفح الأقسام</h2>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
         {categories.map((cat) => (
           <Link
             key={cat.label}
             href={cat.href}
-            className="group bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 p-5 flex flex-col items-center text-center gap-3 hover:border-primary/30 hover:shadow-lg transition-all duration-300"
+            className="group bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 p-3 sm:p-5 flex flex-col items-center text-center gap-2 sm:gap-3 hover:border-primary/30 hover:shadow-lg transition-all duration-300"
           >
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${cat.color} transition-transform group-hover:scale-110`}>
-              <span className="material-symbols-outlined text-2xl">{cat.icon}</span>
+            <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center ${cat.color} transition-transform group-hover:scale-110`}>
+              <span className="material-symbols-outlined text-xl sm:text-2xl">{cat.icon}</span>
             </div>
             <div>
-              <h3 className="font-bold text-sm text-on-surface mb-0.5">{cat.label}</h3>
-              <span className="text-[11px] text-on-surface-variant">{cat.desc}</span>
+              <h3 className="font-bold text-xs sm:text-sm text-on-surface mb-0.5">{cat.label}</h3>
+              <span className="text-[10px] sm:text-[11px] text-on-surface-variant">{cat.desc}</span>
             </div>
           </Link>
         ))}
