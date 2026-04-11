@@ -23,7 +23,6 @@ const servicesLinks = [
 const contactItems = [
   { icon: 'location_on', text: 'سلطنة عمان، مسقط، الغبرة الشمالية' },
   { icon: 'call', text: '+968 9999 0000', dir: 'ltr' as const },
-  { icon: 'call', text: '+968 9111 0000', dir: 'ltr' as const },
   { icon: 'mail', text: 'info@souqone.com' },
 ];
 
@@ -35,23 +34,13 @@ const socialLinks = [
 
 /* ── Subcomponents ── */
 
-function FooterHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mb-6">
-      <h4 className="text-white font-black text-base mb-2">{children}</h4>
-      <div className="w-8 h-0.5 bg-tertiary rounded-full" />
-    </div>
-  );
-}
-
 function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <li>
       <Link
         href={href}
-        className="flex items-center gap-2 text-white/60 hover:text-tertiary transition-colors text-sm"
+        className="text-white/50 hover:text-tertiary transition-colors text-xs"
       >
-        <span className="text-tertiary text-[8px]">●</span>
         {children}
       </Link>
     </li>
@@ -63,91 +52,103 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
 export function Footer() {
   return (
     <footer className="bg-brand-navy dark:bg-black w-full border-t border-white/10 mt-20" dir="rtl">
-      {/* ── Main Grid ── */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-10">
 
-          {/* ── Brand Column ── */}
-          <div>
-            <Link href="/" className="flex items-center gap-3 mb-5">
-              <img src="/logo.png" alt="SouqOne" className="h-10 w-auto object-contain" />
-              <img src="/name.png" alt="سوق وان" className="h-[24px] w-auto object-contain brightness-0 invert" />
-            </Link>
-            <p className="text-white/50 text-sm leading-relaxed mb-6">
-              المنصة الأولى والوحيدة في سلطنة عمان لبيع وشراء السيارات الفاخرة بكل ثقة وأمان.
-            </p>
-            <div className="flex items-center gap-3">
-              {socialLinks.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  aria-label={s.label}
-                  className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/50 hover:border-tertiary hover:text-tertiary transition-all"
-                >
-                  <span className="material-symbols-outlined text-[18px]">{s.icon}</span>
-                </a>
-              ))}
+      {/* ══ Desktop: compact 280px footer ══ */}
+      <div className="hidden md:block" style={{ height: 280 }}>
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 h-full flex flex-col justify-between py-8">
+
+          {/* Top row */}
+          <div className="flex items-start justify-between gap-8">
+            {/* Brand */}
+            <div className="shrink-0 max-w-[260px]">
+              <Link href="/" className="flex items-center gap-2.5 mb-3">
+                <img src="/logo.png" alt="SouqOne" className="h-8 w-auto object-contain" />
+                <img src="/name.png" alt="سوق وان" className="h-5 w-auto object-contain brightness-0 invert" />
+              </Link>
+              <p className="text-white/40 text-xs leading-relaxed">
+                المنصة الأولى في سلطنة عمان لبيع وشراء السيارات بكل ثقة وأمان.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-white font-black text-xs mb-3">روابط سريعة</h4>
+              <ul className="space-y-1.5">
+                {quickLinks.map((link) => (
+                  <FooterLink key={link.label} href={link.href}>{link.label}</FooterLink>
+                ))}
+              </ul>
+            </div>
+
+            {/* Services */}
+            <div>
+              <h4 className="text-white font-black text-xs mb-3">خدمات ونقل</h4>
+              <ul className="space-y-1.5">
+                {servicesLinks.map((link) => (
+                  <FooterLink key={link.label} href={link.href}>{link.label}</FooterLink>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-white font-black text-xs mb-3">تواصل معنا</h4>
+              <ul className="space-y-2">
+                {contactItems.map((item, i) => (
+                  <li key={i} className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-tertiary text-sm shrink-0">{item.icon}</span>
+                    <span dir={item.dir} className="text-white/50 text-xs">{item.text}</span>
+                  </li>
+                ))}
+              </ul>
+              {/* Social icons */}
+              <div className="flex items-center gap-2 mt-3">
+                {socialLinks.map((s) => (
+                  <a key={s.label} href={s.href} aria-label={s.label}
+                    className="w-7 h-7 rounded-full border border-white/15 flex items-center justify-center text-white/40 hover:border-tertiary hover:text-tertiary transition-all">
+                    <span className="material-symbols-outlined text-[14px]">{s.icon}</span>
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* ── Quick Links ── */}
-          <div>
-            <FooterHeading>روابط سريعة</FooterHeading>
-            <ul className="space-y-3">
-              {quickLinks.map((link) => (
-                <FooterLink key={link.label} href={link.href}>
-                  {link.label}
-                </FooterLink>
-              ))}
-            </ul>
-          </div>
-
-          {/* ── Services Links ── */}
-          <div>
-            <FooterHeading>خدمات ونقل</FooterHeading>
-            <ul className="space-y-3">
-              {servicesLinks.map((link) => (
-                <FooterLink key={link.label} href={link.href}>
-                  {link.label}
-                </FooterLink>
-              ))}
-            </ul>
-          </div>
-
-          {/* ── Contact ── */}
-          <div>
-            <FooterHeading>تواصل معنا</FooterHeading>
-            <ul className="space-y-4">
-              {contactItems.map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-tertiary text-lg mt-0.5 shrink-0">
-                    {item.icon}
-                  </span>
-                  <span
-                    dir={item.dir}
-                    className="text-white/60 text-sm leading-relaxed"
-                  >
-                    {item.text}
-                  </span>
-                </li>
-              ))}
-            </ul>
+          {/* Bottom bar */}
+          <div className="flex items-center justify-between border-t border-white/10 pt-4">
+            <p className="text-white/30 text-[10px]">
+              © {new Date().getFullYear()}{' '}
+              <span className="text-tertiary font-bold">سوق وان</span>
+              {' '}. جميع الحقوق محفوظة.
+            </p>
+            <p className="text-white/30 text-[10px]" dir="ltr">SouqOne</p>
           </div>
         </div>
       </div>
 
-      {/* ── Bottom Bar ── */}
-      <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-white/40 text-xs order-2 sm:order-1" dir="ltr">
-            SouqOne
-          </p>
-          <p className="text-white/40 text-xs order-1 sm:order-2">
-            © {new Date().getFullYear()}{' '}
-            <span className="text-tertiary font-bold">سوق وان</span>
-            . جميع الحقوق محفوظة.
-          </p>
+      {/* ══ Mobile: minimal footer ══ */}
+      <div className="md:hidden px-6 py-6 flex flex-col items-center gap-4">
+        {/* Logo + name */}
+        <Link href="/" className="flex items-center gap-2">
+          <img src="/logo.png" alt="SouqOne" className="h-7 w-auto object-contain" />
+          <img src="/name.png" alt="سوق وان" className="h-4 w-auto object-contain brightness-0 invert" />
+        </Link>
+
+        {/* Social icons */}
+        <div className="flex items-center gap-3">
+          {socialLinks.map((s) => (
+            <a key={s.label} href={s.href} aria-label={s.label}
+              className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-white/40 hover:border-tertiary hover:text-tertiary transition-all">
+              <span className="material-symbols-outlined text-[15px]">{s.icon}</span>
+            </a>
+          ))}
         </div>
+
+        {/* Copyright */}
+        <p className="text-white/30 text-[10px] text-center">
+          © {new Date().getFullYear()}{' '}
+          <span className="text-tertiary font-bold">سوق وان</span>
+          {' '}. جميع الحقوق محفوظة.
+        </p>
       </div>
     </footer>
   );
