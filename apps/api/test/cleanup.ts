@@ -14,6 +14,8 @@ const TABLES_TO_TRUNCATE = [
   'car_service_images',
   'transport_images',
   'listing_images',
+  'bus_listing_images',
+  'equipment_listing_images',
 
   // Messages & chat participants
   'messages',
@@ -24,6 +26,9 @@ const TABLES_TO_TRUNCATE = [
 
   // Bookings
   'bookings',
+
+  // Equipment bids
+  'equipment_bids',
 
   // Favorites & notifications
   'favorites',
@@ -39,6 +44,10 @@ const TABLES_TO_TRUNCATE = [
   'car_services',
   'spare_parts',
   'driver_jobs',
+  'bus_listings',
+  'equipment_requests',
+  'equipment_listings',
+  'operator_listings',
   'listings',
 
   // Auth tokens

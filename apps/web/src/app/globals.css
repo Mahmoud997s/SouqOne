@@ -236,18 +236,18 @@
   .premium-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 74, 198, 0.3); border-radius: 10px; }
   .premium-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0, 74, 198, 0.5); }
 
-  /* Glass nav — light + dark */
+  /* Glass nav — matches hero gradient + glassmorphism */
   .glass-nav {
-    background: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: none;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    background: linear-gradient(135deg, rgba(248,250,252,0.82), rgba(238,242,255,0.78), rgba(241,245,249,0.82));
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border-bottom: 1px solid rgba(255,255,255,0.5);
+    box-shadow: 0 1px 8px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(15,23,42,0.02);
   }
   .dark .glass-nav {
-    background: rgba(11, 36, 71, 0.92);
-    border-bottom-color: rgba(96, 165, 250, 0.1);
-    box-shadow: 0 0 40px rgba(96, 165, 250, 0.04);
+    background: linear-gradient(135deg, rgba(12,15,26,0.88), rgba(16,21,40,0.85), rgba(14,18,32,0.88));
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 0 40px rgba(96, 165, 250, 0.04), 0 0 0 1px rgba(255,255,255,0.03);
   }
   .dark .glass-card {
     background: rgba(11, 36, 71, 0.6);

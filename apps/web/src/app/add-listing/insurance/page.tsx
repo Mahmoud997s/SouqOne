@@ -9,7 +9,7 @@ import { MultiStepForm } from '@/components/ui/multi-step-form';
 import { useCreateInsurance } from '@/lib/api';
 import { useToast } from '@/components/toast';
 import { getGovernorates, getCountries } from '@/lib/location-data';
-import { inputCls, labelCls } from '@/lib/constants/form-styles';
+import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
 import dynamic from 'next/dynamic';
 
@@ -123,20 +123,20 @@ function AddInsuranceContent() {
         >
           {step === 0 && (
             <div className="space-y-8">
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">نوع العرض *</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">verified_user</span>نوع العرض *</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {INSURANCE_TYPES.map(t => (
                     <button key={t.value} type="button" onClick={() => set('offerType', t.value)}
-                      className={`py-2.5 rounded-lg text-sm font-bold transition-all ${form.offerType === t.value ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
+                      className={chipCls(form.offerType === t.value)}>
                       {t.label}
                     </button>
                   ))}
                 </div>
               </section>
 
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">بيانات مقدم العرض</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">business</span>بيانات مقدم العرض</h2>
                 <div className="space-y-4">
                   <div>
                     <label className={labelCls}>عنوان العرض *</label>
@@ -157,8 +157,8 @@ function AddInsuranceContent() {
 
           {step === 1 && (
             <div className="space-y-8">
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">تفاصيل العرض</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">description</span>تفاصيل العرض</h2>
                 <div className="space-y-4">
                   <div>
                     <label className={labelCls}>الوصف *</label>
@@ -171,8 +171,8 @@ function AddInsuranceContent() {
                 </div>
               </section>
 
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">المميزات</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">star</span>المميزات</h2>
                 <div className="flex gap-2 mb-3">
                   <input type="text" value={form.newFeature} onChange={e => set('newFeature', e.target.value)} placeholder="أضف ميزة" className={inputCls}
                     onKeyDown={e => { if (e.key === 'Enter' && form.newFeature.trim()) { e.preventDefault(); set('features', [...form.features, form.newFeature.trim()]); set('newFeature', ''); } }} />
@@ -195,8 +195,8 @@ function AddInsuranceContent() {
 
           {step === 2 && (
             <div className="space-y-8">
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">الموقع</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>الموقع</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>الدولة</label>
@@ -215,13 +215,13 @@ function AddInsuranceContent() {
                 </div>
               </section>
 
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">حدد الموقع على الخريطة (اختياري)</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">map</span>حدد الموقع على الخريطة (اختياري)</h2>
                 <LocationPicker latitude={form.latitude} longitude={form.longitude} onChange={(lat, lng) => { set('latitude', lat); set('longitude', lng); }} />
               </section>
 
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">بيانات الاتصال</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">contact_phone</span>بيانات الاتصال</h2>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>

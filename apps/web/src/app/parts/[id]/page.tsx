@@ -17,6 +17,7 @@ import dynamic from 'next/dynamic';
 const MapView = dynamic(() => import('@/components/map/map-view'), { ssr: false });
 
 const COND_LABELS: Record<string, string> = { NEW: 'جديد', USED: 'مستعمل', REFURBISHED: 'مجدد' };
+const COND_COLORS: Record<string, string> = { NEW: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400', USED: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400', REFURBISHED: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400' };
 const CAT_LABELS: Record<string, string> = { ENGINE: 'محرك', BODY: 'هيكل', ELECTRICAL: 'كهرباء', SUSPENSION: 'تعليق', BRAKES: 'فرامل', INTERIOR: 'داخلية', TIRES: 'إطارات', BATTERIES: 'بطاريات', OILS: 'زيوت', ACCESSORIES: 'إكسسوارات', OTHER: 'أخرى' };
 
 export default function PartDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -41,8 +42,8 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
     }, 'سجّل الدخول لإرسال رسالة');
   }
 
-  if (isLoading) return <><Navbar /><main className="pt-28 pb-16 max-w-[1200px] mx-auto px-4"><ListingSkeleton count={1} /></main></>;
-  if (error || !part) return <><Navbar /><main className="pt-28 pb-16 max-w-[1200px] mx-auto px-4"><ErrorState message="قطعة الغيار غير موجودة" /></main><Footer /></>;
+  if (isLoading) return <><Navbar /><div className="min-h-screen bg-background"><div className="h-40 bg-gradient-to-bl from-primary via-primary-container to-brand-navy" /><main className="max-w-5xl mx-auto px-4 md:px-8 -mt-16"><ListingSkeleton count={1} /></main></div></>;
+  if (error || !part) return <><Navbar /><div className="min-h-screen bg-background pt-28"><main className="max-w-5xl mx-auto px-4"><ErrorState message="قطعة الغيار غير موجودة" /></main></div><Footer /></>;
 
   const images = part.images || [];
   const mainImage = images[activeImg]?.url;
@@ -50,134 +51,167 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
   return (
     <>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-[1200px] mx-auto px-4 md:px-8" dir="rtl">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-on-surface-variant mb-6">
-          <Link href="/parts" className="hover:text-primary">قطع غيار</Link>
-          <span>›</span>
-          <span className="text-on-surface font-bold">{CAT_LABELS[part.partCategory] || part.partCategory}</span>
+      <div className="min-h-screen bg-background" dir="rtl">
+        <div className="h-40 md:h-48 bg-gradient-to-bl from-primary via-primary-container to-brand-navy relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Images - 3 cols */}
-          <div className="lg:col-span-3">
-            <div className="glass-card rounded-xl overflow-hidden">
-              <div className="aspect-[4/3] bg-surface-container-low relative">
-                {mainImage ? (
-                  <img src={getImageUrl(mainImage) || ''} alt={part.title} className="w-full h-full object-contain" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-on-surface-variant/30"><span className="text-6xl">🔩</span></div>
-                )}
-              </div>
-              {images.length > 1 && (
-                <div className="flex gap-2 p-3 overflow-x-auto">
-                  {images.map((img, i) => (
-                    <button key={img.id} onClick={() => setActiveImg(i)}
-                      className={`w-16 h-16 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${i === activeImg ? 'border-primary' : 'border-transparent'}`}>
-                      <img src={getImageUrl(img.url) || ''} alt="" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
+        <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 md:-mt-24 relative z-10 pb-16">
+          <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
+            <Link href="/parts" className="hover:text-white transition-colors flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">build</span> قطع غيار
+            </Link>
+            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <span className="text-white font-bold">{CAT_LABELS[part.partCategory] || part.partCategory}</span>
+          </nav>
+
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Images */}
+            <div className="lg:col-span-3">
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="aspect-[4/3] bg-surface-container-low dark:bg-surface-container-high relative">
+                  {mainImage ? (
+                    <img src={getImageUrl(mainImage) || ''} alt={part.title} className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-on-surface-variant/30">
+                      <span className="material-symbols-outlined text-7xl">build</span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Info - 2 cols */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Price card */}
-            <div className="glass-card rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <span className={`px-2.5 py-1 rounded-lg text-[11px] font-bold ${part.condition === 'NEW' ? 'bg-green-500 text-white' : part.condition === 'REFURBISHED' ? 'bg-blue-500 text-white' : 'bg-amber-500 text-white'}`}>
-                  {COND_LABELS[part.condition]}
-                </span>
-                {part.isOriginal && <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-primary text-white">أصلي OEM</span>}
-                <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-surface-container-low text-on-surface-variant">{CAT_LABELS[part.partCategory]}</span>
-              </div>
-              <h1 className="text-xl font-black text-on-surface mb-4">{part.title}</h1>
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl font-black text-primary">{parseFloat(part.price).toFixed(3)}</span>
-                <span className="text-sm text-on-surface-variant">ر.ع.</span>
-                {part.isPriceNegotiable && <span className="text-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-lg">قابل للتفاوض</span>}
-              </div>
-
-              <div className="flex items-center gap-4 text-xs text-on-surface-variant mb-4">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {part.viewCount} مشاهدة</span>
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(part.createdAt).toLocaleDateString('ar-OM')}</span>
-              </div>
-
-              {/* Contact buttons */}
-              <div className="space-y-2">
-                {user?.id !== part.seller?.id && (
-                  <button onClick={handleMessage} disabled={createConv.isPending}
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-on-surface text-surface rounded-lg font-bold text-sm hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-60">
-                    <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? 'جاري...' : 'تواصل عبر الشات'}
-                  </button>
-                )}
-                {part.contactPhone && (
-                  <a href={`tel:${part.contactPhone}`} className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-on-primary rounded-lg font-bold text-sm">
-                    <span className="material-symbols-outlined text-lg">call</span> اتصل بالبائع
-                  </a>
-                )}
-                {part.whatsapp && (
-                  <a href={`https://wa.me/${part.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full py-3 bg-[#25D366] text-white rounded-lg font-bold text-sm hover:bg-[#25D366]/90 transition-colors">
-                    واتساب
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {/* Seller card */}
-            <div className="glass-card rounded-xl p-5">
-              <div className="flex items-center gap-3">
-                {part.seller.avatarUrl ? (
-                  <img src={getImageUrl(part.seller.avatarUrl) || ''} alt="" className="w-10 h-10 rounded-full object-cover" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
-                    {(part.seller.displayName || part.seller.username)?.[0]?.toUpperCase()}
+                {images.length > 1 && (
+                  <div className="flex gap-2 p-3 overflow-x-auto">
+                    {images.map((img, i) => (
+                      <button key={img.id} onClick={() => setActiveImg(i)}
+                        className={`w-16 h-16 overflow-hidden shrink-0 border-2 transition-all ${i === activeImg ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant/20 dark:border-outline-variant/30'}`}>
+                        <img src={getImageUrl(img.url) || ''} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
                   </div>
                 )}
-                <div>
-                  <p className="font-bold text-sm">{part.seller.displayName || part.seller.username}</p>
-                  {part.seller.governorate && <p className="text-xs text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-xs">location_on</span>{part.seller.governorate}</p>}
-                </div>
               </div>
-            </div>
 
-            {/* Details */}
-            <div className="glass-card rounded-xl p-5">
-              <h2 className="font-bold text-sm mb-3">تفاصيل القطعة</h2>
-              <div className="space-y-2 text-sm">
-                {part.partNumber && (
-                  <div className="flex justify-between"><span className="text-on-surface-variant">رقم القطعة</span><span className="font-bold">{part.partNumber}</span></div>
-                )}
-                {part.compatibleMakes.length > 0 && (
-                  <div className="flex justify-between"><span className="text-on-surface-variant">الماركات</span><span className="font-bold">{part.compatibleMakes.join(', ')}</span></div>
-                )}
-                {part.yearFrom && (
-                  <div className="flex justify-between"><span className="text-on-surface-variant">السنوات</span><span className="font-bold">{part.yearFrom}{part.yearTo ? ` - ${part.yearTo}` : '+'}</span></div>
-                )}
-                {part.governorate && (
-                  <div className="flex justify-between"><span className="text-on-surface-variant">الموقع</span><span className="font-bold">{part.governorate}{part.city ? ` - ${part.city}` : ''}</span></div>
-                )}
-              </div>
-              {part.latitude && part.longitude && (
-                <div className="mt-3">
-                  <MapView latitude={part.latitude} longitude={part.longitude} title={part.title} sellerPhone={part.contactPhone} />
+              {/* Description */}
+              {part.description && (
+                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm mt-6">
+                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">description</span>
+                    <h2 className="font-black text-on-surface">الوصف</h2>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-sm text-on-surface-variant whitespace-pre-line leading-relaxed">{part.description}</p>
+                  </div>
                 </div>
               )}
             </div>
-          </div>
-        </div>
 
-        {/* Description */}
-        {part.description && (
-          <div className="glass-card rounded-xl p-6 mt-6">
-            <h2 className="font-bold text-lg mb-3">الوصف</h2>
-            <p className="text-sm text-on-surface-variant whitespace-pre-line leading-relaxed">{part.description}</p>
+            {/* Sidebar */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Price & Title Card */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
+                    <span className={`px-2.5 py-1 text-[11px] font-black ${COND_COLORS[part.condition] || 'bg-surface-container-low text-on-surface-variant'}`}>
+                      {COND_LABELS[part.condition]}
+                    </span>
+                    {part.isOriginal && <span className="px-2.5 py-1 text-[11px] font-black bg-primary/10 dark:bg-primary/20 text-primary">أصلي OEM</span>}
+                    <span className="px-2.5 py-1 text-[11px] font-black bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant">{CAT_LABELS[part.partCategory]}</span>
+                  </div>
+                  <h1 className="text-xl font-black text-on-surface mb-4">{part.title}</h1>
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-3xl font-black text-primary">{parseFloat(part.price).toFixed(3)}</span>
+                    <span className="text-sm text-on-surface-variant">ر.ع.</span>
+                  </div>
+                  {part.isPriceNegotiable && <span className="text-xs text-on-surface-variant bg-surface-container-low dark:bg-surface-container-high px-2.5 py-1 inline-block mt-1">قابل للتفاوض</span>}
+
+                  <div className="flex items-center gap-4 text-xs text-on-surface-variant mt-4 pt-4 border-t border-outline-variant/10 dark:border-outline-variant/20">
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {part.viewCount} مشاهدة</span>
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(part.createdAt).toLocaleDateString('ar-OM')}</span>
+                  </div>
+                </div>
+
+                {/* Contact buttons */}
+                <div className="p-6 pt-0 space-y-2.5">
+                  {user?.id !== part.seller?.id && (
+                    <button onClick={handleMessage} disabled={createConv.isPending}
+                      className="flex items-center justify-center gap-2 w-full py-3.5 bg-on-surface text-surface font-black text-sm hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-60">
+                      <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? 'جاري...' : 'تواصل عبر الشات'}
+                    </button>
+                  )}
+                  {part.contactPhone && (
+                    <a href={`tel:${part.contactPhone}`} className="flex items-center justify-center gap-2 w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all">
+                      <span className="material-symbols-outlined text-lg">call</span> اتصل بالبائع
+                    </a>
+                  )}
+                  {part.whatsapp && (
+                    <a href={`https://wa.me/${part.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-3.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-black text-sm hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
+                      <span className="material-symbols-outlined text-lg">chat</span> واتساب
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Seller card */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">person</span>
+                  <h3 className="font-black text-on-surface text-sm">البائع</h3>
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-3">
+                    {part.seller.avatarUrl ? (
+                      <img src={getImageUrl(part.seller.avatarUrl) || ''} alt="" className="w-12 h-12 rounded-xl object-cover" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-lg shrink-0">
+                        {(part.seller.displayName || part.seller.username)?.[0]?.toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-black text-on-surface text-sm">{part.seller.displayName || part.seller.username}</p>
+                      {part.seller.governorate && <p className="text-xs text-on-surface-variant flex items-center gap-1 mt-0.5"><span className="material-symbols-outlined text-xs text-primary">location_on</span>{part.seller.governorate}</p>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Details */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">info</span>
+                  <h3 className="font-black text-on-surface text-sm">تفاصيل القطعة</h3>
+                </div>
+                <div className="p-6 space-y-3 text-sm">
+                  {part.partNumber && (
+                    <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20 last:border-0">
+                      <span className="text-on-surface-variant">رقم القطعة</span><span className="font-black text-on-surface">{part.partNumber}</span>
+                    </div>
+                  )}
+                  {part.compatibleMakes.length > 0 && (
+                    <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20 last:border-0">
+                      <span className="text-on-surface-variant">الماركات</span><span className="font-black text-on-surface">{part.compatibleMakes.join(', ')}</span>
+                    </div>
+                  )}
+                  {part.yearFrom && (
+                    <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20 last:border-0">
+                      <span className="text-on-surface-variant">السنوات</span><span className="font-black text-on-surface">{part.yearFrom}{part.yearTo ? ` - ${part.yearTo}` : '+'}</span>
+                    </div>
+                  )}
+                  {part.governorate && (
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-on-surface-variant">الموقع</span><span className="font-black text-on-surface">{part.governorate}{part.city ? ` - ${part.city}` : ''}</span>
+                    </div>
+                  )}
+                </div>
+                {part.latitude && part.longitude && (
+                  <div className="px-6 pb-6">
+                    <MapView latitude={part.latitude} longitude={part.longitude} title={part.title} sellerPhone={part.contactPhone} />
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        )}
-      </main>
+        </main>
+      </div>
       <Footer />
     </>
   );

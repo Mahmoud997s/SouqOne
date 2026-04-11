@@ -163,6 +163,9 @@ export class TransportService {
     if (item.userId !== userId) throw new ForbiddenException('غير مصرح لك بحذف هذا الإعلان');
     await this.prisma.transportService.delete({ where: { id } });
 
+    // Clean up orphaned conversations & favorites
+    await this.prisma.cleanupPolymorphicOrphans('TRANSPORT', id);
+
     // Remove from Meilisearch
     this.searchService.removeDocument(INDEXES.TRANSPORT, id).catch(() => {});
 

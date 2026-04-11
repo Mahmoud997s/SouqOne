@@ -25,7 +25,7 @@ export function useUploadImage() {
 
       const token = (await import('../auth')).getAuthToken();
 
-      const res = await fetch(`${API_BASE}/api/uploads`, {
+      const res = await fetch(`${API_BASE}/api/v1/uploads`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
@@ -51,7 +51,7 @@ export function useAddListingImage(listingId: string) {
 
       const token = (await import('../auth')).getAuthToken();
 
-      const res = await fetch(`${API_BASE}/api/uploads/listings/${listingId}/images`, {
+      const res = await fetch(`${API_BASE}/api/v1/uploads/listings/${listingId}/images`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,

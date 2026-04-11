@@ -61,6 +61,10 @@ export class QueryListingsDto {
 
   @IsOptional()
   @IsString()
+  bodyType?: string;
+
+  @IsOptional()
+  @IsString()
   governorate?: string;
 
   @IsOptional()

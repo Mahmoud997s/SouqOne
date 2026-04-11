@@ -13,7 +13,7 @@ import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
 import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
-import { inputCls, labelCls } from '@/lib/constants/form-styles';
+import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
 
 const LocationPicker = dynamic(() => import('@/components/map/location-picker'), { ssr: false });
@@ -140,7 +140,7 @@ function AddServiceContent() {
             const fd = new FormData();
             fd.append('file', img.file);
             fd.append('isPrimary', String(img.isPrimary));
-            await fetch(`${API_BASE}/api/uploads/services/${svc.id}/images`, {
+            await fetch(`${API_BASE}/api/v1/uploads/services/${svc.id}/images`, {
               method: 'POST',
               headers: token ? { Authorization: `Bearer ${token}` } : {},
               body: fd,
@@ -176,25 +176,25 @@ function AddServiceContent() {
         >
           {step === 0 && (
             <div className="space-y-8">
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">نوع الخدمة *</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">handyman</span>نوع الخدمة *</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {SERVICE_TYPES.map(t => (
                     <button key={t.value} type="button" onClick={() => set('serviceType', t.value)}
-                      className={`py-2.5 rounded-lg text-sm font-bold transition-all ${form.serviceType === t.value ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
+                      className={chipCls(form.serviceType === t.value)}>
                       {t.label}
                     </button>
                   ))}
                 </div>
               </section>
 
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-6">تحميل الصور</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">add_photo_alternate</span>تحميل الصور</h2>
                 <ImageUploader images={images} onChange={setImages} disabled={isLoading} />
               </section>
 
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">بيانات مقدم الخدمة</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">storefront</span>بيانات مقدم الخدمة</h2>
                 <div className="space-y-4">
                   <div>
                     <label className={labelCls}>عنوان الإعلان *</label>
@@ -209,7 +209,7 @@ function AddServiceContent() {
                     <div className="flex gap-3 flex-wrap">
                       {PROVIDER_TYPES.map(p => (
                         <button key={p.value} type="button" onClick={() => set('providerType', p.value)}
-                          className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all ${form.providerType === p.value ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
+                          className={chipCls(form.providerType === p.value) + ' px-4'}>
                           {p.label}
                         </button>
                       ))}
@@ -222,8 +222,8 @@ function AddServiceContent() {
 
           {step === 1 && (
             <div className="space-y-8">
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">التفاصيل</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">description</span>التفاصيل</h2>
                 <div className="space-y-4">
                   <div>
                     <label className={labelCls}>الوصف</label>
@@ -246,8 +246,8 @@ function AddServiceContent() {
                 </div>
               </section>
 
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">أوقات العمل</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">schedule</span>أوقات العمل</h2>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -264,7 +264,7 @@ function AddServiceContent() {
                     <div className="flex flex-wrap gap-2">
                       {DAYS.map(d => (
                         <button key={d.value} type="button" onClick={() => set('workingDays', form.workingDays.includes(d.value) ? form.workingDays.filter(x => x !== d.value) : [...form.workingDays, d.value])}
-                          className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${form.workingDays.includes(d.value) ? 'bg-primary text-on-primary' : 'bg-surface border border-outline text-on-surface-variant hover:border-primary'}`}>
+                          className={chipCls(form.workingDays.includes(d.value)) + ' px-3 text-xs'}>
                           {d.label}
                         </button>
                       ))}
@@ -277,8 +277,8 @@ function AddServiceContent() {
 
           {step === 2 && (
             <div className="space-y-8">
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">الموقع *</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>الموقع *</h2>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
@@ -314,8 +314,8 @@ function AddServiceContent() {
                 </div>
               </section>
 
-              <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">بيانات الاتصال</h2>
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">contact_phone</span>بيانات الاتصال</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>رقم الهاتف</label>

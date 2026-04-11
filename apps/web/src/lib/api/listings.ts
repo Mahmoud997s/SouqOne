@@ -17,6 +17,8 @@ export interface ListingItem {
   governorate: string | null;
   bodyType: string | null;
   exteriorColor: string | null;
+  interior: string | null;
+  features: string[];
   engineSize: string | null;
   horsepower: number | null;
   doors: number | null;
@@ -66,6 +68,14 @@ export function useListings(params: Record<string, string> = {}) {
   return useQuery<ListingsResponse>({
     queryKey: ['listings', params],
     queryFn: () => apiRequest<ListingsResponse>(`/listings?${searchParams.toString()}`),
+  });
+}
+
+export function useMyListings(params: Record<string, string> = {}) {
+  const searchParams = new URLSearchParams(params);
+  return useQuery<ListingsResponse>({
+    queryKey: ['my-listings', params],
+    queryFn: () => apiRequest<ListingsResponse>(`/listings/my?${searchParams.toString()}`),
   });
 }
 

@@ -28,6 +28,18 @@ export const MAIN_CATEGORIES: MainCategory[] = [
     ],
   },
   {
+    value: 'buses',
+    label: 'حافلات',
+    icon: '🚌',
+    color: 'bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-400',
+    subcategories: [
+      { value: 'bus-sale', label: 'حافلات للبيع', route: '/coming-soon?section=buses', available: false },
+      { value: 'bus-sale-contract', label: 'بيع مع عقد', route: '/coming-soon?section=buses', available: false },
+      { value: 'bus-rent', label: 'تأجير حافلات', route: '/coming-soon?section=buses', available: false },
+      { value: 'bus-contract', label: 'طلبات نقل', route: '/coming-soon?section=buses', available: false },
+    ],
+  },
+  {
     value: 'jobs',
     label: 'وظائف',
     icon: '💼',
@@ -102,12 +114,14 @@ export const MAIN_CATEGORIES: MainCategory[] = [
   },
   {
     value: 'heavy-equipment',
-    label: 'معدات ثقيلة',
+    label: 'معدات وخدمات',
     icon: '🏗️',
     color: 'bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400',
     subcategories: [
-      { value: 'equipment-sale', label: 'بيع معدات', route: '/add-listing/car?type=SALE&vehicle=HEAVY_EQUIPMENT', available: false },
-      { value: 'equipment-rental', label: 'تأجير معدات', route: '/add-listing/car?type=RENTAL&vehicle=HEAVY_EQUIPMENT', available: false },
+      { value: 'equipment-sale', label: 'بيع معدات', route: '/coming-soon?section=equipment', available: false },
+      { value: 'equipment-rental', label: 'تأجير معدات', route: '/coming-soon?section=equipment', available: false },
+      { value: 'equipment-request', label: 'طلب معدة', route: '/coming-soon?section=equipment', available: false },
+      { value: 'operator-listing', label: 'مشغلين وفنيين', route: '/coming-soon?section=equipment', available: false },
     ],
   },
   {

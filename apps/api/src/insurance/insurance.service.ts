@@ -152,6 +152,9 @@ export class InsuranceService {
     if (item.userId !== userId) throw new ForbiddenException('غير مصرح لك بحذف هذا الإعلان');
     await this.prisma.insuranceOffer.delete({ where: { id } });
 
+    // Clean up orphaned conversations & favorites
+    await this.prisma.cleanupPolymorphicOrphans('INSURANCE', id);
+
     // Remove from Meilisearch
     this.searchService.removeDocument(INDEXES.INSURANCE, id).catch(() => {});
 

@@ -93,8 +93,8 @@ export default function CarDetailsPage() {
     }, 'سجّل الدخول لإتمام الحجز');
   }
 
-  if (isLoading) return <><Navbar /><DetailSkeleton /></>;
-  if (isError || !car) return <><Navbar /><div className="pt-28 px-8"><ErrorState onRetry={() => refetch()} /></div></>;
+  if (isLoading) return <><Navbar /><div className="min-h-screen bg-background"><div className="h-40 bg-gradient-to-bl from-primary via-primary-container to-brand-navy" /><main className="max-w-6xl mx-auto px-4 md:px-8 -mt-16"><DetailSkeleton /></main></div></>;
+  if (isError || !car) return <><Navbar /><div className="min-h-screen bg-background pt-28"><main className="max-w-6xl mx-auto px-4 md:px-8"><ErrorState onRetry={() => refetch()} /></main></div><Footer /></>;
 
   const images = car.images?.length ? car.images : [];
   const currentImg = getImageUrl(images[selectedImage]?.url);
@@ -124,379 +124,492 @@ export default function CarDetailsPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-28 pb-24 lg:pb-16 max-w-7xl mx-auto px-6">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-on-surface-variant mb-6">
-          <Link href="/listings" className="hover:text-primary transition-colors">السوق</Link>
-          <span className="material-symbols-outlined text-xs">chevron_left</span>
-          <span className="text-on-surface font-bold line-clamp-1">{car.title}</span>
-        </nav>
+      <div className="min-h-screen bg-background" dir="rtl">
+        <div className="h-40 md:h-48 bg-gradient-to-bl from-primary via-primary-container to-brand-navy relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* ── Left Column: Images + Specs ── */}
-          <div className="lg:col-span-8 space-y-8">
-            {/* Main Image */}
-            <div className="relative overflow-hidden aspect-[16/10] bg-surface-container-low">
-              {currentImg ? (
-                <img src={currentImg} alt={car.title} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-on-surface-variant">
-                  <span className="material-symbols-outlined text-7xl">directions_car</span>
+        <main className="max-w-6xl mx-auto px-4 md:px-8 -mt-20 md:-mt-24 relative z-10 pb-24 lg:pb-16">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
+            <Link href="/listings" className="hover:text-white transition-colors flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">storefront</span> السوق
+            </Link>
+            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <span className="text-white font-bold line-clamp-1">{car.title}</span>
+          </nav>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* ── Left Column: Images + Specs ── */}
+            <div className="lg:col-span-8 space-y-6">
+              {/* Main Image */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="relative aspect-[16/10] bg-surface-container-low dark:bg-surface-container-high">
+                  {currentImg ? (
+                    <img src={currentImg} alt={car.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-on-surface-variant/30">
+                      <span className="material-symbols-outlined text-7xl">directions_car</span>
+                    </div>
+                  )}
+                  {car.condition && (
+                    <span className="absolute top-4 right-4 bg-surface-container-lowest/90 dark:bg-surface-container/90 backdrop-blur-sm text-on-surface text-xs font-black px-3 py-1.5">{condMap[car.condition] ?? car.condition}</span>
+                  )}
+                </div>
+
+                {/* Thumbnails */}
+                {images.length > 1 && (
+                  <div className="flex gap-2 p-3 overflow-x-auto no-scrollbar">
+                    {images.map((img, i) => (
+                      <button
+                        key={img.id || i}
+                        onClick={() => setSelectedImage(i)}
+                        className={`shrink-0 w-20 h-20 overflow-hidden transition-all ${
+                          i === selectedImage ? 'border-2 border-primary ring-2 ring-primary/20' : 'border-2 border-outline-variant/20 dark:border-outline-variant/30 opacity-70 hover:opacity-100'
+                        }`}
+                      >
+                        <img src={getImageUrl(img.url) || ''} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Vehicle Specifications */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">tune</span>
+                  <h2 className="font-black text-on-surface">المواصفات</h2>
+                </div>
+                <div className="p-6 md:p-8">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    {specs.map((s) => (
+                      <div key={s.label} className="bg-surface-container-low/50 dark:bg-surface-container-high/30 p-4 text-center">
+                        <span className="material-symbols-outlined text-primary text-2xl mb-2 block">{s.icon}</span>
+                        <p className="text-xs text-on-surface-variant mb-1">{s.label}</p>
+                        <p className="font-black text-on-surface text-sm">{s.value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Detail Table */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                    {detailRows.map((row) => (
+                      <div key={row.label} className="flex justify-between items-center py-3 border-b border-outline-variant/10 dark:border-outline-variant/20">
+                        <span className="text-sm text-on-surface-variant">{row.label}</span>
+                        <span className="font-black text-on-surface text-sm">{row.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Features / Amenities */}
+              {car.features && car.features.length > 0 && (
+                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">stars</span>
+                    <h2 className="font-black text-on-surface">كماليات السيارة</h2>
+                  </div>
+                  <div className="p-6">
+                    <div className="flex flex-wrap gap-2">
+                      {car.features.map((feat: string) => (
+                        <span key={feat} className="inline-flex items-center gap-1 bg-primary/10 dark:bg-primary/20 text-primary px-3 py-1.5 text-xs font-black">
+                          <span className="material-symbols-outlined text-sm">check_circle</span>
+                          {feat}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
 
+              {/* Description */}
+              {car.description && (
+                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">description</span>
+                    <h2 className="font-black text-on-surface">الوصف</h2>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-on-surface-variant leading-relaxed whitespace-pre-line">{car.description}</p>
+                  </div>
+                </div>
+              )}
 
-              {car.condition && (
-                <span className="absolute top-4 right-4 badge-verified">{condMap[car.condition] ?? car.condition}</span>
+              {/* Location Map */}
+              {car.latitude && car.longitude && (
+                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">location_on</span>
+                    <h2 className="font-black text-on-surface">الموقع</h2>
+                  </div>
+                  <div className="p-6">
+                    <LocationSection car={car} />
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* Thumbnails */}
-            {images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-                {images.map((img, i) => (
-                  <button
-                    key={img.id || i}
-                    onClick={() => setSelectedImage(i)}
-                    className={`shrink-0 w-20 h-20 overflow-hidden transition-all ${
-                      i === selectedImage ? 'ring-2 ring-primary ring-offset-2' : 'opacity-70 hover:opacity-100'
-                    }`}
-                  >
-                    <img src={getImageUrl(img.url) || ''} alt="" className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
+            {/* ── Right Column: Price + Seller + Actions ── */}
+            <div className="lg:col-span-4 space-y-4">
+              {/* Price Card */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm">
+                <div className="p-4 md:p-5">
+                  <h1 className="text-lg md:text-xl font-black text-on-surface mb-0.5 leading-tight">{car.title}</h1>
+                  <p className="text-on-surface-variant text-xs mb-4 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-xs text-primary">directions_car</span>
+                    {car.year} · {car.make} {car.model}
+                  </p>
 
-            {/* Vehicle Specifications */}
-            <section className="bg-surface-container-lowest border border-outline-variant/10 p-6 md:p-8">
-              <h2 className="text-xl font-black mb-6">المواصفات</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                {specs.map((s) => (
-                  <div key={s.label} className="bg-surface-container p-4 text-center">
-                    <span className="material-symbols-outlined text-primary text-2xl mb-2 block">{s.icon}</span>
-                    <p className="text-xs text-on-surface-variant uppercase tracking-widest mb-1">{s.label}</p>
-                    <p className="font-black text-on-surface text-sm">{s.value}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Detail Table */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-4">
-                {detailRows.map((row) => (
-                  <div key={row.label}>
-                    <p className="text-xs text-on-surface-variant uppercase tracking-widest">{row.label}</p>
-                    <p className="font-bold text-on-surface text-sm">{row.value}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Description */}
-            {car.description && (
-              <section className="bg-surface-container-lowest border border-outline-variant/10 p-6 md:p-8">
-                <h2 className="text-xl font-black mb-4">الوصف</h2>
-                <p className="text-on-surface-variant leading-relaxed whitespace-pre-line">{car.description}</p>
-              </section>
-            )}
-
-            {/* Location Map */}
-            {car.latitude && car.longitude && (
-              <section className="bg-surface-container-lowest border border-outline-variant/10 p-6 md:p-8">
-                <h2 className="text-xl font-black mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">location_on</span>
-                  الموقع
-                </h2>
-                <LocationSection car={car} />
-              </section>
-            )}
-          </div>
-
-          {/* ── Right Column: Price + Seller + Actions ── */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* Price Card */}
-            <div className="bg-surface-container-lowest border border-outline-variant/10 p-6 md:p-8 shadow-sm">
-              <h1 className="text-2xl font-black text-on-surface mb-2">{car.title}</h1>
-              <p className="text-on-surface-variant text-sm mb-4">{car.year} · {car.make} {car.model}</p>
-
-              {isRental ? (
-                <>
-                  {/* Rental Prices */}
-                  <div className="space-y-2 mb-4">
-                    {car.dailyPrice && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-on-surface-variant text-sm">يومي</span>
-                        <span className="text-2xl font-black text-primary">{Number(car.dailyPrice).toLocaleString('en-US')} <small className="text-sm font-bold text-on-surface-variant">ر.ع./يوم</small></span>
-                      </div>
-                    )}
-                    {car.weeklyPrice && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-on-surface-variant text-sm">أسبوعي</span>
-                        <span className="font-bold text-on-surface">{Number(car.weeklyPrice).toLocaleString('en-US')} <small className="text-xs text-on-surface-variant">ر.ع.</small></span>
-                      </div>
-                    )}
-                    {car.monthlyPrice && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-on-surface-variant text-sm">شهري</span>
-                        <span className="font-bold text-on-surface">{Number(car.monthlyPrice).toLocaleString('en-US')} <small className="text-xs text-on-surface-variant">ر.ع.</small></span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Rental Badges */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {car.withDriver && <span className="bg-emerald-500 text-white text-xs font-black px-3 py-1.5">مع سائق</span>}
-                    {car.deliveryAvailable && <span className="bg-on-surface text-surface text-xs font-black px-3 py-1.5">توصيل متاح</span>}
-                    {car.insuranceIncluded && <span className="bg-tertiary-container text-tertiary-fixed-dim text-xs font-black px-3 py-1.5">تأمين شامل</span>}
-                    {car.cancellationPolicy && <span className="bg-surface-container text-on-surface-variant text-xs font-black px-3 py-1.5">{cancelMap[car.cancellationPolicy] ?? car.cancellationPolicy}</span>}
-                  </div>
-
-                  {/* Rental Info */}
-                  <div className="bg-surface-container p-3 mb-4 space-y-1 text-xs text-on-surface-variant">
-                    {car.minRentalDays && <p>أقل مدة: <strong className="text-on-surface">{car.minRentalDays} يوم</strong></p>}
-                    {car.kmLimitPerDay && <p>حد الكيلومترات: <strong className="text-on-surface">{car.kmLimitPerDay} كم/يوم</strong></p>}
-                    {car.depositAmount && <p>تأمين: <strong className="text-on-surface">{Number(car.depositAmount).toLocaleString('en-US')} ر.ع.</strong></p>}
-                  </div>
-
-                  {/* Date Picker */}
-                  {!isOwner && (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest block mb-1">من</label>
-                          <input
-                            type="date"
-                            value={startDate}
-                            min={new Date().toISOString().split('T')[0]}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none text-sm"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest block mb-1">إلى</label>
-                          <input
-                            type="date"
-                            value={endDate}
-                            min={startDate || new Date().toISOString().split('T')[0]}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none text-sm"
-                          />
-                        </div>
-                      </div>
-
-                      {priceCalc && (
-                        <div className="bg-primary/5 border border-primary/20 p-3">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-sm text-on-surface-variant">{priceCalc.breakdown}</span>
+                  {isRental ? (
+                    <>
+                      {/* Rental Prices */}
+                      <div className="bg-blue-50/80 dark:bg-blue-950/30 rounded-xl overflow-hidden mb-3 border border-blue-100 dark:border-blue-900/30">
+                        {car.dailyPrice && (
+                          <div className="flex justify-between items-center px-3 py-2.5 border-b border-blue-100/60 dark:border-blue-900/20">
+                            <div className="flex items-center gap-1.5">
+                              <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-sm">today</span>
+                              <span className="text-blue-900 dark:text-blue-200 text-xs font-bold">يومي</span>
+                            </div>
+                            <span className="text-lg font-black text-blue-700 dark:text-blue-300">{Number(car.dailyPrice).toLocaleString('en-US')} <small className="text-[10px] font-bold text-blue-500 dark:text-blue-400">ر.ع./يوم</small></span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="font-bold text-on-surface">المجموع</span>
-                            <span className="text-xl font-black text-primary">{priceCalc.totalPrice.toLocaleString('en-US')} ر.ع.</span>
+                        )}
+                        {car.weeklyPrice && (
+                          <div className="flex justify-between items-center px-3 py-2.5 border-b border-blue-100/60 dark:border-blue-900/20">
+                            <div className="flex items-center gap-1.5">
+                              <span className="material-symbols-outlined text-blue-500 dark:text-blue-400 text-sm">date_range</span>
+                              <span className="text-blue-800 dark:text-blue-300 text-xs font-bold">أسبوعي</span>
+                            </div>
+                            <span className="font-black text-on-surface text-sm">{Number(car.weeklyPrice).toLocaleString('en-US')} <small className="text-[10px] text-on-surface-variant font-bold">ر.ع.</small></span>
                           </div>
-                          {priceCalc.depositAmount && (
-                            <p className="text-xs text-on-surface-variant mt-1">+ تأمين {priceCalc.depositAmount.toLocaleString('en-US')} ر.ع. (مسترد)</p>
+                        )}
+                        {car.monthlyPrice && (
+                          <div className="flex justify-between items-center px-3 py-2.5">
+                            <div className="flex items-center gap-1.5">
+                              <span className="material-symbols-outlined text-blue-500 dark:text-blue-400 text-sm">calendar_month</span>
+                              <span className="text-blue-800 dark:text-blue-300 text-xs font-bold">شهري</span>
+                            </div>
+                            <span className="font-black text-on-surface text-sm">{Number(car.monthlyPrice).toLocaleString('en-US')} <small className="text-[10px] text-on-surface-variant font-bold">ر.ع.</small></span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Rental Badges */}
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        {car.deliveryAvailable && (
+                          <span className="inline-flex items-center gap-1 bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 text-[11px] font-black px-2.5 py-1 rounded-md">
+                            <span className="material-symbols-outlined text-[11px]">local_shipping</span>توصيل متاح
+                          </span>
+                        )}
+                        {car.insuranceIncluded && (
+                          <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-[11px] font-black px-2.5 py-1 rounded-md">
+                            <span className="material-symbols-outlined text-[11px]">shield</span>تأمين شامل
+                          </span>
+                        )}
+                        {car.withDriver && (
+                          <span className="inline-flex items-center gap-1 bg-emerald-100 dark:bg-emerald-800/40 text-emerald-700 dark:text-emerald-300 text-[11px] font-black px-2.5 py-1 rounded-md">
+                            <span className="material-symbols-outlined text-[11px]">person</span>مع سائق
+                          </span>
+                        )}
+                        {car.cancellationPolicy && (
+                          <span className="inline-flex items-center gap-1 bg-orange-100 dark:bg-orange-800/40 text-orange-700 dark:text-orange-300 text-[11px] font-black px-2.5 py-1 rounded-md">
+                            <span className="material-symbols-outlined text-[11px]">event_busy</span>{cancelMap[car.cancellationPolicy] ?? car.cancellationPolicy}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Rental Info */}
+                      {(car.minRentalDays || car.kmLimitPerDay || car.depositAmount) && (
+                        <div className="grid grid-cols-3 gap-1.5 mb-4">
+                          {car.minRentalDays && (
+                            <div className="bg-violet-50 dark:bg-violet-950/40 border border-violet-100 dark:border-violet-800/30 rounded-lg p-2 text-center">
+                              <span className="material-symbols-outlined text-violet-600 dark:text-violet-400 text-base block mb-0.5">timer</span>
+                              <p className="text-[9px] text-violet-500 dark:text-violet-400 font-medium">أقل مدة</p>
+                              <p className="text-xs font-black text-violet-800 dark:text-violet-200">{car.minRentalDays} يوم</p>
+                            </div>
+                          )}
+                          {car.kmLimitPerDay && (
+                            <div className="bg-teal-50 dark:bg-teal-950/40 border border-teal-100 dark:border-teal-800/30 rounded-lg p-2 text-center">
+                              <span className="material-symbols-outlined text-teal-600 dark:text-teal-400 text-base block mb-0.5">speed</span>
+                              <p className="text-[9px] text-teal-500 dark:text-teal-400 font-medium">حد يومي</p>
+                              <p className="text-xs font-black text-teal-800 dark:text-teal-200">{car.kmLimitPerDay} كم</p>
+                            </div>
+                          )}
+                          {car.depositAmount && (
+                            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-800/30 rounded-lg p-2 text-center">
+                              <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-base block mb-0.5">account_balance_wallet</span>
+                              <p className="text-[9px] text-amber-500 dark:text-amber-400 font-medium">تأمين</p>
+                              <p className="text-xs font-black text-amber-800 dark:text-amber-200">{Number(car.depositAmount).toLocaleString('en-US')} ر.ع.</p>
+                            </div>
                           )}
                         </div>
                       )}
 
-                      {/* Booked dates warning */}
-                      {availability && availability.length > 0 && (
-                        <div className="bg-amber-50 border border-amber-200 p-3">
-                          <p className="text-xs font-bold text-amber-700 mb-1">فترات محجوزة:</p>
-                          {availability.map((a, i) => (
-                            <p key={i} className="text-xs text-amber-600">
-                              {new Date(a.startDate).toLocaleDateString('ar-OM')} — {new Date(a.endDate).toLocaleDateString('ar-OM')}
-                            </p>
-                          ))}
+                      {/* Date Picker */}
+                      {!isOwner && (
+                        <div className="space-y-2.5">
+                          <p className="text-[11px] font-bold text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-xs text-primary">calendar_month</span>اختر موعد الإيجار</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-[10px] font-bold text-on-surface-variant block mb-1">من</label>
+                              <input
+                                type="date"
+                                value={startDate}
+                                min={new Date().toISOString().split('T')[0]}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                className="w-full bg-surface-container-low dark:bg-surface-container-high/50 border border-outline-variant/20 dark:border-outline-variant/30 rounded-lg py-2 px-2.5 focus:border-primary focus:ring-2 focus:ring-primary/15 outline-none text-xs transition-all"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-bold text-on-surface-variant block mb-1">إلى</label>
+                              <input
+                                type="date"
+                                value={endDate}
+                                min={startDate || new Date().toISOString().split('T')[0]}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                className="w-full bg-surface-container-low dark:bg-surface-container-high/50 border border-outline-variant/20 dark:border-outline-variant/30 rounded-lg py-2 px-2.5 focus:border-primary focus:ring-2 focus:ring-primary/15 outline-none text-xs transition-all"
+                              />
+                            </div>
+                          </div>
+
+                          {priceCalc && (
+                            <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 rounded-lg p-3">
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs text-emerald-700 dark:text-emerald-300">{priceCalc.breakdown}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="font-black text-on-surface text-xs">المجموع</span>
+                                <span className="text-lg font-black text-emerald-700 dark:text-emerald-300">{priceCalc.totalPrice.toLocaleString('en-US')} ر.ع.</span>
+                              </div>
+                              {priceCalc.depositAmount && (
+                                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">+ تأمين {priceCalc.depositAmount.toLocaleString('en-US')} ر.ع. (مسترد)</p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Booked dates warning */}
+                          {availability && availability.length > 0 && (
+                            <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/40 rounded-lg p-2.5">
+                              <p className="text-[11px] font-black text-amber-700 dark:text-amber-400 mb-0.5 flex items-center gap-1"><span className="material-symbols-outlined text-xs">event_busy</span>فترات محجوزة:</p>
+                              {availability.map((a, i) => (
+                                <p key={i} className="text-[10px] text-amber-600 dark:text-amber-400 mr-4">
+                                  {new Date(a.startDate).toLocaleDateString('ar-OM')} — {new Date(a.endDate).toLocaleDateString('ar-OM')}
+                                </p>
+                              ))}
+                            </div>
+                          )}
+
+                          <button
+                            onClick={handleBooking}
+                            disabled={createBooking.isPending || !startDate || !endDate}
+                            className="btn-green w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-1.5"
+                          >
+                            <span className="material-symbols-outlined text-base">event_available</span>
+                            {createBooking.isPending ? 'جارٍ الحجز...' : 'احجز الآن'}
+                          </button>
                         </div>
                       )}
 
-                      <button
-                        onClick={handleBooking}
-                        disabled={createBooking.isPending || !startDate || !endDate}
-                        className="btn-green w-full py-3.5 text-lg font-black hover:brightness-110 transition-colors disabled:opacity-60 shadow-ambient"
-                      >
-                        {createBooking.isPending ? 'جارٍ الحجز...' : 'احجز الآن'}
-                      </button>
-                    </div>
-                  )}
-
-                  {isOwner && (
-                    <Link href={`/edit-listing/${car.id}`} className="bg-on-surface text-surface w-full py-3.5 text-center block text-lg font-black hover:bg-primary hover:text-on-primary transition-colors">
-                      تعديل الإعلان
-                    </Link>
-                  )}
-                </>
-              ) : (
-                <>
-                  <p className="text-3xl font-black text-primary mb-1" style={{ fontFamily: 'var(--font-body)' }}>
-                    {priceFormatted} <small className="text-base font-bold text-on-surface-variant">{car.currency}</small>
-                  </p>
-                  {car.isPriceNegotiable && (
-                    <p className="text-primary text-sm font-bold mb-4">قابل للتفاوض</p>
-                  )}
-
-                  {isOwner ? (
-                    <Link href={`/edit-listing/${car.id}`} className="bg-on-surface text-surface w-full py-3.5 text-center block text-lg font-black hover:bg-primary hover:text-on-primary transition-colors">
-                      تعديل الإعلان
-                    </Link>
+                      {isOwner && (
+                        <Link href={`/edit-listing/${car.id}`} className="bg-on-surface text-surface w-full py-2.5 rounded-xl text-center block text-sm font-black hover:bg-primary hover:text-on-primary transition-colors">
+                          تعديل الإعلان
+                        </Link>
+                      )}
+                    </>
                   ) : (
-                    <button onClick={handleBuyNow} disabled={createConv.isPending} className="bg-primary text-on-primary w-full py-3.5 text-lg font-black hover:brightness-110 transition-colors shadow-ambient">
-                      {createConv.isPending ? 'جارٍ التواصل...' : 'اشترِ الآن'}
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
+                    <>
+                      <p className="text-2xl font-black text-primary mb-0.5" style={{ fontFamily: 'var(--font-body)' }}>
+                        {priceFormatted} <small className="text-sm font-bold text-on-surface-variant">{car.currency}</small>
+                      </p>
+                      {car.isPriceNegotiable && (
+                        <p className="text-primary text-xs font-bold mb-3 flex items-center gap-1"><span className="material-symbols-outlined text-xs">swap_horiz</span>قابل للتفاوض</p>
+                      )}
 
-            {/* Seller Info */}
-            <div className="bg-surface-container-lowest border border-outline-variant/10 p-6 md:p-8">
-              <h3 className="text-sm font-black text-on-surface-variant uppercase tracking-widest mb-4">معلومات البائع</h3>
-              <Link href={`/seller/${car.seller.id}`} className="flex items-center gap-4 mb-4 group">
-                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg shrink-0">
-                  {(car.seller.displayName || car.seller.username)[0]?.toUpperCase()}
-                </div>
-                <div>
-                  <p className="font-black text-on-surface group-hover:text-primary transition-colors">
-                    {car.seller.displayName || car.seller.username}
-                  </p>
-                  {car.seller.isVerified && <VerifiedBadge label="بائع موثق" />}
-                  {car.seller.governorate && (
-                    <p className="text-xs text-on-surface-variant mt-1">{car.seller.governorate}</p>
+                      {isOwner ? (
+                        <Link href={`/edit-listing/${car.id}`} className="bg-on-surface text-surface w-full py-2.5 rounded-xl text-center block text-sm font-black hover:bg-primary hover:text-on-primary transition-colors">
+                          تعديل الإعلان
+                        </Link>
+                      ) : (
+                        <button onClick={handleBuyNow} disabled={createConv.isPending} className="bg-primary text-on-primary w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-1.5">
+                          <span className="material-symbols-outlined text-base">shopping_cart</span>
+                          {createConv.isPending ? 'جارٍ التواصل...' : 'اشترِ الآن'}
+                        </button>
+                      )}
+                    </>
                   )}
-                </div>
-              </Link>
-
-              {!isOwner && (
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleMessage}
-                    disabled={createConv.isPending}
-                    className="flex-1 bg-surface-container py-3 font-black text-sm text-on-surface hover:bg-surface-container-high transition-all flex items-center justify-center gap-2"
-                  >
-                    <span className="material-symbols-outlined text-lg">chat</span>
-                    {createConv.isPending ? 'جارٍ...' : 'مراسلة'}
-                  </button>
-                  {car.seller.phone && (
-                    <a
-                      href={`tel:${car.seller.phone}`}
-                      className="flex-1 bg-surface-container py-3 font-black text-sm text-on-surface hover:bg-surface-container-high transition-all flex items-center justify-center gap-2"
-                    >
-                      <span className="material-symbols-outlined text-lg">call</span>
-                      اتصال
-                    </a>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Social Proof — Urgency Bar */}
-            <div className="bg-surface-container-lowest border border-outline-variant/10 p-5">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 text-on-surface-variant text-sm">
-                  <span className="material-symbols-outlined text-lg text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
-                  <span className="font-bold text-on-surface">{car.viewCount}</span>
-                  <span>مشاهدة</span>
-                </div>
-                <span className="text-outline-variant">·</span>
-                <div className="flex items-center gap-2 text-on-surface-variant text-sm">
-                  <span className="material-symbols-outlined text-lg text-primary">schedule</span>
-                  <span>{relativeTime(car.createdAt)}</span>
                 </div>
               </div>
-              {car.viewCount >= 10 && (
-                <div className="mt-3 flex items-center gap-2 bg-tertiary-container/30 dark:bg-tertiary-container/10 text-on-tertiary-container dark:text-tertiary-fixed-dim px-3 py-2 rounded-lg text-xs font-bold">
-                  <span className="material-symbols-outlined text-sm">local_fire_department</span>
-                  إعلان مطلوب — {car.viewCount} شخص شاهد هذا الإعلان
+
+              {/* Seller Info */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm">
+                <div className="px-4 py-3 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-primary text-base">storefront</span>
+                  <h3 className="font-black text-on-surface text-xs">معلومات البائع</h3>
                 </div>
-              )}
+                <div className="p-4">
+                  <Link href={`/seller/${car.seller.id}`} className="flex items-center gap-3 mb-3 group">
+                    <div className="relative shrink-0">
+                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-black text-sm shadow-md">
+                        {(car.seller.displayName || car.seller.username)[0]?.toUpperCase()}
+                      </div>
+                      {car.seller.isVerified && (
+                        <div className="absolute -bottom-0.5 -left-0.5 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center shadow-sm">
+                          <span className="material-symbols-outlined text-white text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-black text-on-surface text-sm group-hover:text-primary transition-colors truncate">
+                        {car.seller.displayName || car.seller.username}
+                      </p>
+                      {car.seller.isVerified && <VerifiedBadge label="بائع موثق" />}
+                      {car.seller.governorate && (
+                        <p className="text-[11px] text-on-surface-variant mt-0.5 flex items-center gap-0.5"><span className="material-symbols-outlined text-[11px] text-primary">location_on</span>{car.seller.governorate}</p>
+                      )}
+                    </div>
+                  </Link>
+
+                  {!isOwner && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={handleMessage}
+                        disabled={createConv.isPending}
+                        className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 py-2.5 rounded-lg font-black text-xs hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-1.5"
+                      >
+                        <span className="material-symbols-outlined text-sm">chat</span>
+                        {createConv.isPending ? 'جارٍ...' : 'مراسلة'}
+                      </button>
+                      {car.seller.phone && (
+                        <a
+                          href={`tel:${car.seller.phone}`}
+                          className="bg-primary text-on-primary py-2.5 rounded-lg font-black text-xs hover:brightness-110 transition-all flex items-center justify-center gap-1.5"
+                        >
+                          <span className="material-symbols-outlined text-sm">call</span>
+                          اتصال
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Social Proof — Urgency Bar */}
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm p-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 text-on-surface-variant text-xs">
+                    <span className="material-symbols-outlined text-sm text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
+                    <span className="font-black text-on-surface">{car.viewCount}</span>
+                    <span>مشاهدة</span>
+                  </div>
+                  <span className="text-outline-variant/20">|</span>
+                  <div className="flex items-center gap-1 text-on-surface-variant text-xs">
+                    <span className="material-symbols-outlined text-sm text-primary">schedule</span>
+                    <span>{relativeTime(car.createdAt)}</span>
+                  </div>
+                </div>
+                {car.viewCount >= 10 && (
+                  <div className="mt-2 flex items-center gap-1.5 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2.5 py-1.5 rounded-md text-[11px] font-black">
+                    <span className="material-symbols-outlined text-xs">local_fire_department</span>
+                    إعلان مطلوب — {car.viewCount} شخص شاهد هذا الإعلان
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Similar Listings */}
-        {filteredSimilar.length > 0 && (
-          <section className="mt-16">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-black">إعلانات مشابهة</h2>
-              <Link href={`/listings?search=${car.make}`} className="text-primary font-bold border-b-2 border-primary pb-1 hover:brightness-110 transition-colors">
-                عرض الكل
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredSimilar.map((item) => {
-                const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];
-                return (
-                  <VehicleCard
-                    key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    make={item.make}
-                    model={item.model}
-                    year={item.year}
-                    price={item.price}
-                    currency={item.currency}
-                    mileage={item.mileage}
-                    fuelType={item.fuelType}
-                    transmission={item.transmission}
-                    imageUrl={img?.url}
-                    viewCount={item.viewCount}
-                    createdAt={item.createdAt}
-                    isVerified={item.seller?.isVerified}
-                    isPriceNegotiable={item.isPriceNegotiable}
-                    listingType={item.listingType}
-                    dailyPrice={item.dailyPrice}
-                  />
-                );
-              })}
-            </div>
-          </section>
-        )}
-      </main>
+          {/* Similar Listings */}
+          {filteredSimilar.length > 0 && (
+            <section className="mt-16">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-black text-on-surface">إعلانات مشابهة</h2>
+                <Link href={`/listings?search=${car.make}`} className="text-primary font-bold border-b-2 border-primary pb-1 hover:brightness-110 transition-colors">
+                  عرض الكل
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {filteredSimilar.map((item) => {
+                  const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];
+                  return (
+                    <VehicleCard
+                      key={item.id}
+                      id={item.id}
+                      title={item.title}
+                      make={item.make}
+                      model={item.model}
+                      year={item.year}
+                      price={item.price}
+                      currency={item.currency}
+                      mileage={item.mileage}
+                      fuelType={item.fuelType}
+                      transmission={item.transmission}
+                      imageUrl={img?.url}
+                      viewCount={item.viewCount}
+                      createdAt={item.createdAt}
+                      isVerified={item.seller?.isVerified}
+                      isPriceNegotiable={item.isPriceNegotiable}
+                      listingType={item.listingType}
+                      dailyPrice={item.dailyPrice}
+                    />
+                  );
+                })}
+              </div>
+            </section>
+          )}
+        </main>
 
-      {/* ── Sticky Mobile CTA Bar ── */}
-      {!isOwner && (
-        <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden glass-nav border-t border-outline-variant/10">
-          <div className="flex items-center gap-2 px-4 py-3 max-w-lg mx-auto">
-            {/* Price */}
-            <div className="shrink-0">
-              <span className="text-lg font-black text-primary leading-none">{priceFormatted}</span>
-              <span className="text-[10px] text-on-surface-variant mr-1">{car.currency === 'OMR' ? 'ر.ع' : car.currency}</span>
-            </div>
+        {/* ── Sticky Mobile CTA Bar ── */}
+        {!isOwner && (
+          <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-surface-container-lowest/95 dark:bg-surface-container/95 backdrop-blur-xl border-t border-outline-variant/10 dark:border-outline-variant/20 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+            <div className="flex items-center gap-3 px-4 py-3 max-w-lg mx-auto">
+              <div className="shrink-0">
+                {isRental && car.dailyPrice ? (
+                  <div>
+                    <span className="text-lg font-black text-primary leading-none">{Number(car.dailyPrice).toLocaleString('en-US')}</span>
+                    <span className="text-[10px] text-on-surface-variant mr-1">ر.ع./يوم</span>
+                  </div>
+                ) : (
+                  <div>
+                    <span className="text-lg font-black text-primary leading-none">{priceFormatted}</span>
+                    <span className="text-[10px] text-on-surface-variant mr-1">{car.currency === 'OMR' ? 'ر.ع' : car.currency}</span>
+                  </div>
+                )}
+              </div>
 
-            <div className="flex-1 flex items-center gap-2 justify-end">
-              {/* Chat */}
-              <button
-                onClick={handleMessage}
-                disabled={createConv.isPending}
-                className="flex items-center gap-1.5 bg-surface-container hover:bg-surface-container-high px-4 py-2.5 rounded-xl text-sm font-bold text-on-surface transition-all"
-              >
-                <span className="material-symbols-outlined text-base">chat</span>
-                مراسلة
-              </button>
-
-              {/* Primary CTA */}
-              {isRental ? (
+              <div className="flex-1 flex items-center gap-2 justify-end">
                 <button
-                  onClick={handleBooking}
-                  disabled={createBooking.isPending || !startDate || !endDate}
-                  className="btn-green px-5 py-2.5 text-sm font-black shadow-ambient disabled:opacity-60"
-                >
-                  احجز
-                </button>
-              ) : (
-                <button
-                  onClick={handleBuyNow}
+                  onClick={handleMessage}
                   disabled={createConv.isPending}
-                  className="btn-editorial px-5 py-2.5 text-sm font-black shadow-ambient"
+                  className="flex items-center gap-1.5 bg-surface-container-low dark:bg-surface-container-high text-on-surface px-4 py-2.5 rounded-xl text-sm font-black transition-all hover:bg-primary hover:text-on-primary"
                 >
-                  اشترِ الآن
+                  <span className="material-symbols-outlined text-base">chat</span>
+                  مراسلة
                 </button>
-              )}
+
+                {isRental ? (
+                  <button
+                    onClick={handleBooking}
+                    disabled={createBooking.isPending || !startDate || !endDate}
+                    className="btn-green px-5 py-2.5 rounded-xl text-sm font-black shadow-lg disabled:opacity-50 flex items-center gap-1.5"
+                  >
+                    <span className="material-symbols-outlined text-base">event_available</span>
+                    احجز
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={createConv.isPending}
+                    className="bg-primary text-on-primary px-5 py-2.5 rounded-xl text-sm font-black shadow-lg hover:brightness-110 transition-all flex items-center gap-1.5"
+                  >
+                    <span className="material-symbols-outlined text-base">shopping_cart</span>
+                    اشترِ الآن
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <Footer />
     </>

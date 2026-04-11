@@ -44,7 +44,7 @@ function AddCarContent() {
             formData.append('file', img.file);
             formData.append('isPrimary', String(img.isPrimary));
 
-            await fetch(`${API_BASE}/api/uploads/listings/${listing.id}/images`, {
+            await fetch(`${API_BASE}/api/v1/uploads/listings/${listing.id}/images`, {
               method: 'POST',
               headers: token ? { Authorization: `Bearer ${token}` } : {},
               body: formData,

@@ -171,6 +171,9 @@ export class TripsService {
     if (item.userId !== userId) throw new ForbiddenException('غير مصرح لك بحذف هذا الإعلان');
     await this.prisma.tripService.delete({ where: { id } });
 
+    // Clean up orphaned conversations & favorites
+    await this.prisma.cleanupPolymorphicOrphans('TRIP', id);
+
     // Remove from Meilisearch
     this.searchService.removeDocument(INDEXES.TRIPS, id).catch(() => {});
 
