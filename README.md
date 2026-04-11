@@ -125,14 +125,14 @@ The platform is architected as a **Turborepo monorepo** with a **Next.js 15** se
 
 ```mermaid
 graph TD
-    subgraph Client["🖥️ Frontend — Next.js 15"]
+    subgraph Client["Frontend - Next.js 15"]
         A[React 19 + TailwindCSS 4]
         B[React Query v5]
         C[Socket.IO Client]
         D[Leaflet Maps]
     end
 
-    subgraph API["⚙️ Backend — NestJS 10"]
+    subgraph API["Backend - NestJS 10"]
         E[REST Controllers]
         F[WebSocket Gateway]
         G[Passport JWT Guards]
@@ -140,11 +140,11 @@ graph TD
         I[Throttler Guard]
     end
 
-    subgraph Data["🗄️ Data Layer"]
+    subgraph Data["Data Layer"]
         J[(PostgreSQL 16)]
         K[(Redis 7)]
         L[(Meilisearch v1.12)]
-        M[☁️ Cloudinary]
+        M[Cloudinary CDN]
     end
 
     A -->|HTTP / SSR| E
@@ -152,16 +152,12 @@ graph TD
     C -->|WebSocket| F
     E -->|Prisma ORM| J
     F -->|Pub/Sub Adapter| K
-    E -->|Cache & Sessions| K
+    E -->|Cache and Sessions| K
     E -->|Full-Text Search| L
     E -->|Image Upload| M
     G -.->|Auth Guard| E
     H -.->|Validation| E
     I -.->|Rate Limit| E
-
-    style Client fill:#0a0a0a,stroke:#3b82f6,color:#fff
-    style API fill:#0a0a0a,stroke:#e0234e,color:#fff
-    style Data fill:#0a0a0a,stroke:#10b981,color:#fff
 ```
 
 ---
@@ -170,19 +166,19 @@ graph TD
 
 ```mermaid
 graph LR
-    subgraph Core["🔧 Core"]
+    subgraph Core
         PRISMA[PrismaModule]
         REDIS[RedisModule]
         CLOUD[CloudinaryModule]
         MAIL[MailModule]
     end
 
-    subgraph Auth["🔐 Auth"]
+    subgraph Auth
         AUTH[AuthModule]
         USERS[UsersModule]
     end
 
-    subgraph Marketplace["🏪 Marketplace"]
+    subgraph Marketplace
         LISTINGS[ListingsModule]
         CARS[CarsModule]
         PARTS[PartsModule]
@@ -195,13 +191,13 @@ graph LR
         EQUIP[EquipmentModule]
     end
 
-    subgraph Engagement["💬 Engagement"]
+    subgraph Engagement
         CHAT[ChatModule]
         FAVORITES[FavoritesModule]
         NOTIF[NotificationsModule]
     end
 
-    subgraph Platform["🔍 Platform"]
+    subgraph Platform
         SEARCH[SearchModule]
         UPLOADS[UploadsModule]
         BOOKINGS[BookingsModule]
@@ -216,12 +212,6 @@ graph LR
     SEARCH --> PRISMA
     EQUIP --> PRISMA
     UPLOADS --> CLOUD
-
-    style Core fill:#1a1a2e,stroke:#e94560,color:#fff
-    style Auth fill:#1a1a2e,stroke:#f59e0b,color:#fff
-    style Marketplace fill:#1a1a2e,stroke:#3b82f6,color:#fff
-    style Engagement fill:#1a1a2e,stroke:#10b981,color:#fff
-    style Platform fill:#1a1a2e,stroke:#8b5cf6,color:#fff
 ```
 
 ### Equipment Module — Internal Services
@@ -237,10 +227,6 @@ graph TD
     ERS -->|CRUD + State Machine| DB
     EBS -->|Rate Limit + Cooldown| DB
     OS -->|CRUD + Search| DB
-
-    style EC fill:#1e293b,stroke:#f59e0b,color:#fff
-    style ERC fill:#1e293b,stroke:#3b82f6,color:#fff
-    style OC fill:#1e293b,stroke:#10b981,color:#fff
 ```
 
 ---
