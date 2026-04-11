@@ -70,9 +70,9 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-6">
+    <div className="min-h-[100dvh] bg-surface flex flex-col items-center justify-center px-4 py-6 sm:p-6">
       <div className="fixed top-0 right-0 -z-10 w-1/2 h-screen overflow-hidden opacity-30 pointer-events-none">
-        <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-primary/10 blur-[120px]" />
+        <div className="absolute top-[-10%] right-0 w-[60vw] sm:w-[600px] h-[60vw] sm:h-[600px] rounded-full bg-primary/10 blur-[120px]" />
       </div>
 
       <div className="w-full max-w-md">
@@ -80,7 +80,7 @@ function ResetPasswordForm() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-surface-container-low mb-6">
             <span className="material-symbols-outlined text-primary text-4xl">key</span>
           </div>
-          <h1 className="font-extrabold text-4xl tracking-tight text-on-surface mb-3">
+          <h1 className="font-extrabold text-2xl sm:text-4xl tracking-tight text-on-surface mb-3">
             تعيين كلمة مرور جديدة
           </h1>
           <p className="text-on-surface-variant text-sm leading-relaxed max-w-xs mx-auto">
@@ -88,7 +88,7 @@ function ResetPasswordForm() {
           </p>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-2xl p-8 shadow-sm">
+        <div className="bg-surface-container-lowest rounded-2xl p-5 sm:p-8 shadow-sm">
           {done ? (
             <div className="flex flex-col items-center text-center py-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
@@ -145,7 +145,7 @@ function ResetPasswordForm() {
                       value={digit}
                       onChange={(e) => handleCodeChange(i, e.target.value)}
                       onKeyDown={(e) => handleKeyDown(i, e)}
-                      className="w-12 h-14 text-center text-xl font-bold bg-surface-container-low rounded-xl border-2 border-transparent focus:border-primary focus:outline-none transition-all"
+                      className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold bg-surface-container-low rounded-xl border-2 border-transparent focus:border-primary focus:outline-none transition-all"
                     />
                   ))}
                 </div>

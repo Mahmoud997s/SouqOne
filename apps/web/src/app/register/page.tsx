@@ -93,7 +93,7 @@ export default function RegisterPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="اسم المستخدم"
-              className="w-full text-right placeholder:text-right bg-white/60 border border-white/80 rounded-xl py-3.5 pr-12 pl-4 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:outline-none text-sm transition-all shadow-sm"
+              className="w-full text-right placeholder:text-right bg-white/60 border border-white/80 rounded-xl py-3 sm:py-3.5 pr-11 pl-4 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:outline-none text-sm transition-all shadow-sm"
               dir="rtl"
             />
           </div>
@@ -110,7 +110,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="البريد الإلكتروني"
-              className="w-full text-right placeholder:text-right bg-white/60 border border-white/80 rounded-xl py-3.5 pr-12 pl-4 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:outline-none text-sm transition-all shadow-sm"
+              className="w-full text-right placeholder:text-right bg-white/60 border border-white/80 rounded-xl py-3 sm:py-3.5 pr-11 pl-4 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:outline-none text-sm transition-all shadow-sm"
               dir="rtl"
             />
           </div>
@@ -123,7 +123,7 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => { setShowCodes(!showCodes); setCodeSearch(''); }}
-              className="flex items-center justify-center gap-1 bg-white/60 border border-white/80 border-r-0 rounded-l-xl py-3.5 px-2 text-sm font-medium text-brand-navy hover:bg-white transition-all w-[27%] shrink-0 shadow-sm"
+              className="flex items-center justify-center gap-1 bg-white/60 border border-white/80 border-r-0 rounded-l-xl py-3 sm:py-3.5 px-2 text-sm font-medium text-brand-navy hover:bg-white transition-all w-[80px] shrink-0 shadow-sm"
             >
               <span className="text-[11px] text-gray-500">{countryCode}</span>
               <span className="material-symbols-outlined text-gray-400 text-[13px]">expand_more</span>
@@ -134,7 +134,7 @@ export default function RegisterPage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))}
               placeholder="رقم الهاتف"
-              className="w-full text-right placeholder:text-right bg-white/60 border border-white/80 border-l-0 rounded-r-xl py-3.5 px-4 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:outline-none text-sm transition-all shadow-sm"
+              className="w-full text-right placeholder:text-right bg-white/60 border border-white/80 border-l-0 rounded-r-xl py-3 sm:py-3.5 px-4 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:outline-none text-sm transition-all shadow-sm"
               dir="rtl"
             />
 
@@ -177,11 +177,11 @@ export default function RegisterPage() {
         </div>
 
         {/* Location Grid: Country, Governorate, City */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* Country */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-bold text-white/90 uppercase tracking-widest overflow-hidden text-ellipsis whitespace-nowrap">الدولة</label>
-            <div className="bg-white/60 border border-white/80 rounded-xl py-3 px-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 transition-all shadow-sm">
+            <div className="bg-white/60 border border-white/80 rounded-xl py-2.5 sm:py-3 px-3 sm:px-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 transition-all shadow-sm">
               <CustomSelect
                 value={country}
                 onChange={(val) => { setCountry(val); setGovernorate(''); setCity(''); }}
@@ -195,7 +195,7 @@ export default function RegisterPage() {
           {/* Governorate */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-bold text-white/90 uppercase tracking-widest overflow-hidden text-ellipsis whitespace-nowrap">الولاية/المحافظة</label>
-            <div className="bg-white/60 border border-white/80 rounded-xl py-3 px-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 transition-all shadow-sm">
+            <div className="bg-white/60 border border-white/80 rounded-xl py-2.5 sm:py-3 px-3 sm:px-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 transition-all shadow-sm">
               <CustomSelect
                 value={governorate}
                 onChange={(val) => { setGovernorate(val); setCity(''); }}
@@ -210,7 +210,7 @@ export default function RegisterPage() {
           {/* City */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-bold text-white/90 uppercase tracking-widest overflow-hidden text-ellipsis whitespace-nowrap">المنطقة/المدينة</label>
-            <div className="bg-white/60 border border-white/80 rounded-xl py-3 px-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 transition-all shadow-sm">
+            <div className="bg-white/60 border border-white/80 rounded-xl py-2.5 sm:py-3 px-3 sm:px-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary/50 transition-all shadow-sm">
               <CustomSelect
                 value={city}
                 onChange={setCity}
@@ -238,7 +238,7 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full text-right placeholder:text-right bg-white/60 border border-white/80 rounded-xl py-3.5 pr-12 pl-12 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:outline-none text-sm transition-all shadow-sm"
+              className="w-full text-right placeholder:text-right bg-white/60 border border-white/80 rounded-xl py-3 sm:py-3.5 pr-11 pl-11 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:outline-none text-sm transition-all shadow-sm"
               dir="rtl"
             />
             <button

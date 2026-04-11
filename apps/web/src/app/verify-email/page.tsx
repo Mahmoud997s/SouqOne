@@ -93,7 +93,7 @@ export default function VerifyEmailPage() {
     <>
       <Navbar />
       <main className="pt-28 pb-16 min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md bg-surface-container-lowest rounded-3xl p-8 shadow-sm text-center">
+        <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm text-center">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
             <span className="material-symbols-outlined text-primary text-3xl">mark_email_read</span>
           </div>
@@ -105,7 +105,7 @@ export default function VerifyEmailPage() {
           </p>
 
           <form onSubmit={handleSubmit}>
-            <div className="flex gap-3 justify-center mb-8" dir="ltr" onPaste={handlePaste}>
+            <div className="flex gap-2 sm:gap-3 justify-center mb-8" dir="ltr" onPaste={handlePaste}>
               {code.map((digit, i) => (
                 <input
                   key={i}
@@ -116,7 +116,7 @@ export default function VerifyEmailPage() {
                   value={digit}
                   onChange={(e) => handleChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
-                  className="w-12 h-14 text-center text-xl font-bold bg-surface-container-low rounded-xl border-2 border-transparent focus:border-primary focus:ring-0 focus:outline-none transition-all"
+                  className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold bg-surface-container-low rounded-xl border-2 border-transparent focus:border-primary focus:ring-0 focus:outline-none transition-all"
                 />
               ))}
             </div>
