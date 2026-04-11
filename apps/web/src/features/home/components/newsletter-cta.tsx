@@ -5,12 +5,12 @@ export function NewsletterCta() {
     <section className="relative overflow-hidden bg-brand-navy py-24">
       <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center justify-between gap-10">
         <div className="max-w-xl">
-          <h2 className="text-4xl font-black mb-4 text-white">لا تفوّت أي إعلان جديد.</h2>
-          <p className="text-white/60 text-lg leading-relaxed">
+          <h2 className="text-2xl md:text-4xl font-black mb-4 text-white">لا تفوّت أي إعلان جديد.</h2>
+          <p className="text-white/60 text-base md:text-lg leading-relaxed">
             انضم لآلاف المستخدمين واحصل على إشعارات بأحدث إعلانات السيارات والخدمات والوظائف في سلطنة عمان.
           </p>
         </div>
-        <div className="flex w-full lg:w-auto gap-0">
+        <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-0">
           <input
             type="email"
             placeholder="بريدك الإلكتروني"

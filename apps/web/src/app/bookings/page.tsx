@@ -55,7 +55,7 @@ function BookingsContent() {
   return (
     <>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-7xl mx-auto px-6">
+      <main className="pt-28 pb-16 max-w-7xl mx-auto px-6" dir="rtl">
         <h1 className="text-3xl font-black mb-6">
           <span className="material-symbols-outlined text-primary align-middle text-3xl ml-2">event</span>
           إدارة الحجوزات

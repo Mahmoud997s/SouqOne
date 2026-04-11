@@ -14,11 +14,11 @@ export function JobsSection({ items, isLoading }: JobsSectionProps) {
   return (
     <section className="py-20">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-end justify-between mb-10">
+        <div className="flex flex-wrap items-end justify-between gap-2 mb-10">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 bg-primary" />
-              <h2 className="text-3xl font-black">وظائف السائقين</h2>
+              <h2 className="text-xl md:text-3xl font-black">وظائف السائقين</h2>
             </div>
             <p className="text-on-surface-variant text-sm">ابحث عن سائق محترف أو اعرض خدماتك</p>
           </div>

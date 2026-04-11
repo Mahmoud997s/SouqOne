@@ -34,6 +34,7 @@ function ListingsContent() {
   const router = useRouter();
 
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [radius, setRadius] = useState(50);
 
@@ -345,7 +346,7 @@ function ListingsContent() {
             <div className="h-7 w-1 bg-primary rounded-full" />
             <h2 className="text-xl font-black text-on-surface">تصفح حسب نوع السيارة</h2>
           </div>
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-8 gap-3">
             {bodyTypes.map((bt) => (
               <button
                 key={bt.value}
@@ -371,8 +372,18 @@ function ListingsContent() {
       {/* ═══════════ MAIN LISTINGS ═══════════ */}
       <main className="max-w-7xl mx-auto px-6 py-8" dir="rtl">
         <div className="flex flex-col lg:flex-row gap-8">
+          {/* ── Mobile Filter Toggle ── */}
+          <button
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="lg:hidden flex items-center gap-2 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl px-4 py-2.5 text-sm font-black text-on-surface-variant hover:border-primary/30 transition-all"
+          >
+            <span className="material-symbols-outlined text-base">tune</span>
+            تصفية النتائج
+            <span className={`material-symbols-outlined text-sm transition-transform ${showMobileFilters ? 'rotate-180' : ''}`}>expand_more</span>
+          </button>
+
           {/* ── Sidebar Filters ── */}
-          <aside className="lg:w-64 shrink-0">
+          <aside className={`lg:w-64 shrink-0 ${showMobileFilters ? 'block' : 'hidden lg:block'}`}>
             <div className="sticky top-24 space-y-5 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl p-5 shadow-sm">
               <div>
                 <h2 className="text-lg font-black mb-0.5">تصفية النتائج</h2>

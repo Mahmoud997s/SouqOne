@@ -9,6 +9,7 @@ import {
   Bell, MessageCircle, Heart, ShoppingBag, Briefcase, CheckCheck,
   ChevronLeft, ChevronRight, AlertCircle, Tag, Calendar, Loader2,
 } from 'lucide-react';
+import { Footer } from '@/components/layout/footer';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   MESSAGE: <MessageCircle size={18} className="text-primary" />,
@@ -94,7 +95,7 @@ export default function NotificationsPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-background pt-32 pb-12 px-4">
+      <main className="min-h-screen bg-background pt-28 pb-12 px-4" dir="rtl">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -184,6 +185,7 @@ export default function NotificationsPage() {
           )}
         </div>
       </main>
+      <Footer />
     </>
   );
 }

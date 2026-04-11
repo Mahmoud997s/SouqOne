@@ -139,7 +139,7 @@ export default function RegisterPage() {
             />
 
             {showCodes && (
-              <div className="absolute top-full left-0 mt-2 w-72 bg-white/80 backdrop-blur-2xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.15)] border border-white/40 z-50 max-h-64 overflow-hidden flex flex-col" dir="rtl">
+              <div className="absolute top-full left-0 mt-2 w-full max-w-[18rem] bg-white/80 backdrop-blur-2xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.15)] border border-white/40 z-50 max-h-64 overflow-hidden flex flex-col" dir="rtl">
                 <div className="p-2 border-b border-white/30">
                   <input
                     type="text"

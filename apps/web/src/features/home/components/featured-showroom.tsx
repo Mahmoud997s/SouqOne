@@ -42,11 +42,11 @@ export function FeaturedShowroom({ items, isLoading }: FeaturedShowroomProps) {
   return (
     <section className="bg-surface-container-low dark:bg-surface-dim py-20">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-between items-end mb-10">
+        <div className="flex flex-wrap justify-between items-end gap-2 mb-10">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 bg-primary" />
-              <h2 className="text-3xl font-black">أحدث السيارات</h2>
+              <h2 className="text-xl md:text-3xl font-black">أحدث السيارات</h2>
             </div>
             <p className="text-on-surface-variant text-sm">سيارات جديدة ومستعملة للبيع والإيجار في سلطنة عمان</p>
           </div>

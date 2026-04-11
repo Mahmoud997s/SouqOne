@@ -105,7 +105,7 @@ function JobsContent() {
         <div className="bg-gradient-to-b from-amber-50/80 via-amber-50/30 to-transparent dark:from-amber-950/20 dark:via-amber-950/5 dark:to-transparent pb-6">
           <div className="max-w-7xl mx-auto px-4 md:px-8 pt-6">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
               <div>
                 <h1 className="text-2xl md:text-3xl font-black text-on-surface flex items-center gap-2">
                   <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-3xl">badge</span>
@@ -113,7 +113,7 @@ function JobsContent() {
                 </h1>
                 <p className="text-on-surface-variant text-sm mt-1">ابحث عن سائق محترف أو اعرض خدماتك</p>
               </div>
-              <Link href="/jobs/new" className="btn-orange px-5 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all flex items-center gap-1.5 shadow-lg">
+              <Link href="/jobs/new" className="btn-orange px-5 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all flex items-center gap-1.5 shadow-lg shrink-0">
                 <span className="material-symbols-outlined text-base">add</span>
                 أضف إعلان وظيفة
               </Link>

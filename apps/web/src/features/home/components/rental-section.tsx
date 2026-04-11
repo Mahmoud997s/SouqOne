@@ -34,11 +34,11 @@ export function RentalSection({ items, isLoading }: RentalSectionProps) {
   return (
     <section className="py-20 bg-surface-container-low dark:bg-surface-dim">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-end justify-between mb-10">
+        <div className="flex flex-wrap items-end justify-between gap-2 mb-10">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 bg-primary" />
-              <h2 className="text-3xl font-black">سيارات للإيجار</h2>
+              <h2 className="text-xl md:text-3xl font-black">سيارات للإيجار</h2>
             </div>
             <p className="text-on-surface-variant text-sm">استأجر سيارتك المفضلة بأفضل الأسعار في سلطنة عمان</p>
           </div>
