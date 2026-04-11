@@ -33,10 +33,10 @@ export const MAIN_CATEGORIES: MainCategory[] = [
     icon: '🚌',
     color: 'bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-400',
     subcategories: [
-      { value: 'bus-sale', label: 'حافلات للبيع', route: '/add-listing/bus?type=BUS_SALE', available: true },
-      { value: 'bus-sale-contract', label: 'بيع مع عقد', route: '/add-listing/bus?type=BUS_SALE_WITH_CONTRACT', available: true },
-      { value: 'bus-rent', label: 'تأجير حافلات', route: '/add-listing/bus?type=BUS_RENT', available: true },
-      { value: 'bus-contract', label: 'طلبات نقل', route: '/add-listing/bus?type=BUS_CONTRACT', available: true },
+      { value: 'bus-sale', label: 'حافلات للبيع', route: '/coming-soon?section=buses', available: false },
+      { value: 'bus-sale-contract', label: 'بيع مع عقد', route: '/coming-soon?section=buses', available: false },
+      { value: 'bus-rent', label: 'تأجير حافلات', route: '/coming-soon?section=buses', available: false },
+      { value: 'bus-contract', label: 'طلبات نقل', route: '/coming-soon?section=buses', available: false },
     ],
   },
   {

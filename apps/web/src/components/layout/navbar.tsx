@@ -44,13 +44,12 @@ const navLinks: NavLinkItem[] = [
     ],
   },
   {
-    href: '/buses', label: 'حافلات',
+    href: '/coming-soon?section=buses', label: 'حافلات',
     children: [
-      { href: '/buses', label: 'كل الحافلات', icon: 'directions_bus', desc: 'بيع، إيجار، عقود' },
-      { href: '/buses?busListingType=BUS_SALE', label: 'حافلات للبيع', icon: 'sell', desc: 'شراء حافلات جديدة ومستعملة' },
-      { href: '/buses?busListingType=BUS_SALE_WITH_CONTRACT', label: 'بيع مع عقد', icon: 'assignment', desc: 'حافلات بعقود جاهزة' },
-      { href: '/buses?busListingType=BUS_RENT', label: 'تأجير حافلات', icon: 'car_rental', desc: 'إيجار يومي وشهري' },
-      { href: '/buses?busListingType=BUS_CONTRACT', label: 'طلبات نقل', icon: 'request_quote', desc: 'عقود نقل من شركات' },
+      { href: '/coming-soon?section=buses', label: 'كل الحافلات', icon: 'directions_bus', desc: 'قريباً — بيع، إيجار، عقود' },
+      { href: '/coming-soon?section=buses', label: 'حافلات للبيع', icon: 'sell', desc: 'قريباً' },
+      { href: '/coming-soon?section=buses', label: 'تأجير حافلات', icon: 'car_rental', desc: 'قريباً' },
+      { href: '/coming-soon?section=buses', label: 'طلبات نقل', icon: 'request_quote', desc: 'قريباً' },
     ],
   },
   { href: '/jobs', label: 'وظائف' },
@@ -65,7 +64,7 @@ const flatNavLinks = [
   { href: '/coming-soon?section=transport', label: 'نقل' },
   { href: '/coming-soon?section=trips', label: 'رحلات' },
   { href: '/insurance', label: 'تأمين' },
-  { href: '/buses', label: 'حافلات' },
+  { href: '/coming-soon?section=buses', label: 'حافلات' },
   { href: '/jobs', label: 'وظائف' },
 ];
 

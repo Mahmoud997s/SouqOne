@@ -11,6 +11,7 @@ const SECTION_NAMES: Record<string, string> = {
   insurance: 'تأمين وتمويل',
   transport: 'نقل وشحن',
   trips: 'رحلات واشتراكات',
+  buses: 'سوق الحافلات',
 };
 
 function ComingSoonContent() {
