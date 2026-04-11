@@ -52,6 +52,16 @@ const navLinks: NavLinkItem[] = [
       { href: '/coming-soon?section=buses', label: 'طلبات نقل', icon: 'request_quote', desc: 'قريباً' },
     ],
   },
+  {
+    href: '/coming-soon?section=equipment', label: 'معدات',
+    children: [
+      { href: '/coming-soon?section=equipment', label: 'كل المعدات', icon: 'construction', desc: 'قريباً — بيع، إيجار، طلبات' },
+      { href: '/coming-soon?section=equipment', label: 'بيع معدات', icon: 'sell', desc: 'قريباً' },
+      { href: '/coming-soon?section=equipment', label: 'تأجير معدات', icon: 'car_rental', desc: 'قريباً' },
+      { href: '/coming-soon?section=equipment', label: 'طلب معدة', icon: 'assignment_add', desc: 'قريباً' },
+      { href: '/coming-soon?section=equipment', label: 'مشغلين', icon: 'engineering', desc: 'قريباً' },
+    ],
+  },
   { href: '/jobs', label: 'وظائف' },
 ];
 
@@ -65,6 +75,7 @@ const flatNavLinks = [
   { href: '/coming-soon?section=trips', label: 'رحلات' },
   { href: '/insurance', label: 'تأمين' },
   { href: '/coming-soon?section=buses', label: 'حافلات' },
+  { href: '/coming-soon?section=equipment', label: 'معدات' },
   { href: '/jobs', label: 'وظائف' },
 ];
 
