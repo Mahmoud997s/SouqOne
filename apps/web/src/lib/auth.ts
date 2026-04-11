@@ -75,7 +75,7 @@ export async function tryRefreshToken(): Promise<string | null> {
 
   refreshPromise = (async () => {
     try {
-      const res = await fetch(`${apiBaseUrl}/api/auth/refresh`, {
+      const res = await fetch(`${apiBaseUrl}/api/v1/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken: rt }),
@@ -111,7 +111,7 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}) {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(`${apiBaseUrl}/api${normalizedPath}`, {
+  const response = await fetch(`${apiBaseUrl}/api/v1${normalizedPath}`, {
     ...init,
     headers,
   });
@@ -124,7 +124,7 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}) {
     const newToken = await tryRefreshToken();
     if (newToken) {
       headers.set('Authorization', `Bearer ${newToken}`);
-      const retryResponse = await fetch(`${apiBaseUrl}/api${normalizedPath}`, {
+      const retryResponse = await fetch(`${apiBaseUrl}/api/v1${normalizedPath}`, {
         ...init,
         headers,
       });

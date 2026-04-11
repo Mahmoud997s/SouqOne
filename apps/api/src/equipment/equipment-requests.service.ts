@@ -158,6 +158,10 @@ export class EquipmentRequestsService {
     if (!item) throw new NotFoundException('الطلب غير موجود');
     if (item.userId !== userId) throw new ForbiddenException('لا يمكنك حذف طلب غيرك');
     await this.prisma.equipmentRequest.delete({ where: { id } });
+
+    // Clean up orphaned conversations & favorites
+    await this.prisma.cleanupPolymorphicOrphans('EQUIPMENT_REQUEST', id);
+
     return { deleted: true };
   }
 }

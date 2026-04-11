@@ -140,7 +140,7 @@ function AddServiceContent() {
             const fd = new FormData();
             fd.append('file', img.file);
             fd.append('isPrimary', String(img.isPrimary));
-            await fetch(`${API_BASE}/api/uploads/services/${svc.id}/images`, {
+            await fetch(`${API_BASE}/api/v1/uploads/services/${svc.id}/images`, {
               method: 'POST',
               headers: token ? { Authorization: `Bearer ${token}` } : {},
               body: fd,

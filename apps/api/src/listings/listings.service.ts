@@ -7,6 +7,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { SearchService, INDEXES } from '../search/search.service';
+import { ListingsRepository } from './listings.repository';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { QueryListingsDto } from './dto/query-listings.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
@@ -17,6 +18,7 @@ export class ListingsService {
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
     private readonly searchService: SearchService,
+    private readonly repo: ListingsRepository,
   ) {}
 
   private generateSlug(title: string): string {
@@ -34,8 +36,7 @@ export class ListingsService {
   async create(dto: CreateListingDto, sellerId: string) {
     const slug = this.generateSlug(`${dto.make}-${dto.model}-${dto.year}-${dto.title}`);
 
-    const listing = await this.prisma.listing.create({
-      data: {
+    const listing = await this.repo.create({
         title: dto.title,
         slug,
         description: dto.description,
@@ -76,9 +77,7 @@ export class ListingsService {
         latitude: dto.latitude,
         longitude: dto.longitude,
         status: 'ACTIVE',
-        sellerId,
-      },
-      include: { seller: { select: this.sellerSelect }, images: true },
+        seller: { connect: { id: sellerId } },
     });
 
     // Invalidate listings cache
@@ -171,16 +170,7 @@ export class ListingsService {
       [query.sortBy ?? 'createdAt']: query.sortOrder ?? 'desc',
     };
 
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.listing.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy,
-        include: { seller: { select: this.sellerSelect }, images: true },
-      }),
-      this.prisma.listing.count({ where }),
-    ]);
+    const [items, total] = await this.repo.findMany(where, orderBy, skip, limit);
 
     const result = {
       items,
@@ -213,16 +203,7 @@ export class ListingsService {
       [query.sortBy ?? 'createdAt']: query.sortOrder ?? 'desc',
     };
 
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.listing.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy,
-        include: { seller: { select: this.sellerSelect }, images: true },
-      }),
-      this.prisma.listing.count({ where }),
-    ]);
+    const [items, total] = await this.repo.findMany(where, orderBy, skip, limit);
 
     return {
       items,
@@ -238,10 +219,7 @@ export class ListingsService {
       return cached;
     }
 
-    const listing = await this.prisma.listing.findUnique({
-      where: { id },
-      include: { seller: { select: this.sellerSelect }, images: true },
-    });
+    const listing = await this.repo.findById(id);
 
     if (!listing) {
       throw new NotFoundException('الإعلان غير موجود');
@@ -253,25 +231,19 @@ export class ListingsService {
   }
 
   async findBySlug(slug: string) {
-    const listing = await this.prisma.listing.findUnique({
-      where: { slug },
-      include: { seller: { select: this.sellerSelect }, images: true },
-    });
+    const listing = await this.repo.findBySlug(slug);
 
     if (!listing) {
       throw new NotFoundException('الإعلان غير موجود');
     }
 
-    await this.prisma.listing.update({
-      where: { id: listing.id },
-      data: { viewCount: { increment: 1 } },
-    });
+    await this.repo.incrementViewCount(listing.id);
 
     return listing;
   }
 
   async update(id: string, dto: UpdateListingDto, userId: string) {
-    const listing = await this.prisma.listing.findUnique({ where: { id } });
+    const listing = await this.repo.findById(id);
     if (!listing) {
       throw new NotFoundException('الإعلان غير موجود');
     }
@@ -321,11 +293,7 @@ export class ListingsService {
     if (dto.availableFrom !== undefined) data.availableFrom = dto.availableFrom ? new Date(dto.availableFrom) : null;
     if (dto.availableTo !== undefined) data.availableTo = dto.availableTo ? new Date(dto.availableTo) : null;
 
-    const updated = await this.prisma.listing.update({
-      where: { id },
-      data,
-      include: { seller: { select: this.sellerSelect }, images: true },
-    });
+    const updated = await this.repo.update(id, data);
 
     // Invalidate cache
     await this.redis.delPattern('listings:*');
@@ -360,7 +328,7 @@ export class ListingsService {
   }
 
   async remove(id: string, userId: string) {
-    const listing = await this.prisma.listing.findUnique({ where: { id } });
+    const listing = await this.repo.findById(id);
     if (!listing) {
       throw new NotFoundException('الإعلان غير موجود');
     }
@@ -369,7 +337,10 @@ export class ListingsService {
       throw new ForbiddenException('لا يمكنك حذف إعلان غيرك');
     }
 
-    await this.prisma.listing.delete({ where: { id } });
+    await this.repo.delete(id);
+
+    // Clean up orphaned conversations & favorites
+    await this.prisma.cleanupPolymorphicOrphans('LISTING', id);
 
     // Invalidate cache
     await this.redis.delPattern('listings:*');
@@ -381,13 +352,4 @@ export class ListingsService {
     return { message: 'تم حذف الإعلان بنجاح' };
   }
 
-  private readonly sellerSelect = {
-    id: true,
-    username: true,
-    displayName: true,
-    avatarUrl: true,
-    governorate: true,
-    isVerified: true,
-    createdAt: true,
-  };
 }

@@ -153,6 +153,10 @@ export class EquipmentListingsService {
     if (!item) throw new NotFoundException('الإعلان غير موجود');
     if (item.userId !== userId) throw new ForbiddenException('لا يمكنك حذف إعلان غيرك');
     await this.prisma.equipmentListing.delete({ where: { id } });
+
+    // Clean up orphaned conversations & favorites
+    await this.prisma.cleanupPolymorphicOrphans('EQUIPMENT_LISTING', id);
+
     return { deleted: true };
   }
 

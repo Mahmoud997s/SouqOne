@@ -129,7 +129,7 @@ export default function AddEquipmentPage() {
           const fd = new FormData();
           fd.append('file', img.file);
           const token = getAuthToken();
-          await fetch(`${API_BASE}/uploads/equipment/${result.id}/images`, {
+          await fetch(`${API_BASE}/api/v1/uploads/equipment/${result.id}/images`, {
             method: 'POST', body: fd,
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           });

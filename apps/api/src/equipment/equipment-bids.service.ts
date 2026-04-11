@@ -6,14 +6,20 @@ import {
 } from '@nestjs/common';
 import { Prisma, EquipmentRequestStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { CreateEquipmentBidDto } from './dto/create-equipment-bid.dto';
 import { USER_SELECT } from './equipment.utils';
 
 const MAX_BIDS_PER_DAY = 10;
+const DAY_SECONDS = 86400;
+const COOLDOWN_SECONDS = 3600;
 
 @Injectable()
 export class EquipmentBidsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
+  ) {}
 
   async create(requestId: string, dto: CreateEquipmentBidDto, userId: string) {
     const req = await this.prisma.equipmentRequest.findUnique({ where: { id: requestId } });
@@ -22,32 +28,26 @@ export class EquipmentBidsService {
     if (req.requestStatus !== 'OPEN' && req.requestStatus !== 'IN_PROGRESS')
       throw new BadRequestException('الطلب مغلق');
 
-    // Rate limit: max pending bid per request
+    // Rate limit: max pending bid per request (DB check — still needed for correctness)
     const existing = await this.prisma.equipmentBid.findFirst({
       where: { requestId, userId, bidStatus: 'PENDING' },
     });
     if (existing) throw new BadRequestException('لديك عرض قائم بالفعل على هذا الطلب');
 
-    // Rate limit: max bids per day
-    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const dailyCount = await this.prisma.equipmentBid.count({
-      where: { userId, createdAt: { gte: dayAgo } },
-    });
-    if (dailyCount >= MAX_BIDS_PER_DAY) {
+    // Rate limit: max bids per day (Redis-based, atomic across instances)
+    const dailyKey = `bid:daily:${userId}`;
+    const dailyCount = await this.redis.incr(dailyKey, DAY_SECONDS);
+    if (dailyCount > MAX_BIDS_PER_DAY) {
       throw new BadRequestException(`الحد الأقصى ${MAX_BIDS_PER_DAY} عروض في اليوم`);
     }
 
-    // Cooldown: 1 hour after withdrawing a bid on the same request
-    const recentWithdrawn = await this.prisma.equipmentBid.findFirst({
-      where: {
-        requestId,
-        userId,
-        bidStatus: 'WITHDRAWN',
-        updatedAt: { gte: new Date(Date.now() - 60 * 60 * 1000) },
-      },
-    });
-    if (recentWithdrawn) {
-      throw new BadRequestException('يجب الانتظار ساعة بعد سحب عرضك قبل تقديم عرض جديد');
+    // Cooldown: 1 hour after withdrawing a bid on the same request (Redis-based)
+    const cooldownKey = `bid:cooldown:${userId}:${requestId}`;
+    const hasCooldown = await this.redis.exists(cooldownKey);
+    if (hasCooldown) {
+      const ttl = await this.redis.getTTL(cooldownKey);
+      const mins = Math.ceil(ttl / 60);
+      throw new BadRequestException(`يجب الانتظار ${mins} دقيقة بعد سحب عرضك قبل تقديم عرض جديد`);
     }
 
     const bid = await this.prisma.equipmentBid.create({
@@ -99,5 +99,23 @@ export class EquipmentBidsService {
     if (!bid || bid.requestId !== requestId) throw new NotFoundException('العرض غير موجود');
 
     return this.prisma.equipmentBid.update({ where: { id: bidId }, data: { bidStatus: 'REJECTED' }, include: { user: { select: USER_SELECT } } });
+  }
+
+  async withdraw(requestId: string, bidId: string, userId: string) {
+    const bid = await this.prisma.equipmentBid.findUnique({ where: { id: bidId } });
+    if (!bid || bid.requestId !== requestId) throw new NotFoundException('العرض غير موجود');
+    if (bid.userId !== userId) throw new ForbiddenException('لا يمكنك سحب عرض غيرك');
+    if (bid.bidStatus !== 'PENDING') throw new BadRequestException('لا يمكن سحب عرض غير معلق');
+
+    const updated = await this.prisma.equipmentBid.update({
+      where: { id: bidId },
+      data: { bidStatus: 'WITHDRAWN' },
+      include: { user: { select: USER_SELECT } },
+    });
+
+    // Set cooldown in Redis so the user can't re-bid for 1 hour
+    await this.redis.setNX(`bid:cooldown:${userId}:${requestId}`, '1', COOLDOWN_SECONDS);
+
+    return updated;
   }
 }

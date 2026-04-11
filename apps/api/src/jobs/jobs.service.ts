@@ -180,6 +180,10 @@ export class JobsService {
     if (job.userId !== userId) throw new ForbiddenException('غير مصرح لك بحذف هذه الوظيفة');
 
     await this.prisma.driverJob.delete({ where: { id } });
+
+    // Clean up orphaned conversations & favorites
+    await this.prisma.cleanupPolymorphicOrphans('JOB', id);
+
     return { message: 'تم حذف الوظيفة بنجاح' };
   }
 

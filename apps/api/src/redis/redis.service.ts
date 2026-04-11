@@ -119,6 +119,36 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     try { await this.client.expire(key, seconds); } catch {}
   }
 
+  // Atomic increment — useful for rate limiting
+  async incr(key: string, ttlSeconds?: number): Promise<number> {
+    if (!this.connected) return 0;
+    try {
+      const val = await this.client.incr(key);
+      // Set TTL only on first increment (when val === 1)
+      if (ttlSeconds && val === 1) {
+        await this.client.expire(key, ttlSeconds);
+      }
+      return val;
+    } catch { return 0; }
+  }
+
+  // Set a key only if it does not exist (with TTL) — useful for cooldowns
+  async setNX(key: string, value: string, ttlSeconds: number): Promise<boolean> {
+    if (!this.connected) return false;
+    try {
+      const result = await this.client.set(key, value, 'EX', ttlSeconds, 'NX');
+      return result === 'OK';
+    } catch { return false; }
+  }
+
+  // Get remaining TTL of a key in seconds
+  async getTTL(key: string): Promise<number> {
+    if (!this.connected) return -2;
+    try {
+      return await this.client.ttl(key);
+    } catch { return -2; }
+  }
+
   isReady(): boolean {
     return this.connected && !!this.subscriber && this.subscriber.status === 'ready';
   }

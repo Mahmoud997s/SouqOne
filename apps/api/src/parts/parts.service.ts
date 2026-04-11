@@ -179,6 +179,9 @@ export class PartsService {
 
     await this.prisma.sparePart.delete({ where: { id } });
 
+    // Clean up orphaned conversations & favorites
+    await this.prisma.cleanupPolymorphicOrphans('SPARE_PART', id);
+
     // Remove from Meilisearch
     this.searchService.removeDocument(INDEXES.PARTS, id).catch(() => {});
 

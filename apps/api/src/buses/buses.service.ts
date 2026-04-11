@@ -229,6 +229,10 @@ export class BusesService {
     if (bus.userId !== userId) throw new ForbiddenException('غير مصرح لك بحذف هذا الإعلان');
 
     await this.prisma.busListing.delete({ where: { id } });
+
+    // Clean up orphaned conversations & favorites
+    await this.prisma.cleanupPolymorphicOrphans('BUS_LISTING', id);
+
     return { message: 'تم حذف الإعلان بنجاح' };
   }
 

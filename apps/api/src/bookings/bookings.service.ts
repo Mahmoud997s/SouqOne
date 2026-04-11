@@ -7,6 +7,7 @@ import {
 import { Prisma, BookingStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { BookingsRepository } from './bookings.repository';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { QueryBookingsDto } from './dto/query-bookings.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
@@ -16,6 +17,7 @@ export class BookingsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
+    private readonly repo: BookingsRepository,
   ) {}
 
   // ── حاسبة السعر ──
@@ -87,15 +89,7 @@ export class BookingsService {
     }
 
     // التحقق من التضارب
-    const conflict = await this.prisma.booking.findFirst({
-      where: {
-        listingId: dto.listingId,
-        status: { in: ['PENDING', 'CONFIRMED', 'ACTIVE'] },
-        OR: [
-          { startDate: { lte: endDate }, endDate: { gte: startDate } },
-        ],
-      },
-    });
+    const conflict = await this.repo.findConflicting(dto.listingId, startDate, endDate);
 
     if (conflict) throw new BadRequestException('السيارة محجوزة في هذه الفترة');
 
@@ -106,11 +100,10 @@ export class BookingsService {
       listing.monthlyPrice ? Number(listing.monthlyPrice) : null,
     );
 
-    const booking = await this.prisma.booking.create({
-      data: {
-        listingId: dto.listingId,
-        renterId,
-        ownerId: listing.sellerId,
+    const booking = await this.repo.create({
+        listing: { connect: { id: dto.listingId } },
+        renter: { connect: { id: renterId } },
+        owner: { connect: { id: listing.sellerId } },
         startDate,
         endDate,
         totalDays,
@@ -124,12 +117,6 @@ export class BookingsService {
         pickupLocation: dto.pickupLocation,
         dropoffLocation: dto.dropoffLocation,
         notes: dto.notes,
-      },
-      include: {
-        listing: { include: { images: true } },
-        renter: { select: this.userSelect },
-        owner: { select: this.userSelect },
-      },
     });
 
     // إشعار للمؤجر
@@ -153,19 +140,7 @@ export class BookingsService {
     const where: Prisma.BookingWhereInput = { renterId };
     if (query.status) where.status = query.status;
 
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.booking.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          listing: { include: { images: true } },
-          owner: { select: this.userSelect },
-        },
-      }),
-      this.prisma.booking.count({ where }),
-    ]);
+    const [items, total] = await this.repo.findMyBookings(where, skip, limit);
 
     return { items, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
   }
@@ -179,33 +154,14 @@ export class BookingsService {
     const where: Prisma.BookingWhereInput = { ownerId };
     if (query.status) where.status = query.status;
 
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.booking.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          listing: { include: { images: true } },
-          renter: { select: this.userSelect },
-        },
-      }),
-      this.prisma.booking.count({ where }),
-    ]);
+    const [items, total] = await this.repo.findReceivedBookings(where, skip, limit);
 
     return { items, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
   }
 
   // ── تفاصيل حجز ──
   async findOne(id: string, userId: string) {
-    const booking = await this.prisma.booking.findUnique({
-      where: { id },
-      include: {
-        listing: { include: { images: true, seller: { select: this.userSelect } } },
-        renter: { select: this.userSelect },
-        owner: { select: this.userSelect },
-      },
-    });
+    const booking = await this.repo.findById(id);
 
     if (!booking) throw new NotFoundException('الحجز غير موجود');
     if (booking.renterId !== userId && booking.ownerId !== userId) {
@@ -217,10 +173,7 @@ export class BookingsService {
 
   // ── تغيير حالة الحجز ──
   async updateStatus(id: string, dto: UpdateBookingStatusDto, userId: string) {
-    const booking = await this.prisma.booking.findUnique({
-      where: { id },
-      include: { listing: true },
-    });
+    const booking = await this.repo.findByIdWithListing(id);
 
     if (!booking) throw new NotFoundException('الحجز غير موجود');
 
@@ -252,15 +205,7 @@ export class BookingsService {
     if (status === 'CANCELLED') updateData.cancelledAt = new Date();
     if (status === 'COMPLETED') updateData.completedAt = new Date();
 
-    const updated = await this.prisma.booking.update({
-      where: { id },
-      data: updateData,
-      include: {
-        listing: { include: { images: true } },
-        renter: { select: this.userSelect },
-        owner: { select: this.userSelect },
-      },
-    });
+    const updated = await this.repo.update(id, updateData);
 
     // إشعارات
     const notifMap: Record<string, { type: string; title: string; body: string; to: string }> = {
@@ -286,16 +231,7 @@ export class BookingsService {
 
   // ── التواريخ المحجوزة ──
   async getAvailability(listingId: string) {
-    const bookings = await this.prisma.booking.findMany({
-      where: {
-        listingId,
-        status: { in: ['PENDING', 'CONFIRMED', 'ACTIVE'] },
-      },
-      select: { startDate: true, endDate: true, status: true },
-      orderBy: { startDate: 'asc' },
-    });
-
-    return bookings;
+    return this.repo.findActiveBookings(listingId);
   }
 
   // ── حاسبة سعر API ──
@@ -325,13 +261,4 @@ export class BookingsService {
     };
   }
 
-  private readonly userSelect = {
-    id: true,
-    username: true,
-    displayName: true,
-    avatarUrl: true,
-    governorate: true,
-    isVerified: true,
-    phone: true,
-  };
 }
