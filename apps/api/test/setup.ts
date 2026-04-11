@@ -29,6 +29,9 @@ import { ServicesModule } from '../src/services/services.module';
 import { TransportModule } from '../src/transport/transport.module';
 import { TripsModule } from '../src/trips/trips.module';
 import { InsuranceModule } from '../src/insurance/insurance.module';
+import { SearchModule } from '../src/search/search.module';
+import { BusesModule } from '../src/buses/buses.module';
+import { EquipmentModule } from '../src/equipment/equipment.module';
 import { AppController } from '../src/app.controller';
 import { AppService } from '../src/app.service';
 import { MailService } from '../src/mail/mail.service';
@@ -99,6 +102,9 @@ export async function createTestApp(): Promise<INestApplication> {
       TransportModule,
       TripsModule,
       InsuranceModule,
+      SearchModule,
+      BusesModule,
+      EquipmentModule,
     ],
     controllers: [AppController],
     providers: [
@@ -181,6 +187,30 @@ export async function registerUser(overrides?: {
     refreshToken: res.body.refreshToken,
     user: res.body.user,
   };
+}
+
+/** Create a rental listing and return its ID (for booking tests) */
+export async function createRentalListing(accessToken: string): Promise<string> {
+  const res = await request(app.getHttpServer())
+    .post('/api/listings')
+    .set('Authorization', `Bearer ${accessToken}`)
+    .send({
+      title: 'Rental Car for E2E Test',
+      description: 'Test rental listing for booking E2E tests',
+      make: 'Toyota',
+      model: 'Camry',
+      year: 2023,
+      price: 5000,
+      listingType: 'RENTAL',
+      dailyPrice: 15,
+      weeklyPrice: 90,
+      monthlyPrice: 350,
+      minRentalDays: 1,
+      condition: 'USED',
+      governorate: 'Muscat',
+    })
+    .expect(201);
+  return res.body.id;
 }
 
 /** Login with existing credentials */
