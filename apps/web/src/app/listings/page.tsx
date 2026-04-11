@@ -226,8 +226,8 @@ function ListingsContent() {
       <section className="relative overflow-hidden" dir="rtl">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-container to-brand-navy" />
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
-        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-white/[0.05] blur-3xl" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-blue-300/[0.08] blur-3xl" />
+        <div className="absolute top-[-20%] right-0 w-[60vw] md:w-[500px] h-[60vw] md:h-[500px] rounded-full bg-white/[0.05] blur-3xl" />
+        <div className="absolute bottom-[-20%] left-0 w-[50vw] md:w-[400px] h-[50vw] md:h-[400px] rounded-full bg-blue-300/[0.08] blur-3xl" />
 
         <div className="relative z-10 pt-24 pb-10 md:pt-28 md:pb-14">
           <div className="max-w-5xl mx-auto px-6 text-center">

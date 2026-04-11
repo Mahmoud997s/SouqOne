@@ -40,14 +40,14 @@ export function HeroSection() {
       {/* ── Multi-layer Background ── */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#f8fafc] via-[#eef2ff] to-[#f1f5f9] dark:from-[#0c0f1a] dark:via-[#101528] dark:to-[#0e1220]" />
 
-      {/* Depth layer 1: large soft circles */}
-      <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-blue-400/[0.06] dark:bg-blue-500/[0.04] blur-3xl" />
-      <div className="absolute bottom-[-30%] left-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-300/[0.07] dark:bg-indigo-500/[0.03] blur-3xl" />
+      {/* Depth layer 1: large soft circles — clamped on mobile */}
+      <div className="absolute top-[-20%] right-0 w-[60vw] md:w-[600px] h-[60vw] md:h-[600px] rounded-full bg-blue-400/[0.06] dark:bg-blue-500/[0.04] blur-3xl" />
+      <div className="absolute bottom-[-30%] left-0 w-[50vw] md:w-[500px] h-[50vw] md:h-[500px] rounded-full bg-indigo-300/[0.07] dark:bg-indigo-500/[0.03] blur-3xl" />
 
-      {/* Depth layer 2: subtle geometric shapes */}
-      <div className="absolute top-[15%] left-[8%] w-32 h-32 border border-primary/[0.06] dark:border-primary/[0.04] rounded-2xl rotate-12" />
-      <div className="absolute bottom-[20%] right-[5%] w-24 h-24 border border-orange-400/[0.08] dark:border-orange-400/[0.04] rounded-full" />
-      <div className="absolute top-[40%] right-[15%] w-16 h-16 bg-primary/[0.03] dark:bg-primary/[0.02] rounded-lg rotate-45" />
+      {/* Depth layer 2: subtle geometric shapes — hidden on small screens */}
+      <div className="hidden sm:block absolute top-[15%] left-[8%] w-32 h-32 border border-primary/[0.06] dark:border-primary/[0.04] rounded-2xl rotate-12" />
+      <div className="hidden sm:block absolute bottom-[20%] right-[5%] w-24 h-24 border border-orange-400/[0.08] dark:border-orange-400/[0.04] rounded-full" />
+      <div className="hidden sm:block absolute top-[40%] right-[15%] w-16 h-16 bg-primary/[0.03] dark:bg-primary/[0.02] rounded-lg rotate-45" />
 
       {/* Depth layer 3: fine dots pattern */}
       <div className="absolute inset-0 opacity-[0.3] dark:opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle, #94a3b8 0.5px, transparent 0.5px)', backgroundSize: '32px 32px' }} />
