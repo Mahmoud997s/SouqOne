@@ -149,6 +149,7 @@ export class ListingsService {
     }
     if (query.transmission) where.transmission = query.transmission;
     if (query.condition) where.condition = query.condition;
+    if (query.bodyType) where.bodyType = query.bodyType;
     if (query.governorate) where.governorate = query.governorate;
     if (query.sellerId) where.sellerId = query.sellerId;
     if (query.listingType) where.listingType = query.listingType;

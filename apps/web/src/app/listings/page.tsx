@@ -66,6 +66,7 @@ function ListingsContent() {
   const maxPrice = searchParams.get('maxPrice') || '';
   const sortBy = searchParams.get('sortBy') || '';
   const listingType = searchParams.get('listingType') || '';
+  const bodyType = searchParams.get('bodyType') || '';
 
   const [searchInput, setSearchInput] = useState(search);
   const [selectedFuels, setSelectedFuels] = useState<string[]>(fuelType ? fuelType.split(',') : []);
@@ -78,6 +79,7 @@ function ListingsContent() {
     if (search) p.search = search;
     if (fuelType) p.fuelType = fuelType;
     if (condition) p.condition = condition;
+    if (bodyType) p.bodyType = bodyType;
     if (maxPrice) p.priceMax = maxPrice;
     if (sortBy) {
       const [field, order] = sortBy.split('_');
@@ -85,7 +87,7 @@ function ListingsContent() {
       if (order) p.sortOrder = order;
     }
     return p;
-  }, [page, search, fuelType, condition, maxPrice, sortBy, listingType]);
+  }, [page, search, fuelType, condition, bodyType, maxPrice, sortBy, listingType]);
 
   function setListingType(type: string) {
     const p = new URLSearchParams(searchParams.toString());
@@ -207,11 +209,9 @@ function ListingsContent() {
     { value: 'WAGON', label: 'واغن', icon: 'rv_hookup' },
   ];
 
-  const selectedBody = searchParams.get('bodyType') || '';
-
   function applyBodyFilter(body: string) {
     const p = new URLSearchParams(searchParams.toString());
-    if (selectedBody === body) p.delete('bodyType'); else p.set('bodyType', body);
+    if (bodyType === body) p.delete('bodyType'); else p.set('bodyType', body);
     p.set('page', '1');
     router.push(`/listings?${p.toString()}`);
   }
@@ -351,16 +351,16 @@ function ListingsContent() {
                 key={bt.value}
                 onClick={() => applyBodyFilter(bt.value)}
                 className={`group flex flex-col items-center gap-2.5 p-4 rounded-2xl border transition-all duration-200 ${
-                  selectedBody === bt.value
+                  bodyType === bt.value
                     ? 'bg-primary/10 dark:bg-primary/20 border-primary/30 shadow-sm'
                     : 'bg-surface-container-low/50 dark:bg-surface-container/50 border-outline-variant/10 hover:border-primary/20 hover:shadow-sm'
                 }`}
               >
                 <span className={`material-symbols-outlined text-3xl transition-colors ${
-                  selectedBody === bt.value ? 'text-primary' : 'text-on-surface-variant group-hover:text-primary'
+                  bodyType === bt.value ? 'text-primary' : 'text-on-surface-variant group-hover:text-primary'
                 }`}>{bt.icon}</span>
                 <span className={`text-[11px] sm:text-xs font-bold text-center leading-tight transition-colors ${
-                  selectedBody === bt.value ? 'text-primary' : 'text-on-surface-variant'
+                  bodyType === bt.value ? 'text-primary' : 'text-on-surface-variant'
                 }`}>{bt.label}</span>
               </button>
             ))}
