@@ -5,6 +5,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { SanitizeInterceptor } from './common/interceptors/sanitize.interceptor';
+import { NormalizeImagesInterceptor } from './common/interceptors/normalize-images.interceptor';
 import { RedisIoAdapter } from './common/adapters/redis-io.adapter';
 import * as path from 'path';
 
@@ -35,7 +36,7 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   // حماية شاملة ضد تسريب البيانات الحساسة
-  app.useGlobalInterceptors(new SanitizeInterceptor());
+  app.useGlobalInterceptors(new SanitizeInterceptor(), new NormalizeImagesInterceptor());
 
   // Serve uploaded files statically at /uploads/*
   app.useStaticAssets(path.join(process.cwd(), 'uploads'), {

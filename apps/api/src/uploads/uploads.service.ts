@@ -48,13 +48,12 @@ export class UploadsService {
       return { url: result.secure_url, key: result.public_id };
     }
 
-    // Fallback: local storage
+    // Fallback: local storage — store as relative path so frontend can resolve correctly
     const ext = path.extname(file.originalname) || '.jpg';
     const key = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}${ext}`;
     const dest = path.join(UPLOAD_DIR, key);
     fs.writeFileSync(dest, file.buffer);
-    const baseUrl = process.env.API_BASE_URL || `http://localhost:${process.env.API_PORT || 4000}`;
-    return { url: `${baseUrl}/uploads/${key}`, key };
+    return { url: `/uploads/${key}`, key };
   }
 
   async deleteFile(key: string): Promise<void> {

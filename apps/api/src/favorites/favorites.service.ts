@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { normalizeImageUrl, normalizeImages } from '../common/utils/image-url.util';
 
 @Injectable()
 export class FavoritesService {
@@ -100,16 +101,17 @@ export class FavoritesService {
     const enriched = await Promise.all(
       items.map(async (fav) => {
         if (fav.entityType === 'LISTING' && fav.listing) {
+          const normalized = normalizeImages(fav.listing);
           return {
             id: fav.id,
             entityType: fav.entityType,
             entityId: fav.entityId,
             createdAt: fav.createdAt,
-            listing: fav.listing,
+            listing: normalized,
             entity: {
-              id: fav.listing.id,
-              title: fav.listing.title,
-              image: fav.listing.images?.[0]?.url || null,
+              id: normalized.id,
+              title: normalized.title,
+              image: normalized.images?.[0]?.url || null,
             },
           };
         }
@@ -210,21 +212,21 @@ export class FavoritesService {
             where: { id: entityId },
             select: { id: true, title: true, images: { take: 1, orderBy: { order: 'asc' } } },
           });
-          return r ? { id: r.id, title: r.title, image: (r.images as any)?.[0]?.url || null } : null;
+          return r ? { id: r.id, title: r.title, image: normalizeImageUrl((r.images as any)?.[0]?.url) } : null;
         }
         case 'CAR_SERVICE': {
           const r = await this.prisma.carService.findUnique({
             where: { id: entityId },
             select: { id: true, title: true, images: { take: 1, orderBy: { order: 'asc' } } },
           });
-          return r ? { id: r.id, title: r.title, image: (r.images as any)?.[0]?.url || null } : null;
+          return r ? { id: r.id, title: r.title, image: normalizeImageUrl((r.images as any)?.[0]?.url) } : null;
         }
         case 'TRANSPORT': {
           const r = await this.prisma.transportService.findUnique({
             where: { id: entityId },
             select: { id: true, title: true, images: { take: 1, orderBy: { order: 'asc' } } },
           });
-          return r ? { id: r.id, title: r.title, image: (r.images as any)?.[0]?.url || null } : null;
+          return r ? { id: r.id, title: r.title, image: normalizeImageUrl((r.images as any)?.[0]?.url) } : null;
         }
         case 'TRIP': {
           const r = await this.prisma.tripService.findUnique({ where: { id: entityId }, select: { id: true, title: true } });
