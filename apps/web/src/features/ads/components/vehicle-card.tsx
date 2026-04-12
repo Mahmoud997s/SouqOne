@@ -52,9 +52,12 @@ export function VehicleCard(props: VehicleCardProps) {
 
   useEffect(() => { setLocalFav(serverFav); }, [serverFav]);
 
-  const priceText = props.listingType === 'RENTAL'
-    ? formatPrice(props.dailyPrice || props.price, props.currency, '/يوم')
-    : formatPrice(props.price, props.currency);
+  const isWanted = props.listingType === 'WANTED';
+  const priceText = isWanted
+    ? (Number(props.price) > 0 ? `الميزانية: ${formatPrice(props.price, props.currency)}` : 'مطلوب')
+    : props.listingType === 'RENTAL'
+      ? formatPrice(props.dailyPrice || props.price, props.currency, '/يوم')
+      : formatPrice(props.price, props.currency);
 
   const handleFav = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -111,8 +114,12 @@ export function VehicleCard(props: VehicleCardProps) {
             </button>
           )}
 
-          {/* ── Condition badge (top-right) ── */}
-          {badge && (
+          {/* ── Condition / Wanted badge (top-right) ── */}
+          {isWanted ? (
+            <span className="absolute top-2 right-2 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-orange-500 text-white">
+              مطلوب
+            </span>
+          ) : badge && (
             <span className={`absolute top-2 right-2 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold ${badge.cls}`}>
               {badge.label}
             </span>
@@ -120,7 +127,9 @@ export function VehicleCard(props: VehicleCardProps) {
 
           {/* ── Price (bottom-right on image) ── */}
           <div className="absolute bottom-2 right-2">
-            <span className="bg-primary text-on-primary px-2 py-0.5 rounded text-[11px] sm:text-xs font-black tracking-tight shadow-sm">
+            <span className={`px-2 py-0.5 rounded text-[11px] sm:text-xs font-black tracking-tight shadow-sm ${
+              isWanted ? 'bg-orange-500 text-white' : 'bg-primary text-on-primary'
+            }`}>
               {priceText}
             </span>
           </div>

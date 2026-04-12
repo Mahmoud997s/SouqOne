@@ -244,6 +244,7 @@ function ListingsContent() {
                 { value: '', label: 'الكل', icon: 'apps' },
                 { value: 'SALE', label: 'للبيع', icon: 'sell' },
                 { value: 'RENTAL', label: 'للإيجار', icon: 'car_rental' },
+                { value: 'WANTED', label: 'مطلوب', icon: 'search' },
               ].map(tab => (
                 <button
                   key={tab.value}
@@ -479,7 +480,7 @@ function ListingsContent() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-2xl font-black">
-                  {listingType === 'SALE' ? 'سيارات للبيع' : listingType === 'RENTAL' ? 'سيارات للإيجار' : 'جميع السيارات'}
+                  {listingType === 'SALE' ? 'سيارات للبيع' : listingType === 'RENTAL' ? 'سيارات للإيجار' : listingType === 'WANTED' ? 'مطلوب سيارة' : 'جميع السيارات'}
                 </h2>
                 <p className="text-on-surface-variant text-sm mt-0.5">
                   {data ? `${data.meta.total} إعلان متاح` : 'تصفح أحدث إعلانات السيارات'}

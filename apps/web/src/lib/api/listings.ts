@@ -26,7 +26,7 @@ export interface ListingItem {
   driveType: string | null;
   description: string;
   isPriceNegotiable: boolean;
-  listingType?: 'SALE' | 'RENTAL';
+  listingType?: 'SALE' | 'RENTAL' | 'WANTED';
   dailyPrice?: string | null;
   weeklyPrice?: string | null;
   monthlyPrice?: string | null;

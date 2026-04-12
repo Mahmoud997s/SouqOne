@@ -44,6 +44,7 @@ export default function CarDetailsPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const isRental = car?.listingType === 'RENTAL';
+  const isWanted = car?.listingType === 'WANTED';
   const { data: availability } = useBookingAvailability(isRental ? id : '');
   const { data: priceCalc } = useCalculatePrice(isRental ? id : '', startDate, endDate);
 
@@ -399,11 +400,27 @@ export default function CarDetailsPage() {
                     </>
                   ) : (
                     <>
-                      <p className="text-2xl font-black text-primary mb-0.5" style={{ fontFamily: 'var(--font-body)' }}>
-                        {priceFormatted} <small className="text-sm font-bold text-on-surface-variant">{car.currency}</small>
-                      </p>
-                      {car.isPriceNegotiable && (
-                        <p className="text-primary text-xs font-bold mb-3 flex items-center gap-1"><span className="material-symbols-outlined text-xs">swap_horiz</span>قابل للتفاوض</p>
+                      {isWanted ? (
+                        <>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="bg-orange-500 text-white px-2.5 py-1 rounded-lg text-xs font-black">مطلوب</span>
+                          </div>
+                          {Number(car.price) > 0 && (
+                            <p className="text-2xl font-black text-orange-500 mb-0.5" style={{ fontFamily: 'var(--font-body)' }}>
+                              {priceFormatted} <small className="text-sm font-bold text-on-surface-variant">{car.currency}</small>
+                              <span className="text-xs font-bold text-on-surface-variant mr-2">الميزانية</span>
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-2xl font-black text-primary mb-0.5" style={{ fontFamily: 'var(--font-body)' }}>
+                            {priceFormatted} <small className="text-sm font-bold text-on-surface-variant">{car.currency}</small>
+                          </p>
+                          {car.isPriceNegotiable && (
+                            <p className="text-primary text-xs font-bold mb-3 flex items-center gap-1"><span className="material-symbols-outlined text-xs">swap_horiz</span>قابل للتفاوض</p>
+                          )}
+                        </>
                       )}
 
                       {isOwner ? (
@@ -411,9 +428,11 @@ export default function CarDetailsPage() {
                           تعديل الإعلان
                         </Link>
                       ) : (
-                        <button onClick={handleBuyNow} disabled={createConv.isPending} className="bg-primary text-on-primary w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-1.5">
-                          <span className="material-symbols-outlined text-base">shopping_cart</span>
-                          {createConv.isPending ? 'جارٍ التواصل...' : 'اشترِ الآن'}
+                        <button onClick={handleBuyNow} disabled={createConv.isPending} className={`w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-1.5 ${
+                          isWanted ? 'bg-orange-500 text-white' : 'bg-primary text-on-primary'
+                        }`}>
+                          <span className="material-symbols-outlined text-base">{isWanted ? 'chat' : 'shopping_cart'}</span>
+                          {createConv.isPending ? 'جارٍ التواصل...' : isWanted ? 'تواصل مع الطالب' : 'اشترِ الآن'}
                         </button>
                       )}
                     </>
@@ -513,7 +532,12 @@ export default function CarDetailsPage() {
           <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-surface-container-lowest/95 dark:bg-surface-container/95 backdrop-blur-xl border-t border-outline-variant/10 dark:border-outline-variant/20 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
             <div className="flex items-center gap-3 px-4 py-3 max-w-lg mx-auto">
               <div className="shrink-0">
-                {isRental && car.dailyPrice ? (
+                {isWanted ? (
+                  <div>
+                    <span className="bg-orange-500 text-white px-2 py-0.5 rounded text-xs font-black">مطلوب</span>
+                    {Number(car.price) > 0 && <span className="text-sm font-black text-orange-500 mr-2">{priceFormatted} ر.ع</span>}
+                  </div>
+                ) : isRental && car.dailyPrice ? (
                   <div>
                     <span className="text-lg font-black text-primary leading-none">{Number(car.dailyPrice).toLocaleString('en-US')}</span>
                     <span className="text-[10px] text-on-surface-variant mr-1">ر.ع./يوم</span>
@@ -554,6 +578,15 @@ export default function CarDetailsPage() {
                   >
                     <span className="material-symbols-outlined text-base">event_available</span>
                     احجز
+                  </button>
+                ) : isWanted ? (
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={createConv.isPending}
+                    className="bg-orange-500 text-white px-5 py-2.5 rounded-xl text-sm font-black shadow-lg hover:brightness-110 transition-all flex items-center gap-1.5"
+                  >
+                    <span className="material-symbols-outlined text-base">chat</span>
+                    تواصل
                   </button>
                 ) : (
                   <button

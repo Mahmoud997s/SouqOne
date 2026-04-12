@@ -37,7 +37,7 @@ export interface ListingFormData {
   latitude: number | null;
   longitude: number | null;
   isPriceNegotiable: boolean;
-  listingType: 'SALE' | 'RENTAL';
+  listingType: 'SALE' | 'RENTAL' | 'WANTED';
   dailyPrice: string;
   weeklyPrice: string;
   monthlyPrice: string;
@@ -151,12 +151,13 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const isRental = form.listingType === 'RENTAL';
+    const isWanted = form.listingType === 'WANTED';
     const payload: Record<string, unknown> = {
       title: form.title,
       make: form.make,
       model: form.model,
       year: form.year,
-      price: isRental ? 0 : parseFloat(form.price),
+      price: isRental || isWanted ? (form.price ? parseFloat(form.price) : 0) : parseFloat(form.price),
       currency: form.currency,
       description: form.description,
       isPriceNegotiable: isRental ? false : form.isPriceNegotiable,
@@ -209,7 +210,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
 
   const canProceedStep0 = !!form.make && !!form.model && !!form.year;
   const canProceedStep1 = true;
-  const canProceedStep2 = form.listingType === 'RENTAL' ? !!form.dailyPrice : !!form.price;
+  const canProceedStep2 = form.listingType === 'RENTAL' ? !!form.dailyPrice : form.listingType === 'WANTED' ? true : !!form.price;
   const canProceed = step === 0 ? canProceedStep0 : step === 1 ? canProceedStep1 : canProceedStep2;
 
   return (
@@ -222,7 +223,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
       isLoading={isLoading}
       submitLabel={submitLabel}
       canProceed={canProceed}
-      title={form.listingType === 'RENTAL' ? 'تأجير سيارتك' : 'بيع سيارتك'}
+      title={form.listingType === 'RENTAL' ? 'تأجير سيارتك' : form.listingType === 'WANTED' ? 'مطلوب سيارة' : 'بيع سيارتك'}
     >
       {/* ═══ Step 1: البيانات الأساسية ═══ */}
       {step === 0 && (
@@ -236,31 +237,28 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
               <span className="text-primary text-lg">🚗</span>
               <span className="text-sm text-on-surface-variant">سيارات وقطع غيار</span>
               <span className="text-on-surface-variant/40 mx-1">›</span>
-              <span className="text-sm font-bold text-on-surface">{form.listingType === 'RENTAL' ? 'سيارات للإيجار' : 'سيارات للبيع'}</span>
+              <span className="text-sm font-bold text-on-surface">{form.listingType === 'RENTAL' ? 'سيارات للإيجار' : form.listingType === 'WANTED' ? 'مطلوب سيارة' : 'سيارات للبيع'}</span>
             </div>
-            <div className="flex gap-3 mt-4">
-              <button
-                type="button"
-                onClick={() => set('listingType', 'SALE')}
-                className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${
-                  form.listingType === 'SALE'
-                    ? 'bg-primary text-white shadow-lg'
-                    : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
-                }`}
-              >
-                بيع
-              </button>
-              <button
-                type="button"
-                onClick={() => set('listingType', 'RENTAL')}
-                className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${
-                  form.listingType === 'RENTAL'
-                    ? 'bg-primary text-on-primary shadow-lg'
-                    : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
-                }`}
-              >
-                إيجار
-              </button>
+            <div className="flex gap-2 mt-4">
+              {[
+                { value: 'SALE' as const, label: 'بيع', icon: 'sell' },
+                { value: 'RENTAL' as const, label: 'إيجار', icon: 'car_rental' },
+                { value: 'WANTED' as const, label: 'مطلوب', icon: 'search' },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => set('listingType', opt.value)}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-3.5 rounded-xl font-bold text-sm transition-all ${
+                    form.listingType === opt.value
+                      ? opt.value === 'WANTED' ? 'bg-orange-500 text-white shadow-lg' : 'bg-primary text-white shadow-lg'
+                      : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">{opt.icon}</span>
+                  {opt.label}
+                </button>
+              ))}
             </div>
           </section>
 
@@ -523,9 +521,19 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           {/* Pricing */}
           <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
             <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">{form.listingType === 'RENTAL' ? 'أسعار الإيجار' : 'السعر'}</h2>
+              <h2 className="text-lg font-extrabold">{form.listingType === 'RENTAL' ? 'أسعار الإيجار' : form.listingType === 'WANTED' ? 'الميزانية المتوقعة' : 'السعر'}</h2>
             </div>
-            {form.listingType === 'SALE' ? (
+            {form.listingType === 'WANTED' ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelCls}>الميزانية المتوقعة (ر.ع.) (اختياري)</label>
+                    <input type="number" step="0.01" value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="مثلاً: 5000" className={inputCls} />
+                  </div>
+                </div>
+                <p className="text-xs text-on-surface-variant">حدد ميزانيتك المتوقعة لمساعدة البائعين في التواصل معك</p>
+              </div>
+            ) : form.listingType === 'SALE' ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

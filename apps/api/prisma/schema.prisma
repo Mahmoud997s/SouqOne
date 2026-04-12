@@ -523,6 +523,7 @@ enum UserRole {
 enum ListingType {
   SALE
   RENTAL
+  WANTED
 }
 
 enum ListingStatus {

@@ -47,6 +47,7 @@ export const PART_CONDITION_BADGE: Record<string, { label: string; cls: string }
 // Solid badge colors per entity category
 export const BADGE_COLORS = {
   rental:    'bg-emerald-600 text-white',
+  wanted:    'bg-orange-500 text-white',
   service:   'bg-violet-600 text-white',
   transport: 'bg-rose-600 text-white',
   trip:      'bg-teal-600 text-white',
@@ -55,6 +56,13 @@ export const BADGE_COLORS = {
   original:  'bg-primary text-on-primary',
   mobile:    'bg-emerald-600 text-white',
 } as const;
+
+// ─── Listing Type ───
+export const LISTING_TYPE_LABELS: Record<string, string> = {
+  SALE: 'للبيع',
+  RENTAL: 'للإيجار',
+  WANTED: 'مطلوب',
+};
 
 // Light pill colors for feature tags in card body
 export const PILL_COLORS = {
