@@ -69,6 +69,7 @@ export class UsersService {
         bio: dto.bio,
         phone: dto.phone,
         governorate: dto.governorate,
+        avatarUrl: dto.avatarUrl,
       },
       select: this.privateSelect,
     });

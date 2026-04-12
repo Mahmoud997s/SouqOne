@@ -20,4 +20,9 @@ export class UpdateProfileDto {
   @IsString()
   @MaxLength(50)
   governorate?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  avatarUrl?: string;
 }
