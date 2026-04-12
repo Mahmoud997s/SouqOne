@@ -2,15 +2,20 @@ import { API_BASE } from './config';
 
 /**
  * Normalizes an image URL to ensure it's a full, loadable URL.
- * - Relative paths (e.g. /uploads/...) get the API base prepended
- * - localhost URLs get normalized to match the configured API base
- * - Already-full URLs (https://...) pass through unchanged
+ * - Full external URLs (Cloudinary, S3, etc.) pass through unchanged
+ * - Relative paths (/uploads/...) get the API base prepended
+ * - localhost URLs get rewritten to the configured API base
+ * - blob: URLs (local previews) pass through unchanged
  */
 export function getImageUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
+  if (!url || url.trim() === '') return null;
 
-  // Already a full non-localhost URL (e.g. Cloudinary, Unsplash)
-  if (url.startsWith('https://') && !url.includes('localhost')) {
+  // blob: URLs (local file previews in the uploader) — pass through
+  if (url.startsWith('blob:')) return url;
+
+  // Already a full external URL (Cloudinary, S3, CDN, etc.) — pass through
+  // Matches both http:// and https:// as long as it's NOT localhost/127.0.0.1
+  if (/^https?:\/\//.test(url) && !url.includes('localhost') && !url.includes('127.0.0.1')) {
     return url;
   }
 
@@ -20,11 +25,16 @@ export function getImageUrl(url: string | null | undefined): string | null {
     return `${API_BASE}${path}`;
   }
 
-  // Full URL with localhost — replace with configured API base
-  // This handles cases where DB has http://localhost:4000/uploads/... but env is different
-  const uploadsMatch = url.match(/https?:\/\/[^/]+(\/.*)$/);
-  if (uploadsMatch && url.includes('/uploads/')) {
+  // Full URL with localhost/127.0.0.1 — rewrite host to configured API base
+  const uploadsMatch = url.match(/https?:\/\/[^/]+(\/uploads\/.*)$/);
+  if (uploadsMatch) {
     return `${API_BASE}${uploadsMatch[1]}`;
+  }
+
+  // Any other localhost URL (non-uploads path) — rewrite host
+  const anyPathMatch = url.match(/https?:\/\/(?:localhost|127\.0\.0\.1)[^/]*(\/.*)?$/);
+  if (anyPathMatch) {
+    return `${API_BASE}${anyPathMatch[1] || ''}`;
   }
 
   return url;

@@ -13,6 +13,7 @@ import { useListing, useUpdateListing } from '@/lib/api';
 import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
+import { getImageUrl } from '@/lib/image-utils';
 
 export default function EditListingPage() {
   const { id } = useParams<{ id: string }>();
@@ -95,7 +96,7 @@ export default function EditListingPage() {
     })
     .map((img, i) => ({
       id: img.id,
-      url: img.url,
+      url: getImageUrl(img.url) || img.url,
       isPrimary: img.isPrimary,
       order: i,
     }));
