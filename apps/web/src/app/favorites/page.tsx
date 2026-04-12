@@ -66,7 +66,7 @@ export default function FavoritesPage() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="bg-surface-container-high aspect-[4/3] mb-4" />
@@ -80,7 +80,7 @@ export default function FavoritesPage() {
         ) : isError ? (
           <ErrorState onRetry={() => refetch()} />
         ) : items.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {items.map((fav) => {
               // Listing favorites → render full VehicleCard
               if (fav.entityType === 'LISTING' && fav.listing) {

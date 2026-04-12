@@ -47,47 +47,48 @@ export function VehicleCard(props: VehicleCardProps) {
 
   return (
     <article
-      className="h-full rounded-lg overflow-hidden bg-surface-container-lowest group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300"
+      className="h-full rounded-xl overflow-hidden bg-surface-container-lowest group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300 border border-outline-variant/10"
       data-testid="listing-card"
     >
-      <Link href={`/cars/${props.id}`} className="h-full flex flex-row sm:flex-col">
+      <Link href={`/cars/${props.id}`} className="h-full flex flex-col">
 
         {/* ── Image ── */}
-        <div className="relative w-[130px] min-h-[120px] sm:w-full sm:min-h-0 sm:aspect-[16/10] overflow-hidden bg-surface-container-low shrink-0">
+        <div className="relative aspect-[16/10] overflow-hidden bg-surface-container-low">
           {imgSrc ? (
             <Image
               src={imgSrc}
               alt={props.title}
               fill
-              sizes="(max-width: 640px) 130px, (max-width: 1024px) 33vw, 25vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
               className="object-cover group-hover:scale-105 transition-transform duration-700"
             />
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-on-surface-variant/30">
-              <span className="material-symbols-outlined text-4xl">directions_car</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-on-surface-variant/30">
+              <span className="material-symbols-outlined text-3xl sm:text-4xl">directions_car</span>
+              <span className="text-[9px] font-medium">لا توجد صورة</span>
             </div>
           )}
 
-          {/* Gradient overlay bottom */}
-          <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/50 to-transparent pointer-events-none hidden sm:block" />
+          {/* Gradient overlay */}
+          <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 
-          {/* ── Condition badge ── */}
+          {/* ── Condition badge (top-right) ── */}
           {badge && (
-            <span className={`absolute top-2 right-2 px-2 py-0.5 rounded text-[10px] ${badge.cls}`}>
+            <span className={`absolute top-2 right-2 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold ${badge.cls}`}>
               {badge.label}
             </span>
           )}
 
-          {/* ── Price on image (desktop only) ── */}
-          <div className="absolute bottom-2 right-2 hidden sm:block">
-            <span className="bg-primary text-on-primary px-2 py-0.5 rounded text-xs font-black tracking-tight">
+          {/* ── Price (bottom-right on image) ── */}
+          <div className="absolute bottom-2 right-2">
+            <span className="bg-primary text-on-primary px-2 py-0.5 rounded text-[11px] sm:text-xs font-black tracking-tight shadow-sm">
               {priceText}
             </span>
           </div>
 
-          {/* Distance badge (desktop only on image) */}
+          {/* ── Distance (bottom-left on image) ── */}
           {props.distance != null && (
-            <span className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white rounded px-1.5 py-0.5 items-center gap-0.5 text-[10px] font-bold hidden sm:flex">
+            <span className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white rounded px-1.5 py-0.5 flex items-center gap-0.5 text-[9px] sm:text-[10px] font-bold">
               <span className="material-symbols-outlined text-[10px]">near_me</span>
               {props.distance < 1 ? `${Math.round(props.distance * 1000)} م` : `${props.distance} كم`}
             </span>
@@ -95,88 +96,79 @@ export function VehicleCard(props: VehicleCardProps) {
         </div>
 
         {/* ── Body ── */}
-        <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1 sm:gap-1.5 min-w-0 justify-center">
+        <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1.5">
 
-          {/* Title + Price row on mobile */}
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="text-[13px] font-black leading-snug line-clamp-1 min-w-0">{props.title}</h3>
-            <span className="bg-primary text-on-primary px-1.5 py-0.5 rounded text-[10px] sm:text-xs font-black tracking-tight whitespace-nowrap shrink-0 sm:hidden">
-              {priceText}
-            </span>
-          </div>
+          {/* Title */}
+          <h3 className="text-xs sm:text-[13px] font-black leading-snug line-clamp-1">{props.title}</h3>
 
-          {/* Meta row: location · car info */}
+          {/* Meta: location · make model year */}
           <div className="flex items-center gap-1 text-[10px] text-on-surface-variant leading-none">
             {props.governorate && (
               <>
-                <span className="material-symbols-outlined text-[11px]">location_on</span>
-                <span className="truncate">{props.governorate}</span>
+                <span className="material-symbols-outlined text-[10px] sm:text-[11px]">location_on</span>
+                <span>{props.governorate}</span>
                 <span className="text-outline-variant/40 mx-0.5">·</span>
               </>
             )}
             <span className="truncate">{props.make} {props.model} {props.year}</span>
           </div>
 
-          {/* Badges row: condition + rental + negotiable + verified */}
-          <div className="flex items-center gap-1 flex-wrap">
-            {props.isVerified && <VerifiedBadge />}
-            {props.listingType === 'RENTAL' && (
-              <span className={`inline-flex items-center gap-0.5 text-[9px] font-black px-1.5 py-0.5 ${PILL_COLORS.green}`}>
-                <span className="material-symbols-outlined text-[10px]">car_rental</span>
-                للإيجار
-              </span>
-            )}
-            {props.isPriceNegotiable && (
-              <span className={`inline-flex items-center gap-0.5 text-[9px] font-black px-1.5 py-0.5 ${PILL_COLORS.info}`}>
-                <span className="material-symbols-outlined text-[10px]">handshake</span>
-                قابل للتفاوض
-              </span>
-            )}
-            {props.distance != null && (
-              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-on-surface-variant sm:hidden">
-                <span className="material-symbols-outlined text-[10px]">near_me</span>
-                {props.distance < 1 ? `${Math.round(props.distance * 1000)} م` : `${props.distance} كم`}
-              </span>
-            )}
-          </div>
+          {/* Badges: verified + rental + negotiable */}
+          {(props.isVerified || props.listingType === 'RENTAL' || props.isPriceNegotiable) && (
+            <div className="flex items-center gap-1 flex-wrap">
+              {props.isVerified && <VerifiedBadge />}
+              {props.listingType === 'RENTAL' && (
+                <span className={`inline-flex items-center gap-0.5 text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded ${PILL_COLORS.green}`}>
+                  <span className="material-symbols-outlined text-[9px] sm:text-[10px]">car_rental</span>
+                  للإيجار
+                </span>
+              )}
+              {props.isPriceNegotiable && (
+                <span className={`inline-flex items-center gap-0.5 text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded ${PILL_COLORS.info}`}>
+                  <span className="material-symbols-outlined text-[9px] sm:text-[10px]">handshake</span>
+                  قابل للتفاوض
+                </span>
+              )}
+            </div>
+          )}
 
-          {/* Specs row — inline on mobile, grid on desktop */}
-          <div className="flex items-center gap-1.5 sm:grid sm:grid-cols-3 sm:gap-1">
-            <span className="flex items-center gap-0.5 bg-surface-container-low rounded px-1.5 py-1 sm:flex-col sm:py-1.5 sm:px-0.5">
+          {/* Specs Grid — always 3 columns */}
+          <div className="grid grid-cols-3 gap-1">
+            <div className="flex flex-col items-center gap-0.5 bg-surface-container-low rounded py-1 sm:py-1.5 px-0.5">
               <span className="material-symbols-outlined text-primary text-[12px] sm:text-[13px]">speed</span>
-              <span className="text-[10px] font-bold text-on-surface leading-none">
+              <span className="text-[9px] sm:text-[10px] font-bold text-on-surface leading-none">
                 {props.mileage != null ? props.mileage.toLocaleString('en-US') : '0'}
               </span>
-              <span className="text-[9px] text-on-surface-variant hidden sm:block">كم</span>
-            </span>
-            <span className="flex items-center gap-0.5 bg-surface-container-low rounded px-1.5 py-1 sm:flex-col sm:py-1.5 sm:px-0.5">
+              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">كم</span>
+            </div>
+            <div className="flex flex-col items-center gap-0.5 bg-surface-container-low rounded py-1 sm:py-1.5 px-0.5">
               <span className="material-symbols-outlined text-primary text-[12px] sm:text-[13px]">local_gas_station</span>
-              <span className="text-[10px] font-bold text-on-surface leading-none">
+              <span className="text-[9px] sm:text-[10px] font-bold text-on-surface leading-none">
                 {props.fuelType ? (FUEL_LABELS[props.fuelType] ?? props.fuelType) : 'بنزين'}
               </span>
-              <span className="text-[9px] text-on-surface-variant hidden sm:block">الوقود</span>
-            </span>
-            <span className="flex items-center gap-0.5 bg-surface-container-low rounded px-1.5 py-1 sm:flex-col sm:py-1.5 sm:px-0.5">
+              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">الوقود</span>
+            </div>
+            <div className="flex flex-col items-center gap-0.5 bg-surface-container-low rounded py-1 sm:py-1.5 px-0.5">
               <span className="material-symbols-outlined text-primary text-[12px] sm:text-[13px]">settings</span>
-              <span className="text-[10px] font-bold text-on-surface leading-none">
+              <span className="text-[9px] sm:text-[10px] font-bold text-on-surface leading-none">
                 {props.transmission ? (TRANSMISSION_LABELS[props.transmission] ?? props.transmission) : 'أوتوماتيك'}
               </span>
-              <span className="text-[9px] text-on-surface-variant hidden sm:block">ناقل الحركة</span>
-            </span>
+              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">ناقل الحركة</span>
+            </div>
           </div>
 
-          {/* Footer: time + views (left) · arrow (right) */}
-          <div className="flex items-center justify-between mt-auto pt-1 sm:pt-1.5 border-t border-outline-variant/10">
-            <div className="flex items-center gap-2 text-[10px] text-on-surface-variant">
+          {/* Footer: time + views · arrow */}
+          <div className="flex items-center justify-between mt-auto pt-1.5 border-t border-outline-variant/10">
+            <div className="flex items-center gap-2 text-[9px] sm:text-[10px] text-on-surface-variant">
               {props.createdAt && (
                 <span className="flex items-center gap-0.5">
-                  <span className="material-symbols-outlined text-[11px]">schedule</span>
+                  <span className="material-symbols-outlined text-[10px] sm:text-[11px]">schedule</span>
                   {relativeTime(props.createdAt)}
                 </span>
               )}
               {props.viewCount != null && props.viewCount > 0 && (
                 <span className="flex items-center gap-0.5">
-                  <span className="material-symbols-outlined text-[11px]">visibility</span>
+                  <span className="material-symbols-outlined text-[10px] sm:text-[11px]">visibility</span>
                   {props.viewCount}
                 </span>
               )}
