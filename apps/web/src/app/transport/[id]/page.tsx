@@ -53,7 +53,7 @@ export default function TransportDetailPage({ params }: { params: Promise<{ id: 
     <>
       <Navbar />
       <div className="min-h-screen bg-background" dir="rtl">
-        <div className="h-40 md:h-48 bg-gradient-to-bl from-primary via-primary-container to-brand-navy relative overflow-hidden">
+        <div className="h-40 md:h-48 bg-gradient-to-bl from-[#004ac6] via-[#2563eb] to-[#0B2447] relative overflow-hidden">
           <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
         </div>
 

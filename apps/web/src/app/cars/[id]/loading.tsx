@@ -5,7 +5,7 @@ export default function CarDetailsLoading() {
     <>
       <Navbar />
       <div className="min-h-screen bg-background">
-        <div className="h-40 md:h-48 bg-gradient-to-bl from-primary via-primary-container to-brand-navy" />
+        <div className="h-40 md:h-48 bg-gradient-to-bl from-[#004ac6] via-[#2563eb] to-[#0B2447]" />
         <main className="max-w-6xl mx-auto px-4 md:px-8 -mt-16">
           <div className="animate-pulse space-y-6">
             {/* Image skeleton */}

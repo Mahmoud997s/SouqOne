@@ -84,7 +84,7 @@ export default function ProfilePage() {
       <AuthGuard>
         <Navbar />
         <div className="min-h-screen bg-background">
-          <div className="h-48 md:h-56 bg-gradient-to-bl from-primary via-primary-container to-brand-navy animate-pulse" />
+          <div className="h-48 md:h-56 bg-gradient-to-bl from-[#004ac6] via-[#2563eb] to-[#0B2447] animate-pulse" />
           <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-20">
             <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 p-6 md:p-8 animate-pulse">
               <div className="flex items-center gap-5">
@@ -132,7 +132,7 @@ export default function ProfilePage() {
         {/* ══════════════════════════════════════
             Cover Gradient
            ══════════════════════════════════════ */}
-        <div className="relative h-48 md:h-56 bg-gradient-to-bl from-primary via-primary-container to-brand-navy overflow-hidden">
+        <div className="relative h-48 md:h-56 bg-gradient-to-bl from-[#004ac6] via-[#2563eb] to-[#0B2447] overflow-hidden">
           <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
         </div>
 

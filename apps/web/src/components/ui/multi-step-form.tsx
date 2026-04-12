@@ -40,7 +40,7 @@ export function MultiStepForm({
     <div className="w-full" dir="rtl">
       {/* ── Gradient Hero Header ── */}
       <div className="relative overflow-hidden rounded-2xl mb-8">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-container to-brand-navy" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#004ac6] via-[#2563eb] to-[#0B2447]" />
         <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
         <div className="absolute top-[-50%] left-[-10%] w-[300px] h-[300px] rounded-full bg-white/[0.04] blur-3xl" />
 
