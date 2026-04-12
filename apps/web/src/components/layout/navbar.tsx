@@ -10,6 +10,7 @@ import { ProfileDropdown } from './navbar/profile-dropdown';
 import { MobileDrawer } from './navbar/mobile-drawer';
 import { NavSearchBar } from './navbar/search-bar';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { useSearch } from '@/providers/search-provider';
 
 /* ─────────── Corify heights ─────────── */
 const TOP_H  = 56;
@@ -89,7 +90,7 @@ export function Navbar() {
   const pathname = usePathname();
 
   const [profileOpen, setProfileOpen] = useState(false);
-  const [searchOpen, setSearchOpen]   = useState(false);
+  const { searchOpen, setSearchOpen } = useSearch();
   const [mobileOpen, setMobileOpen]   = useState(false);
   const [notifOpen, setNotifOpen]     = useState(false);
 
@@ -184,10 +185,10 @@ export function Navbar() {
 
             {/* Actions */}
             <div className="flex items-center gap-1.5 lg:gap-2.5">
-              {/* Search toggle */}
+              {/* Search toggle — desktop only (mobile uses bottom bar) */}
               <button
-                onClick={() => setSearchOpen(p => !p)}
-                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                onClick={() => setSearchOpen(!searchOpen)}
+                className={`hidden lg:flex w-8 h-8 rounded-lg items-center justify-center transition-all ${
                   searchOpen ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary'
                 }`}
               >

@@ -8,6 +8,7 @@ import { AuthGuard } from '@/components/auth-guard';
 import { useBooking, useUpdateBookingStatus } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
 import { useToast } from '@/components/toast';
+import { SellerCard } from '@/components/seller-card';
 import { getImageUrl } from '@/lib/image-utils';
 import { BOOKING_STATUS_LABELS, CANCEL_LABELS } from '@/lib/constants/mappings';
 
@@ -285,35 +286,17 @@ function BookingDetailContent() {
 
               {/* Other User Card */}
               {otherUser && (
-                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
-                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">person</span>
-                    <h3 className="font-black text-on-surface text-sm">{isOwner ? 'المستأجر' : 'المؤجر'}</h3>
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-lg shrink-0">
-                        {(otherUser.displayName || otherUser.username)[0]?.toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-black text-on-surface text-sm">{otherUser.displayName || otherUser.username}</p>
-                        <p className="text-xs text-on-surface-variant">@{otherUser.username}</p>
-                      </div>
-                    </div>
-                    {otherUser.phone && (
-                      <div className="space-y-2">
-                        <a href={`tel:${otherUser.phone}`} className="flex items-center gap-2.5 p-3 bg-surface-container-low dark:bg-surface-container-high rounded-lg text-sm font-bold text-on-surface hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors" dir="ltr">
-                          <span className="material-symbols-outlined text-primary text-lg">call</span>
-                          {otherUser.phone}
-                        </a>
-                        <a href={`https://wa.me/${otherUser.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener" className="flex items-center justify-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-lg text-sm font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
-                          <span className="material-symbols-outlined text-lg">chat</span>
-                          واتساب
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <SellerCard
+                  title={isOwner ? 'المستأجر' : 'المؤجر'}
+                  name={otherUser.displayName || otherUser.username}
+                  username={otherUser.username}
+                  phone={otherUser.phone}
+                  onShare={() => {
+                    const url = window.location.href;
+                    if (navigator.share) navigator.share({ title: `حجز #${booking.id}`, url });
+                    else navigator.clipboard.writeText(url);
+                  }}
+                />
               )}
 
               {/* Actions Card */}

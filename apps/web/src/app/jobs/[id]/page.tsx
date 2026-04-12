@@ -9,6 +9,7 @@ import { useJob, useApplyToJob, useDeleteJob, useCreateConversation } from '@/li
 import { useAuth } from '@/providers/auth-provider';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
+import { SellerCard } from '@/components/seller-card';
 import { employmentLabels } from '@/lib/constants/jobs';
 
 const jobTypeLabels: Record<string, { label: string; color: string }> = {
@@ -283,34 +284,19 @@ export default function JobDetailPage() {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* User Card */}
-              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
-                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">person</span>
-                  <h3 className="font-black text-on-surface text-sm">المعلن</h3>
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    {job.user.avatarUrl ? (
-                      <img src={job.user.avatarUrl} alt="" className="w-12 h-12 rounded-xl object-cover" />
-                    ) : (
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-lg shrink-0">
-                        <span className="material-symbols-outlined text-xl">person</span>
-                      </div>
-                    )}
-                    <div>
-                      <p className="font-black text-on-surface">{job.user.displayName || job.user.username}</p>
-                      {job.user.governorate && (
-                        <p className="text-xs text-on-surface-variant flex items-center gap-0.5"><span className="material-symbols-outlined text-xs text-primary">location_on</span>{job.user.governorate}</p>
-                      )}
-                    </div>
-                  </div>
-                  {job.user.createdAt && (
-                    <p className="text-xs text-on-surface-variant pt-3 border-t border-outline-variant/10 dark:border-outline-variant/20">
-                      عضو منذ {new Date(job.user.createdAt).toLocaleDateString('ar-OM', { year: 'numeric', month: 'long' })}
-                    </p>
-                  )}
-                </div>
-              </div>
+              <SellerCard
+                title="المعلن"
+                name={job.user.displayName || job.user.username}
+                avatarUrl={job.user.avatarUrl}
+                location={job.user.governorate}
+                phone={job.contactPhone}
+                memberSince={job.user.createdAt}
+                onShare={() => {
+                  const url = window.location.href;
+                  if (navigator.share) navigator.share({ title: job.title, url });
+                  else navigator.clipboard.writeText(url);
+                }}
+              />
 
               {/* Contact Info */}
               {(job.contactPhone || job.contactEmail || job.whatsapp) && (

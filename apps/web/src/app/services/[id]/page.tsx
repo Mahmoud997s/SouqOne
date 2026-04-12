@@ -12,6 +12,7 @@ import { ErrorState } from '@/components/error-state';
 import { useAuth } from '@/providers/auth-provider';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
+import { SellerCard } from '@/components/seller-card';
 import dynamic from 'next/dynamic';
 
 const MapView = dynamic(() => import('@/components/map/map-view'), { ssr: false });
@@ -207,27 +208,19 @@ export default function ServiceDetailPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* User */}
-              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
-                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">person</span>
-                  <h3 className="font-black text-on-surface text-sm">مقدم الخدمة</h3>
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-3">
-                    {svc.user.avatarUrl ? (
-                      <img src={getImageUrl(svc.user.avatarUrl) || ''} alt="" className="w-12 h-12 rounded-xl object-cover" />
-                    ) : (
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-lg shrink-0">
-                        {(svc.user.displayName || svc.user.username)?.[0]?.toUpperCase()}
-                      </div>
-                    )}
-                    <div>
-                      <p className="font-black text-on-surface text-sm">{svc.user.displayName || svc.user.username}</p>
-                      {svc.user.isVerified && <span className="text-[11px] text-primary font-black flex items-center gap-0.5"><span className="material-symbols-outlined text-xs">verified</span> موثّق</span>}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <SellerCard
+                title="مقدم الخدمة"
+                name={svc.user.displayName || svc.user.username}
+                avatarUrl={svc.user.avatarUrl}
+                isVerified={svc.user.isVerified}
+                onMessage={handleMessage}
+                messagePending={createConv.isPending}
+                onShare={() => {
+                  const url = window.location.href;
+                  if (navigator.share) navigator.share({ title: svc.title, url });
+                  else navigator.clipboard.writeText(url);
+                }}
+              />
             </div>
           </div>
         </main>

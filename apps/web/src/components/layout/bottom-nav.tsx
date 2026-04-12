@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/providers/auth-provider';
+import { useSearch } from '@/providers/search-provider';
 
 const NAV_ITEMS = [
   { href: '/', label: 'الرئيسية', icon: 'home' },
-  { href: '/listings', label: 'البحث', icon: 'search' },
+  { href: '#search', label: 'البحث', icon: 'search', isSearch: true },
   { href: '/add-listing', label: 'أضف إعلان', icon: 'add_circle', accent: true },
   { href: '/messages', label: 'الرسائل', icon: 'chat', authRequired: true },
   { href: '/profile', label: 'حسابي', icon: 'person', authRequired: true },
@@ -15,6 +16,7 @@ const NAV_ITEMS = [
 export function BottomNav() {
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
+  const { searchOpen, toggleSearch } = useSearch();
   const unreadMessages = 0; // TODO: wire up unread messages count
 
   // Hide on chat detail pages (full-screen chat)
@@ -27,7 +29,7 @@ export function BottomNav() {
         {NAV_ITEMS.map((item) => {
           // Redirect to login if auth required and not authenticated
           const href = item.authRequired && !isAuthenticated ? `/login?returnUrl=${encodeURIComponent(item.href)}` : item.href;
-          const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+          const isActive = (item as any).isSearch ? searchOpen : (item.href === '/' ? pathname === '/' : pathname.startsWith(item.href));
 
           if (item.accent) {
             return (
@@ -43,6 +45,28 @@ export function BottomNav() {
                 </div>
                 <span className="text-[10px] font-bold text-primary mt-0.5">{item.label}</span>
               </Link>
+            );
+          }
+
+          // Search button — triggers navbar search dropdown
+          if ((item as any).isSearch) {
+            return (
+              <button
+                key="search"
+                onClick={toggleSearch}
+                className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] py-1 transition-colors ${
+                  isActive
+                    ? 'text-primary'
+                    : 'text-on-surface-variant/60 hover:text-on-surface-variant'
+                }`}
+              >
+                <span className={`material-symbols-outlined text-[22px] ${isActive ? 'font-variation-settings: "FILL" 1' : ''}`}>
+                  {searchOpen ? 'close' : 'search'}
+                </span>
+                <span className={`text-[10px] ${isActive ? 'font-bold' : 'font-medium'}`}>
+                  {item.label}
+                </span>
+              </button>
             );
           }
 

@@ -12,6 +12,7 @@ import { ErrorState } from '@/components/error-state';
 import { useAuth } from '@/providers/auth-provider';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
+import { SellerCard } from '@/components/seller-card';
 import dynamic from 'next/dynamic';
 
 const MapView = dynamic(() => import('@/components/map/map-view'), { ssr: false });
@@ -152,27 +153,22 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
               </div>
 
               {/* Seller card */}
-              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
-                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">person</span>
-                  <h3 className="font-black text-on-surface text-sm">البائع</h3>
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-3">
-                    {part.seller.avatarUrl ? (
-                      <img src={getImageUrl(part.seller.avatarUrl) || ''} alt="" className="w-12 h-12 rounded-xl object-cover" />
-                    ) : (
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-lg shrink-0">
-                        {(part.seller.displayName || part.seller.username)?.[0]?.toUpperCase()}
-                      </div>
-                    )}
-                    <div>
-                      <p className="font-black text-on-surface text-sm">{part.seller.displayName || part.seller.username}</p>
-                      {part.seller.governorate && <p className="text-xs text-on-surface-variant flex items-center gap-1 mt-0.5"><span className="material-symbols-outlined text-xs text-primary">location_on</span>{part.seller.governorate}</p>}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <SellerCard
+                title="البائع"
+                name={part.seller.displayName || part.seller.username}
+                avatarUrl={part.seller.avatarUrl}
+                location={part.seller.governorate}
+                phone={part.contactPhone}
+                whatsappText={`مرحباً، أنا مهتم بإعلانك: ${part.title}`}
+                onMessage={handleMessage}
+                messagePending={createConv.isPending}
+                isOwner={user?.id === part.seller?.id}
+                onShare={() => {
+                  const url = window.location.href;
+                  if (navigator.share) navigator.share({ title: part.title, url });
+                  else navigator.clipboard.writeText(url);
+                }}
+              />
 
               {/* Details */}
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">

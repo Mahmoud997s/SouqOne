@@ -347,21 +347,21 @@ function ListingsContent() {
             <div className="h-7 w-1 bg-primary rounded-full" />
             <h2 className="text-xl font-black text-on-surface">تصفح حسب نوع السيارة</h2>
           </div>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-8 gap-3">
+          <div className="grid grid-cols-4 md:grid-cols-8 gap-2 sm:gap-3">
             {bodyTypes.map((bt) => (
               <button
                 key={bt.value}
                 onClick={() => applyBodyFilter(bt.value)}
-                className={`group flex flex-col items-center gap-2.5 p-4 rounded-2xl border transition-all duration-200 ${
+                className={`group flex flex-col items-center gap-1.5 sm:gap-2.5 p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-200 ${
                   bodyType === bt.value
                     ? 'bg-primary/10 dark:bg-primary/20 border-primary/30 shadow-sm'
                     : 'bg-surface-container-low/50 dark:bg-surface-container/50 border-outline-variant/10 hover:border-primary/20 hover:shadow-sm'
                 }`}
               >
-                <span className={`material-symbols-outlined text-3xl transition-colors ${
+                <span className={`material-symbols-outlined text-2xl sm:text-3xl transition-colors ${
                   bodyType === bt.value ? 'text-primary' : 'text-on-surface-variant group-hover:text-primary'
                 }`}>{bt.icon}</span>
-                <span className={`text-[11px] sm:text-xs font-bold text-center leading-tight transition-colors ${
+                <span className={`text-[10px] sm:text-xs font-bold text-center leading-tight transition-colors ${
                   bodyType === bt.value ? 'text-primary' : 'text-on-surface-variant'
                 }`}>{bt.label}</span>
               </button>
