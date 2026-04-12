@@ -201,6 +201,7 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
               <SellerCard
                 title="المزود"
                 name={offer.user.displayName || offer.user.username}
+                avatarUrl={offer.user.avatarUrl}
                 isVerified={offer.user.isVerified}
                 onMessage={handleMessage}
                 messagePending={createConv.isPending}

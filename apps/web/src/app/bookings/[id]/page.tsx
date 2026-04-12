@@ -290,6 +290,7 @@ function BookingDetailContent() {
                   title={isOwner ? 'المستأجر' : 'المؤجر'}
                   name={otherUser.displayName || otherUser.username}
                   username={otherUser.username}
+                  avatarUrl={otherUser.avatarUrl}
                   phone={otherUser.phone}
                   onShare={() => {
                     const url = window.location.href;

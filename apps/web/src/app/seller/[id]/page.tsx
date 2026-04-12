@@ -74,9 +74,13 @@ export default function SellerPage() {
       <main className="pt-28 pb-16 max-w-7xl mx-auto px-6">
         {/* Seller Header */}
         <div className="bg-surface-container-lowest border border-outline-variant/10 p-4 md:p-8 mb-10 flex flex-col md:flex-row items-start md:items-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white font-black text-3xl shrink-0">
-            {(seller.displayName || seller.username)[0]?.toUpperCase()}
-          </div>
+          {seller.avatarUrl ? (
+            <img src={getImageUrl(seller.avatarUrl) || ''} alt={seller.displayName || seller.username} className="w-20 h-20 rounded-full object-cover shrink-0 ring-4 ring-surface-container-lowest shadow-lg" />
+          ) : (
+            <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white font-black text-3xl shrink-0">
+              {(seller.displayName || seller.username)[0]?.toUpperCase()}
+            </div>
+          )}
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-1">
               <h1 className="text-2xl font-black">{seller.displayName || seller.username}</h1>

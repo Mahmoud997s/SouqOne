@@ -251,6 +251,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
               <SellerCard
                 title="مقدم الخدمة"
                 name={trip.user.displayName || trip.user.username}
+                avatarUrl={trip.user.avatarUrl}
                 isVerified={trip.user.isVerified}
                 onMessage={handleMessage}
                 messagePending={createConv.isPending}

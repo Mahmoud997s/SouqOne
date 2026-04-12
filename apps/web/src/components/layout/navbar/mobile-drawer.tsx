@@ -11,7 +11,7 @@ interface MobileDrawerProps {
   flatNavLinks: { href: string; label: string }[];
   isActive: (href: string) => boolean;
   isAuthenticated: boolean;
-  user?: { username: string; displayName?: string | null; email: string } | null;
+  user?: { username: string; displayName?: string | null; email: string; avatarUrl?: string | null } | null;
   onLogout: () => void;
 }
 
@@ -57,9 +57,13 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
         {isAuthenticated && user && (
           <div className="px-5 py-4 bg-surface-container-low border-b border-outline-variant/20">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary font-black text-sm shrink-0">
-                {user.username[0]?.toUpperCase()}
-              </div>
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.displayName || user.username} className="w-10 h-10 rounded-xl object-cover shrink-0" />
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary font-black text-sm shrink-0">
+                  {user.username[0]?.toUpperCase()}
+                </div>
+              )}
               <div className="min-w-0">
                 <p className="font-bold text-on-surface text-sm truncate">{user.displayName || user.username}</p>
                 <p className="text-xs text-on-surface-variant truncate">{user.email}</p>

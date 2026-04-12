@@ -398,9 +398,13 @@ function BusDetailContent({ bus }: { bus: BusListingItem }) {
                 </div>
                 <div className="p-4">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-black text-sm shadow-md shrink-0">
-                      {(bus.user.displayName || bus.user.username)[0]?.toUpperCase()}
-                    </div>
+                    {bus.user.avatarUrl ? (
+                      <img src={bus.user.avatarUrl} alt={bus.user.displayName || bus.user.username} className="w-11 h-11 rounded-xl object-cover shadow-md shrink-0" />
+                    ) : (
+                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-black text-sm shadow-md shrink-0">
+                        {(bus.user.displayName || bus.user.username)[0]?.toUpperCase()}
+                      </div>
+                    )}
                     <div className="min-w-0">
                       <p className="font-black text-on-surface text-sm truncate">{bus.user.displayName || bus.user.username}</p>
                       {bus.user.governorate && (

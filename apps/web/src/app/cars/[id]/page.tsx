@@ -421,7 +421,7 @@ export default function CarDetailsPage() {
               {/* Seller Info */}
               <SellerCard
                 name={car.seller.displayName || car.seller.username}
-                avatarUrl={null}
+                avatarUrl={car.seller.avatarUrl}
                 isVerified={car.seller.isVerified}
                 location={car.seller.governorate}
                 phone={car.seller.phone}
