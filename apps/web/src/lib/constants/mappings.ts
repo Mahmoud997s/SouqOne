@@ -111,6 +111,49 @@ export const BOOKING_STATUS_COLORS_BORDER: Record<string, string> = {
 
 export const BOOKING_STATUS_FILTERS = ['', 'PENDING', 'CONFIRMED', 'ACTIVE', 'COMPLETED', 'CANCELLED'] as const;
 
+// ─── Exterior Colors ───
+export const EXTERIOR_COLORS: { value: string; label: string; hex: string }[] = [
+  { value: 'أبيض', label: 'أبيض', hex: '#FFFFFF' },
+  { value: 'أبيض لؤلؤي', label: 'أبيض لؤلؤي', hex: '#F5F5F0' },
+  { value: 'فضي', label: 'فضي', hex: '#C0C0C0' },
+  { value: 'رمادي', label: 'رمادي', hex: '#808080' },
+  { value: 'رمادي داكن', label: 'رمادي داكن', hex: '#505050' },
+  { value: 'رمادي منيرال', label: 'رمادي منيرال', hex: '#6B6B6B' },
+  { value: 'أسود', label: 'أسود', hex: '#1A1A1A' },
+  { value: 'أسود أوبسيديان', label: 'أسود أوبسيديان', hex: '#0B0B0B' },
+  { value: 'أحمر', label: 'أحمر', hex: '#CC0000' },
+  { value: 'أحمر كارمين', label: 'أحمر كارمين', hex: '#960018' },
+  { value: 'خمري', label: 'خمري', hex: '#722F37' },
+  { value: 'أزرق', label: 'أزرق', hex: '#1E3A8A' },
+  { value: 'أزرق فاتح', label: 'أزرق فاتح', hex: '#60A5FA' },
+  { value: 'كحلي', label: 'كحلي', hex: '#1B1F3B' },
+  { value: 'أخضر', label: 'أخضر', hex: '#166534' },
+  { value: 'أخضر بريطاني', label: 'أخضر بريطاني', hex: '#1B4D3E' },
+  { value: 'أخضر زيتي', label: 'أخضر زيتي', hex: '#556B2F' },
+  { value: 'بيج', label: 'بيج', hex: '#D4C5A9' },
+  { value: 'ذهبي', label: 'ذهبي', hex: '#C9A84C' },
+  { value: 'برونزي', label: 'برونزي', hex: '#8C6E46' },
+  { value: 'بني', label: 'بني', hex: '#6B3A2A' },
+  { value: 'برتقالي', label: 'برتقالي', hex: '#EA580C' },
+  { value: 'أصفر', label: 'أصفر', hex: '#EAB308' },
+  { value: 'بنفسجي', label: 'بنفسجي', hex: '#7C3AED' },
+];
+
+// ─── Interior Colors ───
+export const INTERIOR_COLORS: { value: string; label: string; hex: string }[] = [
+  { value: 'جلد أسود', label: 'جلد أسود', hex: '#1A1A1A' },
+  { value: 'جلد بيج', label: 'جلد بيج', hex: '#D4C5A9' },
+  { value: 'جلد بني', label: 'جلد بني', hex: '#6B3A2A' },
+  { value: 'جلد أبيض', label: 'جلد أبيض', hex: '#F5F5F0' },
+  { value: 'جلد أحمر', label: 'جلد أحمر', hex: '#CC0000' },
+  { value: 'جلد كوجناك', label: 'جلد كوجناك', hex: '#9A4E28' },
+  { value: 'جلد نابا أسود', label: 'جلد نابا أسود', hex: '#0B0B0B' },
+  { value: 'جلد رمادي', label: 'جلد رمادي', hex: '#808080' },
+  { value: 'قماش أسود', label: 'قماش أسود', hex: '#2A2A2A' },
+  { value: 'قماش رمادي', label: 'قماش رمادي', hex: '#909090' },
+  { value: 'قماش بيج', label: 'قماش بيج', hex: '#C8B896' },
+];
+
 // ─── Body Type ───
 export const BODY_OPTIONS = ['SEDAN', 'SUV', 'HATCHBACK', 'COUPE', 'TRUCK', 'VAN', 'CONVERTIBLE', 'WAGON'] as const;
 

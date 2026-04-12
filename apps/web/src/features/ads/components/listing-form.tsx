@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { ImageUploader, type UploadedImage } from './image-uploader';
 import { useBrands, useCarModels, useCarYears } from '@/lib/api';
 import { getCountries, getGovernorates, getCities } from '@/lib/location-data';
-import { FUEL_LABELS, TRANSMISSION_LABELS, CONDITION_LABELS, CANCEL_LABELS, BODY_OPTIONS, DRIVE_OPTIONS, CANCEL_OPTIONS } from '@/lib/constants/mappings';
+import { FUEL_LABELS, TRANSMISSION_LABELS, CONDITION_LABELS, CANCEL_LABELS, BODY_OPTIONS, DRIVE_OPTIONS, CANCEL_OPTIONS, EXTERIOR_COLORS, INTERIOR_COLORS } from '@/lib/constants/mappings';
 import { MultiStepForm } from '@/components/ui/multi-step-form';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
 
@@ -379,14 +379,30 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
                 </div>
                 <div>
                   <label className={labelCls}>اللون الخارجي</label>
-                  <input type="text" value={form.exteriorColor} onChange={(e) => set('exteriorColor', e.target.value)} placeholder="أبيض" className={inputCls} />
+                  <div className="relative">
+                    <select value={form.exteriorColor} onChange={(e) => set('exteriorColor', e.target.value)} className={inputCls} style={{ paddingRight: '2.5rem' }}>
+                      <option value="">اختر اللون</option>
+                      {EXTERIOR_COLORS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    </select>
+                    {form.exteriorColor && (
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-outline-variant/30 shadow-sm" style={{ backgroundColor: EXTERIOR_COLORS.find(c => c.value === form.exteriorColor)?.hex || '#ccc' }} />
+                    )}
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className={labelCls}>اللون الداخلي</label>
-                  <input type="text" value={form.interiorColor} onChange={(e) => set('interiorColor', e.target.value)} placeholder="جلد بيج" className={inputCls} />
+                  <div className="relative">
+                    <select value={form.interiorColor} onChange={(e) => set('interiorColor', e.target.value)} className={inputCls} style={{ paddingRight: '2.5rem' }}>
+                      <option value="">اختر اللون</option>
+                      {INTERIOR_COLORS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    </select>
+                    {form.interiorColor && (
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-outline-variant/30 shadow-sm" style={{ backgroundColor: INTERIOR_COLORS.find(c => c.value === form.interiorColor)?.hex || '#ccc' }} />
+                    )}
+                  </div>
                 </div>
               </div>
 

@@ -16,7 +16,7 @@ import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
 import { haversineDistance } from '@/lib/geo-utils';
 import { getImageUrl } from '@/lib/image-utils';
-import { FUEL_LABELS, TRANSMISSION_LABELS, CONDITION_LABELS, DRIVE_LABELS, CANCEL_LABELS } from '@/lib/constants/mappings';
+import { FUEL_LABELS, TRANSMISSION_LABELS, CONDITION_LABELS, DRIVE_LABELS, CANCEL_LABELS, EXTERIOR_COLORS, INTERIOR_COLORS } from '@/lib/constants/mappings';
 import { relativeTime } from '@/lib/time-utils';
 import { ImageCarousel } from '@/components/ui/image-carousel';
 
@@ -108,8 +108,8 @@ export default function CarDetailsPage() {
 
   const detailRows = [
     { label: 'سنة الصنع', value: car.year },
-    { label: 'اللون الخارجي', value: car.exteriorColor || '—' },
-    { label: 'اللون الداخلي', value: car.interior || '—' },
+    { label: 'اللون الخارجي', value: car.exteriorColor || '—', colorHex: EXTERIOR_COLORS.find(c => c.value === car.exteriorColor)?.hex },
+    { label: 'اللون الداخلي', value: car.interior || '—', colorHex: INTERIOR_COLORS.find(c => c.value === car.interior)?.hex },
     { label: 'نوع الوقود', value: car.fuelType ? (fuelMap[car.fuelType] ?? car.fuelType) : '—' },
     { label: 'نوع الدفع', value: car.driveType ? (driveMap[car.driveType] ?? car.driveType) : '—' },
     { label: 'الأبواب', value: car.doors || '—' },
@@ -174,7 +174,10 @@ export default function CarDetailsPage() {
                     {detailRows.map((row) => (
                       <div key={row.label} className="flex justify-between items-center py-3 border-b border-outline-variant/10 dark:border-outline-variant/20">
                         <span className="text-sm text-on-surface-variant">{row.label}</span>
-                        <span className="font-black text-on-surface text-sm">{row.value}</span>
+                        <span className="font-black text-on-surface text-sm flex items-center gap-2">
+                          {row.colorHex && <span className="w-4 h-4 rounded-full border border-outline-variant/30 shrink-0" style={{ backgroundColor: row.colorHex }} />}
+                          {row.value}
+                        </span>
                       </div>
                     ))}
                   </div>
