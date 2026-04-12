@@ -172,7 +172,7 @@ function AddPartContent() {
                 <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">settings</span>القسم</h2>
                 <div className="flex items-center gap-3 bg-surface-container-low/50 dark:bg-surface-container-high/30 rounded-xl px-4 py-3 mb-4 border border-outline-variant/10">
                   <span className="material-symbols-outlined text-primary text-lg">garage_home</span>
-                  <span className="text-sm text-on-surface-variant">عربيات وقطع غيار</span>
+                  <span className="text-sm text-on-surface-variant">سيارات وقطع غيار</span>
                   <span className="material-symbols-outlined text-on-surface-variant/30 text-xs">chevron_left</span>
                   <span className="text-sm font-bold text-on-surface">قطع غيار</span>
                 </div>

@@ -44,10 +44,10 @@ export function MultiStepForm({
         <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
         <div className="absolute top-[-50%] left-[-10%] w-[300px] h-[300px] rounded-full bg-white/[0.04] blur-3xl" />
 
-        <div className="relative z-10 px-6 md:px-8 pt-8 pb-6">
+        <div className="relative z-10 px-3 sm:px-6 md:px-8 pt-5 sm:pt-8 pb-4 sm:pb-6">
           {/* Title */}
           {title && (
-            <h1 className="text-xl md:text-2xl font-black text-white mb-6 text-center drop-shadow-sm">{title}</h1>
+            <h1 className="text-base sm:text-xl md:text-2xl font-black text-white mb-4 sm:mb-6 text-center drop-shadow-sm">{title}</h1>
           )}
 
           {/* Steps */}
@@ -59,7 +59,7 @@ export function MultiStepForm({
                 <div key={i} className="flex items-center">
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black transition-all duration-300 ${
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center text-xs sm:text-sm font-black transition-all duration-300 ${
                         done
                           ? 'bg-white text-primary shadow-lg'
                           : active
@@ -70,7 +70,7 @@ export function MultiStepForm({
                       {done ? <span className="material-symbols-outlined text-base">check_circle</span> : i + 1}
                     </div>
                     <span
-                      className={`mt-2 text-[11px] font-bold whitespace-nowrap transition-colors ${
+                      className={`mt-1.5 sm:mt-2 text-[9px] sm:text-[11px] font-bold whitespace-nowrap transition-colors ${
                         active || done ? 'text-white' : 'text-white/40'
                       }`}
                     >
@@ -78,7 +78,7 @@ export function MultiStepForm({
                     </span>
                   </div>
                   {i < steps.length - 1 && (
-                    <div className={`w-12 sm:w-20 lg:w-28 h-[2px] mx-2 mt-[-18px] rounded-full transition-colors duration-500 ${
+                    <div className={`w-6 sm:w-20 lg:w-28 h-[2px] mx-1 sm:mx-2 mt-[-16px] sm:mt-[-18px] rounded-full transition-colors duration-500 ${
                       i < currentStep ? 'bg-white/70' : 'bg-white/15'
                     }`} />
                   )}

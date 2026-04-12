@@ -16,7 +16,7 @@ export interface MainCategory {
 export const MAIN_CATEGORIES: MainCategory[] = [
   {
     value: 'vehicles-parts',
-    label: 'عربيات وقطع غيار',
+    label: 'سيارات وقطع غيار',
     icon: '🚗',
     color: 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400',
     subcategories: [

@@ -370,8 +370,8 @@ function BusDetailContent({ bus }: { bus: BusListingItem }) {
                       </button>
                       {bus.contactPhone && (
                         <a href={`tel:${bus.contactPhone}`}
-                          className="w-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 hover:bg-primary hover:text-on-primary">
-                          <span className="material-symbols-outlined text-sm">call</span>اتصال: {bus.contactPhone}
+                          className="w-full bg-primary text-on-primary py-2.5 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-1.5 hover:brightness-110">
+                          <span className="material-symbols-outlined text-sm">call</span>{bus.contactPhone}
                         </a>
                       )}
                       {bus.whatsapp && (
@@ -459,7 +459,7 @@ function BusDetailContent({ bus }: { bus: BusListingItem }) {
               </button>
               {bus.contactPhone && (
                 <a href={`tel:${bus.contactPhone}`}
-                  className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl text-sm font-black transition-all flex items-center gap-1.5">
+                  className="bg-primary/10 text-primary px-4 py-2.5 rounded-xl text-sm font-black transition-all flex items-center gap-1.5 hover:bg-primary hover:text-on-primary">
                   <span className="material-symbols-outlined text-base">call</span>
                 </a>
               )}

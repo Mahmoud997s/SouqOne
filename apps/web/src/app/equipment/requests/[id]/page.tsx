@@ -232,7 +232,7 @@ export default function EquipmentRequestDetailPage() {
                   {req.user.isVerified && <span className="material-symbols-outlined text-primary text-base mr-auto">verified</span>}
                 </div>
                 {!isOwner && req.contactPhone && (
-                  <a href={`tel:${req.contactPhone}`} className="w-full mt-3 bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 hover:brightness-110">
+                  <a href={`tel:${req.contactPhone}`} className="w-full mt-3 bg-primary text-on-primary py-2.5 rounded-xl font-black text-sm flex items-center justify-center gap-1.5 hover:brightness-110 transition-all">
                     <span className="material-symbols-outlined text-sm">call</span>{req.contactPhone}
                   </a>
                 )}

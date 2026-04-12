@@ -129,13 +129,13 @@ export default function OperatorDetailPage() {
                     <span className="material-symbols-outlined text-base">chat</span>تواصل
                   </button>
                   {op.contactPhone && (
-                    <a href={`tel:${op.contactPhone}`} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2 block">
+                    <a href={`tel:${op.contactPhone}`} className="w-full bg-primary text-on-primary py-3 rounded-xl font-black text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-base">call</span>{op.contactPhone}
                     </a>
                   )}
                   {op.whatsapp && (
                     <a href={`https://wa.me/${op.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
-                      className="w-full bg-green-600 text-white py-3 rounded-xl font-black text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2 block">
+                      className="w-full bg-green-600 text-white py-3 rounded-xl font-black text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-base">chat_bubble</span>واتساب
                     </a>
                   )}
@@ -162,7 +162,7 @@ export default function OperatorDetailPage() {
               <span className="material-symbols-outlined text-base">chat</span>تواصل
             </button>
             {op.contactPhone && (
-              <a href={`tel:${op.contactPhone}`} className="bg-emerald-600 text-white px-4 py-2.5 rounded-xl">
+              <a href={`tel:${op.contactPhone}`} className="bg-primary/10 text-primary px-4 py-2.5 rounded-xl hover:bg-primary hover:text-on-primary transition-all">
                 <span className="material-symbols-outlined text-base">call</span>
               </a>
             )}

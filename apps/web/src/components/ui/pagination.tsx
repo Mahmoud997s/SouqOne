@@ -15,27 +15,27 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
   const pages = getPageNumbers(currentPage, totalPages);
 
   return (
-    <div className={clsx('flex items-center justify-center gap-3', className)}>
+    <div className={clsx('flex items-center justify-center gap-1 sm:gap-1.5', className)}>
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage <= 1}
-        className="w-12 h-12 flex items-center justify-center rounded-lg border border-outline/30 text-on-surface-variant hover:bg-primary hover:text-on-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
+        className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-primary hover:text-on-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
       >
-        <span className="material-symbols-outlined">chevron_right</span>
+        <span className="material-symbols-outlined text-lg">chevron_right</span>
       </button>
 
       {pages.map((page, i) =>
         page === '...' ? (
-          <span key={`dots-${i}`} className="text-on-surface-variant px-2 font-black">...</span>
+          <span key={`dots-${i}`} className="text-on-surface-variant px-1 text-xs font-black">...</span>
         ) : (
           <button
             key={page}
             onClick={() => onPageChange(page as number)}
             className={clsx(
-              'w-12 h-12 flex items-center justify-center rounded-lg font-bold transition-all',
+              'w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg text-xs sm:text-sm font-bold transition-all',
               currentPage === page
-                ? 'bg-primary text-on-primary shadow-ambient'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-primary',
+                ? 'bg-primary text-on-primary shadow-sm'
+                : 'text-on-surface-variant hover:bg-surface-container-high hover:text-primary',
             )}
           >
             {page}
@@ -46,9 +46,9 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
-        className="w-12 h-12 flex items-center justify-center rounded-lg border border-outline/30 text-on-surface-variant hover:bg-primary hover:text-on-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
+        className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-primary hover:text-on-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
       >
-        <span className="material-symbols-outlined">chevron_left</span>
+        <span className="material-symbols-outlined text-lg">chevron_left</span>
       </button>
     </div>
   );

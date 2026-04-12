@@ -156,7 +156,7 @@ export default function EquipmentDetailPage() {
                     <span className="material-symbols-outlined text-base">chat</span>تواصل مع المعلن
                   </button>
                   {eq.contactPhone && (
-                    <a href={`tel:${eq.contactPhone}`} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                    <a href={`tel:${eq.contactPhone}`} className="w-full bg-primary text-on-primary py-3 rounded-xl font-black text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-base">call</span>{eq.contactPhone}
                     </a>
                   )}
@@ -207,7 +207,7 @@ export default function EquipmentDetailPage() {
               <span className="material-symbols-outlined text-base">chat</span>تواصل
             </button>
             {eq.contactPhone && (
-              <a href={`tel:${eq.contactPhone}`} className="bg-emerald-600 text-white px-4 py-2.5 rounded-xl">
+              <a href={`tel:${eq.contactPhone}`} className="bg-primary/10 text-primary px-4 py-2.5 rounded-xl hover:bg-primary hover:text-on-primary transition-all">
                 <span className="material-symbols-outlined text-base">call</span>
               </a>
             )}

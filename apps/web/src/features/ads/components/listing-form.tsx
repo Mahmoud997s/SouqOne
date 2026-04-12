@@ -234,7 +234,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
             </div>
             <div className="flex items-center gap-3 bg-surface-container-low rounded-xl px-4 py-3">
               <span className="text-primary text-lg">🚗</span>
-              <span className="text-sm text-on-surface-variant">عربيات وقطع غيار</span>
+              <span className="text-sm text-on-surface-variant">سيارات وقطع غيار</span>
               <span className="text-on-surface-variant/40 mx-1">›</span>
               <span className="text-sm font-bold text-on-surface">{form.listingType === 'RENTAL' ? 'سيارات للإيجار' : 'سيارات للبيع'}</span>
             </div>

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { AuthGuard } from '@/components/auth-guard';
 import { VehicleCard } from '@/features/ads/components/vehicle-card';
 import { ErrorState } from '@/components/error-state';
-import { useMe, useListings, useFavorites, useUpdateProfile, useChangePassword, useDeleteListing } from '@/lib/api';
+import { useMe, useListings, useFavorites, useUpdateProfile, useChangePassword, useDeleteListing, useUploadImage } from '@/lib/api';
 import { getGovernorates } from '@/lib/location-data';
 import { inputCls, labelCls } from '@/lib/constants/form-styles';
 import { getImageUrl } from '@/lib/image-utils';
@@ -35,6 +35,25 @@ export default function ProfilePage() {
   const updateProfile = useUpdateProfile();
   const changePassword = useChangePassword();
   const deleteListing = useDeleteListing();
+  const uploadImage = useUploadImage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarUploading(true);
+    try {
+      const result = await uploadImage.mutateAsync(file);
+      await updateProfile.mutateAsync({ avatarUrl: result.url });
+      refetchUser();
+    } catch {
+      // silently fail
+    } finally {
+      setAvatarUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
 
   function startEdit() {
     if (!user) return;
@@ -144,17 +163,35 @@ export default function ProfilePage() {
           <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.3)] overflow-hidden mb-6">
 
             {/* ── Top section: Avatar + Info + Actions ── */}
-            <div className="p-5 md:p-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-                {/* Avatar */}
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-3xl md:text-4xl shrink-0 ring-4 ring-surface-container-lowest dark:ring-surface-container shadow-lg">
-                  {initial}
-                </div>
+            <div className="p-4 sm:p-5 md:p-8">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5">
+                {/* Avatar with upload */}
+                <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={avatarUploading}
+                  className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full shrink-0 ring-4 ring-surface-container-lowest dark:ring-surface-container shadow-lg group overflow-hidden"
+                >
+                  {user.avatarUrl ? (
+                    <img src={getImageUrl(user.avatarUrl) || ''} alt={user.displayName || user.username} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-2xl sm:text-3xl md:text-4xl">
+                      {initial}
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    {avatarUploading ? (
+                      <span className="material-symbols-outlined text-white text-lg animate-spin">progress_activity</span>
+                    ) : (
+                      <span className="material-symbols-outlined text-white text-lg">photo_camera</span>
+                    )}
+                  </div>
+                </button>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2.5 mb-1 flex-wrap">
-                    <h1 className="text-xl md:text-2xl font-black text-on-surface truncate">{user.displayName || user.username}</h1>
+                    <h1 className="text-base sm:text-xl md:text-2xl font-black text-on-surface truncate">{user.displayName || user.username}</h1>
                     {user.isVerified && <VerifiedBadge />}
                   </div>
                   <p className="text-sm text-on-surface-variant font-medium mb-2">@{user.username}</p>
@@ -176,13 +213,13 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Quick actions */}
-                <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
-                  <button onClick={startEdit} className="h-10 px-5 bg-primary text-on-primary text-sm font-black flex items-center gap-2 hover:brightness-110 transition-all">
-                    <span className="material-symbols-outlined text-lg">edit</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 self-start sm:self-center">
+                  <button onClick={startEdit} className="h-8 sm:h-10 px-3 sm:px-5 bg-primary text-on-primary text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 hover:brightness-110 transition-all rounded-lg">
+                    <span className="material-symbols-outlined text-base sm:text-lg">edit</span>
                     <span className="hidden sm:inline">تعديل</span>
                   </button>
-                  <Link href="/add-listing" className="h-10 px-5 btn-green text-sm font-black flex items-center gap-2 hover:brightness-105 transition-all">
-                    <span className="material-symbols-outlined text-lg">add</span>
+                  <Link href="/add-listing" className="h-8 sm:h-10 px-3 sm:px-5 btn-green text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 hover:brightness-105 transition-all rounded-lg">
+                    <span className="material-symbols-outlined text-base sm:text-lg">add</span>
                     <span className="hidden sm:inline">أضف إعلان</span>
                   </Link>
                 </div>
@@ -191,17 +228,17 @@ export default function ProfilePage() {
 
             {/* ── Stats Bar ── */}
             <div className="border-t border-outline-variant/10 dark:border-outline-variant/20 grid grid-cols-3 divide-x divide-outline-variant/10 dark:divide-outline-variant/20">
-              <button onClick={() => setTab('listings')} className="py-4 px-3 text-center hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/30 transition-colors group">
-                <p className="text-xl md:text-2xl font-black text-on-surface group-hover:text-primary transition-colors">{activeCount}</p>
-                <p className="text-[11px] md:text-xs text-on-surface-variant font-bold">إعلانات</p>
+              <button onClick={() => setTab('listings')} className="py-3 sm:py-4 px-2 sm:px-3 text-center hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/30 transition-colors group">
+                <p className="text-lg sm:text-xl md:text-2xl font-black text-on-surface group-hover:text-primary transition-colors">{activeCount}</p>
+                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">إعلانات</p>
               </button>
-              <button onClick={() => setTab('favorites')} className="py-4 px-3 text-center hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/30 transition-colors group">
-                <p className="text-xl md:text-2xl font-black text-on-surface group-hover:text-error transition-colors">{favsCount}</p>
-                <p className="text-[11px] md:text-xs text-on-surface-variant font-bold">المفضلة</p>
+              <button onClick={() => setTab('favorites')} className="py-3 sm:py-4 px-2 sm:px-3 text-center hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/30 transition-colors group">
+                <p className="text-lg sm:text-xl md:text-2xl font-black text-on-surface group-hover:text-error transition-colors">{favsCount}</p>
+                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">المفضلة</p>
               </button>
-              <div className="py-4 px-3 text-center">
-                <p className="text-xl md:text-2xl font-black text-on-surface">{totalViews}</p>
-                <p className="text-[11px] md:text-xs text-on-surface-variant font-bold">مشاهدات</p>
+              <div className="py-3 sm:py-4 px-2 sm:px-3 text-center">
+                <p className="text-lg sm:text-xl md:text-2xl font-black text-on-surface">{totalViews}</p>
+                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">مشاهدات</p>
               </div>
             </div>
           </div>
@@ -214,7 +251,7 @@ export default function ProfilePage() {
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
-                className={`relative flex items-center gap-2 px-5 py-3 text-sm font-black transition-all whitespace-nowrap ${
+                className={`relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-black transition-all whitespace-nowrap ${
                   tab === t.key
                     ? 'bg-surface-container-lowest dark:bg-surface-container text-primary shadow-sm border border-outline-variant/10 dark:border-outline-variant/20'
                     : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/30'
