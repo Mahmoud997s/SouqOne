@@ -59,11 +59,11 @@ export function FeaturedShowroom({ items, isLoading }: FeaturedShowroomProps) {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {[1, 2, 3].map((i) => <CardSkeleton key={i} />)}
           </div>
         ) : items.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {items.map((item) => (
               <VehicleCard
                 key={item.id}

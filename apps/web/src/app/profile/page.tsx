@@ -278,7 +278,7 @@ export default function ProfilePage() {
           {tab === 'listings' && (
             <>
               {listingsLoading ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {Array.from({ length: 3 }).map((_, i) => (
                     <div key={i} className="animate-pulse bg-surface-container-high aspect-[4/3]" />
                   ))}
@@ -378,7 +378,7 @@ export default function ProfilePage() {
           {tab === 'favorites' && (
             <>
               {favsLoading ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {Array.from({ length: 3 }).map((_, i) => (
                     <div key={i} className="animate-pulse bg-surface-container-high aspect-[4/3]" />
                   ))}

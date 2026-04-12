@@ -113,7 +113,7 @@ export default function SellerPage() {
         {listingsLoading ? (
           <ListingSkeleton count={4} />
         ) : listings && listings.items.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {listings.items.map((item) => {
               const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];
               return (
