@@ -6,6 +6,8 @@ import { getImageUrl } from '@/lib/image-utils';
 import { FUEL_LABELS, TRANSMISSION_LABELS, CONDITION_BADGE, PILL_COLORS } from '@/lib/constants/mappings';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { relativeTime } from '@/lib/time-utils';
+import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useAuth } from '@/providers/auth-provider';
 
 interface VehicleCardProps {
   id: string;
@@ -40,10 +42,21 @@ function formatPrice(price: string | number, currency: string, suffix?: string) 
 export function VehicleCard(props: VehicleCardProps) {
   const imgSrc = getImageUrl(props.imageUrl);
   const badge = props.condition ? CONDITION_BADGE[props.condition] : null;
+  const { isAuthenticated } = useAuth();
+  const { data: favIds } = useFavoriteIds();
+  const toggleFav = useToggleFavorite();
+  const isFav = favIds?.includes(props.id) ?? false;
 
   const priceText = props.listingType === 'RENTAL'
     ? formatPrice(props.dailyPrice || props.price, props.currency, '/يوم')
     : formatPrice(props.price, props.currency);
+
+  const handleFav = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated) return;
+    toggleFav.mutate({ entityType: 'LISTING', entityId: props.id });
+  };
 
   return (
     <article
@@ -71,6 +84,24 @@ export function VehicleCard(props: VehicleCardProps) {
 
           {/* Gradient overlay */}
           <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+
+          {/* ── Favorite button (top-left, glassmorphism) ── */}
+          {isAuthenticated && (
+            <button
+              onClick={handleFav}
+              className="absolute top-2 left-2 z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg hover:bg-white/30 active:scale-90 transition-all duration-200"
+              aria-label={isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+            >
+              <span
+                className={`material-symbols-outlined text-base sm:text-lg transition-colors duration-200 ${
+                  isFav ? 'text-red-500' : 'text-white'
+                }`}
+                style={{ fontVariationSettings: isFav ? "'FILL' 1" : "'FILL' 0" }}
+              >
+                favorite
+              </span>
+            </button>
+          )}
 
           {/* ── Condition badge (top-right) ── */}
           {badge && (
