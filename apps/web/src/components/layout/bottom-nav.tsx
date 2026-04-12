@@ -39,7 +39,7 @@ export function BottomNav() {
                 href={href}
                 className="flex flex-col items-center justify-center -mt-4"
               >
-                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                <div className="relative w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30 pulse-ring">
                   <span className="material-symbols-outlined text-on-primary text-2xl">
                     {item.icon}
                   </span>

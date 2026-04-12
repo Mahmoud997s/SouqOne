@@ -417,6 +417,32 @@
 }
 .animate-shake { animation: shake 0.5s ease-in-out; }
 
+/* ── Hero floating button ── */
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); box-shadow: 0 8px 20px rgba(34,197,94,0.27); }
+  50%      { transform: translateY(-6px); box-shadow: 0 14px 28px rgba(34,197,94,0.35); }
+}
+.animate-hero-float { animation: hero-float 3s ease-in-out infinite; }
+
+/* ── Bottom nav pulse ring ── */
+@keyframes pulse-ring {
+  0%   { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+.pulse-ring::before,
+.pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid #22c55e;
+  animation: pulse-ring 2s ease-out infinite;
+  pointer-events: none;
+}
+.pulse-ring::after {
+  animation-delay: 1s;
+}
+
 /* ── Auth page load animations ── */
 @keyframes auth-fade {
   from { opacity: 0; }

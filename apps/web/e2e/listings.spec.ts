@@ -67,8 +67,8 @@ test.describe('Listings Page', () => {
   test('should add to favorites (requires auth)', async ({ page }) => {
     // Login first
     await page.goto('/login');
-    await page.fill('input[type="email"]', 'seller@carone.om');
-    await page.fill('input[type="password"]', 'Test1234');
+    await page.fill('input[placeholder="البريد الإلكتروني"]', 'seller@carone.om');
+    await page.fill('input[placeholder="••••••••"]', 'Test1234');
     await page.click('button[type="submit"]');
     await page.waitForURL('/', { timeout: 15000 });
     

@@ -11,15 +11,15 @@ test.describe('Real-Time Chat', () => {
     
     // Login as buyer
     await buyerPage.goto('/login');
-    await buyerPage.fill('input[type="email"]', 'ahmed@carone.om');
-    await buyerPage.fill('input[type="password"]', 'Test1234');
+    await buyerPage.fill('input[placeholder="البريد الإلكتروني"]', 'ahmed@carone.om');
+    await buyerPage.fill('input[placeholder="••••••••"]', 'Test1234');
     await buyerPage.click('button[type="submit"]');
     await buyerPage.waitForURL('/');
     
     // Login as seller
     await sellerPage.goto('/login');
-    await sellerPage.fill('input[type="email"]', 'seller@carone.om');
-    await sellerPage.fill('input[type="password"]', 'Test1234');
+    await sellerPage.fill('input[placeholder="البريد الإلكتروني"]', 'seller@carone.om');
+    await sellerPage.fill('input[placeholder="••••••••"]', 'Test1234');
     await sellerPage.click('button[type="submit"]');
     await sellerPage.waitForURL('/');
     

@@ -129,7 +129,7 @@ export function HeroSection() {
           </div>
           <Link
             href="/add-listing"
-            className="btn-green px-5 py-2.5 text-xs font-black rounded-xl flex items-center gap-1.5 hover:brightness-110 shadow-ambient shrink-0 transition-all"
+            className="btn-green px-5 py-2.5 text-xs font-black rounded-xl flex items-center gap-1.5 hover:brightness-110 shrink-0 transition-all animate-hero-float"
           >
             <span className="material-symbols-outlined text-sm">add_circle</span>
             أضف إعلانك مجاناً
