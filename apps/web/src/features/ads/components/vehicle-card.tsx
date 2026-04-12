@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/image-utils';
@@ -45,7 +46,11 @@ export function VehicleCard(props: VehicleCardProps) {
   const { isAuthenticated } = useAuth();
   const { data: favIds } = useFavoriteIds();
   const toggleFav = useToggleFavorite();
-  const isFav = favIds?.includes(props.id) ?? false;
+  const serverFav = favIds?.includes(props.id) ?? false;
+  const [localFav, setLocalFav] = useState(serverFav);
+  const [animating, setAnimating] = useState(false);
+
+  useEffect(() => { setLocalFav(serverFav); }, [serverFav]);
 
   const priceText = props.listingType === 'RENTAL'
     ? formatPrice(props.dailyPrice || props.price, props.currency, '/يوم')
@@ -55,6 +60,9 @@ export function VehicleCard(props: VehicleCardProps) {
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) return;
+    setLocalFav(!localFav);
+    setAnimating(true);
+    setTimeout(() => setAnimating(false), 350);
     toggleFav.mutate({ entityType: 'LISTING', entityId: props.id });
   };
 
@@ -85,18 +93,18 @@ export function VehicleCard(props: VehicleCardProps) {
           {/* Gradient overlay */}
           <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 
-          {/* ── Favorite button (top-left, glassmorphism) ── */}
+          {/* ── Favorite button (top-left) ── */}
           {isAuthenticated && (
             <button
               onClick={handleFav}
-              className="absolute top-2 left-2 z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg hover:bg-white/30 active:scale-90 transition-all duration-200"
-              aria-label={isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+              className="absolute top-2 left-2 z-10 w-8 h-8 flex items-center justify-center"
+              aria-label={localFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
             >
               <span
-                className={`material-symbols-outlined text-base sm:text-lg transition-colors duration-200 ${
-                  isFav ? 'text-red-500' : 'text-white'
-                }`}
-                style={{ fontVariationSettings: isFav ? "'FILL' 1" : "'FILL' 0" }}
+                className={`material-symbols-outlined text-[22px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all duration-200 ${
+                  localFav ? 'text-red-500 scale-100' : 'text-white scale-100'
+                } ${animating ? 'animate-[heartPop_0.35s_ease-out]' : ''}`}
+                style={{ fontVariationSettings: localFav ? "'FILL' 1" : "'FILL' 0" }}
               >
                 favorite
               </span>
