@@ -46,7 +46,7 @@ export function VehicleCard(props: VehicleCardProps) {
   const { isAuthenticated } = useAuth();
   const { data: favIds } = useFavoriteIds();
   const toggleFav = useToggleFavorite();
-  const serverFav = favIds?.includes(props.id) ?? false;
+  const serverFav = favIds?.includes(`LISTING:${props.id}`) ?? false;
   const [localFav, setLocalFav] = useState(serverFav);
   const [animating, setAnimating] = useState(false);
 
