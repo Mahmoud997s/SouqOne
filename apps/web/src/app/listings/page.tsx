@@ -229,17 +229,17 @@ function ListingsContent() {
         <div className="absolute top-[-20%] right-0 w-[60vw] md:w-[500px] h-[60vw] md:h-[500px] rounded-full bg-white/[0.05] blur-3xl" />
         <div className="absolute bottom-[-20%] left-0 w-[50vw] md:w-[400px] h-[50vw] md:h-[400px] rounded-full bg-blue-300/[0.08] blur-3xl" />
 
-        <div className="relative z-10 pt-24 pb-10 md:pt-28 md:pb-14">
-          <div className="max-w-5xl mx-auto px-6 text-center">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-3 drop-shadow-sm">
+        <div className="relative z-10 pt-16 pb-6 sm:pt-24 sm:pb-10 md:pt-28 md:pb-14">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
+            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-2 sm:mb-3 drop-shadow-sm">
               اختر سيارتك من سوق وان
             </h1>
-            <p className="text-white/70 text-sm md:text-base mb-8 max-w-lg mx-auto">
+            <p className="text-white/70 text-xs sm:text-sm md:text-base mb-4 sm:mb-8 max-w-lg mx-auto">
               سيارات جديدة ومستعملة للبيع والإيجار في سلطنة عمان
             </p>
 
             {/* Listing Type Tabs */}
-            <div className="flex justify-center gap-2 mb-6">
+            <div className="flex justify-center gap-1.5 sm:gap-2 mb-4 sm:mb-6">
               {[
                 { value: '', label: 'الكل', icon: 'apps' },
                 { value: 'SALE', label: 'للبيع', icon: 'sell' },
@@ -248,13 +248,13 @@ function ListingsContent() {
                 <button
                   key={tab.value}
                   onClick={() => setListingType(tab.value)}
-                  className={`flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                  className={`flex items-center gap-1 sm:gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold transition-all ${
                     listingType === tab.value
                       ? 'bg-white text-primary shadow-lg'
                       : 'bg-white/10 text-white/80 hover:bg-white/20 backdrop-blur-sm'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-base">{tab.icon}</span>
+                  <span className="material-symbols-outlined text-sm sm:text-base">{tab.icon}</span>
                   {tab.label}
                 </button>
               ))}
@@ -262,9 +262,9 @@ function ListingsContent() {
 
             {/* Search Box — Glass */}
             <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 md:p-4 shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 md:p-4 shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
                 <div className="flex items-center gap-2 md:gap-3">
-                  <div className="flex-1 flex items-center gap-2 bg-white/90 dark:bg-white/10 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-white/40 transition-all">
+                  <div className="flex-1 flex items-center gap-2 bg-white/90 dark:bg-white/10 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 focus-within:ring-2 focus-within:ring-white/40 transition-all">
                     <span className="material-symbols-outlined text-primary/50 dark:text-white/40 text-xl shrink-0">search</span>
                     <input
                       type="text"
@@ -279,20 +279,20 @@ function ListingsContent() {
                       </button>
                     )}
                   </div>
-                  <button type="submit" className="shrink-0 bg-white text-primary px-6 md:px-8 py-3 font-black text-sm rounded-xl hover:bg-white/90 active:scale-[0.97] transition-all flex items-center gap-1.5 shadow-lg">
+                  <button type="submit" className="shrink-0 bg-white text-primary px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 font-black text-xs sm:text-sm rounded-lg sm:rounded-xl hover:bg-white/90 active:scale-[0.97] transition-all flex items-center gap-1.5 shadow-lg">
                     <span className="material-symbols-outlined text-base">search</span>
                     <span className="hidden sm:inline">بحث</span>
                   </button>
                 </div>
 
                 {/* Quick filter chips */}
-                <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/10">
+                <div className="flex overflow-x-auto no-scrollbar gap-1.5 sm:gap-2 sm:flex-wrap mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-white/10">
                   {conditionOptions.map((opt) => (
                     <button
                       key={opt.value}
                       type="button"
                       onClick={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                      className={`shrink-0 px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold rounded-md sm:rounded-lg transition-all ${
                         selectedCondition === opt.value
                           ? 'bg-white text-primary'
                           : 'bg-white/10 text-white/70 hover:bg-white/20'
@@ -307,7 +307,7 @@ function ListingsContent() {
                       key={opt.value}
                       type="button"
                       onClick={() => toggleFuel(opt.value)}
-                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                      className={`shrink-0 px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold rounded-md sm:rounded-lg transition-all ${
                         selectedFuels.includes(opt.value)
                           ? 'bg-white text-primary'
                           : 'bg-white/10 text-white/70 hover:bg-white/20'
@@ -321,7 +321,7 @@ function ListingsContent() {
             </form>
 
             {/* Stats */}
-            <div className="flex justify-center gap-6 mt-6">
+            <div className="flex justify-center gap-3 sm:gap-6 mt-4 sm:mt-6">
               <div className="flex items-center gap-1.5 text-white/60">
                 <span className="material-symbols-outlined text-sm">directions_car</span>
                 <span className="text-xs font-bold text-white">{data?.meta.total ?? '...'}</span>
