@@ -6,51 +6,49 @@ import {
 } from '@nestjs/common';
 import { Observable, map } from 'rxjs';
 
+const URL_KEYS = new Set(['url', 'image', 'imageUrl', 'avatarUrl', 'mediaUrl']);
+const LOCALHOST_RE = /^https?:\/\/(?:localhost|127\.0\.0\.1)[^/]*(\/uploads\/.+)$/;
+
 /**
- * Global interceptor that normalizes all image URLs in API responses.
+ * Global interceptor that normalizes image URLs in API responses.
  * Converts absolute localhost URLs (http://localhost:4000/uploads/xxx.jpg)
  * to relative paths (/uploads/xxx.jpg) so the frontend can resolve them
  * correctly for any environment.
+ *
+ * IMPORTANT: Mutates in-place to preserve Prisma Decimal, Date, and other
+ * class instances that would break if spread into plain objects.
  */
 @Injectable()
 export class NormalizeImagesInterceptor implements NestInterceptor {
   intercept(_context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next.handle().pipe(map((data) => this.normalize(data)));
+    return next.handle().pipe(map((data) => { this.walk(data); return data; }));
   }
 
-  private normalize(data: any): any {
-    if (data === null || data === undefined) return data;
-    if (typeof data === 'string') return data;
-    if (Array.isArray(data)) return data.map((item) => this.normalize(item));
+  private stripLocalhost(val: string): string {
+    const m = LOCALHOST_RE.exec(val);
+    return m ? m[1] : val;
+  }
 
-    if (typeof data === 'object') {
-      // If this object has a 'url' key that looks like a localhost upload URL, fix it
-      const result: any = {};
-      for (const key of Object.keys(data)) {
-        const val = data[key];
-        if (
-          key === 'url' &&
-          typeof val === 'string' &&
-          val.includes('/uploads/') &&
-          /^https?:\/\/(?:localhost|127\.0\.0\.1)/.test(val)
-        ) {
-          const match = val.match(/^https?:\/\/[^/]+(\/uploads\/.+)$/);
-          result[key] = match ? match[1] : val;
-        } else if (
-          (key === 'image' || key === 'imageUrl' || key === 'avatarUrl' || key === 'mediaUrl') &&
-          typeof val === 'string' &&
-          val.includes('/uploads/') &&
-          /^https?:\/\/(?:localhost|127\.0\.0\.1)/.test(val)
-        ) {
-          const match = val.match(/^https?:\/\/[^/]+(\/uploads\/.+)$/);
-          result[key] = match ? match[1] : val;
-        } else {
-          result[key] = this.normalize(val);
-        }
-      }
-      return result;
+  private walk(data: any): void {
+    if (data === null || data === undefined || typeof data !== 'object') return;
+
+    if (Array.isArray(data)) {
+      for (const item of data) this.walk(item);
+      return;
     }
 
-    return data;
+    // Skip known non-traversable types (Date, Buffer, RegExp, Decimal, etc.)
+    if (data instanceof Date || data instanceof RegExp) return;
+    if (typeof data.toFixed === 'function') return; // Decimal / BigNumber
+    if (Buffer.isBuffer(data)) return;
+
+    for (const key of Object.keys(data)) {
+      const val = data[key];
+      if (typeof val === 'string' && URL_KEYS.has(key) && val.includes('/uploads/')) {
+        data[key] = this.stripLocalhost(val);
+      } else if (typeof val === 'object' && val !== null) {
+        this.walk(val);
+      }
+    }
   }
 }
