@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Navbar } from '@/components/layout/navbar';
 import { useAuth } from '@/providers/auth-provider';
 import { useToast } from '@/components/toast';
 import { apiRequest } from '@/lib/auth';
+import { AuthLayout } from '@/components/auth/auth-layout';
+import { OtpInput } from '@/components/auth/otp-input';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
@@ -14,44 +15,37 @@ export default function VerifyEmailPage() {
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [countdown, setCountdown] = useState(0);
 
   useEffect(() => {
     if (!isAuthenticated) router.push('/login');
   }, [isAuthenticated, router]);
 
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown]);
+
+  const handleResend = useCallback(async () => {
+    setResending(true);
+    try {
+      await apiRequest('/auth/resend-verification', { method: 'POST' });
+      addToast('success', 'تم إرسال رمز تحقق جديد إلى بريدك');
+      setCountdown(60);
+    } catch (err) {
+      addToast('error', err instanceof Error ? err.message : 'حدث خطأ أثناء إعادة الإرسال');
+    } finally {
+      setResending(false);
+    }
+  }, [addToast]);
+
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-surface">
         <p className="text-sm text-on-surface-variant">جارٍ التحويل...</p>
       </div>
     );
-  }
-
-  function handleChange(index: number, value: string) {
-    if (!/^\d*$/.test(value)) return;
-    const newCode = [...code];
-    newCode[index] = value.slice(-1);
-    setCode(newCode);
-
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  }
-
-  function handleKeyDown(index: number, e: React.KeyboardEvent) {
-    if (e.key === 'Backspace' && !code[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  }
-
-  function handlePaste(e: React.ClipboardEvent) {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    if (pasted.length === 6) {
-      setCode(pasted.split(''));
-      inputRefs.current[5]?.focus();
-    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -77,78 +71,67 @@ export default function VerifyEmailPage() {
     }
   }
 
-  async function handleResend() {
-    setResending(true);
-    try {
-      await apiRequest('/auth/resend-verification', { method: 'POST' });
-      addToast('success', 'تم إرسال رمز تحقق جديد إلى بريدك');
-    } catch (err) {
-      addToast('error', err instanceof Error ? err.message : 'حدث خطأ أثناء إعادة الإرسال');
-    } finally {
-      setResending(false);
-    }
-  }
-
   return (
-    <>
-      <Navbar />
-      <main className="pt-28 pb-16 min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-sm text-center">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-            <span className="material-symbols-outlined text-primary text-3xl">mark_email_read</span>
+    <AuthLayout
+      heroTitle="تأكيد بريدك الإلكتروني"
+      heroSubtitle="خطوة أخيرة لتفعيل حسابك والاستمتاع بجميع مزايا المعرض الرقمي."
+      formTitle="تأكيد البريد الإلكتروني"
+      formSubtitle="أدخل الرمز المرسل إلى بريدك لتفعيل حسابك."
+    >
+      <div>
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-primary text-2xl">mark_email_read</span>
           </div>
-
-          <h1 className="text-2xl font-extrabold mb-2">تأكيد البريد الإلكتروني</h1>
-          <p className="text-on-surface-variant text-sm mb-8">
-            أرسلنا رمز تحقق مكون من 6 أرقام إلى<br />
-            <strong className="text-on-surface">{user?.email}</strong>
+          <p className="text-on-surface-variant text-sm">
+            أرسلنا رمز تحقق مكون من 6 أرقام إلى
           </p>
+          <p className="text-on-surface font-bold text-sm mt-1">{user?.email}</p>
+        </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="flex gap-2 sm:gap-3 justify-center mb-8" dir="ltr" onPaste={handlePaste}>
-              {code.map((digit, i) => (
-                <input
-                  key={i}
-                  ref={(el) => { inputRefs.current[i] = el; }}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleChange(i, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(i, e)}
-                  className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold bg-surface-container-low rounded-xl border-2 border-transparent focus:border-primary focus:ring-0 focus:outline-none transition-all"
-                />
-              ))}
-            </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <OtpInput value={code} onChange={setCode} disabled={loading} />
 
-            <button
-              type="submit"
-              disabled={loading || code.join('').length !== 6}
-              className="bg-primary text-on-primary hover:brightness-110 rounded-lg shadow-ambient w-full py-3.5 text-sm font-bold disabled:opacity-50"
-            >
-              {loading ? 'جارٍ التحقق...' : 'تأكيد'}
-            </button>
-          </form>
+          <button
+            type="submit"
+            disabled={loading || code.join('').length !== 6}
+            className="btn-editorial w-full h-12 flex items-center justify-center gap-2 font-black text-sm rounded-xl hover:brightness-110 hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-60"
+          >
+            {loading ? (
+              <>
+                <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
+                جارٍ التحقق...
+              </>
+            ) : (
+              'تأكيد'
+            )}
+          </button>
+        </form>
 
-          <div className="mt-6 text-sm text-on-surface-variant">
-            لم تستلم الرمز؟{' '}
+        <div className="mt-6 text-center text-sm text-on-surface-variant">
+          لم تستلم الرمز؟{' '}
+          {countdown > 0 ? (
+            <span className="text-on-surface-variant/60 font-medium">
+              إعادة إرسال بعد {countdown} ثانية
+            </span>
+          ) : (
             <button
               onClick={handleResend}
               disabled={resending}
-              className="text-primary font-bold hover:underline disabled:opacity-50"
+              className="text-primary font-bold hover:underline transition-colors disabled:opacity-50"
             >
               {resending ? 'جارٍ الإرسال...' : 'إعادة إرسال'}
             </button>
-          </div>
-
-          <button
-            onClick={() => router.push('/')}
-            className="mt-4 text-sm text-on-surface-variant hover:text-on-surface transition-colors"
-          >
-            تخطي الآن
-          </button>
+          )}
         </div>
-      </main>
-    </>
+
+        <button
+          onClick={() => router.push('/')}
+          className="mt-3 w-full text-center text-sm text-on-surface-variant/60 hover:text-on-surface transition-colors"
+        >
+          تخطي الآن
+        </button>
+      </div>
+    </AuthLayout>
   );
 }

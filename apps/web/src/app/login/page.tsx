@@ -6,18 +6,18 @@ import { useState } from 'react';
 import { apiRequest } from '@/lib/auth';
 import { useAuth } from '@/providers/auth-provider';
 import { GoogleSignInButton } from '@/components/google-sign-in';
-import { AuthLayout } from '@/components/layout/auth-layout';
+import { AuthLayout } from '@/components/auth/auth-layout';
+import { InputField } from '@/components/auth/input-field';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login: authLogin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [shake, setShake] = useState(false);
 
-  // Read returnUrl from query params
   const returnUrl = typeof window !== 'undefined'
     ? new URLSearchParams(window.location.search).get('returnUrl') || '/'
     : '/';
@@ -34,7 +34,10 @@ export default function LoginPage() {
       await authLogin(result.accessToken, result.refreshToken);
       router.push(returnUrl);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      const msg = err instanceof Error ? err.message : 'حدث خطأ غير متوقع';
+      setError(msg);
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
     } finally {
       setLoading(false);
     }
@@ -47,83 +50,80 @@ export default function LoginPage() {
       formTitle="تسجيل الدخول"
       formSubtitle="ادخل إلى لوحة تحكم المعرض الخاص بك."
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-bold text-white/90 uppercase tracking-widest">البريد الإلكتروني</label>
-          <div className="relative">
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-lg">mail</span>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="البريد الإلكتروني"
-              className="w-full text-right placeholder:text-right bg-white/60 border border-white/80 rounded-xl py-3 sm:py-3.5 pr-11 pl-4 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:outline-none text-sm transition-all shadow-sm"
-              dir="rtl"
-            />
-          </div>
-        </div>
+      <div className={shake ? 'animate-shake' : ''}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <InputField
+            label="البريد الإلكتروني"
+            icon="mail"
+            type="email"
+            required
+            autoFocus
+            value={email}
+            onChange={(e) => setEmail(e.currentTarget.value)}
+            placeholder="البريد الإلكتروني"
+          />
 
-        <div className="flex flex-col gap-1.5">
-          <div className="flex justify-between items-center text-white/90">
-            <label className="text-xs font-bold uppercase tracking-widest">كلمة المرور</label>
-            <Link href="/forgot-password" className="text-xs text-primary hover:text-white transition-colors font-medium">
-              نسيت كلمة المرور؟
-            </Link>
-          </div>
-          <div className="relative">
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-lg">lock</span>
-            <input
-              type={showPassword ? 'text' : 'password'}
+          <div className="flex flex-col gap-1.5">
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">كلمة المرور</label>
+              <Link href="/forgot-password" className="text-xs text-primary hover:text-primary/70 transition-colors font-medium">
+                نسيت كلمة المرور؟
+              </Link>
+            </div>
+            <InputField
+              label=""
+              icon="lock"
+              isPassword
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.currentTarget.value)}
               placeholder="••••••••"
-              className="w-full text-right placeholder:text-right bg-white/60 border border-white/80 rounded-xl py-3 sm:py-3.5 pr-11 pl-11 focus:bg-white focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:outline-none text-sm transition-all shadow-sm"
-              dir="rtl"
             />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-lg cursor-pointer hover:text-primary transition-colors"
-            >
-              {showPassword ? 'visibility_off' : 'visibility'}
-            </button>
           </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
+              <span className="material-symbols-outlined text-base">error</span>
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-editorial w-full h-12 flex items-center justify-center gap-2 font-black text-sm rounded-xl hover:brightness-110 hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-60"
+          >
+            {loading ? (
+              <>
+                <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
+                جارٍ الدخول...
+              </>
+            ) : (
+              <>
+                تسجيل الدخول
+                <span className="material-symbols-outlined text-base">login</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 my-6">
+          <div className="h-px flex-1 bg-outline/20" />
+          <span className="text-xs text-on-surface-variant/60 font-medium">أو</span>
+          <div className="h-px flex-1 bg-outline/20" />
         </div>
 
-        {error && (
-          <div className="bg-error-container text-on-error-container px-4 py-3 rounded-xl text-sm font-medium">
-            {error}
-          </div>
-        )}
+        {/* Google Sign-In */}
+        <GoogleSignInButton onError={setError} onSuccess={() => router.push(returnUrl)} />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="btn-editorial w-full h-[40px] flex items-center justify-center gap-2 font-black text-sm hover:brightness-105 hover:shadow-ambient disabled:opacity-60"
-        >
-          {loading ? 'جارٍ الدخول...' : 'تسجيل الدخول'}
-          {!loading && <span className="material-symbols-outlined text-base">login</span>}
-        </button>
-      </form>
-
-      {/* Divider */}
-      <div className="flex items-center gap-4 my-6">
-        <div className="h-px flex-1 bg-white/20" />
-        <span className="text-xs text-white/60 font-medium">أو</span>
-        <div className="h-px flex-1 bg-white/20" />
+        <p className="text-center text-on-surface-variant text-sm mt-5 font-medium">
+          ليس لديك حساب؟{' '}
+          <Link href="/register" className="text-primary font-bold hover:underline transition-all">
+            إنشاء حساب جديد
+          </Link>
+        </p>
       </div>
-
-      {/* Google Sign-In */}
-      <GoogleSignInButton onError={setError} onSuccess={() => router.push(returnUrl)} />
-
-      <p className="text-center text-white/70 text-sm mt-8 font-medium">
-        ليس لديك حساب؟{' '}
-        <Link href="/register" className="text-primary font-bold hover:text-white transition-all">
-          إنشاء حساب جديد
-        </Link>
-      </p>
     </AuthLayout>
   );
 }

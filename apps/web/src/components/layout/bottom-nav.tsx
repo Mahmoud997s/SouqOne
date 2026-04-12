@@ -19,9 +19,10 @@ export function BottomNav() {
   const { searchOpen, toggleSearch } = useSearch();
   const unreadMessages = 0; // TODO: wire up unread messages count
 
-  // Hide on chat detail pages (full-screen chat)
-  const hiddenPaths = ['/messages/'];
-  if (hiddenPaths.some(p => pathname.startsWith(p) && pathname !== '/messages')) return null;
+  // Hide on auth pages & chat detail pages (full-screen experience)
+  const authPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/signup'];
+  if (authPaths.some(p => pathname === p || pathname.startsWith(p + '/'))) return null;
+  if (pathname.startsWith('/messages/') && pathname !== '/messages') return null;
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-surface-container-lowest/95 dark:bg-surface-container/95 backdrop-blur-xl border-t border-outline-variant/10 dark:border-outline-variant/20 safe-area-bottom" dir="rtl">
