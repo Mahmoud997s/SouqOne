@@ -38,21 +38,21 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden" dir="rtl">
       {/* ── Multi-layer Background ── */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#f8fafc] via-[#eef2ff] to-[#f1f5f9] dark:from-[#0c0f1a] dark:via-[#101528] dark:to-[#0e1220]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#FBF7F2] via-[#FFF5E9] to-[#F7F1EA] dark:from-[#0c0f1a] dark:via-[#101528] dark:to-[#0e1220]" />
 
       {/* Depth layer 1: large soft circles — clamped on mobile */}
-      <div className="absolute top-[-20%] right-0 w-[60vw] md:w-[600px] h-[60vw] md:h-[600px] rounded-full bg-blue-400/[0.06] dark:bg-blue-500/[0.04] blur-3xl" />
-      <div className="absolute bottom-[-30%] left-0 w-[50vw] md:w-[500px] h-[50vw] md:h-[500px] rounded-full bg-indigo-300/[0.07] dark:bg-indigo-500/[0.03] blur-3xl" />
+      <div className="absolute top-[-20%] right-0 w-[60vw] md:w-[600px] h-[60vw] md:h-[600px] rounded-full bg-orange-300/[0.08] dark:bg-blue-500/[0.04] blur-3xl" />
+      <div className="absolute bottom-[-30%] left-0 w-[50vw] md:w-[500px] h-[50vw] md:h-[500px] rounded-full bg-amber-200/[0.10] dark:bg-indigo-500/[0.03] blur-3xl" />
 
       {/* Depth layer 2: subtle geometric shapes — hidden on small screens */}
-      <div className="hidden sm:block absolute top-[15%] left-[8%] w-32 h-32 border border-primary/[0.06] dark:border-primary/[0.04] rounded-2xl rotate-12" />
-      <div className="hidden sm:block absolute bottom-[20%] right-[5%] w-24 h-24 border border-orange-400/[0.08] dark:border-orange-400/[0.04] rounded-full" />
-      <div className="hidden sm:block absolute top-[40%] right-[15%] w-16 h-16 bg-primary/[0.03] dark:bg-primary/[0.02] rounded-lg rotate-45" />
+      <div className="hidden sm:block absolute top-[15%] left-[8%] w-32 h-32 border border-orange-400/[0.08] dark:border-primary/[0.04] rounded-2xl rotate-12" />
+      <div className="hidden sm:block absolute bottom-[20%] right-[5%] w-24 h-24 border border-amber-400/[0.10] dark:border-orange-400/[0.04] rounded-full" />
+      <div className="hidden sm:block absolute top-[40%] right-[15%] w-16 h-16 bg-orange-400/[0.04] dark:bg-primary/[0.02] rounded-lg rotate-45" />
 
       {/* Depth layer 3: fine dots pattern */}
-      <div className="absolute inset-0 opacity-[0.3] dark:opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle, #94a3b8 0.5px, transparent 0.5px)', backgroundSize: '32px 32px' }} />
+      <div className="absolute inset-0 opacity-[0.3] dark:opacity-[0.15]" style={{ backgroundImage: 'radial-gradient(circle, #A09181 0.5px, transparent 0.5px)', backgroundSize: '32px 32px' }} />
 
-      <div className="relative z-10 pt-[10px] pb-10 md:pb-14">
+      <div className="relative z-10 pt-[10px] pb-8 md:pb-10">
         {/* ── Brand Banner with Glow ── */}
         <div className="relative w-[92%] sm:w-[85%] md:w-[78%] lg:w-[70%] mx-auto mb-3 p-[5px]">
           {/* Soft glow behind the logo */}
@@ -70,9 +70,9 @@ export function HeroSection() {
 
         {/* ── Search Box with Backdrop Blur ── */}
         <div className="w-[92%] sm:w-[85%] md:w-[78%] lg:max-w-3xl mx-auto" style={{ animation: 'hero-search-entrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both' }}>
-          <div className="bg-white/70 dark:bg-white/[0.06] backdrop-blur-xl border border-white/60 dark:border-white/[0.08] shadow-[0_8px_40px_rgba(15,23,42,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden">
+          <div className="bg-[#FFFDF9]/80 dark:bg-white/[0.06] backdrop-blur-xl border border-[#E6DDD1]/60 dark:border-white/[0.08] shadow-[0_8px_40px_rgba(28,20,8,0.06)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden">
             {/* Tabs */}
-            <div className="flex overflow-x-auto no-scrollbar border-b border-slate-200/60 dark:border-white/[0.06]">
+            <div className="flex overflow-x-auto no-scrollbar border-b border-[#E6DDD1]/60 dark:border-white/[0.06]">
               {searchTabs.map(t => (
                 <button
                   key={t.key}
@@ -92,7 +92,7 @@ export function HeroSection() {
 
             {/* Search input */}
             <form onSubmit={handleSearch} className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
-              <div className="flex-1 flex items-center gap-2 sm:gap-3 bg-slate-100/80 dark:bg-white/[0.05] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 focus-within:ring-2 focus-within:ring-primary/30 focus-within:bg-white dark:focus-within:bg-white/[0.08] transition-all">
+              <div className="flex-1 flex items-center gap-2 sm:gap-3 bg-[#F5EFE7]/80 dark:bg-white/[0.05] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 focus-within:ring-2 focus-within:ring-primary/30 focus-within:bg-[#FFFDF9] dark:focus-within:bg-white/[0.08] transition-all">
                 <span className="material-symbols-outlined text-on-surface-variant/40 text-lg sm:text-xl shrink-0">search</span>
                 <input
                   ref={inputRef}
@@ -120,9 +120,9 @@ export function HeroSection() {
         <div className="w-[92%] sm:w-[85%] md:w-[78%] lg:max-w-3xl mx-auto mt-5 flex flex-col sm:flex-row items-center gap-3 sm:gap-4" style={{ animation: 'hero-search-entrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both' }}>
           <div className="flex items-center gap-3 sm:gap-5 flex-1 flex-wrap justify-center sm:justify-start">
             {stats.map(s => (
-              <div key={s.label} className="flex items-center gap-1.5 text-slate-500 dark:text-on-surface-variant">
+              <div key={s.label} className="flex items-center gap-1.5 text-on-surface-variant dark:text-on-surface-variant">
                 <span className="material-symbols-outlined text-primary text-sm sm:text-base">{s.icon}</span>
-                <span className="text-[11px] sm:text-xs font-black text-slate-700 dark:text-on-surface">{s.count}</span>
+                <span className="text-[11px] sm:text-xs font-black text-on-surface dark:text-on-surface">{s.count}</span>
                 <span className="text-[10px] sm:text-[11px] hidden sm:inline">{s.label}</span>
               </div>
             ))}

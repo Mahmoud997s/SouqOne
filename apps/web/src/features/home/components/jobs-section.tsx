@@ -12,9 +12,9 @@ interface JobsSectionProps {
 
 export function JobsSection({ items, isLoading }: JobsSectionProps) {
   return (
-    <section className="py-20">
+    <section className="py-10">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-wrap items-end justify-between gap-2 mb-10">
+        <div className="flex flex-wrap items-end justify-between gap-2 mb-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 bg-primary" />

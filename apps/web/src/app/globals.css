@@ -54,27 +54,27 @@
   --color-on-error: #ffffff;
   --color-on-error-container: #991b1b;
 
-  /* ── Surfaces (Neutral canvas — No-Line editorial) ── */
-  --color-surface: #f7f9fb;
-  --color-surface-dim: #eef1f4;
-  --color-surface-bright: #ffffff;
-  --color-surface-container: #f4f6f8;
-  --color-surface-container-low: #f2f4f6;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-high: #e8ecf0;
-  --color-surface-container-highest: #d5dde6;
-  --color-surface-variant: #f0f2f5;
+  /* ── Surfaces (Warm Cream + Orange tint) ── */
+  --color-surface: #FBF7F2;
+  --color-surface-dim: #F3EDE5;
+  --color-surface-bright: #FFFCF8;
+  --color-surface-container: #F7F1EA;
+  --color-surface-container-low: #F5EFE7;
+  --color-surface-container-lowest: #FFFDF9;
+  --color-surface-container-high: #EDE5DA;
+  --color-surface-container-highest: #E0D6C9;
+  --color-surface-variant: #F4EDE4;
   --color-surface-tint: #004ac6;
 
   /* ── On Surface ── */
-  --color-on-surface: #0f172a;
-  --color-on-surface-variant: #475569;
-  --color-on-background: #0f172a;
-  --color-background: #f7f9fb;
+  --color-on-surface: #1C1408;
+  --color-on-surface-variant: #6B5D4F;
+  --color-on-background: #1C1408;
+  --color-background: #FBF7F2;
 
   /* ── Outline ── */
-  --color-outline: #94a3b8;
-  --color-outline-variant: #e2e8f0;
+  --color-outline: #A09181;
+  --color-outline-variant: #E6DDD1;
 
   /* ── Inverse ── */
   --color-inverse-surface: #0f172a;
@@ -435,7 +435,7 @@
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  border: 2px solid #22c55e;
+  border: 2px solid var(--color-primary);
   animation: pulse-ring 2s ease-out infinite;
   pointer-events: none;
 }

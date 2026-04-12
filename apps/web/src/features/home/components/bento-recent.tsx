@@ -23,9 +23,9 @@ const quickLinks: QuickLink[] = [
 
 export function QuickServicesGrid() {
   return (
-    <section className="bg-surface-container-low dark:bg-surface-dim py-16">
+    <section className="bg-surface-container-low dark:bg-surface-dim py-10">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-2 mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-2 mb-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 bg-primary" />

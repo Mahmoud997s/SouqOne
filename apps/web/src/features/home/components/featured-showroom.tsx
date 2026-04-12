@@ -40,9 +40,9 @@ function getImg(item: ListingItem) {
 
 export function FeaturedShowroom({ items, isLoading }: FeaturedShowroomProps) {
   return (
-    <section className="bg-surface-container-low dark:bg-surface-dim py-20">
+    <section className="bg-surface-container-low dark:bg-surface-dim py-10">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-wrap justify-between items-end gap-2 mb-10">
+        <div className="flex flex-wrap justify-between items-end gap-2 mb-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 bg-primary" />

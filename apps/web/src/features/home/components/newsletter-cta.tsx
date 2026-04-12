@@ -2,7 +2,7 @@
 
 export function NewsletterCta() {
   return (
-    <section className="relative overflow-hidden bg-brand-navy py-10 sm:py-16 md:py-24">
+    <section className="relative overflow-hidden bg-brand-navy py-10 sm:py-12 md:py-16">
       {/* Decorative gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-transparent pointer-events-none" />
       <div className="absolute -top-20 -left-20 w-60 h-60 rounded-full bg-primary/10 blur-[80px] pointer-events-none" />
@@ -22,13 +22,13 @@ export function NewsletterCta() {
         </div>
 
         <div className="w-full sm:w-auto">
-          <div className="flex flex-col sm:flex-row w-full lg:w-auto gap-0 rounded-xl overflow-hidden shadow-lg">
+          <div className="flex flex-row w-full lg:w-[420px] rounded-full overflow-hidden shadow-lg">
             <input
               type="email"
               placeholder="بريدك الإلكتروني"
-              className="bg-white/5 border border-white/10 px-5 py-3 sm:py-4 w-full lg:w-80 focus:outline-none focus:border-primary text-white placeholder:text-white/40 text-sm sm:text-base transition-all"
+              className="bg-white/5 border border-white/10 border-l-0 px-5 py-3 sm:py-4 w-3/4 rounded-r-full focus:outline-none focus:border-primary text-white placeholder:text-white/40 text-sm sm:text-base transition-all"
             />
-            <button className="btn-orange px-6 sm:px-8 py-3 sm:py-4 font-black whitespace-nowrap hover:brightness-110 transition-all text-sm sm:text-base">
+            <button className="btn-orange w-1/4 py-3 sm:py-4 font-black whitespace-nowrap hover:brightness-110 transition-all text-xs sm:text-sm rounded-l-full">
               اشترك الآن
             </button>
           </div>

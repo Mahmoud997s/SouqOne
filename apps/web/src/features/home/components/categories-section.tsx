@@ -13,8 +13,8 @@ const categories = [
 
 export function CategoriesSection() {
   return (
-    <section className="max-w-7xl mx-auto px-6 py-16">
-      <div className="flex items-center gap-3 mb-8">
+    <section className="max-w-7xl mx-auto px-6 py-10">
+      <div className="flex items-center gap-3 mb-6">
         <div className="h-8 w-1 bg-primary" />
         <h2 className="text-2xl font-black">تصفح الأقسام</h2>
       </div>
