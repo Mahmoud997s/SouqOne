@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, Search, X, MoreVertical, ExternalLink } from 'lucide-react';
+import { getImageUrl } from '@/lib/image-utils';
 
 interface Participant {
   id: string;
@@ -53,7 +54,7 @@ export function ChatHeader({
         {/* Avatar */}
         <div className="relative shrink-0">
           {participant?.avatarUrl ? (
-            <img src={participant.avatarUrl} alt={name} className="w-11 h-11 rounded-2xl object-cover ring-2 ring-outline-variant/5" />
+            <img src={getImageUrl(participant.avatarUrl) || ''} alt={name} className="w-11 h-11 rounded-2xl object-cover ring-2 ring-outline-variant/5" />
           ) : (
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary font-black text-sm">
               {name[0]?.toUpperCase() || '?'}

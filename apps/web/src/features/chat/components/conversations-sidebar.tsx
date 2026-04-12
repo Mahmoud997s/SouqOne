@@ -8,6 +8,7 @@ import { useAuth } from '@/providers/auth-provider';
 import { connectSocket } from '@/lib/socket';
 import { Search, MessageCircle, Archive, Loader2, CheckCheck } from 'lucide-react';
 import { ConversationFilters } from './conversation-filters';
+import { getImageUrl } from '@/lib/image-utils';
 
 const ENTITY_LABELS: Record<string, string> = {
   LISTING: 'إعلان',
@@ -167,7 +168,7 @@ export default function ConversationsSidebar() {
                 {/* Avatar + online dot */}
                 <div className="relative shrink-0">
                   {other?.avatarUrl ? (
-                    <img src={other.avatarUrl} alt={name} className="w-[52px] h-[52px] rounded-2xl object-cover ring-2 ring-outline-variant/5" />
+                    <img src={getImageUrl(other.avatarUrl) || ''} alt={name} className="w-[52px] h-[52px] rounded-2xl object-cover ring-2 ring-outline-variant/5" />
                   ) : (
                     <div className={`w-[52px] h-[52px] rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-primary font-black text-lg`}>
                       {initial}

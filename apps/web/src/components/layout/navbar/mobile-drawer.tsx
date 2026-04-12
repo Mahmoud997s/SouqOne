@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { NavLinkItem } from '../navbar';
+import { getImageUrl } from '@/lib/image-utils';
 
 interface MobileDrawerProps {
   open: boolean;
@@ -58,7 +59,7 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
           <div className="px-5 py-4 bg-surface-container-low border-b border-outline-variant/20">
             <div className="flex items-center gap-3">
               {user.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.displayName || user.username} className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                <img src={getImageUrl(user.avatarUrl) || ''} alt={user.displayName || user.username} className="w-10 h-10 rounded-xl object-cover shrink-0" />
               ) : (
                 <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary font-black text-sm shrink-0">
                   {user.username[0]?.toUpperCase()}

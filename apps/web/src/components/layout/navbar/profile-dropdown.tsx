@@ -2,6 +2,7 @@
 
 import { forwardRef } from 'react';
 import Link from 'next/link';
+import { getImageUrl } from '@/lib/image-utils';
 
 interface ProfileDropdownProps {
   open: boolean;
@@ -31,7 +32,7 @@ export const ProfileDropdown = forwardRef<HTMLDivElement, ProfileDropdownProps>(
             hover:bg-surface-container-low ${open ? 'bg-surface-container-low' : ''}`}
         >
           {user.avatarUrl ? (
-            <img src={user.avatarUrl} alt={user.displayName || user.username} className="w-7 h-7 rounded-full object-cover ring-2 ring-primary/20" />
+            <img src={getImageUrl(user.avatarUrl) || ''} alt={user.displayName || user.username} className="w-7 h-7 rounded-full object-cover ring-2 ring-primary/20" />
           ) : (
             <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary text-[11px] font-black ring-2 ring-primary/20">
               {user.username[0]?.toUpperCase()}
@@ -44,7 +45,7 @@ export const ProfileDropdown = forwardRef<HTMLDivElement, ProfileDropdownProps>(
           <div className="absolute left-0 top-full mt-2 w-56 bg-surface-container-lowest rounded-lg py-1.5 border border-outline-variant/20 shadow-[0_8px_30px_rgba(0,0,0,0.3)] overflow-hidden z-50">
             <div className="px-4 py-3 border-b border-outline-variant/20 flex items-center gap-3">
               {user.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.displayName || user.username} className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                <img src={getImageUrl(user.avatarUrl) || ''} alt={user.displayName || user.username} className="w-8 h-8 rounded-lg object-cover shrink-0" />
               ) : (
                 <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary font-black text-xs shrink-0">
                   {user.username[0]?.toUpperCase()}

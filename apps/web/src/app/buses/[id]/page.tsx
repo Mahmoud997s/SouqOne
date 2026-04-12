@@ -10,6 +10,7 @@ import { useBusListing, type BusListingItem } from '@/lib/api/buses';
 import { useAuth } from '@/providers/auth-provider';
 import { useCreateConversation } from '@/lib/api';
 import { useToast } from '@/components/toast';
+import { getImageUrl } from '@/lib/image-utils';
 
 const BUS_TYPE_LABELS: Record<string, string> = {
   MINI_BUS: 'ميني باص', MEDIUM_BUS: 'باص متوسط', LARGE_BUS: 'باص كبير',
@@ -399,7 +400,7 @@ function BusDetailContent({ bus }: { bus: BusListingItem }) {
                 <div className="p-4">
                   <div className="flex items-center gap-3 mb-3">
                     {bus.user.avatarUrl ? (
-                      <img src={bus.user.avatarUrl} alt={bus.user.displayName || bus.user.username} className="w-11 h-11 rounded-xl object-cover shadow-md shrink-0" />
+                      <img src={getImageUrl(bus.user.avatarUrl) || ''} alt={bus.user.displayName || bus.user.username} className="w-11 h-11 rounded-xl object-cover shadow-md shrink-0" />
                     ) : (
                       <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-black text-sm shadow-md shrink-0">
                         {(bus.user.displayName || bus.user.username)[0]?.toUpperCase()}

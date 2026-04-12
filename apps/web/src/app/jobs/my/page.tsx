@@ -8,6 +8,7 @@ import { AuthGuard } from '@/components/auth-guard';
 import { useMyJobs, useJobApplications, useUpdateApplicationStatus, useUpdateJob, useDeleteJob } from '@/lib/api';
 import type { JobItem } from '@/lib/api';
 import { useToast } from '@/components/toast';
+import { getImageUrl } from '@/lib/image-utils';
 
 const jobTypeLabels: Record<string, string> = {
   OFFERING: 'يبحث عن عمل',
@@ -225,7 +226,7 @@ function ApplicationsList({ jobId }: { jobId: string }) {
           <div key={app.id} className="bg-surface-container-low rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               {app.applicant.avatarUrl ? (
-                <img src={app.applicant.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
+                <img src={getImageUrl(app.applicant.avatarUrl) || ''} alt="" className="w-10 h-10 rounded-full object-cover" />
               ) : (
                 <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                   <span className="material-symbols-outlined text-primary text-lg">person</span>
