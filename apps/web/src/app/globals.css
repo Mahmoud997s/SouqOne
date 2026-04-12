@@ -417,6 +417,23 @@
 }
 .animate-shake { animation: shake 0.5s ease-in-out; }
 
+/* ── Auth page load animations ── */
+@keyframes auth-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes auth-drop {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes auth-slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-auth-bg { opacity: 0; animation: auth-fade 300ms ease-out forwards; }
+.animate-auth-logo { opacity: 0; animation: auth-drop 400ms ease-out 200ms forwards; }
+.animate-auth-card { opacity: 0; animation: auth-slide-up 450ms ease-out 400ms forwards; }
+
 /* ── Safe areas ── */
 .safe-area-top {
   padding-top: env(safe-area-inset-top, 0px);
