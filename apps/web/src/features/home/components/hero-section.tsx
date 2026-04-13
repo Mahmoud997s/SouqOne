@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Link, useRouter } from '@/i18n/navigation';
 
 const searchTabs = [
   { key: 'all',       label: 'الكل',      icon: 'search',              route: '/listings',  placeholder: 'ابحث في سوق وان...' },
@@ -36,7 +35,7 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative overflow-hidden" dir="rtl">
+    <section className="relative overflow-hidden">
       {/* ── Multi-layer Background ── */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#F5F7FA] via-[#EBF0FB] to-[#F0F2F6] dark:from-[#0c0f1a] dark:via-[#101528] dark:to-[#0e1220]" />
 

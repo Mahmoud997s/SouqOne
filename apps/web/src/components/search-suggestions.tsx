@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useAutocomplete } from '@/lib/api/search';
 import { Search, Clock, TrendingUp, X } from 'lucide-react';
 
@@ -180,7 +180,7 @@ export function SearchSuggestions({ onClose, className }: SearchSuggestionsProps
           {/* No results */}
           {query.length >= 2 && suggestions && suggestions.length === 0 && (
             <div className="p-6 text-center">
-              <p className="text-sm text-on-surface-variant">لا توجد نتائج لـ "{query}"</p>
+              <p className="text-sm text-on-surface-variant">لا توجد نتائج لـ &ldquo;{query}&rdquo;</p>
             </div>
           )}
         </div>

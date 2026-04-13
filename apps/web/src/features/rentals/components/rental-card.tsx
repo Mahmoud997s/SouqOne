@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { getImageUrl } from '@/lib/image-utils';
 import { FUEL_LABELS, TRANSMISSION_LABELS, BADGE_COLORS, PILL_COLORS } from '@/lib/constants/mappings';
 

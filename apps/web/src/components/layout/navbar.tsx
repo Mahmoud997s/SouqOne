@@ -1,15 +1,16 @@
 'use client';
 
-import Link from 'next/link';
+import { Link, usePathname } from '@/i18n/navigation';
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
-import { usePathname } from 'next/navigation';
 import { useUnreadCount, useNotifications, useMarkNotificationRead } from '@/lib/api';
 import { NotificationDropdown } from './navbar/notification-dropdown';
 import { ProfileDropdown } from './navbar/profile-dropdown';
 import { MobileDrawer } from './navbar/mobile-drawer';
 import { NavSearchBar } from './navbar/search-bar';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { useSearch } from '@/providers/search-provider';
 
 /* ─────────── Corify heights ─────────── */
@@ -20,65 +21,71 @@ const TOTAL  = TOP_H + NAV_H;
 export interface NavChild { href: string; label: string; icon: string; desc: string }
 export interface NavLinkItem { href: string; label: string; children?: NavChild[] }
 
-const navLinks: NavLinkItem[] = [
-  { href: '/', label: 'الرئيسية' },
-  {
-    href: '/listings', label: 'سيارات',
-    children: [
-      { href: '/listings', label: 'سيارات للبيع', icon: 'directions_car', desc: 'تصفح سيارات جديدة ومستعملة' },
-      { href: '/listings?listingType=RENTAL', label: 'سيارات للإيجار', icon: 'car_rental', desc: 'إيجار يومي وشهري' },
-      { href: '/parts', label: 'قطع غيار', icon: 'settings', desc: 'قطع أصلية وبديلة' },
-    ],
-  },
-  {
-    href: '/services', label: 'خدمات',
-    children: [
-      { href: '/services', label: 'خدمات سيارات', icon: 'build', desc: 'صيانة، فحص، سمكرة' },
-      { href: '/insurance', label: 'تأمين وتمويل', icon: 'shield', desc: 'تأمين شامل وتمويل' },
-    ],
-  },
-  {
-    href: '/coming-soon?section=transport', label: 'نقل ورحلات',
-    children: [
-      { href: '/coming-soon?section=transport', label: 'نقل وشحن', icon: 'local_shipping', desc: 'بضائع، أثاث، شاحنات' },
-      { href: '/coming-soon?section=trips', label: 'رحلات واشتراكات', icon: 'departure_board', desc: 'باصات، مدارس، سياحة' },
-    ],
-  },
-  {
-    href: '/coming-soon?section=buses', label: 'حافلات',
-    children: [
-      { href: '/coming-soon?section=buses', label: 'كل الحافلات', icon: 'directions_bus', desc: 'قريباً — بيع، إيجار، عقود' },
-      { href: '/coming-soon?section=buses', label: 'حافلات للبيع', icon: 'sell', desc: 'قريباً' },
-      { href: '/coming-soon?section=buses', label: 'تأجير حافلات', icon: 'car_rental', desc: 'قريباً' },
-      { href: '/coming-soon?section=buses', label: 'طلبات نقل', icon: 'request_quote', desc: 'قريباً' },
-    ],
-  },
-  {
-    href: '/coming-soon?section=equipment', label: 'معدات',
-    children: [
-      { href: '/coming-soon?section=equipment', label: 'كل المعدات', icon: 'construction', desc: 'قريباً — بيع، إيجار، طلبات' },
-      { href: '/coming-soon?section=equipment', label: 'بيع معدات', icon: 'sell', desc: 'قريباً' },
-      { href: '/coming-soon?section=equipment', label: 'تأجير معدات', icon: 'car_rental', desc: 'قريباً' },
-      { href: '/coming-soon?section=equipment', label: 'طلب معدة', icon: 'assignment_add', desc: 'قريباً' },
-      { href: '/coming-soon?section=equipment', label: 'مشغلين', icon: 'engineering', desc: 'قريباً' },
-    ],
-  },
-  { href: '/jobs', label: 'وظائف' },
-];
+function useNavLinks() {
+  const t = useTranslations('common');
+  const tn = useTranslations('nav');
 
-/** Flat version for mobile + search bar */
-const flatNavLinks = [
-  { href: '/', label: 'الرئيسية' },
-  { href: '/listings', label: 'سيارات' },
-  { href: '/parts', label: 'قطع غيار' },
-  { href: '/services', label: 'خدمات' },
-  { href: '/coming-soon?section=transport', label: 'نقل' },
-  { href: '/coming-soon?section=trips', label: 'رحلات' },
-  { href: '/insurance', label: 'تأمين' },
-  { href: '/coming-soon?section=buses', label: 'حافلات' },
-  { href: '/coming-soon?section=equipment', label: 'معدات' },
-  { href: '/jobs', label: 'وظائف' },
-];
+  const navLinks: NavLinkItem[] = [
+    { href: '/', label: t('home') },
+    {
+      href: '/listings', label: t('cars'),
+      children: [
+        { href: '/listings', label: t('carsForSale'), icon: 'directions_car', desc: tn('browseNewUsedCars') },
+        { href: '/listings?listingType=RENTAL', label: t('carsForRent'), icon: 'car_rental', desc: tn('dailyMonthlyRental') },
+        { href: '/parts', label: t('spareParts'), icon: 'settings', desc: tn('originalAlternativeParts') },
+      ],
+    },
+    {
+      href: '/services', label: t('services'),
+      children: [
+        { href: '/services', label: t('carServices'), icon: 'build', desc: tn('maintenanceInspection') },
+        { href: '/insurance', label: t('insuranceAndFinance'), icon: 'shield', desc: tn('comprehensiveInsurance') },
+      ],
+    },
+    {
+      href: '/coming-soon?section=transport', label: t('transportAndTrips'),
+      children: [
+        { href: '/coming-soon?section=transport', label: t('transportAndShipping'), icon: 'local_shipping', desc: tn('goodsFurnitureTrucks') },
+        { href: '/coming-soon?section=trips', label: t('tripsAndSubscriptions'), icon: 'departure_board', desc: tn('busesSchoolsTourism') },
+      ],
+    },
+    {
+      href: '/coming-soon?section=buses', label: t('buses'),
+      children: [
+        { href: '/coming-soon?section=buses', label: t('allBuses'), icon: 'directions_bus', desc: tn('comingSoonSaleRentalContracts') },
+        { href: '/coming-soon?section=buses', label: t('busesForSale'), icon: 'sell', desc: tn('comingSoon') },
+        { href: '/coming-soon?section=buses', label: t('busRental'), icon: 'car_rental', desc: tn('comingSoon') },
+        { href: '/coming-soon?section=buses', label: t('transportRequests'), icon: 'request_quote', desc: tn('comingSoon') },
+      ],
+    },
+    {
+      href: '/coming-soon?section=equipment', label: t('equipment'),
+      children: [
+        { href: '/coming-soon?section=equipment', label: t('allEquipment'), icon: 'construction', desc: tn('comingSoonSaleRentalRequests') },
+        { href: '/coming-soon?section=equipment', label: t('sellEquipment'), icon: 'sell', desc: tn('comingSoon') },
+        { href: '/coming-soon?section=equipment', label: t('rentEquipment'), icon: 'car_rental', desc: tn('comingSoon') },
+        { href: '/coming-soon?section=equipment', label: t('requestEquipment'), icon: 'assignment_add', desc: tn('comingSoon') },
+        { href: '/coming-soon?section=equipment', label: t('operators'), icon: 'engineering', desc: tn('comingSoon') },
+      ],
+    },
+    { href: '/jobs', label: t('jobs') },
+  ];
+
+  const flatNavLinks = [
+    { href: '/', label: t('home') },
+    { href: '/listings', label: t('cars') },
+    { href: '/parts', label: t('spareParts') },
+    { href: '/services', label: t('services') },
+    { href: '/coming-soon?section=transport', label: t('transportAndShipping') },
+    { href: '/coming-soon?section=trips', label: t('tripsAndSubscriptions') },
+    { href: '/insurance', label: t('insuranceAndFinance') },
+    { href: '/coming-soon?section=buses', label: t('buses') },
+    { href: '/coming-soon?section=equipment', label: t('equipment') },
+    { href: '/jobs', label: t('jobs') },
+  ];
+
+  return { navLinks, flatNavLinks };
+}
 
 /** Spacer — pushes page content below the fixed navbar */
 export function NavbarSpacer() {
@@ -88,6 +95,8 @@ export function NavbarSpacer() {
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
+  const t = useTranslations('common');
+  const { navLinks, flatNavLinks } = useNavLinks();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const { searchOpen, setSearchOpen } = useSearch();
@@ -200,6 +209,7 @@ export function Navbar() {
                 <span className="material-symbols-outlined text-lg">favorite</span>
               </Link>
 
+              <LanguageSwitcher />
               <ThemeToggle />
 
               {isAuthenticated && user ? (
@@ -225,10 +235,10 @@ export function Navbar() {
               ) : (
                 <div className="hidden lg:flex items-center gap-2">
                   <Link href="/login" className="ghost-border text-primary hover:bg-primary hover:text-on-primary px-3 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">person</span> دخول
+                    <span className="material-symbols-outlined text-sm">person</span> {t('login')}
                   </Link>
                   <Link href="/register" className="btn-primary px-3 py-1.5 text-xs font-bold hover:brightness-105 hover:shadow-ambient">
-                    إنشاء حساب
+                    {t('register')}
                   </Link>
                 </div>
               )}

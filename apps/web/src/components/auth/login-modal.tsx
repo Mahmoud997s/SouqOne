@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { apiRequest } from '@/lib/auth';
 import { useAuth } from '@/providers/auth-provider';
 import { useAuthModal } from '@/providers/auth-modal-provider';
@@ -113,7 +113,7 @@ export function LoginModal() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="البريد الإلكتروني"
                   className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-3 pr-10 pl-4 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm"
-                  dir="rtl"
+                 
                   autoFocus
                 />
               </div>
@@ -136,7 +136,7 @@ export function LoginModal() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-3 pr-10 pl-10 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm"
-                  dir="rtl"
+                 
                 />
                 <button
                   type="button"

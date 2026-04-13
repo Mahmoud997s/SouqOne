@@ -37,7 +37,7 @@ export function MultiStepForm({
   const progress = ((currentStep + 1) / steps.length) * 100;
 
   return (
-    <div className="w-full" dir="rtl">
+    <div className="w-full">
       {/* ── Gradient Hero Header ── */}
       <div className="relative overflow-hidden rounded-2xl mb-8">
         <div className="absolute inset-0 bg-gradient-to-br from-[#004ac6] via-[#2563eb] to-[#0B2447]" />

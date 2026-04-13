@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { JobCard } from '@/features/jobs/components/job-card';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import type { JobItem } from '@/lib/api';

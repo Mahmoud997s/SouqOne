@@ -9,7 +9,7 @@ interface AuthPageProps {
 export default function AuthPage({ children, title, subtitle }: AuthPageProps) {
   return (
     <div
-      dir="rtl"
+     
       style={{
         minHeight: '100dvh',
         display: 'flex',

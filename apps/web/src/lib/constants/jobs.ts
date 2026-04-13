@@ -1,3 +1,5 @@
+type T = (key: string) => string;
+
 export const employmentLabels: Record<string, string> = {
   FULL_TIME: 'دوام كامل',
   PART_TIME: 'دوام جزئي',
@@ -11,3 +13,11 @@ export const employmentOptions = [
   { value: 'TEMPORARY', label: 'مؤقت' },
   { value: 'CONTRACT', label: 'عقد' },
 ];
+
+export function employmentLabelsT(t: T): Record<string, string> {
+  return { FULL_TIME: t('fullTime'), PART_TIME: t('partTime'), TEMPORARY: t('temporary'), CONTRACT: t('contract') };
+}
+
+export function employmentOptionsT(t: T) {
+  return Object.entries(employmentLabelsT(t)).map(([value, label]) => ({ value, label }));
+}

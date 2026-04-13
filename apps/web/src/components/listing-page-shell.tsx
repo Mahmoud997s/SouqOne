@@ -1,8 +1,8 @@
 'use client';
 
 import { Suspense, useState, type ReactNode } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { ListingSkeleton } from '@/components/loading-skeleton';
@@ -123,7 +123,7 @@ function ListingPageContent<T>({
       <style>{`.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}`}</style>
 
       {/* ═══════════ HERO SECTION ═══════════ */}
-      <section className="relative overflow-hidden" dir="rtl">
+      <section className="relative overflow-hidden">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#004ac6] via-[#2563eb] to-[#0B2447]" />
         {/* Pattern overlay */}
@@ -208,7 +208,7 @@ function ListingPageContent<T>({
       </section>
 
       {/* ═══════════ RESULTS ═══════════ */}
-      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-10" dir="rtl">
+      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-10">
         {/* Results header */}
         <div className="flex items-center justify-between mb-6">
           <div>

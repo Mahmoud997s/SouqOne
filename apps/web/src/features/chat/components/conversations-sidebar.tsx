@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { useConversations, useArchiveConversation } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
 import { connectSocket } from '@/lib/socket';

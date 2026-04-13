@@ -1,30 +1,7 @@
 'use client';
 
-import Link from 'next/link';
-
-/* ── Data ── */
-
-const quickLinks = [
-  { label: 'الرئيسية', href: '/' },
-  { label: 'سيارات للبيع', href: '/listings' },
-  { label: 'سيارات للإيجار', href: '/listings?listingType=RENTAL' },
-  { label: 'قطع غيار', href: '/parts' },
-  { label: 'وظائف سائقين', href: '/jobs' },
-];
-
-const servicesLinks = [
-  { label: 'خدمات سيارات', href: '/services' },
-  { label: 'نقل وشحن', href: '/coming-soon?section=transport' },
-  { label: 'رحلات واشتراكات', href: '/coming-soon?section=trips' },
-  { label: 'تأمين وتمويل', href: '/insurance' },
-  { label: 'أضف إعلانك', href: '/add-listing' },
-];
-
-const contactItems = [
-  { icon: 'location_on', text: 'سلطنة عمان، مسقط، الغبرة الشمالية' },
-  { icon: 'call', text: '+968 9999 0000', dir: 'ltr' as const },
-  { icon: 'mail', text: 'info@souqone.com' },
-];
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 const socialLinks = [
   { icon: 'smart_display', label: 'YouTube', href: '#' },
@@ -50,8 +27,33 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
 /* ── Main ── */
 
 export function Footer() {
+  const t = useTranslations('common');
+  const tf = useTranslations('footer');
+
+  const quickLinks = [
+    { label: t('home'), href: '/' },
+    { label: t('carsForSale'), href: '/listings' },
+    { label: t('carsForRent'), href: '/listings?listingType=RENTAL' },
+    { label: t('spareParts'), href: '/parts' },
+    { label: tf('driverJobs'), href: '/jobs' },
+  ];
+
+  const servicesLinks = [
+    { label: t('carServices'), href: '/services' },
+    { label: t('transportAndShipping'), href: '/coming-soon?section=transport' },
+    { label: t('tripsAndSubscriptions'), href: '/coming-soon?section=trips' },
+    { label: t('insuranceAndFinance'), href: '/insurance' },
+    { label: t('addListing'), href: '/add-listing' },
+  ];
+
+  const contactItems = [
+    { icon: 'location_on', text: tf('address') },
+    { icon: 'call', text: tf('phone'), dir: 'ltr' as const },
+    { icon: 'mail', text: tf('email') },
+  ];
+
   return (
-    <footer className="hidden lg:block bg-brand-navy dark:bg-black w-full border-t border-white/10 mt-20" dir="rtl">
+    <footer className="hidden lg:block bg-brand-navy dark:bg-black w-full border-t border-white/10 mt-20">
 
       {/* ══ Desktop-only footer ══ */}
       <div style={{ height: 280 }}>
@@ -66,13 +68,13 @@ export function Footer() {
                 <img src="/name.png" alt="سوق وان" className="h-5 w-auto object-contain brightness-0 invert" />
               </Link>
               <p className="text-white/40 text-xs leading-relaxed">
-                المنصة الأولى في سلطنة عمان لبيع وشراء السيارات بكل ثقة وأمان.
+                {t('platformTagline')}
               </p>
             </div>
 
             {/* Quick Links */}
             <div>
-              <h4 className="text-white font-black text-xs mb-3">روابط سريعة</h4>
+              <h4 className="text-white font-black text-xs mb-3">{tf('quickLinks')}</h4>
               <ul className="space-y-1.5">
                 {quickLinks.map((link) => (
                   <FooterLink key={link.label} href={link.href}>{link.label}</FooterLink>
@@ -82,7 +84,7 @@ export function Footer() {
 
             {/* Services */}
             <div>
-              <h4 className="text-white font-black text-xs mb-3">خدمات ونقل</h4>
+              <h4 className="text-white font-black text-xs mb-3">{tf('servicesLinks')}</h4>
               <ul className="space-y-1.5">
                 {servicesLinks.map((link) => (
                   <FooterLink key={link.label} href={link.href}>{link.label}</FooterLink>
@@ -92,7 +94,7 @@ export function Footer() {
 
             {/* Contact */}
             <div>
-              <h4 className="text-white font-black text-xs mb-3">تواصل معنا</h4>
+              <h4 className="text-white font-black text-xs mb-3">{tf('contactUs')}</h4>
               <ul className="space-y-2">
                 {contactItems.map((item, i) => (
                   <li key={i} className="flex items-center gap-2">
@@ -117,8 +119,8 @@ export function Footer() {
           <div className="flex items-center justify-between border-t border-white/10 pt-4">
             <p className="text-white/30 text-[10px]">
               © {new Date().getFullYear()}{' '}
-              <span className="text-tertiary font-bold">سوق وان</span>
-              {' '}. جميع الحقوق محفوظة.
+              <span className="text-tertiary font-bold">SouqOne</span>
+              {' '}. {tf('allRightsReserved')}.
             </p>
             <p className="text-white/30 text-[10px]" dir="ltr">SouqOne</p>
           </div>

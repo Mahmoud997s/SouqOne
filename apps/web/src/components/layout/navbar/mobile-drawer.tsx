@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import type { NavLinkItem } from '../navbar';
 import { getImageUrl } from '@/lib/image-utils';
 
@@ -16,16 +17,17 @@ interface MobileDrawerProps {
   onLogout: () => void;
 }
 
-const accountLinks = [
-  { href: '/profile', icon: 'person', label: 'الملف الشخصي' },
-  { href: '/my-listings', icon: 'directions_car', label: 'إعلاناتي' },
-  { href: '/messages', icon: 'chat', label: 'الرسائل' },
-  { href: '/favorites', icon: 'favorite', label: 'المفضلة' },
-  { href: '/profile?tab=settings', icon: 'settings', label: 'الإعدادات' },
-];
-
 export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLinks, isActive, isAuthenticated, user, onLogout }: MobileDrawerProps) {
+  const t = useTranslations('common');
   const [expanded, setExpanded] = useState<string | null>(null);
+
+  const accountLinks = [
+    { href: '/profile', icon: 'person', label: t('profile') },
+    { href: '/my-listings', icon: 'directions_car', label: t('myListings') },
+    { href: '/messages', icon: 'chat', label: t('messages') },
+    { href: '/favorites', icon: 'favorite', label: t('favorites') },
+    { href: '/profile?tab=settings', icon: 'settings', label: t('settings') },
+  ];
   return (
     <>
       {/* Backdrop */}
@@ -75,7 +77,7 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
 
         {/* Nav items */}
         <div className="flex-1 overflow-y-auto py-3">
-          <p className="px-5 pt-2 pb-1 text-[11px] font-bold text-outline uppercase tracking-widest">التصفح</p>
+          <p className="px-5 pt-2 pb-1 text-[11px] font-bold text-outline uppercase tracking-widest">{t('browsing')}</p>
           {navLinks.map(link => {
             const active = isActive(link.href) || link.children?.some(c => isActive(c.href));
             const hasChildren = link.children && link.children.length > 0;
@@ -127,7 +129,7 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
           {isAuthenticated && user ? (
             <>
               <div className="mt-2 pt-3 border-t border-outline-variant/20">
-                <p className="px-5 pb-1 text-[11px] font-bold text-outline uppercase tracking-widest">حسابي</p>
+                <p className="px-5 pb-1 text-[11px] font-bold text-outline uppercase tracking-widest">{t('myAccount')}</p>
                 {accountLinks.map(({ href, icon, label }) => (
                   <Link
                     key={href}
@@ -140,7 +142,7 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
               </div>
               <div className="px-5 mt-4">
                 <Link href="/add-listing" className="btn-success hover:brightness-110 w-full py-3 flex items-center justify-center gap-2 text-sm font-bold shadow-ambient">
-                  <span className="material-symbols-outlined text-sm">add</span> أضف إعلانك مجاناً
+                  <span className="material-symbols-outlined text-sm">add</span> {t('addListingFree')}
                 </Link>
               </div>
               <div className="px-5 mt-3">
@@ -148,27 +150,27 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
                   onClick={() => { onLogout(); close(); }}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-error border border-error/20 rounded-lg hover:bg-error-container/15 transition-colors"
                 >
-                  <span className="material-symbols-outlined text-sm">logout</span> تسجيل الخروج
+                  <span className="material-symbols-outlined text-sm">logout</span> {t('logout')}
                 </button>
               </div>
             </>
           ) : (
             <div className="px-5 mt-4 space-y-3">
               <Link href="/register" className="bg-primary text-on-primary hover:brightness-110 w-full py-3 flex items-center justify-center text-sm font-bold rounded-lg shadow-ambient">
-                إنشاء حساب مجاني
+                {t('createFreeAccount')}
               </Link>
               <Link
                 href="/login"
                 className="w-full flex items-center justify-center py-3 text-sm font-bold text-primary border border-primary/25 rounded-lg hover:bg-primary/5 transition-colors"
               >
-                تسجيل الدخول
+                {t('login')}
               </Link>
             </div>
           )}
         </div>
 
         <div className="px-5 py-3 border-t border-outline-variant/20">
-          <p className="text-[11px] text-outline text-center">ســــوق وان · منصة السيارات الأولى</p>
+          <p className="text-[11px] text-outline text-center">{t('platformTagline')}</p>
         </div>
       </aside>
     </>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Search } from 'lucide-react';
 
 const categories = [
@@ -62,7 +62,7 @@ export function SearchBox() {
         </div>
 
         {/* ── Search Input ── */}
-        <form onSubmit={handleSearch} className="p-4 sm:p-5" dir="rtl">
+        <form onSubmit={handleSearch} className="p-4 sm:p-5">
           <div className="flex items-center gap-3">
             <div className="flex-1 flex items-center gap-3 bg-surface-container-low dark:bg-surface-container rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-primary/30 transition-all">
               <span className="material-symbols-outlined text-on-surface-variant/40 text-xl shrink-0">search</span>

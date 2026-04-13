@@ -46,7 +46,7 @@ export function InputField({
         <input
           {...rest}
           type={inputType}
-          dir={rest.dir || 'rtl'}
+          dir={rest.dir}
           className={`w-full text-right placeholder:text-right bg-white border rounded-xl py-3 sm:py-3.5 focus:ring-2 focus:ring-primary/30 focus:border-primary focus:outline-none text-sm transition-all text-on-surface placeholder:text-outline ${
             icon ? 'pr-11' : 'pr-4'
           } ${isPassword ? 'pl-11' : 'pl-4'} ${

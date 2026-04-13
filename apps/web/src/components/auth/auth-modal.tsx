@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface AuthModalProps {
@@ -43,7 +43,7 @@ export default function AuthModal({ children, title, subtitle }: AuthModalProps)
 
   return (
     <div
-      dir="rtl"
+     
       className="auth-backdrop"
       style={{
         position: 'fixed',

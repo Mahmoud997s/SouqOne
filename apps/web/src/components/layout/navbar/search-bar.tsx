@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { useRouter, Link } from '@/i18n/navigation';
 import { useAutocomplete } from '@/lib/api/search';
 
 const RECENT_KEY = 'carone.recent_searches';
@@ -10,14 +10,17 @@ const MAX_RECENT = 5;
 function getRecent(): string[] { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch { return []; } }
 function saveRecent(q: string) { const r = getRecent().filter(s => s !== q); r.unshift(q); localStorage.setItem(RECENT_KEY, JSON.stringify(r.slice(0, MAX_RECENT))); }
 
-const searchCategories = [
-  { value: 'all', label: 'الكل', placeholder: 'ابحث في سوق وان...', route: '/listings' },
-  { value: 'cars', label: 'سيارات', placeholder: 'ابحث: ماركة، موديل، سنة...', route: '/listings' },
-  { value: 'parts', label: 'قطع غيار', placeholder: 'ابحث عن قطعة غيار...', route: '/parts' },
-  { value: 'services', label: 'خدمات', placeholder: 'ابحث عن خدمة سيارات...', route: '/services' },
-  { value: 'transport', label: 'نقل', placeholder: 'ابحث عن خدمة نقل...', route: '/transport' },
-  { value: 'jobs', label: 'وظائف', placeholder: 'ابحث عن وظيفة سائق...', route: '/jobs' },
-];
+function useSearchCategories() {
+  const ts = useTranslations('search');
+  return [
+    { value: 'all', label: ts('all'), placeholder: ts('searchPlaceholder'), route: '/listings' },
+    { value: 'cars', label: ts('carsCategory'), placeholder: ts('searchCars'), route: '/listings' },
+    { value: 'parts', label: ts('partsCategory'), placeholder: ts('searchParts'), route: '/parts' },
+    { value: 'services', label: ts('servicesCategory'), placeholder: ts('searchServices'), route: '/services' },
+    { value: 'transport', label: ts('transportCategory'), placeholder: ts('searchTransport'), route: '/transport' },
+    { value: 'jobs', label: ts('jobsCategory'), placeholder: ts('searchJobs'), route: '/jobs' },
+  ];
+}
 
 interface NavSearchBarProps {
   searchOpen: boolean;
@@ -29,7 +32,10 @@ interface NavSearchBarProps {
 }
 
 export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, height }: NavSearchBarProps) {
+  const t = useTranslations('common');
+  const ts = useTranslations('search');
   const router = useRouter();
+  const searchCategories = useSearchCategories();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState('all');
   const [catOpen, setCatOpen] = useState(false);
@@ -82,7 +88,7 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
   }, []);
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-center" style={{ height }} dir="rtl">
+    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-center" style={{ height }}>
       <div className="flex items-center gap-2 sm:gap-3 w-full max-w-[800px]">
         <form onSubmit={handleSearch} className="flex flex-1 h-[36px] rounded-xl border border-outline-variant/15 dark:border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container shadow-sm dark:shadow-none focus-within:border-primary/40 dark:focus-within:border-primary/50 focus-within:shadow-[0_0_0_3px_rgba(0,74,198,0.08)] dark:focus-within:shadow-[0_0_0_3px_rgba(96,165,250,0.15)] transition-all">
           <div className="relative" ref={catRef}>
@@ -125,7 +131,7 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
             />
             {/* Suggestions dropdown */}
             {showSuggestions && (searchQuery.length >= 2 && suggestions && suggestions.length > 0 || searchQuery.length < 2) && (
-              <div className="absolute top-[calc(100%+8px)] right-0 left-0 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl shadow-lg z-50 max-h-[50vh] overflow-y-auto py-1" dir="rtl">
+              <div className="absolute top-[calc(100%+8px)] right-0 left-0 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl shadow-lg z-50 max-h-[50vh] overflow-y-auto py-1">
                 {searchQuery.length >= 2 && suggestions && suggestions.length > 0 ? (
                   suggestions.map((s) => (
                     <button key={s.id} onClick={() => handleSuggestionClick(s.title)} className="w-full flex items-center gap-2 px-3 py-2 text-right hover:bg-surface-container transition-colors">
@@ -137,7 +143,7 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
                   <>
                     {getRecent().length > 0 && (
                       <div className="px-3 py-1.5">
-                        <span className="text-[11px] font-bold text-on-surface-variant">بحث سابق</span>
+                        <span className="text-[11px] font-bold text-on-surface-variant">{ts('recentSearches')}</span>
                         {getRecent().map((r, i) => (
                           <button key={i} onClick={() => handleSuggestionClick(r)} className="w-full flex items-center gap-2 py-1.5 text-right hover:text-primary transition-colors">
                             <span className="material-symbols-outlined text-sm text-on-surface-variant/30">history</span>
@@ -160,7 +166,7 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
         </form>
         <Link href="/add-listing" className="shrink-0 btn-success h-[36px] px-3 sm:px-4 text-xs font-bold flex items-center gap-1.5 hover:brightness-105 hover:shadow-ambient">
           <span className="material-symbols-outlined text-sm">add</span>
-          <span className="hidden sm:inline">أضف إعلان</span>
+          <span className="hidden sm:inline">{t('addListing')}</span>
         </Link>
       </div>
     </div>

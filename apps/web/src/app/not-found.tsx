@@ -1,19 +1,17 @@
 import Link from 'next/link';
 
-export default function NotFound() {
+export default function RootNotFound() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-center px-8">
-      <span className="material-symbols-outlined text-8xl text-outline mb-6">explore_off</span>
-      <h1 className="text-5xl font-extrabold text-on-surface mb-3">404</h1>
-      <p className="text-xl text-on-surface-variant mb-8">الصفحة التي تبحث عنها غير موجودة</p>
-      <div className="flex gap-4">
-        <Link href="/" className="bg-primary text-on-primary hover:brightness-110 rounded-lg shadow-ambient px-8 py-3 text-sm font-bold">
-          الصفحة الرئيسية
-        </Link>
-        <Link href="/listings" className="border border-outline-variant rounded-full px-8 py-3 text-sm font-bold text-on-surface hover:bg-surface-container-low transition-all">
-          تصفح السوق
-        </Link>
-      </div>
-    </div>
+    <html lang="ar" dir="rtl">
+      <body>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem' }}>
+          <h1 style={{ fontSize: '4rem', fontWeight: 800, marginBottom: '0.5rem' }}>404</h1>
+          <p style={{ fontSize: '1.25rem', marginBottom: '2rem', color: '#666' }}>Page not found</p>
+          <Link href="/" style={{ padding: '0.75rem 2rem', background: '#004ac6', color: '#fff', borderRadius: '0.75rem', fontWeight: 700, textDecoration: 'none' }}>
+            Home
+          </Link>
+        </div>
+      </body>
+    </html>
   );
 }

@@ -1,8 +1,8 @@
 'use client';
 
 import { forwardRef } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Link, useRouter } from '@/i18n/navigation';
 import type { NotificationItem } from '@/lib/api';
 
 interface NotificationDropdownProps {
@@ -16,6 +16,7 @@ interface NotificationDropdownProps {
 
 export const NotificationDropdown = forwardRef<HTMLDivElement, NotificationDropdownProps>(
   ({ open, toggle, close, unreadCount, items, onMarkRead }, ref) => {
+    const t = useTranslations('common');
     const router = useRouter();
     return (
       <div ref={ref} className="relative hidden lg:block">
@@ -34,13 +35,13 @@ export const NotificationDropdown = forwardRef<HTMLDivElement, NotificationDropd
         {open && (
           <div className="absolute left-0 top-full mt-2 w-80 bg-surface-container-lowest rounded-lg border border-outline-variant/20 shadow-[0_8px_30px_rgba(0,0,0,0.3)] overflow-hidden z-50">
             <div className="px-4 py-3 border-b border-outline-variant/20 flex items-center justify-between">
-              <span className="font-bold text-sm text-on-surface">الإشعارات</span>
+              <span className="font-bold text-sm text-on-surface">{t('notifications')}</span>
               {unreadCount > 0 && (
-                <span className="text-xs bg-red-900/20 text-red-400 px-2 py-0.5 rounded font-semibold">{unreadCount} جديد</span>
+                <span className="text-xs bg-red-900/20 text-red-400 px-2 py-0.5 rounded font-semibold">{t('newCount', { count: unreadCount })}</span>
               )}
             </div>
             {items.length === 0 ? (
-              <div className="py-8 text-center text-sm text-on-surface-variant">لا توجد إشعارات</div>
+              <div className="py-8 text-center text-sm text-on-surface-variant">{t('noNotifications')}</div>
             ) : (
               <div className="max-h-72 overflow-y-auto divide-y divide-outline-variant/10">
                 {items.map((n) => (
@@ -76,7 +77,7 @@ export const NotificationDropdown = forwardRef<HTMLDivElement, NotificationDropd
               onClick={close}
               className="block text-center py-2.5 text-xs font-semibold text-primary hover:bg-surface-container border-t border-outline-variant/20 transition-colors"
             >
-              عرض كل الإشعارات
+              {t('viewAllNotifications')}
             </Link>
           </div>
         )}

@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -16,7 +15,7 @@ export function AuthLayout({ children, formTitle, formSubtitle }: AuthLayoutProp
   const router = useRouter();
 
   return (
-    <div className="relative min-h-[100dvh] flex flex-col sm:justify-center overflow-x-hidden" dir="rtl">
+    <div className="relative min-h-[100dvh] flex flex-col sm:justify-center overflow-x-hidden">
       {/* ── Background ── */}
       <div className="fixed inset-0 bg-surface animate-auth-bg" />
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-primary/[0.06] blur-[120px] pointer-events-none" />

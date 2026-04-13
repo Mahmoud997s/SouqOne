@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
 import { VehicleCard } from '@/features/ads/components/vehicle-card';

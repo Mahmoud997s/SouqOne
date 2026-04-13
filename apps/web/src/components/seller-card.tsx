@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { getImageUrl } from '@/lib/image-utils';
 
 interface SellerCardProps {

@@ -70,7 +70,7 @@ export function CustomSelect({ value, onChange, options, placeholder, disabled =
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="ابحث..."
                 className="w-full bg-surface-container border border-outline-variant/20 rounded-lg py-2 px-3 text-sm text-on-surface placeholder-on-surface-variant/50 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all"
-                dir="rtl"
+               
               />
             </div>
           )}

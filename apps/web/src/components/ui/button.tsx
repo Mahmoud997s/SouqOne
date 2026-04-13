@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import clsx from 'clsx';
 
 const base =

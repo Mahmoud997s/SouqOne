@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import type { JobItem } from '@/lib/api';
 import { employmentLabels } from '@/lib/constants/jobs';
 import { relativeTime } from '@/lib/time-utils';
@@ -72,7 +72,7 @@ export function JobCard({ job }: { job: JobItem }) {
   return (
     <Link href={`/jobs/${job.id}`} className="block group h-full">
       <article
-        dir="rtl"
+       
         className="h-full bg-surface-container-lowest dark:bg-surface-container flex flex-col gap-2.5 transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
         style={{ border: '0.5px solid var(--color-outline-variant, #e0e0e0)', borderRadius: 12, padding: '14px 14px 12px' }}
       >

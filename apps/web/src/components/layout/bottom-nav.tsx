@@ -1,19 +1,20 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
 import { useSearch } from '@/providers/search-provider';
 
-const NAV_ITEMS = [
-  { href: '/', label: 'الرئيسية', icon: 'home' },
-  { href: '#search', label: 'البحث', icon: 'search', isSearch: true },
-  { href: '/add-listing', label: 'أضف إعلان', icon: 'add_circle', accent: true },
-  { href: '/messages', label: 'الرسائل', icon: 'chat', authRequired: true },
-  { href: '/profile', label: 'حسابي', icon: 'person', authRequired: true },
-];
-
 export function BottomNav() {
+  const t = useTranslations('common');
+
+  const NAV_ITEMS = [
+    { href: '/', label: t('home'), icon: 'home' },
+    { href: '#search', label: t('search'), icon: 'search', isSearch: true },
+    { href: '/add-listing', label: t('addListing'), icon: 'add_circle', accent: true },
+    { href: '/messages', label: t('messages'), icon: 'chat', authRequired: true },
+    { href: '/profile', label: t('myAccount'), icon: 'person', authRequired: true },
+  ];
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
   const { searchOpen, toggleSearch } = useSearch();
@@ -25,7 +26,7 @@ export function BottomNav() {
   if (pathname.startsWith('/messages/') && pathname !== '/messages') return null;
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-surface-container-lowest/95 dark:bg-surface-container/95 backdrop-blur-xl border-t border-outline-variant/10 dark:border-outline-variant/20 safe-area-bottom" dir="rtl">
+    <nav className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-surface-container-lowest/95 dark:bg-surface-container/95 backdrop-blur-xl border-t border-outline-variant/10 dark:border-outline-variant/20 safe-area-bottom">
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {NAV_ITEMS.map((item) => {
           // Redirect to login if auth required and not authenticated

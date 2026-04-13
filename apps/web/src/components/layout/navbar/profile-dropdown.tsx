@@ -1,7 +1,8 @@
 'use client';
 
 import { forwardRef } from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { getImageUrl } from '@/lib/image-utils';
 
 interface ProfileDropdownProps {
@@ -12,18 +13,19 @@ interface ProfileDropdownProps {
   onLogout: () => void;
 }
 
-const menuItems = [
-  { href: '/profile', icon: 'person', label: 'الملف الشخصي' },
-  { href: '/my-listings', icon: 'directions_car', label: 'إعلاناتي' },
-  { href: '/bookings', icon: 'schedule', label: 'حجوزاتي' },
-  { href: '/jobs/my', icon: 'work', label: 'إعلاناتي الوظيفية' },
-  { href: '/messages', icon: 'chat', label: 'الرسائل' },
-  { href: '/favorites', icon: 'favorite', label: 'المفضلة' },
-  { href: '/profile?tab=settings', icon: 'settings', label: 'الإعدادات' },
-];
-
 export const ProfileDropdown = forwardRef<HTMLDivElement, ProfileDropdownProps>(
   ({ open, toggle, close, user, onLogout }, ref) => {
+    const t = useTranslations('common');
+
+    const menuItems = [
+      { href: '/profile', icon: 'person', label: t('profile') },
+      { href: '/my-listings', icon: 'directions_car', label: t('myListings') },
+      { href: '/bookings', icon: 'schedule', label: t('myBookings') },
+      { href: '/jobs/my', icon: 'work', label: t('myJobListings') },
+      { href: '/messages', icon: 'chat', label: t('messages') },
+      { href: '/favorites', icon: 'favorite', label: t('favorites') },
+      { href: '/profile?tab=settings', icon: 'settings', label: t('settings') },
+    ];
     return (
       <div ref={ref} className="relative hidden lg:block">
         <button
@@ -73,7 +75,7 @@ export const ProfileDropdown = forwardRef<HTMLDivElement, ProfileDropdownProps>(
                 onClick={() => { onLogout(); close(); }}
                 className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-error hover:bg-error-container/20 transition-colors"
               >
-                <span className="material-symbols-outlined text-base shrink-0">logout</span> تسجيل الخروج
+                <span className="material-symbols-outlined text-base shrink-0">logout</span> {t('logout')}
               </button>
             </div>
           </div>

@@ -154,3 +154,107 @@ export function translateApiErrors(raw: string | string[]): string[] {
 export function translateApiError(raw: string | string[]): string {
   return translateApiErrors(raw).join('\n');
 }
+
+// ─── i18n-aware version ───
+
+type ErrorT = (key: string, params?: Record<string, string | number>) => string;
+
+const FIELD_KEY_MAP: Record<string, string> = {
+  title: 'fieldTitle', description: 'fieldDescription', make: 'fieldMake', model: 'fieldModel',
+  year: 'fieldYear', price: 'fieldPrice', mileage: 'fieldMileage', fuelType: 'fieldFuelType',
+  transmission: 'fieldTransmission', condition: 'fieldCondition', governorate: 'fieldGovernorate',
+  city: 'fieldCity', contactPhone: 'fieldContactPhone', whatsapp: 'fieldWhatsapp',
+  providerName: 'fieldProviderName', providerType: 'fieldProviderType', serviceType: 'fieldServiceType',
+  transportType: 'fieldTransportType', tripType: 'fieldTripType', scheduleType: 'fieldScheduleType',
+  pricingType: 'fieldPricingType', offerType: 'fieldOfferType', listingType: 'fieldListingType',
+  routeFrom: 'fieldRouteFrom', routeTo: 'fieldRouteTo', partCategory: 'fieldPartCategory',
+  pricePerTrip: 'fieldPricePerTrip', priceMonthly: 'fieldPriceMonthly', basePrice: 'fieldBasePrice',
+  pricePerKm: 'fieldPricePerKm', priceFrom: 'fieldPriceFrom', priceTo: 'fieldPriceTo',
+  dailyPrice: 'fieldDailyPrice', weeklyPrice: 'fieldWeeklyPrice', monthlyPrice: 'fieldMonthlyPrice',
+  depositAmount: 'fieldDepositAmount', capacity: 'fieldCapacity', availableSeats: 'fieldAvailableSeats',
+  email: 'fieldEmail', password: 'fieldPassword', username: 'fieldUsername', displayName: 'fieldDisplayName',
+  website: 'fieldWebsite', address: 'fieldAddress', partNumber: 'fieldPartNumber',
+  vehicleType: 'fieldVehicleType', vehicleCapacity: 'fieldVehicleCapacity',
+  cancellationPolicy: 'fieldCancellationPolicy',
+};
+
+function getFieldNameT(t: ErrorT, raw: string): string {
+  const key = FIELD_KEY_MAP[raw];
+  return key ? t(key) : raw;
+}
+
+function translateOneT(t: ErrorT, msg: string): string {
+  if (/[\u0600-\u06FF]/.test(msg) && !msg.includes('must be')) return msg;
+
+  const enumMatch = msg.match(/^(\w+) must be one of the following values: (.+)$/);
+  if (enumMatch) {
+    const field = getFieldNameT(t, enumMatch[1]);
+    const enumMap = ENUM_VALUES_AR[enumMatch[1]];
+    if (enumMap) {
+      const options = Object.values(enumMap).join(', ');
+      return t('errEnum', { field, options });
+    }
+    return t('errEnumFallback', { field });
+  }
+
+  const emptyMatch = msg.match(/^(\w+) should not be empty$/);
+  if (emptyMatch) return t('errRequired', { field: getFieldNameT(t, emptyMatch[1]) });
+
+  const stringMatch = msg.match(/^(\w+) must be a string$/);
+  if (stringMatch) return t('errRequired', { field: getFieldNameT(t, stringMatch[1]) });
+
+  const numberMatch = msg.match(/^(\w+) must be a number/);
+  if (numberMatch) return t('errNumber', { field: getFieldNameT(t, numberMatch[1]) });
+
+  const intMatch = msg.match(/^(\w+) must be an integer/);
+  if (intMatch) return t('errInteger', { field: getFieldNameT(t, intMatch[1]) });
+
+  const minMatch = msg.match(/^(\w+) must not be less than (\d+)$/);
+  if (minMatch) return t('errMin', { field: getFieldNameT(t, minMatch[1]), value: minMatch[2] });
+
+  const maxMatch = msg.match(/^(\w+) must not be greater than (\d+)$/);
+  if (maxMatch) return t('errMax', { field: getFieldNameT(t, maxMatch[1]), value: maxMatch[2] });
+
+  const minLenMatch = msg.match(/^(\w+) must be longer than or equal to (\d+) characters$/);
+  if (minLenMatch) return t('errMinLen', { field: getFieldNameT(t, minLenMatch[1]), count: minLenMatch[2] });
+
+  const maxLenMatch = msg.match(/^(\w+) must be shorter than or equal to (\d+) characters$/);
+  if (maxLenMatch) return t('errMaxLen', { field: getFieldNameT(t, maxLenMatch[1]), count: maxLenMatch[2] });
+
+  const emailMatch = msg.match(/^(\w+) must be an email$/);
+  if (emailMatch) return t('errEmail');
+
+  const dateMatch = msg.match(/^(\w+) must be a valid ISO 8601 date/);
+  if (dateMatch) return t('errDate', { field: getFieldNameT(t, dateMatch[1]) });
+
+  const urlMatch = msg.match(/^(\w+) must be a(n)? URL/);
+  if (urlMatch) return t('errUrl', { field: getFieldNameT(t, urlMatch[1]) });
+
+  const boolMatch = msg.match(/^(\w+) must be a boolean/);
+  if (boolMatch) return t('errBoolean', { field: getFieldNameT(t, boolMatch[1]) });
+
+  const eachMatch = msg.match(/^each value in (\w+)/);
+  if (eachMatch) return t('errInvalidValues', { field: getFieldNameT(t, eachMatch[1]) });
+
+  const arrayMatch = msg.match(/^(\w+) must be an array$/);
+  if (arrayMatch) return t('errArray', { field: getFieldNameT(t, arrayMatch[1]) });
+
+  const propMatch = msg.match(/^property (\w+) should not exist$/);
+  if (propMatch) return t('errPropNotAllowed', { field: getFieldNameT(t, propMatch[1]) });
+
+  if (msg === 'Unauthorized') return t('errUnauthorized');
+  if (msg === 'Forbidden resource') return t('errForbidden');
+  if (/not found|Not Found/i.test(msg)) return t('errNotFound');
+  if (/already exists|Duplicate/i.test(msg)) return t('errDuplicate');
+
+  return msg;
+}
+
+export function translateApiErrorsT(t: ErrorT, raw: string | string[]): string[] {
+  const messages = Array.isArray(raw) ? raw : [raw];
+  return messages.map(m => translateOneT(t, m));
+}
+
+export function translateApiErrorT(t: ErrorT, raw: string | string[]): string {
+  return translateApiErrorsT(t, raw).join('\n');
+}

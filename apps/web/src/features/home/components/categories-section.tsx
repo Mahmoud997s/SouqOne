@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 const categories = [
   { label: 'سيارات', icon: 'directions_car', href: '/listings', color: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400', desc: 'بيع وإيجار' },

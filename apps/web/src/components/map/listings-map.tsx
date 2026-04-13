@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useLeafletCSS } from '@/hooks/use-leaflet-css';
 import { getImageUrl } from '@/lib/image-utils';
 
