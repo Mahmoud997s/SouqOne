@@ -1,16 +1,16 @@
 import { Suspense } from 'react';
-import AuthPage from '@/components/auth/auth-page';
-import LoginForm from './login-form';
+import AuthModal from '@/components/auth/auth-modal';
+import LoginForm from '@/app/login/login-form';
 
-export default function LoginPage() {
+export default function LoginModal() {
   return (
-    <AuthPage
+    <AuthModal
       title="تسجيل الدخول"
       subtitle="أهلاً بك، سجّل دخولك للمتابعة"
     >
       <Suspense>
         <LoginForm />
       </Suspense>
-    </AuthPage>
+    </AuthModal>
   );
 }

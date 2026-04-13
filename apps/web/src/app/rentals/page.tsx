@@ -78,7 +78,7 @@ function RentalsContent() {
             </h1>
             <p className="text-on-surface-variant">استأجر سيارتك المفضلة بأفضل الأسعار في سلطنة عمان</p>
           </div>
-          <Link href="/add-listing" className="btn-green px-6 py-3 text-sm font-black shrink-0 hover:brightness-110 transition-colors">
+          <Link href="/add-listing" className="btn-success px-6 py-2.5 text-sm font-black shrink-0 hover:brightness-110 transition-colors">
             <span className="material-symbols-outlined text-lg align-middle ml-1">add</span>
             أضف سيارة للإيجار
           </Link>

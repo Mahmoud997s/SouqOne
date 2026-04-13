@@ -109,7 +109,7 @@ export function WelcomeModal() {
           {/* Action button */}
           <button
             onClick={next}
-            className="btn-editorial w-full py-3.5 text-sm font-black flex items-center justify-center gap-2 hover:brightness-105 hover:shadow-ambient active:scale-[0.98] transition-all"
+            className="btn-primary w-full py-3.5 text-sm font-black flex items-center justify-center gap-2 hover:brightness-105 hover:shadow-ambient active:scale-[0.98] transition-all"
           >
             {isLast ? (
               <>

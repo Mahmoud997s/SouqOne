@@ -108,7 +108,7 @@ export function HeroSection() {
                   </button>
                 )}
               </div>
-              <button type="submit" className="btn-editorial shrink-0 px-4 sm:px-6 py-2.5 sm:py-3 font-bold text-[13px] sm:text-sm rounded-xl flex items-center gap-1.5 hover:shadow-ambient hover:brightness-105 active:scale-[0.97] transition-all">
+              <button type="submit" className="btn-primary shrink-0 px-6 py-2.5 font-bold text-sm rounded-xl flex items-center gap-1.5 hover:shadow-ambient hover:brightness-105 active:scale-[0.97] transition-all">
                 <span className="material-symbols-outlined text-sm sm:text-base">search</span>
                 <span className="hidden sm:inline">بحث</span>
               </button>
@@ -129,7 +129,7 @@ export function HeroSection() {
           </div>
           <Link
             href="/add-listing"
-            className="btn-green px-5 py-2.5 text-xs font-black rounded-xl flex items-center gap-1.5 hover:brightness-110 shrink-0 transition-all animate-hero-float"
+            className="btn-success px-4 py-2 text-sm font-black rounded-xl flex items-center gap-1.5 hover:brightness-110 shrink-0 transition-all animate-hero-float"
           >
             <span className="material-symbols-outlined text-sm">add_circle</span>
             أضف إعلانك مجاناً

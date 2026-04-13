@@ -384,7 +384,7 @@ export default function CarDetailsPage() {
                           <button
                             onClick={handleBooking}
                             disabled={createBooking.isPending || !startDate || !endDate}
-                            className="btn-green w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-1.5"
+                            className="btn-success w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-1.5"
                           >
                             <span className="material-symbols-outlined text-base">event_available</span>
                             {createBooking.isPending ? 'جارٍ الحجز...' : 'احجز الآن'}
@@ -429,7 +429,7 @@ export default function CarDetailsPage() {
                         </Link>
                       ) : (
                         <button onClick={handleBuyNow} disabled={createConv.isPending} className={`w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-1.5 ${
-                          isWanted ? 'bg-orange-500 text-white' : 'bg-primary text-on-primary'
+                          isWanted ? 'btn-warning' : 'btn-primary'
                         }`}>
                           <span className="material-symbols-outlined text-base">{isWanted ? 'chat' : 'shopping_cart'}</span>
                           {createConv.isPending ? 'جارٍ التواصل...' : isWanted ? 'تواصل مع الطالب' : 'اشترِ الآن'}
@@ -574,7 +574,7 @@ export default function CarDetailsPage() {
                   <button
                     onClick={handleBooking}
                     disabled={createBooking.isPending || !startDate || !endDate}
-                    className="btn-green px-5 py-2.5 rounded-xl text-sm font-black shadow-lg disabled:opacity-50 flex items-center gap-1.5"
+                    className="btn-success px-5 py-2.5 rounded-xl text-sm font-black shadow-lg disabled:opacity-50 flex items-center gap-1.5"
                   >
                     <span className="material-symbols-outlined text-base">event_available</span>
                     احجز
@@ -583,7 +583,7 @@ export default function CarDetailsPage() {
                   <button
                     onClick={handleBuyNow}
                     disabled={createConv.isPending}
-                    className="bg-orange-500 text-white px-5 py-2.5 rounded-xl text-sm font-black shadow-lg hover:brightness-110 transition-all flex items-center gap-1.5"
+                    className="btn-warning px-5 py-2.5 rounded-xl text-sm font-black shadow-lg hover:brightness-110 transition-all flex items-center gap-1.5"
                   >
                     <span className="material-symbols-outlined text-base">chat</span>
                     تواصل
@@ -592,7 +592,7 @@ export default function CarDetailsPage() {
                   <button
                     onClick={handleBuyNow}
                     disabled={createConv.isPending}
-                    className="bg-primary text-on-primary px-5 py-2.5 rounded-xl text-sm font-black shadow-lg hover:brightness-110 transition-all flex items-center gap-1.5"
+                    className="btn-primary px-5 py-2.5 rounded-xl text-sm font-black shadow-lg hover:brightness-110 transition-all flex items-center gap-1.5"
                   >
                     <span className="material-symbols-outlined text-base">shopping_cart</span>
                     اشترِ الآن

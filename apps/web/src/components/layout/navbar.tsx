@@ -224,10 +224,10 @@ export function Navbar() {
                 </>
               ) : (
                 <div className="hidden lg:flex items-center gap-2">
-                  <Link href="/login" className="ghost-border text-primary hover:bg-primary hover:text-on-primary px-3.5 py-1.5 text-[13px] font-bold rounded-xl transition-all flex items-center gap-1">
+                  <Link href="/login" className="ghost-border text-primary hover:bg-primary hover:text-on-primary px-3 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1">
                     <span className="material-symbols-outlined text-sm">person</span> دخول
                   </Link>
-                  <Link href="/register" className="btn-editorial px-4 py-1.5 text-[13px] font-bold hover:brightness-105 hover:shadow-ambient">
+                  <Link href="/register" className="btn-primary px-3 py-1.5 text-xs font-bold hover:brightness-105 hover:shadow-ambient">
                     إنشاء حساب
                   </Link>
                 </div>

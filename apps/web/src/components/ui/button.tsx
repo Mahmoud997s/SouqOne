@@ -7,27 +7,30 @@ const base =
 
 const variants: Record<string, string> = {
   primary:
-    'btn-editorial hover:shadow-ambient hover:brightness-105',
-  accent:
-    'btn-editorial hover:shadow-ambient hover:brightness-105',
+    'btn-primary hover:shadow-ambient hover:brightness-105',
+  success:
+    'btn-success hover:shadow-ambient hover:brightness-105',
+  warning:
+    'btn-warning hover:shadow-ambient hover:brightness-105',
+  danger:
+    'btn-danger hover:shadow-ambient hover:brightness-105',
   secondary:
     'bg-surface-container-high text-on-surface rounded-xl hover:bg-surface-container-highest',
   ghost:
     'bg-surface-container-low text-on-surface rounded-xl hover:bg-surface-container-high',
   outline:
     'ghost-border text-on-surface rounded-xl hover:bg-surface-container bg-transparent',
-  outlineGold:
+  outlinePrimary:
     'ghost-border text-primary rounded-xl hover:bg-primary hover:text-on-primary bg-transparent',
-  danger:
-    'ghost-border text-error bg-transparent rounded-xl hover:bg-error/10',
   link:
     'text-primary underline decoration-primary/30 underline-offset-8 hover:decoration-primary bg-transparent',
 };
 
 const sizes: Record<string, string> = {
-  sm: 'px-6 py-2 text-sm',
-  md: 'px-8 py-3 text-base',
-  lg: 'px-10 py-4 text-lg',
+  xs: 'px-3 py-1.5 text-xs',
+  sm: 'px-4 py-2 text-sm',
+  md: 'px-6 py-2.5 text-sm',
+  lg: 'w-full py-3 text-sm',
 };
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

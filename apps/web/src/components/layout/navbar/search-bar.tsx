@@ -158,7 +158,7 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
             <span className="material-symbols-outlined text-base">search</span>
           </button>
         </form>
-        <Link href="/add-listing" className="shrink-0 btn-green h-[36px] px-3 sm:px-4 text-[12px] sm:text-[13px] font-bold flex items-center gap-1.5 hover:brightness-105 hover:shadow-ambient">
+        <Link href="/add-listing" className="shrink-0 btn-success h-[36px] px-3 sm:px-4 text-xs font-bold flex items-center gap-1.5 hover:brightness-105 hover:shadow-ambient">
           <span className="material-symbols-outlined text-sm">add</span>
           <span className="hidden sm:inline">أضف إعلان</span>
         </Link>

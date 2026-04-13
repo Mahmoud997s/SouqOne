@@ -41,7 +41,7 @@ export function JobsSection({ items, isLoading }: JobsSectionProps) {
           <div className="text-center py-16 bg-surface-container-lowest">
             <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3 block">work_off</span>
             <p className="text-on-surface-variant font-medium mb-4">لا توجد وظائف حالياً</p>
-            <Link href="/jobs/new" className="btn-orange px-6 py-3 text-sm font-black inline-block hover:brightness-110 transition-colors">
+            <Link href="/jobs/new" className="btn-warning px-6 py-2.5 text-sm font-black inline-block hover:brightness-110 transition-colors">
               أضف إعلان وظيفة
             </Link>
           </div>

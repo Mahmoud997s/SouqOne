@@ -28,7 +28,7 @@ export function NewsletterCta() {
               placeholder="بريدك الإلكتروني"
               className="bg-white/5 border border-white/10 border-l-0 px-5 py-3 sm:py-4 w-3/4 rounded-r-full focus:outline-none focus:border-primary text-white placeholder:text-white/40 text-sm sm:text-base transition-all"
             />
-            <button className="btn-orange w-1/4 py-3 sm:py-4 font-black whitespace-nowrap hover:brightness-110 transition-all text-xs sm:text-sm rounded-l-full">
+            <button className="btn-warning w-1/4 py-3 sm:py-4 font-black whitespace-nowrap hover:brightness-110 transition-all text-xs sm:text-sm rounded-l-full">
               اشترك الآن
             </button>
           </div>

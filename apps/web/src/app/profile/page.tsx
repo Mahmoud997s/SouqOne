@@ -218,7 +218,7 @@ export default function ProfilePage() {
                     <span className="material-symbols-outlined text-base sm:text-lg">edit</span>
                     <span className="hidden sm:inline">تعديل</span>
                   </button>
-                  <Link href="/add-listing" className="h-8 sm:h-10 px-3 sm:px-5 btn-green text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 hover:brightness-105 transition-all rounded-lg">
+                  <Link href="/add-listing" className="h-8 sm:h-10 px-3 sm:px-5 btn-success text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 hover:brightness-105 transition-all rounded-lg">
                     <span className="material-symbols-outlined text-base sm:text-lg">add</span>
                     <span className="hidden sm:inline">أضف إعلان</span>
                   </Link>
@@ -365,7 +365,7 @@ export default function ProfilePage() {
                   </div>
                   <h3 className="text-lg font-black text-on-surface mb-2">لا توجد إعلانات بعد</h3>
                   <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">أضف إعلانك الأول وابدأ الوصول لآلاف المهتمين</p>
-                  <Link href="/add-listing" className="inline-flex items-center gap-2 btn-editorial px-8 py-3 text-sm font-black hover:brightness-110 transition-all">
+                  <Link href="/add-listing" className="inline-flex items-center gap-2 btn-primary px-8 py-3 text-sm font-black hover:brightness-110 transition-all">
                     <span className="material-symbols-outlined text-lg">add</span>
                     أضف إعلانك الأول
                   </Link>
@@ -416,7 +416,7 @@ export default function ProfilePage() {
                   </div>
                   <h3 className="text-lg font-black text-on-surface mb-2">لا توجد مفضلات</h3>
                   <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">احفظ السيارات التي تعجبك لتعود إليها لاحقاً</p>
-                  <Link href="/listings" className="inline-flex items-center gap-2 btn-editorial px-8 py-3 text-sm font-black hover:brightness-110 transition-all">
+                  <Link href="/listings" className="inline-flex items-center gap-2 btn-primary px-8 py-3 text-sm font-black hover:brightness-110 transition-all">
                     <span className="material-symbols-outlined text-lg">search</span>
                     تصفح الإعلانات
                   </Link>
@@ -470,7 +470,7 @@ export default function ProfilePage() {
                       </div>
                     )}
                     <div className="flex gap-3 pt-2">
-                      <button type="submit" disabled={updateProfile.isPending} className="btn-editorial flex-1 py-3 text-sm font-black hover:brightness-110 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
+                      <button type="submit" disabled={updateProfile.isPending} className="btn-primary flex-1 py-3 text-sm font-black hover:brightness-110 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
                         {updateProfile.isPending ? (
                           <><span className="material-symbols-outlined text-base animate-spin">progress_activity</span> جارٍ الحفظ...</>
                         ) : (
@@ -544,7 +544,7 @@ export default function ProfilePage() {
                       {pwMsg}
                     </div>
                   )}
-                  <button type="submit" disabled={changePassword.isPending} className="btn-editorial w-full py-3 text-sm font-black hover:brightness-110 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
+                  <button type="submit" disabled={changePassword.isPending} className="btn-primary w-full py-3 text-sm font-black hover:brightness-110 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
                     {changePassword.isPending ? (
                       <><span className="material-symbols-outlined text-base animate-spin">progress_activity</span> جارٍ التغيير...</>
                     ) : (

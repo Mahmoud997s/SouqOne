@@ -34,7 +34,9 @@ export default function ServicesPage() {
       searchPlaceholder="ابحث عن خدمة..."
       addHref="/add-listing/service"
       addLabel="+ أضف خدمة"
-      addBtnClass="btn-orange"
+      addBtnClass="btn-warning"
+      heroIcon="home_repair_service"
+      heroSubtitle="اكتشف أفضل ورش الصيانة وخدمات السيارات في سلطنة عمان"
       basePath="/services"
       categories={SERVICE_CATS}
       filterParamKey="serviceType"

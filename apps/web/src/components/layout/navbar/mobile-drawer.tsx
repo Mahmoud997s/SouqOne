@@ -139,7 +139,7 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
                 ))}
               </div>
               <div className="px-5 mt-4">
-                <Link href="/add-listing" className="btn-green hover:brightness-110 w-full py-3 flex items-center justify-center gap-2 text-sm font-bold shadow-ambient">
+                <Link href="/add-listing" className="btn-success hover:brightness-110 w-full py-3 flex items-center justify-center gap-2 text-sm font-bold shadow-ambient">
                   <span className="material-symbols-outlined text-sm">add</span> أضف إعلانك مجاناً
                 </Link>
               </div>

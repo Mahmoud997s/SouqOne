@@ -28,7 +28,9 @@ export default function TransportPage() {
       searchPlaceholder="ابحث عن خدمة نقل..."
       addHref="/add-listing/transport"
       addLabel="+ أضف خدمة نقل"
-      addBtnClass="btn-orange"
+      addBtnClass="btn-warning"
+      heroIcon="local_shipping"
+      heroSubtitle="خدمات نقل البضائع والأثاث في جميع أنحاء سلطنة عمان"
       basePath="/transport"
       categories={TRANSPORT_CATS}
       filterParamKey="transportType"

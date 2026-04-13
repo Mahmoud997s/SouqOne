@@ -41,7 +41,7 @@ export function SearchBar({ onSearch, placeholder = 'ابحث...', defaultValue 
         </div>
         <button
           type="submit"
-          className="btn-editorial px-10 md:px-12 py-4 md:py-5 font-headline font-black hover:brightness-105 hover:shadow-ambient text-lg"
+          className="btn-primary px-10 md:px-12 py-4 md:py-5 font-headline font-black hover:brightness-105 hover:shadow-ambient text-lg"
         >
           ابحث الآن
         </button>

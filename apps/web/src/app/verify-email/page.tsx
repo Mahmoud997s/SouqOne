@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/providers/auth-provider';
 import { useToast } from '@/components/toast';
 import { apiRequest } from '@/lib/auth';
-import { AuthLayout } from '@/components/auth/auth-layout';
+import AuthPage from '@/components/auth/auth-page';
 import { OtpInput } from '@/components/auth/otp-input';
 
 export default function VerifyEmailPage() {
@@ -72,11 +72,9 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <AuthLayout
-      heroTitle="تأكيد بريدك الإلكتروني"
-      heroSubtitle="خطوة أخيرة لتفعيل حسابك والاستمتاع بجميع مزايا المعرض الرقمي."
-      formTitle="تأكيد البريد الإلكتروني"
-      formSubtitle="أدخل الرمز المرسل إلى بريدك لتفعيل حسابك."
+    <AuthPage
+      title="تأكيد البريد الإلكتروني"
+      subtitle="أدخل الرمز المرسل إلى بريدك لتفعيل حسابك"
     >
       <div>
         <div className="text-center mb-6">
@@ -95,7 +93,7 @@ export default function VerifyEmailPage() {
           <button
             type="submit"
             disabled={loading || code.join('').length !== 6}
-            className="btn-editorial w-full h-12 flex items-center justify-center gap-2 font-black text-sm rounded-xl hover:brightness-110 hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-60"
+            className="btn-primary w-full py-3 flex items-center justify-center gap-2 font-black text-sm rounded-xl hover:brightness-110 hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-60"
           >
             {loading ? (
               <>
@@ -132,6 +130,6 @@ export default function VerifyEmailPage() {
           تخطي الآن
         </button>
       </div>
-    </AuthLayout>
+    </AuthPage>
   );
 }

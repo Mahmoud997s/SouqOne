@@ -82,7 +82,7 @@ export function SearchBox() {
             </div>
             <button
               type="submit"
-              className="btn-editorial shrink-0 px-6 py-3 font-bold text-sm flex items-center justify-center gap-2 hover:shadow-ambient hover:brightness-105 active:scale-[0.97]"
+              className="btn-primary shrink-0 px-6 py-2.5 font-bold text-sm flex items-center justify-center gap-2 hover:shadow-ambient hover:brightness-105 active:scale-[0.97]"
             >
               <Search size={16} />
               <span>بحث</span>

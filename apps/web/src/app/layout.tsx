@@ -43,8 +43,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  modal,
 }: {
   children: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   return (
     <html lang="ar" dir="rtl" className={tajawal.variable} suppressHydrationWarning>
@@ -81,6 +83,7 @@ export default function RootLayout({
                   </SearchProvider>
                 </ToastProvider>
                 <LoginModal />
+                {modal}
               </AuthModalProvider>
             </AuthProvider>
           </QueryProvider>

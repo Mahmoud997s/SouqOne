@@ -29,7 +29,9 @@ export default function TripsPage() {
       searchPlaceholder="ابحث عن رحلة أو وجهة..."
       addHref="/add-listing/trip"
       addLabel="+ أضف رحلة"
-      addBtnClass="btn-green"
+      addBtnClass="btn-success"
+      heroIcon="directions_bus"
+      heroSubtitle="اشتراكات باصات ورحلات يومية وتوصيل مدارس"
       basePath="/trips"
       categories={TRIP_CATS}
       filterParamKey="tripType"

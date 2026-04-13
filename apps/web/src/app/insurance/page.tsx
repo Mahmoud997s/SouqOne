@@ -28,7 +28,9 @@ export default function InsurancePage() {
       searchPlaceholder="ابحث عن تأمين أو تمويل..."
       addHref="/add-listing/insurance"
       addLabel="+ أضف عرض"
-      addBtnClass="btn-green"
+      addBtnClass="btn-success"
+      heroIcon="shield"
+      heroSubtitle="قارن عروض التأمين والتمويل واحصل على أفضل الأسعار"
       basePath="/insurance"
       categories={INS_CATS}
       filterParamKey="offerType"

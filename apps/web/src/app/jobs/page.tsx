@@ -99,270 +99,273 @@ function JobsContent() {
   return (
     <>
       <Navbar />
-      <style>{`.scrollbar-hide::-webkit-scrollbar{display:none} .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}`}</style>
-      <main className="pt-24 pb-16" dir="rtl">
-        {/* ── Hero Section ── */}
-        <div className="bg-gradient-to-b from-amber-50/80 via-amber-50/30 to-transparent dark:from-amber-950/20 dark:via-amber-950/5 dark:to-transparent pb-6">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 pt-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-black text-on-surface flex items-center gap-2">
-                  <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-3xl">badge</span>
-                  وظائف السائقين
-                </h1>
-                <p className="text-on-surface-variant text-sm mt-1">ابحث عن سائق محترف أو اعرض خدماتك</p>
-              </div>
-              <Link href="/jobs/new" className="btn-orange px-5 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all flex items-center gap-1.5 shadow-lg shrink-0">
-                <span className="material-symbols-outlined text-base">add</span>
-                أضف إعلان وظيفة
-              </Link>
+      <style>{`.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}`}</style>
+
+      {/* ═══════════ HERO SECTION ═══════════ */}
+      <section className="relative overflow-hidden" dir="rtl">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#004ac6] via-[#2563eb] to-[#0B2447]" />
+        {/* Pattern overlay */}
+        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
+        {/* Decorative blurs */}
+        <div className="absolute top-[-20%] right-0 w-[60vw] md:w-[500px] h-[60vw] md:h-[500px] rounded-full bg-white/[0.05] blur-3xl" />
+        <div className="absolute bottom-[-20%] left-0 w-[50vw] md:w-[400px] h-[50vw] md:h-[400px] rounded-full bg-blue-300/[0.08] blur-3xl" />
+
+        <div className="relative z-10 pt-20 pb-8 sm:pt-28 sm:pb-12 md:pt-32 md:pb-14">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
+            {/* Icon badge */}
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm mb-4">
+              <span className="material-symbols-outlined text-white text-3xl">badge</span>
             </div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 drop-shadow-sm">وظائف السائقين</h1>
+            <p className="text-white/70 text-xs sm:text-sm mb-5 sm:mb-7 max-w-lg mx-auto">ابحث عن سائق محترف أو اعرض خدماتك في سلطنة عمان</p>
 
-            {/* Stats bar */}
-            {meta && (
-              <div className="flex items-center gap-4 mb-5">
-                <div className="flex items-center gap-1.5 bg-white/70 dark:bg-surface-container backdrop-blur-sm border border-outline-variant/10 rounded-xl px-3 py-1.5">
-                  <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-sm">work</span>
-                  <span className="text-xs font-black text-on-surface">{meta.total}</span>
-                  <span className="text-xs text-on-surface-variant">وظيفة متاحة</span>
-                </div>
-              </div>
-            )}
-
-            {/* Tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
-              {TABS.map((tab) => (
-                <button
-                  key={tab.value}
-                  onClick={() => updateParam('jobType', tab.value)}
-                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black whitespace-nowrap transition-all ${
-                    jobType === tab.value
-                      ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20 dark:bg-amber-500'
-                      : 'bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 text-on-surface-variant hover:border-amber-500/30 hover:text-amber-700 dark:hover:text-amber-400'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-sm">{tab.icon}</span>
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Search bar */}
-            <div className="mt-4 flex gap-2">
-              <div className="flex-1 relative">
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/60 text-lg">search</span>
-                <input
-                  type="text"
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  placeholder="ابحث بالعنوان أو الوصف..."
-                  className="w-full bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl py-2.5 pr-10 pl-4 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none text-sm transition-all"
-                  dir="rtl"
-                />
-              </div>
-              <button onClick={handleSearch} className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-xl text-sm font-black transition-all shadow-md shadow-amber-600/20 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-sm">search</span>
-                بحث
-              </button>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`px-3 py-2.5 rounded-xl text-sm font-black transition-all flex items-center gap-1 border relative ${
-                  showFilters || activeFilterCount > 0
-                    ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400'
-                    : 'bg-surface-container-lowest dark:bg-surface-container border-outline-variant/10 text-on-surface-variant hover:border-amber-500/30'
-                }`}
-              >
-                <span className="material-symbols-outlined text-sm">tune</span>
-                <span className="hidden sm:inline">فلاتر</span>
-                {activeFilterCount > 0 && (
-                  <span className="absolute -top-1.5 -left-1.5 w-5 h-5 bg-amber-600 text-white text-[10px] font-black rounded-full flex items-center justify-center">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </button>
-            </div>
-
-            {/* Expandable filters panel */}
-            {showFilters && (
-              <div className="mt-3 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-2xl p-4 md:p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
-                {/* Row 1: Selects */}
-                <div className="flex flex-wrap gap-3">
-                  <select
-                    value={governorate}
-                    onChange={(e) => updateParam('governorate', e.target.value)}
-                    className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-amber-500/40 min-w-[150px]"
-                  >
-                    <option value="">كل المحافظات</option>
-                    {govs.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
-                  </select>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => updateParam('sortBy', e.target.value)}
-                    className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-amber-500/40 min-w-[130px]"
-                  >
-                    <option value="">الترتيب</option>
-                    {sortOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
-                  {activeFilterCount > 0 && (
-                    <button onClick={clearFilters} className="text-xs text-red-500 hover:text-red-600 font-bold flex items-center gap-1 transition-colors">
-                      <span className="material-symbols-outlined text-sm">close</span>
-                      مسح الكل
-                    </button>
-                  )}
-                </div>
-
-                {/* Row 2: Employment Type */}
-                <div>
-                  <p className="text-[11px] text-on-surface-variant font-bold mb-2 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-xs">work</span>
-                    نوع الدوام
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {employmentOptions.map((o) => (
-                      <button
-                        key={o.value}
-                        onClick={() => updateParam('employmentType', employmentType === o.value ? '' : o.value)}
-                        className={`px-3 py-1.5 rounded-lg text-[11px] font-black transition-all ${
-                          employmentType === o.value
-                            ? 'bg-amber-600 text-white shadow-sm'
-                            : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-950/30 dark:hover:text-amber-400'
-                        }`}
-                      >
-                        {o.label}
+            {/* Glass Search Box */}
+            <div className="max-w-3xl mx-auto">
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 md:p-4 shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="flex-1 flex items-center gap-2 bg-white/90 dark:bg-white/10 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 focus-within:ring-2 focus-within:ring-white/40 transition-all">
+                    <span className="material-symbols-outlined text-primary/50 dark:text-white/40 text-xl shrink-0">search</span>
+                    <input
+                      type="text"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                      placeholder="ابحث بالعنوان أو الوصف..."
+                      className="flex-1 bg-transparent text-sm font-medium text-on-surface dark:text-white placeholder:text-on-surface-variant/50 dark:placeholder:text-white/40 focus:outline-none min-w-0"
+                      dir="rtl"
+                    />
+                    {searchInput && (
+                      <button type="button" onClick={() => setSearchInput('')} className="text-on-surface-variant/40 hover:text-on-surface-variant shrink-0">
+                        <span className="material-symbols-outlined text-lg">close</span>
                       </button>
-                    ))}
+                    )}
                   </div>
-                </div>
-
-                {/* Row 3: License Type */}
-                <div>
-                  <p className="text-[11px] text-on-surface-variant font-bold mb-2 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-xs">card_membership</span>
-                    نوع الرخصة
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {licenseOptions.map((o) => (
-                      <button
-                        key={o.value}
-                        onClick={() => updateParam('licenseType', licenseType === o.value ? '' : o.value)}
-                        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-black transition-all ${
-                          licenseType === o.value
-                            ? 'bg-amber-600 text-white shadow-sm'
-                            : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-950/30 dark:hover:text-amber-400'
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-xs">{o.icon}</span>
-                        {o.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── Results ── */}
-        <div className="max-w-7xl mx-auto px-4 md:px-8 mt-6">
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="animate-pulse bg-surface-container-low dark:bg-surface-container rounded-2xl h-56" />
-              ))}
-            </div>
-          ) : isError ? (
-            <div className="text-center py-20">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
-                <span className="material-symbols-outlined text-4xl text-red-400">error</span>
-              </div>
-              <p className="text-lg font-black text-on-surface mb-2">حدث خطأ في تحميل البيانات</p>
-              <p className="text-sm text-on-surface-variant mb-6">يرجى المحاولة مرة أخرى</p>
-              <button onClick={() => refetch()} className="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all">إعادة المحاولة</button>
-            </div>
-          ) : items.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="w-24 h-24 mx-auto mb-5 rounded-full bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
-                <span className="material-symbols-outlined text-5xl text-amber-400">work_off</span>
-              </div>
-              <p className="text-xl font-black text-on-surface mb-2">لا توجد وظائف</p>
-              <p className="text-on-surface-variant text-sm mb-6">جرّب تغيير معايير البحث أو كن أول من ينشر إعلان</p>
-              <Link href="/jobs/new" className="inline-flex items-center gap-1.5 btn-orange px-6 py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg">
-                <span className="material-symbols-outlined text-base">add</span>
-                أضف إعلان وظيفة
-              </Link>
-            </div>
-          ) : (
-            <>
-              {/* Results count + active filters */}
-              <div className="flex items-center justify-between mb-5">
-                <p className="text-sm text-on-surface-variant font-bold">
-                  <span className="text-on-surface font-black">{meta?.total ?? 0}</span> وظيفة
-                </p>
-                {activeFilterCount > 0 && (
-                  <button onClick={clearFilters} className="text-xs text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1 transition-colors">
-                    <span className="material-symbols-outlined text-sm">filter_alt_off</span>
-                    مسح الفلاتر
+                  <button onClick={handleSearch} className="shrink-0 bg-white text-primary px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 font-black text-xs sm:text-sm rounded-lg sm:rounded-xl hover:bg-white/90 active:scale-[0.97] transition-all flex items-center gap-1.5 shadow-lg">
+                    <span className="material-symbols-outlined text-base">search</span>
+                    <span className="hidden sm:inline">بحث</span>
                   </button>
-                )}
-              </div>
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`shrink-0 px-3 py-2.5 sm:py-3 rounded-lg sm:rounded-xl text-sm font-black transition-all flex items-center gap-1 relative ${
+                      showFilters || activeFilterCount > 0
+                        ? 'bg-white/30 text-white border border-white/40'
+                        : 'bg-white/10 text-white/70 border border-white/10 hover:bg-white/20'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-sm">tune</span>
+                    <span className="hidden sm:inline text-xs">فلاتر</span>
+                    {activeFilterCount > 0 && (
+                      <span className="absolute -top-1.5 -left-1.5 w-5 h-5 bg-white text-primary text-[10px] font-black rounded-full flex items-center justify-center shadow-sm">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </button>
+                </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {items.map((job) => (
-                  <JobCard key={job.id} job={job} />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {meta && meta.totalPages > 1 && (
-                <div className="flex justify-center gap-2 mt-10">
-                  {Number(page) > 1 && (
+                {/* Tabs inside glass */}
+                <div className="flex overflow-x-auto no-scrollbar gap-1.5 sm:gap-2 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-white/10">
+                  {TABS.map((tab) => (
                     <button
-                      onClick={() => {
-                        const sp = new URLSearchParams(searchParams);
-                        sp.set('page', String(Number(page) - 1));
-                        router.push(`/jobs?${sp.toString()}`);
-                      }}
-                      className="w-9 h-9 rounded-lg text-xs font-black bg-surface-container-low text-on-surface-variant hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-950/30 transition-all flex items-center justify-center"
-                    >
-                      <span className="material-symbols-outlined text-sm">chevron_right</span>
-                    </button>
-                  )}
-                  {Array.from({ length: meta.totalPages }, (_, i) => i + 1).slice(0, 10).map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => {
-                        const sp = new URLSearchParams(searchParams);
-                        sp.set('page', String(p));
-                        router.push(`/jobs?${sp.toString()}`);
-                      }}
-                      className={`w-9 h-9 rounded-lg text-xs font-black transition-all ${
-                        p === Number(page)
-                          ? 'bg-amber-600 text-white shadow-md shadow-amber-600/20'
-                          : 'bg-surface-container-low text-on-surface-variant hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-950/30'
+                      key={tab.value}
+                      onClick={() => updateParam('jobType', tab.value)}
+                      className={`shrink-0 flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold rounded-md sm:rounded-lg whitespace-nowrap transition-all ${
+                        jobType === tab.value
+                          ? 'bg-white text-primary shadow-sm'
+                          : 'bg-white/10 text-white/70 hover:bg-white/20'
                       }`}
                     >
-                      {p}
+                      <span className="material-symbols-outlined text-xs">{tab.icon}</span>
+                      {tab.label}
                     </button>
                   ))}
-                  {Number(page) < meta.totalPages && (
-                    <button
-                      onClick={() => {
-                        const sp = new URLSearchParams(searchParams);
-                        sp.set('page', String(Number(page) + 1));
-                        router.push(`/jobs?${sp.toString()}`);
-                      }}
-                      className="w-9 h-9 rounded-lg text-xs font-black bg-surface-container-low text-on-surface-variant hover:bg-amber-50 hover:text-amber-700 dark:hover:bg-amber-950/30 transition-all flex items-center justify-center"
-                    >
-                      <span className="material-symbols-outlined text-sm">chevron_left</span>
-                    </button>
-                  )}
                 </div>
-              )}
-            </>
-          )}
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="flex justify-center items-center gap-4 sm:gap-6 mt-5 sm:mt-7">
+              <div className="flex items-center gap-1.5 text-white/60">
+                <span className="material-symbols-outlined text-sm">work</span>
+                <span className="text-xs font-black text-white">{meta?.total ?? '...'}</span>
+                <span className="text-xs">وظيفة</span>
+              </div>
+              <span className="w-px h-4 bg-white/20" />
+              <Link href="/jobs/new" className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors group">
+                <span className="material-symbols-outlined text-sm group-hover:scale-110 transition-transform">add_circle</span>
+                <span className="text-xs font-bold">أضف إعلان وظيفة</span>
+              </Link>
+            </div>
+          </div>
         </div>
+      </section>
+
+      {/* ═══════════ FILTERS PANEL (below hero) ═══════════ */}
+      {showFilters && (
+        <div className="max-w-7xl mx-auto px-4 md:px-8 -mt-2 mb-4" dir="rtl">
+          <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-2xl p-4 md:p-5 space-y-4 shadow-lg">
+            {/* Row 1: Selects */}
+            <div className="flex flex-wrap gap-3">
+              <select
+                value={governorate}
+                onChange={(e) => updateParam('governorate', e.target.value)}
+                className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-primary/40 min-w-[150px]"
+              >
+                <option value="">كل المحافظات</option>
+                {govs.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+              </select>
+              <select
+                value={sortBy}
+                onChange={(e) => updateParam('sortBy', e.target.value)}
+                className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-primary/40 min-w-[130px]"
+              >
+                <option value="">الترتيب</option>
+                {sortOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+              {activeFilterCount > 0 && (
+                <button onClick={clearFilters} className="text-xs text-red-500 hover:text-red-600 font-bold flex items-center gap-1 transition-colors">
+                  <span className="material-symbols-outlined text-sm">close</span>
+                  مسح الكل
+                </button>
+              )}
+            </div>
+
+            {/* Row 2: Employment Type */}
+            <div>
+              <p className="text-[11px] text-on-surface-variant font-bold mb-2 flex items-center gap-1">
+                <span className="material-symbols-outlined text-xs">work</span>
+                نوع الدوام
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {employmentOptions.map((o) => (
+                  <button
+                    key={o.value}
+                    onClick={() => updateParam('employmentType', employmentType === o.value ? '' : o.value)}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-black transition-all ${
+                      employmentType === o.value
+                        ? 'bg-primary text-on-primary shadow-sm'
+                        : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary'
+                    }`}
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Row 3: License Type */}
+            <div>
+              <p className="text-[11px] text-on-surface-variant font-bold mb-2 flex items-center gap-1">
+                <span className="material-symbols-outlined text-xs">card_membership</span>
+                نوع الرخصة
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {licenseOptions.map((o) => (
+                  <button
+                    key={o.value}
+                    onClick={() => updateParam('licenseType', licenseType === o.value ? '' : o.value)}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-black transition-all ${
+                      licenseType === o.value
+                        ? 'bg-primary text-on-primary shadow-sm'
+                        : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-primary/10 hover:text-primary'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-xs">{o.icon}</span>
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════ RESULTS ═══════════ */}
+      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-10" dir="rtl">
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="animate-pulse bg-surface-container-low dark:bg-surface-container rounded-2xl h-56" />
+            ))}
+          </div>
+        ) : isError ? (
+          <div className="text-center py-20">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
+              <span className="material-symbols-outlined text-4xl text-red-400">error</span>
+            </div>
+            <p className="text-lg font-black text-on-surface mb-2">حدث خطأ في تحميل البيانات</p>
+            <p className="text-sm text-on-surface-variant mb-6">يرجى المحاولة مرة أخرى</p>
+            <button onClick={() => refetch()} className="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all">إعادة المحاولة</button>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="w-24 h-24 mx-auto mb-5 rounded-full bg-primary/10 flex items-center justify-center">
+              <span className="material-symbols-outlined text-5xl text-primary/40">work_off</span>
+            </div>
+            <p className="text-xl font-black text-on-surface mb-2">لا توجد وظائف</p>
+            <p className="text-on-surface-variant text-sm mb-6">جرّب تغيير معايير البحث أو كن أول من ينشر إعلان</p>
+            <Link href="/jobs/new" className="inline-flex items-center gap-1.5 btn-primary px-6 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg">
+              <span className="material-symbols-outlined text-base">add</span>
+              أضف إعلان وظيفة
+            </Link>
+          </div>
+        ) : (
+          <>
+            {/* Results count + active filters */}
+            <div className="flex items-center justify-between mb-5">
+              <p className="text-sm text-on-surface-variant font-bold">
+                <span className="text-on-surface font-black">{meta?.total ?? 0}</span> وظيفة
+              </p>
+              {activeFilterCount > 0 && (
+                <button onClick={clearFilters} className="text-xs text-primary hover:text-primary/80 font-bold flex items-center gap-1 transition-colors">
+                  <span className="material-symbols-outlined text-sm">filter_alt_off</span>
+                  مسح الفلاتر
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {items.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {meta && meta.totalPages > 1 && (() => {
+              const current = Number(page);
+              const total = meta.totalPages;
+              const goTo = (p: number) => { const sp = new URLSearchParams(searchParams); sp.set('page', String(p)); router.push(`/jobs?${sp.toString()}`); };
+              const btnCls = (active: boolean) => `w-10 h-10 flex items-center justify-center font-black text-sm rounded-xl transition-all ${active ? 'bg-primary text-on-primary shadow-md' : 'border border-outline-variant/10 text-on-surface hover:bg-surface-container'}`;
+
+              const pages: (number | '...')[] = [];
+              pages.push(1);
+              if (current > 3) pages.push('...');
+              for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+              if (current < total - 2) pages.push('...');
+              if (total > 1) pages.push(total);
+
+              return (
+                <div className="flex justify-center items-center gap-2 mt-10">
+                  <button onClick={() => goTo(Math.max(1, current - 1))} disabled={current <= 1}
+                    className="w-10 h-10 border border-outline-variant/10 rounded-xl flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30">
+                    <span className="material-symbols-outlined text-lg">chevron_right</span>
+                  </button>
+                  {pages.map((p, i) =>
+                    p === '...' ? (
+                      <span key={`e${i}`} className="w-8 text-center text-on-surface-variant/50">...</span>
+                    ) : (
+                      <button key={p} onClick={() => goTo(p)} className={btnCls(p === current)}>{p}</button>
+                    )
+                  )}
+                  <button onClick={() => goTo(Math.min(total, current + 1))} disabled={current >= total}
+                    className="w-10 h-10 border border-outline-variant/10 rounded-xl flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30">
+                    <span className="material-symbols-outlined text-lg">chevron_left</span>
+                  </button>
+                </div>
+              );
+            })()}
+          </>
+        )}
       </main>
       <Footer />
     </>

@@ -55,7 +55,7 @@ export default function MyListingsPage() {
             </div>
             <Link
               href="/add-listing"
-              className="btn-green px-6 py-3 text-sm font-black flex items-center gap-2 hover:brightness-110 transition-all shadow-ambient"
+              className="btn-success px-6 py-2.5 text-sm font-black flex items-center gap-2 hover:brightness-110 transition-all shadow-ambient"
             >
               <span className="material-symbols-outlined text-lg">add</span>
               أضف إعلان جديد
@@ -169,7 +169,7 @@ export default function MyListingsPage() {
               <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">أضف إعلانك الأول وابدأ الوصول لآلاف المهتمين</p>
               <Link
                 href="/add-listing"
-                className="inline-flex items-center gap-2 btn-editorial px-8 py-3 text-sm font-black hover:brightness-110 transition-all"
+                className="inline-flex items-center gap-2 btn-primary px-8 py-3 text-sm font-black hover:brightness-110 transition-all"
               >
                 <span className="material-symbols-outlined text-lg">add</span>
                 أضف إعلانك الأول

@@ -29,7 +29,9 @@ export default function PartsPage() {
       searchPlaceholder="ابحث عن قطعة غيار..."
       addHref="/add-listing/parts"
       addLabel="+ أضف قطعة"
-      addBtnClass="btn-orange"
+      addBtnClass="btn-warning"
+      heroIcon="build"
+      heroSubtitle="ابحث عن قطع غيار أصلية ومستعملة لجميع أنواع السيارات"
       basePath="/parts"
       categories={PART_CATS}
       filterParamKey="partCategory"
