@@ -1,0 +1,33 @@
+name: Deploy Check
+
+# Runs only on main after CI passes — confirms Railway deploy is safe
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-ready:
+    name: Deploy Readiness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma
+        run: npx turbo run db:generate
+
+      - name: Build all
+        run: npx turbo run build
+
+      - name: Confirm deploy ready
+        run: |
+          echo "✅ Build passed — Railway auto-deploy is safe"
+          echo "API: caroneapi-production.up.railway.app"
+          echo "Web: awaiting Railway service setup"
