@@ -8,6 +8,7 @@ import { AuthModalProvider } from '@/providers/auth-modal-provider';
 import { LoginModal } from '@/components/auth/login-modal';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { SearchProvider } from '@/providers/search-provider';
+import { PageTransition } from '@/components/page-transition';
 import './globals.css';
 
 const tajawal = Tajawal({
@@ -73,7 +74,9 @@ export default function RootLayout({
               <AuthModalProvider>
                 <ToastProvider>
                   <SearchProvider>
-                    {children}
+                    <PageTransition>
+                      {children}
+                    </PageTransition>
                     <BottomNav />
                   </SearchProvider>
                 </ToastProvider>

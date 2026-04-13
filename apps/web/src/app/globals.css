@@ -54,27 +54,27 @@
   --color-on-error: #ffffff;
   --color-on-error-container: #991b1b;
 
-  /* ── Surfaces (Warm Cream + Orange tint) ── */
-  --color-surface: #FBF7F2;
-  --color-surface-dim: #F3EDE5;
-  --color-surface-bright: #FFFCF8;
-  --color-surface-container: #F7F1EA;
-  --color-surface-container-low: #F5EFE7;
-  --color-surface-container-lowest: #FFFDF9;
-  --color-surface-container-high: #EDE5DA;
-  --color-surface-container-highest: #E0D6C9;
-  --color-surface-variant: #F4EDE4;
+  /* ── Surfaces (Cool Gray + Blue tint) ── */
+  --color-surface: #F5F7FA;
+  --color-surface-dim: #EBEEF3;
+  --color-surface-bright: #FCFDFE;
+  --color-surface-container: #F0F2F6;
+  --color-surface-container-low: #EEF0F5;
+  --color-surface-container-lowest: #FAFBFC;
+  --color-surface-container-high: #E3E7ED;
+  --color-surface-container-highest: #D6DBE3;
+  --color-surface-variant: #ECF0F5;
   --color-surface-tint: #004ac6;
 
   /* ── On Surface ── */
-  --color-on-surface: #1C1408;
-  --color-on-surface-variant: #6B5D4F;
-  --color-on-background: #1C1408;
-  --color-background: #FBF7F2;
+  --color-on-surface: #111827;
+  --color-on-surface-variant: #4B5563;
+  --color-on-background: #111827;
+  --color-background: #F5F7FA;
 
   /* ── Outline ── */
-  --color-outline: #A09181;
-  --color-outline-variant: #E6DDD1;
+  --color-outline: #9CA3AF;
+  --color-outline-variant: #E2E6EC;
 
   /* ── Inverse ── */
   --color-inverse-surface: #0f172a;
@@ -240,7 +240,7 @@
 
   /* Glass nav — matches hero gradient + glassmorphism */
   .glass-nav {
-    background: linear-gradient(135deg, rgba(248,250,252,0.82), rgba(238,242,255,0.78), rgba(241,245,249,0.82));
+    background: linear-gradient(135deg, rgba(245,247,250,0.85), rgba(235,240,251,0.82), rgba(240,242,246,0.85));
     backdrop-filter: blur(24px) saturate(1.4);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
     border-bottom: 1px solid rgba(255,255,255,0.5);
@@ -442,6 +442,13 @@
 .pulse-ring::after {
   animation-delay: 1s;
 }
+
+/* ── Page transition animation ── */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-page-enter { animation: page-enter 350ms ease-out forwards; }
 
 /* ── Auth page load animations ── */
 @keyframes auth-fade {
