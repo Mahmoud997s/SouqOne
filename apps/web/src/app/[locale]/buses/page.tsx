@@ -193,6 +193,25 @@ function BusCard({ bus }: { bus: BusListingItem }) {
                 {t('busesContract', { price: bus.contractMonthly })}
               </p>
             )}
+            {bus.contractMonthly && bus.price && (() => {
+              const price = Number(bus.price);
+              const monthly = Number(bus.contractMonthly);
+              const duration = bus.contractDuration || 36;
+              const netProfit = (monthly * duration) - price;
+              const roi = ((netProfit / price) * 100).toFixed(1);
+              const payback = Math.ceil(price / monthly);
+              return (
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`inline-flex items-center gap-0.5 text-[10px] font-black px-1.5 py-0.5 rounded-md ${Number(roi) > 0 ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' : 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400'}`}>
+                    <span className="material-symbols-outlined text-[10px]">trending_up</span>
+                    ROI {roi}%
+                  </span>
+                  <span className="text-[10px] text-on-surface-variant font-bold">
+                    {t('busDetailROIPaybackMonths', { months: payback })}
+                  </span>
+                </div>
+              );
+            })()}
           </div>
         )}
         {bus.busListingType === 'BUS_RENT' && (

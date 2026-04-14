@@ -209,16 +209,51 @@ function BusDetailContent({ bus }: { bus: BusListingItem }) {
                       </div>
                     )}
                   </div>
-                  {bus.contractMonthly && bus.price && (
-                    <div className="px-4 pb-4">
-                      <div className="bg-emerald-100 dark:bg-emerald-900/30 rounded-lg p-3 flex items-center justify-between">
-                        <span className="text-xs text-emerald-700 dark:text-emerald-300 font-bold">{tp('busDetailROI')}</span>
-                        <span className="text-sm font-black text-emerald-800 dark:text-emerald-200">
-                          {tp('busDetailROIPercent', { percent: ((Number(bus.contractMonthly) * 12 / Number(bus.price)) * 100).toFixed(1) })}
-                        </span>
+                  {bus.contractMonthly && bus.price && (() => {
+                    const price = Number(bus.price);
+                    const monthly = Number(bus.contractMonthly);
+                    const duration = bus.contractDuration || 36;
+                    const totalRevenue = monthly * duration;
+                    const netProfit = totalRevenue - price;
+                    const roiPercent = ((netProfit / price) * 100).toFixed(1);
+                    const paybackMonths = Math.ceil(price / monthly);
+                    const isPositive = netProfit > 0;
+
+                    return (
+                      <div className="px-4 pb-4">
+                        <div className="bg-emerald-100/80 dark:bg-emerald-900/30 rounded-xl p-4 space-y-3">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="material-symbols-outlined text-emerald-700 dark:text-emerald-400 text-base">trending_up</span>
+                            <span className="text-xs font-black text-emerald-800 dark:text-emerald-200">{tp('busDetailROISection')}</span>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="bg-white/60 dark:bg-emerald-950/40 rounded-lg p-2.5 text-center">
+                              <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">{tp('busDetailROIMonthlyIncome')}</p>
+                              <p className="text-sm font-black text-emerald-800 dark:text-emerald-200">{monthly.toLocaleString('en-US')} <span className="text-[9px] font-bold">{tp('busDetailCurrencyOMR')}</span></p>
+                            </div>
+                            <div className="bg-white/60 dark:bg-emerald-950/40 rounded-lg p-2.5 text-center">
+                              <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">{tp('busDetailROITotalRevenue')}</p>
+                              <p className="text-sm font-black text-emerald-800 dark:text-emerald-200">{totalRevenue.toLocaleString('en-US')} <span className="text-[9px] font-bold">{tp('busDetailCurrencyOMR')}</span></p>
+                            </div>
+                            <div className="bg-white/60 dark:bg-emerald-950/40 rounded-lg p-2.5 text-center">
+                              <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">{tp('busDetailROINetProfit')}</p>
+                              <p className={`text-sm font-black ${isPositive ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-600 dark:text-red-400'}`}>{isPositive ? '+' : ''}{netProfit.toLocaleString('en-US')} <span className="text-[9px] font-bold">{tp('busDetailCurrencyOMR')}</span></p>
+                            </div>
+                            <div className="bg-white/60 dark:bg-emerald-950/40 rounded-lg p-2.5 text-center">
+                              <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">{tp('busDetailROIPayback')}</p>
+                              <p className="text-sm font-black text-emerald-800 dark:text-emerald-200">{tp('busDetailROIPaybackMonths', { months: paybackMonths })}</p>
+                            </div>
+                          </div>
+
+                          <div className={`rounded-lg p-3 flex items-center justify-between ${isPositive ? 'bg-emerald-200/60 dark:bg-emerald-800/30' : 'bg-red-100 dark:bg-red-900/20'}`}>
+                            <span className="text-xs font-black text-emerald-800 dark:text-emerald-200">{tp('busDetailROIPercentage')}</span>
+                            <span className={`text-lg font-black ${isPositive ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-600 dark:text-red-400'}`}>{roiPercent}%</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </div>
               )}
 
