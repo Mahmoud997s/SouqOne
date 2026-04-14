@@ -80,27 +80,27 @@ describe('Auth API (e2e)', () => {
   });
 
   // ─── Me ───
-  describe('GET /api/auth/me', () => {
+  describe('GET /api/users/me', () => {
     it('should return current user with valid token', async () => {
       const { accessToken } = await registerUser();
       const res = await request(getApp().getHttpServer())
-        .get('/api/auth/me')
+        .get('/api/users/me')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
-      expect(res.body.sub).toBeDefined();
+      expect(res.body.id).toBeDefined();
       expect(res.body.email).toBeDefined();
     });
 
     it('should reject request without token', async () => {
       await request(getApp().getHttpServer())
-        .get('/api/auth/me')
+        .get('/api/users/me')
         .expect(401);
     });
 
     it('should reject invalid token', async () => {
       await request(getApp().getHttpServer())
-        .get('/api/auth/me')
+        .get('/api/users/me')
         .set('Authorization', 'Bearer invalid-token-here')
         .expect(401);
     });
