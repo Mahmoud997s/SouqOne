@@ -72,6 +72,16 @@ export function useCreateSubscriptionPayment() {
   });
 }
 
+export function useVerifyPayment(sessionId: string | null) {
+  return useQuery<{ status: string; paymentId: string }>({
+    queryKey: ['payment', 'verify', sessionId],
+    queryFn: () => apiRequest(`/payments/verify/${sessionId}`),
+    enabled: !!sessionId,
+    retry: 2,
+    staleTime: Infinity,
+  });
+}
+
 export function useCancelSubscription() {
   const qc = useQueryClient();
   return useMutation({

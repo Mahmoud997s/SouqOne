@@ -2525,7 +2525,11 @@
     "paymentCancelledDesc": "لم تتم عملية الدفع. يمكنك المحاولة مرة أخرى.",
     "goToListings": "العودة لإعلاناتي",
     "backToHome": "العودة للرئيسية",
-    "tryAgain": "حاول مرة أخرى"
+    "tryAgain": "حاول مرة أخرى",
+    "verifying": "جاري التحقق من الدفع...",
+    "paymentPending": "الدفع قيد المعالجة",
+    "paymentPendingDesc": "لم نتمكن من تأكيد الدفع بعد. حاول مرة أخرى أو تواصل معنا.",
+    "paymentUnavailable": "خدمة الدفع متوقفة مؤقتاً"
   },
   "notifications": {
     "pushTitle": "تفعيل الإشعارات الفورية",

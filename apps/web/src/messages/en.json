@@ -2525,7 +2525,11 @@
     "paymentCancelledDesc": "Payment was not completed. You can try again.",
     "goToListings": "Go to My Listings",
     "backToHome": "Back to Home",
-    "tryAgain": "Try Again"
+    "tryAgain": "Try Again",
+    "verifying": "Verifying payment...",
+    "paymentPending": "Payment Pending",
+    "paymentPendingDesc": "We couldn't confirm your payment yet. Please try again or contact us.",
+    "paymentUnavailable": "Payment service is temporarily unavailable"
   },
   "notifications": {
     "pushTitle": "Enable Push Notifications",

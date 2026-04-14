@@ -1,7 +1,9 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   BadRequestException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { SubscriptionPlan } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -20,15 +22,38 @@ const PLAN_PRICES: Record<string, { baisa: number; name: string }> = {
 
 @Injectable()
 export class PaymentsService {
+  private readonly logger = new Logger(PaymentsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly thawani: ThawaniService,
     private readonly notifications: NotificationsService,
   ) {}
 
+  private assertEnabled() {
+    if (process.env.PAYMENTS_ENABLED === 'false') {
+      throw new ServiceUnavailableException('خدمة الدفع متوقفة مؤقتاً');
+    }
+  }
+
   // ── Featured listing payment ──
 
   async createFeaturedPayment(dto: CreateFeaturedPaymentDto, userId: string) {
+    this.assertEnabled();
+
+    // Prevent double payment for same entity
+    const existing = await this.prisma.payment.findFirst({
+      where: { userId, type: 'FEATURED', entityType: dto.entityType, entityId: dto.entityId, status: 'PENDING' },
+    });
+    if (existing?.thawaniSessionId) {
+      this.logger.warn(`Reusing pending payment ${existing.id} for ${dto.entityType}:${dto.entityId}`);
+      return {
+        paymentId: existing.id,
+        checkoutUrl: this.thawani.getCheckoutUrl(existing.thawaniSessionId),
+        sessionId: existing.thawaniSessionId,
+      };
+    }
+
     const baseUrl = process.env.WEB_URL || 'http://localhost:3000';
 
     const payment = await this.prisma.payment.create({
@@ -54,6 +79,8 @@ export class PaymentsService {
       data: { thawaniSessionId: session.session_id },
     });
 
+    this.logger.log(`Featured payment created: ${payment.id} for ${dto.entityType}:${dto.entityId} by user ${userId}`);
+
     return {
       paymentId: payment.id,
       checkoutUrl: this.thawani.getCheckoutUrl(session.session_id),
@@ -64,8 +91,23 @@ export class PaymentsService {
   // ── Subscription payment ──
 
   async createSubscriptionPayment(dto: CreateSubscriptionPaymentDto, userId: string) {
+    this.assertEnabled();
+
     const planInfo = PLAN_PRICES[dto.plan];
     if (!planInfo) throw new BadRequestException('الخطة غير صالحة');
+
+    // Prevent double payment
+    const existing = await this.prisma.payment.findFirst({
+      where: { userId, type: 'SUBSCRIPTION', status: 'PENDING' },
+    });
+    if (existing?.thawaniSessionId) {
+      this.logger.warn(`Reusing pending subscription payment ${existing.id} for user ${userId}`);
+      return {
+        paymentId: existing.id,
+        checkoutUrl: this.thawani.getCheckoutUrl(existing.thawaniSessionId),
+        sessionId: existing.thawaniSessionId,
+      };
+    }
 
     const baseUrl = process.env.WEB_URL || 'http://localhost:3000';
 
@@ -90,6 +132,8 @@ export class PaymentsService {
       where: { id: payment.id },
       data: { thawaniSessionId: session.session_id },
     });
+
+    this.logger.log(`Subscription payment created: ${payment.id} plan=${dto.plan} by user ${userId}`);
 
     return {
       paymentId: payment.id,
@@ -119,6 +163,8 @@ export class PaymentsService {
     const sessionId = body?.data?.session_id;
     const status = body?.data?.payment_status;
 
+    this.logger.log(`Webhook received: session=${sessionId} status=${status}`);
+
     if (!sessionId) return { received: true };
 
     if (status === 'paid') {
@@ -127,6 +173,8 @@ export class PaymentsService {
       });
       if (payment && payment.status !== 'PAID') {
         await this.handlePaymentSuccess(payment.id);
+      } else if (payment) {
+        this.logger.log(`Webhook duplicate — payment ${payment.id} already PAID`);
       }
     }
 
@@ -138,6 +186,8 @@ export class PaymentsService {
       where: { id: paymentId },
       data: { status: 'PAID', paidAt: new Date() },
     });
+
+    this.logger.log(`Payment SUCCESS: ${payment.id} type=${payment.type} amount=${payment.amount} user=${payment.userId}`);
 
     if (payment.type === 'FEATURED' && payment.entityType && payment.entityId) {
       await this.activateFeatured(payment.entityType, payment.entityId);

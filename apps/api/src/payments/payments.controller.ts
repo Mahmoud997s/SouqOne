@@ -5,9 +5,16 @@ import {
   Param,
   Body,
   Req,
+  Headers,
   UseGuards,
+  ForbiddenException,
+  Logger,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { Request } from 'express';
+import { PAYMENT_WEBHOOK_QUEUE } from './payment-webhook.processor';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { PaymentsService } from './payments.service';
 import { CreateFeaturedPaymentDto } from './dto/create-featured-payment.dto';
@@ -17,14 +24,21 @@ interface JwtPayload { sub: string; username: string }
 
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) {}
+  private readonly logger = new Logger(PaymentsController.name);
 
+  constructor(
+    private readonly paymentsService: PaymentsService,
+    @InjectQueue(PAYMENT_WEBHOOK_QUEUE) private readonly webhookQueue: Queue,
+  ) {}
+
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @UseGuards(JwtAuthGuard)
   @Post('featured')
   createFeatured(@Body() dto: CreateFeaturedPaymentDto, @Req() req: Request) {
     return this.paymentsService.createFeaturedPayment(dto, (req.user as JwtPayload).sub);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @UseGuards(JwtAuthGuard)
   @Post('subscribe')
   createSubscription(@Body() dto: CreateSubscriptionPaymentDto, @Req() req: Request) {
@@ -37,8 +51,20 @@ export class PaymentsController {
   }
 
   @Post('webhook')
-  webhook(@Body() body: any) {
-    return this.paymentsService.handleWebhook(body);
+  async webhook(
+    @Body() body: any,
+    @Headers('x-thawani-secret') secret?: string,
+  ) {
+    const expectedSecret = process.env.THAWANI_WEBHOOK_SECRET;
+    if (expectedSecret && secret !== expectedSecret) {
+      this.logger.warn('Webhook rejected — invalid secret');
+      throw new ForbiddenException('Invalid webhook secret');
+    }
+    await this.webhookQueue.add(
+      { body },
+      { attempts: 3, backoff: { type: 'exponential', delay: 5000 } },
+    );
+    return { received: true };
   }
 
   @UseGuards(JwtAuthGuard)
@@ -58,6 +84,7 @@ export class PaymentsController {
     return this.paymentsService.mySubscription((req.user as JwtPayload).sub);
   }
 
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @UseGuards(JwtAuthGuard)
   @Post('subscription/cancel')
   cancelSubscription(@Req() req: Request) {
