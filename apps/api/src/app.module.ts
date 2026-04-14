@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -28,9 +29,11 @@ import { EquipmentModule } from './equipment/equipment.module';
 import { OperatorsModule } from './operators/operators.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ListingNotificationListener } from './common/listeners/listing-notification.listener';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
     PrismaModule,
     RedisModule,
@@ -61,6 +64,7 @@ import { PaymentsModule } from './payments/payments.module';
   controllers: [AppController],
   providers: [
     AppService,
+    ListingNotificationListener,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })

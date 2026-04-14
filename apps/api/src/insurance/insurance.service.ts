@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { SearchService, INDEXES } from '../search/search.service';
@@ -17,8 +18,8 @@ export class InsuranceService extends BaseListingService {
     decimalFields: ['priceFrom'],
   };
 
-  constructor(prisma: PrismaService, searchService: SearchService, redis: RedisService) {
-    super(prisma, searchService, redis);
+  constructor(prisma: PrismaService, searchService: SearchService, redis: RedisService, eventEmitter: EventEmitter2) {
+    super(prisma, searchService, redis, eventEmitter);
   }
 
   // Insurance has no images relation — override includes

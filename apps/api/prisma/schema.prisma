@@ -685,6 +685,10 @@ enum NotificationType {
   PAYMENT_SUCCESS
   SUBSCRIPTION_ACTIVATED
   FEATURED_EXPIRED
+  LISTING_CREATED
+  LISTING_UPDATED
+  LISTING_DELETED
+  LISTING_STATUS_CHANGED
 }
 
 // ══════════════════════════════════════════════════

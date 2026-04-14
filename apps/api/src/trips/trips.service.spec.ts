@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException } from '@nestjs/common';
 import { TripsService } from './trips.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { SearchService } from '../search/search.service';
@@ -29,6 +30,8 @@ const mockSearch = {
   removeDocument: jest.fn().mockResolvedValue(undefined),
 };
 
+const mockEventEmitter = { emit: jest.fn() };
+
 const mockItem = {
   id: 'trip-1', title: 'رحلة مسقط-صلالة', slug: 'test-slug', description: 'وصف',
   tripType: 'INTERCITY', scheduleType: 'DAILY', routeFrom: 'مسقط', routeTo: 'صلالة',
@@ -48,6 +51,7 @@ describe('TripsService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: RedisService, useValue: mockRedis },
         { provide: SearchService, useValue: mockSearch },
+        { provide: EventEmitter2, useValue: mockEventEmitter },
       ],
     }).compile();
     service = module.get<TripsService>(TripsService);

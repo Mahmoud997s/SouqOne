@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException } from '@nestjs/common';
 import { InsuranceService } from './insurance.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { SearchService } from '../search/search.service';
@@ -29,6 +30,8 @@ const mockSearch = {
   removeDocument: jest.fn().mockResolvedValue(undefined),
 };
 
+const mockEventEmitter = { emit: jest.fn() };
+
 const mockItem = {
   id: 'ins-1', title: 'تأمين شامل', slug: 'test-slug', description: 'وصف',
   offerType: 'COMPREHENSIVE', providerName: 'شركة تأمين', coverageType: 'شامل',
@@ -48,6 +51,7 @@ describe('InsuranceService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: RedisService, useValue: mockRedis },
         { provide: SearchService, useValue: mockSearch },
+        { provide: EventEmitter2, useValue: mockEventEmitter },
       ],
     }).compile();
     service = module.get<InsuranceService>(InsuranceService);

@@ -4,11 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../redis/redis.service';
 import { SearchService } from '../../search/search.service';
 import { generateSlug } from '../utils/entity.utils';
 import { incrementViewCount } from '../utils/view-count.helper';
+import { LISTING_EVENTS, ListingEventPayload } from '../events/listing.events';
 
 export interface ListingConfig {
   /** Prisma model accessor name, e.g. 'carService' */
@@ -55,6 +57,7 @@ export abstract class BaseListingService {
     protected readonly prisma: PrismaService,
     protected readonly searchService: SearchService,
     protected readonly redis: RedisService,
+    protected readonly eventEmitter: EventEmitter2,
   ) {
     this.logger = new Logger(this.constructor.name);
   }
@@ -118,6 +121,9 @@ export abstract class BaseListingService {
 
     // Invalidate list cache
     await this.redis.delPattern(this.cacheKey('list:*'));
+
+    // Emit event
+    this.emitEvent(LISTING_EVENTS.CREATED, item);
 
     return item;
   }
@@ -265,6 +271,9 @@ export abstract class BaseListingService {
     await this.redis.del(this.cacheKey(`detail:${id}`));
     await this.redis.delPattern(this.cacheKey('list:*'));
 
+    // Emit event
+    this.emitEvent(LISTING_EVENTS.UPDATED, updated);
+
     return updated;
   }
 
@@ -284,6 +293,9 @@ export abstract class BaseListingService {
     // Invalidate caches
     await this.redis.del(this.cacheKey(`detail:${id}`));
     await this.redis.delPattern(this.cacheKey('list:*'));
+
+    // Emit event
+    this.emitEvent(LISTING_EVENTS.DELETED, existing);
 
     return { message: 'تم حذف الإعلان بنجاح' };
   }
@@ -312,6 +324,27 @@ export abstract class BaseListingService {
     await this.redis.del(this.cacheKey(`detail:${id}`));
     await this.redis.delPattern(this.cacheKey('list:*'));
 
+    // Emit event
+    this.emitEvent(LISTING_EVENTS.STATUS_CHANGED, updated, newStatus);
+
     return { message: `تم تغيير الحالة إلى ${newStatus}`, status: newStatus };
+  }
+
+  // ══════════════════════════════════
+  // EVENT EMITTER HELPER
+  // ══════════════════════════════════
+  private emitEvent(event: string, item: any, status?: string) {
+    try {
+      const payload: ListingEventPayload = {
+        entityType: this.config.entityType,
+        listingId: item.id,
+        title: item.title,
+        userId: item.userId,
+        status,
+      };
+      this.eventEmitter.emit(event, payload);
+    } catch (err) {
+      this.logger.error(`Failed to emit ${event}`, err);
+    }
   }
 }

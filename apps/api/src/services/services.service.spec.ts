@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { ServicesService } from './services.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { SearchService } from '../search/search.service';
@@ -28,6 +29,10 @@ const mockRedis = {
 const mockSearch = {
   indexDocument: jest.fn().mockResolvedValue(undefined),
   removeDocument: jest.fn().mockResolvedValue(undefined),
+};
+
+const mockEventEmitter = {
+  emit: jest.fn(),
 };
 
 // ── Test data ──────────────────────────────────────
@@ -62,6 +67,7 @@ describe('ServicesService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: RedisService, useValue: mockRedis },
         { provide: SearchService, useValue: mockSearch },
+        { provide: EventEmitter2, useValue: mockEventEmitter },
       ],
     }).compile();
 
@@ -282,6 +288,38 @@ describe('ServicesService', () => {
       mockPrisma.carService.findUnique.mockResolvedValue(mockItem);
 
       await expect(service.toggleStatus('svc-1', 'other-user')).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  // ══════════════════════════════════════
+  // EVENT EMISSION
+  // ══════════════════════════════════════
+  describe('event emission', () => {
+    it('should emit listing.created on create', async () => {
+      mockPrisma.carService.create.mockResolvedValue(mockItem);
+      await service.create({ title: 'خدمة', description: 'وصف بالتفصيل', serviceType: 'MAINTENANCE', providerType: 'WORKSHOP', providerName: 'ورشة', governorate: 'مسقط' } as any, 'user-1');
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('listing.created', expect.objectContaining({ entityType: 'CAR_SERVICE', userId: 'user-1' }));
+    });
+
+    it('should emit listing.updated on update', async () => {
+      mockPrisma.carService.findUnique.mockResolvedValue(mockItem);
+      mockPrisma.carService.update.mockResolvedValue(mockItem);
+      await service.update('svc-1', 'user-1', { title: 'جديد' });
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('listing.updated', expect.objectContaining({ listingId: 'svc-1' }));
+    });
+
+    it('should emit listing.deleted on remove', async () => {
+      mockPrisma.carService.findUnique.mockResolvedValue(mockItem);
+      mockPrisma.carService.delete.mockResolvedValue(mockItem);
+      await service.remove('svc-1', 'user-1');
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('listing.deleted', expect.objectContaining({ listingId: 'svc-1' }));
+    });
+
+    it('should emit listing.status_changed on toggleStatus', async () => {
+      mockPrisma.carService.findUnique.mockResolvedValue(mockItem);
+      mockPrisma.carService.update.mockResolvedValue({ ...mockItem, status: 'INACTIVE' });
+      await service.toggleStatus('svc-1', 'user-1');
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith('listing.status_changed', expect.objectContaining({ status: 'INACTIVE' }));
     });
   });
 });

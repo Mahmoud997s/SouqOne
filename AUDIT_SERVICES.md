@@ -219,7 +219,7 @@ erDiagram
 | SV4 | **4 copies of generateSlug()** | ✅ Fixed | Shared `entity.utils.ts` — يدعم عربي |
 | SV5 | **No UpdateDto** | ✅ Fixed | Safe mapping via `decimalFields`/`dateFields` config in Base |
 | SV6 | **Manual field mapping in update()** | ✅ Fixed | BaseListingService handles Decimal/Date conversion safely |
-| SV7 | **No notifications** | ⏳ Deferred | يتطلب تحديد triggers — مؤجل لـ sprint لاحق |
+| SV7 | **No notifications** | ✅ Fixed | Event-driven: listing.created/updated/deleted/status_changed → in-app + Push |
 | SV8 | **Trips/Insurance without images** | ⏳ Deferred | يتطلب Prisma schema + Frontend — مؤجل |
 
 ## 🟢 Low / Code Smell
@@ -230,7 +230,7 @@ erDiagram
 | SV10 | **Search sync inconsistency** | ✅ Fixed | `buildMeiliDoc()` consistent, `imageUrl: null` for Trips/Insurance |
 | SV11 | **No status management** | ✅ Fixed | `PATCH /{module}/:id/status` — toggles ACTIVE ↔ INACTIVE |
 
-**Result: 9/11 Fixed ✅ · 2/11 Deferred ⏳**
+**Result: 10/11 Fixed ✅ · 1/11 Deferred ⏳ (SV8: images for Trips/Insurance — requires schema + frontend)**
 
 ---
 
@@ -242,6 +242,8 @@ erDiagram
 |------|---------|
 | `common/services/base-listing.service.ts` | Abstract base — CRUD, cache, viewCount, status toggle |
 | `common/utils/view-count.helper.ts` | Redis rate-limited view counter |
+| `common/events/listing.events.ts` | Event types + payloads |
+| `common/listeners/listing-notification.listener.ts` | Event → Notification (in-app + push) |
 | `services/services.service.spec.ts` | 16 test cases |
 | `transport/transport.service.spec.ts` | 4 test cases |
 | `trips/trips.service.spec.ts` | 3 test cases |
@@ -271,7 +273,7 @@ erDiagram
 
 ```
 Test Suites: 4 passed, 4 total
-Tests:       26 passed, 26 total
+Tests:       30 passed, 30 total
 ```
 
 ---
@@ -310,4 +312,5 @@ Subclass only implements:
 - **BaseListingService** — ~700 LOC duplicated → ~250 LOC shared ✅
 - **Redis caching** — findAll + findOne مع auto-invalidation ✅
 - **viewCount rate-limit** — Redis-backed per IP (1h cooldown) ✅
-- **26 tests passing** — coverage across all 4 modules ✅
+- **30 tests passing** — coverage across all 4 modules + event emission ✅
+- **Event-driven notifications** — decoupled via `@nestjs/event-emitter` ✅

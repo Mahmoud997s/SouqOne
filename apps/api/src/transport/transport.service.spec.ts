@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException } from '@nestjs/common';
 import { TransportService } from './transport.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { SearchService } from '../search/search.service';
@@ -29,6 +30,8 @@ const mockSearch = {
   removeDocument: jest.fn().mockResolvedValue(undefined),
 };
 
+const mockEventEmitter = { emit: jest.fn() };
+
 const mockItem = {
   id: 'tr-1', title: 'نقل أثاث', slug: 'test-slug', description: 'وصف',
   transportType: 'MOVING', providerType: 'COMPANY', providerName: 'شركة النقل',
@@ -49,6 +52,7 @@ describe('TransportService', () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: RedisService, useValue: mockRedis },
         { provide: SearchService, useValue: mockSearch },
+        { provide: EventEmitter2, useValue: mockEventEmitter },
       ],
     }).compile();
     service = module.get<TransportService>(TransportService);
