@@ -1433,8 +1433,10 @@ enum PaymentType {
 
 enum PaymentStatus {
   PENDING
+  PROCESSING
   PAID
   FAILED
+  EXPIRED
   REFUNDED
 }
 

@@ -5,7 +5,7 @@ import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
 import { ThawaniService } from './thawani.service';
 import { PaymentsCronService } from './payments-cron.service';
-import { PaymentWebhookProcessor, PAYMENT_WEBHOOK_QUEUE } from './payment-webhook.processor';
+import { PaymentWebhookProcessor, PAYMENT_WEBHOOK_QUEUE, PAYMENT_DLQ } from './payment-webhook.processor';
 import { AdminPaymentsController } from './admin-payments.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -21,6 +21,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
       },
     }),
     BullModule.registerQueue({ name: PAYMENT_WEBHOOK_QUEUE }),
+    BullModule.registerQueue({ name: PAYMENT_DLQ }),
     forwardRef(() => NotificationsModule),
   ],
   controllers: [PaymentsController, AdminPaymentsController],

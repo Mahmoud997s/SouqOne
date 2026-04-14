@@ -4,13 +4,23 @@ import {
   NotFoundException,
   BadRequestException,
   ServiceUnavailableException,
+  ConflictException,
 } from '@nestjs/common';
-import { SubscriptionPlan } from '@prisma/client';
+import { PaymentStatus, SubscriptionPlan } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ThawaniService } from './thawani.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CreateFeaturedPaymentDto } from './dto/create-featured-payment.dto';
 import { CreateSubscriptionPaymentDto } from './dto/create-subscription-payment.dto';
+
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  PENDING:    ['PROCESSING', 'FAILED', 'EXPIRED'],
+  PROCESSING: ['PAID', 'FAILED', 'EXPIRED'],
+  PAID:       ['REFUNDED'],
+  FAILED:     [],
+  EXPIRED:    [],
+  REFUNDED:   [],
+};
 
 const FEATURED_PRICE_BAISA = 2000; // 2 OMR
 const FEATURED_DURATION_DAYS = 30;
@@ -42,6 +52,20 @@ export class PaymentsService {
         data: { paymentId, event, data: data ?? undefined },
       });
     } catch { /* non-critical */ }
+  }
+
+  private async transitionStatus(paymentId: string, from: PaymentStatus, to: PaymentStatus, extra?: Record<string, any>) {
+    const allowed = VALID_TRANSITIONS[from] || [];
+    if (!allowed.includes(to)) {
+      this.logger.error(`Invalid transition: ${from} → ${to} for payment ${paymentId}`);
+      await this.logEvent(paymentId, 'INVALID_TRANSITION', { from, to });
+      throw new ConflictException(`Cannot transition from ${from} to ${to}`);
+    }
+
+    const data: any = { status: to, ...extra };
+    const payment = await this.prisma.payment.update({ where: { id: paymentId }, data });
+    await this.logEvent(paymentId, `STATUS_${to}`, { from });
+    return payment;
   }
 
   private async checkFraud(userId: string, ip?: string): Promise<void> {
@@ -123,9 +147,8 @@ export class PaymentsService {
       metadata: { paymentId: payment.id, type: 'FEATURED' },
     });
 
-    await this.prisma.payment.update({
-      where: { id: payment.id },
-      data: { thawaniSessionId: session.session_id },
+    await this.transitionStatus(payment.id, 'PENDING', 'PROCESSING', {
+      thawaniSessionId: session.session_id,
     });
 
     await this.logEvent(payment.id, 'SESSION_CREATED', { sessionId: session.session_id });
@@ -195,9 +218,8 @@ export class PaymentsService {
       metadata: { paymentId: payment.id, type: 'SUBSCRIPTION', plan: dto.plan },
     });
 
-    await this.prisma.payment.update({
-      where: { id: payment.id },
-      data: { thawaniSessionId: session.session_id },
+    await this.transitionStatus(payment.id, 'PENDING', 'PROCESSING', {
+      thawaniSessionId: session.session_id,
     });
 
     await this.logEvent(payment.id, 'SESSION_CREATED', { sessionId: session.session_id });
@@ -223,6 +245,10 @@ export class PaymentsService {
     if (session.payment_status === 'paid' && payment.status !== 'PAID') {
       await this.handlePaymentSuccess(payment.id);
       await this.logEvent(payment.id, 'VERIFIED', { source: 'verify_endpoint' });
+    } else if (session.payment_status === 'cancelled' || session.payment_status === 'expired') {
+      if (payment.status !== 'EXPIRED' && payment.status !== 'FAILED') {
+        await this.markExpired(payment.id);
+      }
     }
 
     return { status: session.payment_status, paymentId: payment.id };
@@ -256,10 +282,10 @@ export class PaymentsService {
   }
 
   private async handlePaymentSuccess(paymentId: string) {
-    const payment = await this.prisma.payment.update({
-      where: { id: paymentId },
-      data: { status: 'PAID', paidAt: new Date() },
-    });
+    const current = await this.prisma.payment.findUnique({ where: { id: paymentId } });
+    if (!current || current.status === 'PAID') return;
+
+    const payment = await this.transitionStatus(paymentId, current.status, 'PAID', { paidAt: new Date() });
 
     this.logger.log(`Payment SUCCESS: ${payment.id} type=${payment.type} amount=${payment.amount} user=${payment.userId}`);
     await this.logEvent(paymentId, 'PAID', { type: payment.type, amount: payment.amount });
@@ -376,6 +402,15 @@ export class PaymentsService {
     this.logger.log(`Reconciliation: activating payment ${paymentId}`);
     await this.handlePaymentSuccess(paymentId);
     await this.logEvent(paymentId, 'RECONCILED');
+  }
+
+  async markExpired(paymentId: string) {
+    const payment = await this.prisma.payment.findUnique({ where: { id: paymentId } });
+    if (!payment) return;
+    if (payment.status === 'EXPIRED' || payment.status === 'PAID') return;
+
+    await this.transitionStatus(paymentId, payment.status, 'EXPIRED');
+    this.logger.log(`Payment ${paymentId} marked EXPIRED`);
   }
 
   async cancelSubscription(userId: string) {

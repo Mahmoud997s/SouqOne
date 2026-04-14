@@ -19,17 +19,23 @@ export class PaymentsCronService {
     const cutoff = new Date();
     cutoff.setHours(cutoff.getHours() - 24);
 
-    const result = await this.prisma.payment.updateMany({
+    const stale = await this.prisma.payment.findMany({
       where: {
         status: 'PENDING',
         createdAt: { lt: cutoff },
         thawaniSessionId: null,
       },
-      data: { status: 'FAILED' },
+      select: { id: true },
     });
 
-    if (result.count > 0) {
-      this.logger.log(`Marked ${result.count} stale PENDING payments (no session) as FAILED`);
+    for (const p of stale) {
+      try {
+        await this.paymentsService.markExpired(p.id);
+      } catch { /* transition may fail if already changed */ }
+    }
+
+    if (stale.length > 0) {
+      this.logger.log(`Marked ${stale.length} stale PENDING payments as EXPIRED`);
     }
   }
 
@@ -39,7 +45,7 @@ export class PaymentsCronService {
 
     const pending = await this.prisma.payment.findMany({
       where: {
-        status: 'PENDING',
+        status: { in: ['PENDING', 'PROCESSING'] },
         thawaniSessionId: { not: null },
         createdAt: { lt: new Date(Date.now() - 3600_000) },
       },
@@ -67,12 +73,9 @@ export class PaymentsCronService {
           session.payment_status === 'cancelled' ||
           session.payment_status === 'expired'
         ) {
-          await this.prisma.payment.update({
-            where: { id: payment.id },
-            data: { status: 'FAILED' },
-          });
+          await this.paymentsService.markExpired(payment.id);
           failed++;
-          this.logger.log(`Reconciled payment ${payment.id} → FAILED (${session.payment_status})`);
+          this.logger.log(`Reconciled payment ${payment.id} → EXPIRED (${session.payment_status})`);
         }
       } catch (err) {
         errors++;
