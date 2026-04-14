@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { StarRating } from './star-rating';
 import { getImageUrl } from '@/lib/image-utils';
 import type { ReviewItem } from '@/lib/api/reviews';
@@ -17,7 +18,7 @@ export function ReviewCard({ review }: { review: ReviewItem }) {
     <div className="bg-surface-container-lowest dark:bg-surface-container rounded-xl border border-outline-variant/10 p-4">
       <div className="flex items-start gap-3">
         {avatar ? (
-          <img src={avatar} alt={name} className="w-9 h-9 rounded-lg object-cover shrink-0" />
+          <Image src={avatar} alt={name} width={36} height={36} className="w-9 h-9 rounded-lg object-cover shrink-0" />
         ) : (
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-black text-xs shrink-0">
             {name[0]?.toUpperCase()}

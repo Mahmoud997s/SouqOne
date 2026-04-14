@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
@@ -89,7 +90,7 @@ export default function SellerPage() {
         {/* Seller Header */}
         <div className="bg-surface-container-lowest border border-outline-variant/10 p-4 md:p-8 mb-10 flex flex-col md:flex-row items-start md:items-center gap-6">
           {seller.avatarUrl ? (
-            <img src={getImageUrl(seller.avatarUrl) || ''} alt={seller.displayName || seller.username} className="w-20 h-20 rounded-full object-cover shrink-0 ring-4 ring-surface-container-lowest shadow-lg" />
+            <Image src={getImageUrl(seller.avatarUrl) || ''} alt={seller.displayName || seller.username} width={80} height={80} className="w-20 h-20 rounded-full object-cover shrink-0 ring-4 ring-surface-container-lowest shadow-lg" />
           ) : (
             <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white font-black text-3xl shrink-0">
               {(seller.displayName || seller.username)[0]?.toUpperCase()}

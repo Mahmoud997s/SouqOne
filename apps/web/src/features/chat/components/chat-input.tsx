@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRef, useState } from 'react';
 import { Send, Smile, Paperclip, Mic, X } from 'lucide-react';
 import EmojiPicker from './emoji-picker';
@@ -77,7 +78,7 @@ export function ChatInput({ onSend, onImageUpload, onVoiceSend, onTyping }: Chat
       {/* Image preview */}
       {imagePreview && (
         <div className="mb-3 flex items-center gap-3 bg-surface-container rounded-2xl p-3">
-          <img src={imagePreview} alt="preview" className="w-16 h-16 rounded-xl object-cover ring-1 ring-outline-variant/10" />
+          <Image src={imagePreview} alt="preview" width={64} height={64} className="w-16 h-16 rounded-xl object-cover ring-1 ring-outline-variant/10" />
           <div className="flex-1">
             <p className="text-xs font-semibold text-on-surface mb-0.5">{tp('chatImageReady')}</p>
             <p className="text-[10px] text-on-surface-variant/40">{tp('chatImageHint')}</p>

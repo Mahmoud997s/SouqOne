@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 
@@ -64,8 +65,8 @@ export function Footer() {
             {/* Brand */}
             <div className="shrink-0 max-w-[260px]">
               <Link href="/" className="flex items-center gap-2.5 mb-3">
-                <img src="/logo.png" alt="SouqOne" className="h-8 w-auto object-contain" />
-                <img src="/name.png" alt={t('siteName')} className="h-5 w-auto object-contain brightness-0 invert" />
+                <Image src="/logo.png" alt="SouqOne" width={32} height={32} className="h-8 w-auto object-contain" />
+                <Image src="/name.png" alt={t('siteName')} width={80} height={20} className="h-5 w-auto object-contain brightness-0 invert" />
               </Link>
               <p className="text-white/40 text-xs leading-relaxed">
                 {t('platformTagline')}

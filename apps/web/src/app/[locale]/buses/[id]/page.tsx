@@ -435,7 +435,7 @@ function BusDetailContent({ bus }: { bus: BusListingItem }) {
                 <div className="p-4">
                   <div className="flex items-center gap-3 mb-3">
                     {bus.user.avatarUrl ? (
-                      <img src={getImageUrl(bus.user.avatarUrl) || ''} alt={bus.user.displayName || bus.user.username} className="w-11 h-11 rounded-xl object-cover shadow-md shrink-0" />
+                      <Image src={getImageUrl(bus.user.avatarUrl) || ''} alt={bus.user.displayName || bus.user.username} width={44} height={44} className="w-11 h-11 rounded-xl object-cover shadow-md shrink-0" />
                     ) : (
                       <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-black text-sm shadow-md shrink-0">
                         {(bus.user.displayName || bus.user.username)[0]?.toUpperCase()}

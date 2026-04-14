@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
@@ -153,9 +154,9 @@ function BookingDetailContent() {
               {/* Car Info Card */}
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="flex gap-0">
-                  <div className="w-36 md:w-44 shrink-0 bg-surface-container-low dark:bg-surface-container-high">
+                  <div className="relative w-36 md:w-44 shrink-0 bg-surface-container-low dark:bg-surface-container-high aspect-[4/3]">
                     {getImageUrl(img?.url) ? (
-                      <img src={getImageUrl(img?.url)!} alt="" className="w-full h-full object-cover aspect-[4/3]" />
+                      <Image src={getImageUrl(img?.url)!} alt="" fill className="object-cover" />
                     ) : (
                       <div className="w-full aspect-[4/3] flex items-center justify-center text-on-surface-variant/30">
                         <span className="material-symbols-outlined text-5xl">directions_car</span>

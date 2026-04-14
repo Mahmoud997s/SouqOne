@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { getImageUrl } from '@/lib/image-utils';
 import { useTranslations, useLocale } from 'next-intl';
@@ -43,7 +44,7 @@ export function SellerCard({
   const initial = (name || username || '?')[0]?.toUpperCase();
 
   const avatarEl = avatarUrl ? (
-    <img src={getImageUrl(avatarUrl) || ''} alt={name} className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl object-cover" />
+    <Image src={getImageUrl(avatarUrl) || ''} alt={name} width={44} height={44} className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl object-cover" />
   ) : (
     <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-[#004ac6] to-[#2563eb] flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md">
       {initial}

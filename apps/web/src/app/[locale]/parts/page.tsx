@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { useParts } from '@/lib/api';
 import { getImageUrl } from '@/lib/image-utils';
@@ -49,7 +50,7 @@ export default function PartsPage() {
         <Link key={part.id} href={`/parts/${part.id}`} className="glass-card rounded-xl overflow-hidden group">
           <div className="aspect-[4/3] bg-surface-container-low relative overflow-hidden">
             {part.images?.[0] ? (
-              <img src={getImageUrl(part.images[0].url) || ''} alt={part.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <Image src={getImageUrl(part.images[0].url) || ''} alt={part.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-on-surface-variant/30">
                 <span className="text-4xl">🔩</span>
