@@ -34,15 +34,25 @@ export class PaymentsController {
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @UseGuards(JwtAuthGuard)
   @Post('featured')
-  createFeatured(@Body() dto: CreateFeaturedPaymentDto, @Req() req: Request) {
-    return this.paymentsService.createFeaturedPayment(dto, (req.user as JwtPayload).sub);
+  createFeatured(
+    @Body() dto: CreateFeaturedPaymentDto,
+    @Req() req: Request,
+    @Headers('idempotency-key') idempotencyKey?: string,
+  ) {
+    const ip = req.ip || (req.headers['x-forwarded-for'] as string);
+    return this.paymentsService.createFeaturedPayment(dto, (req.user as JwtPayload).sub, ip, idempotencyKey);
   }
 
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @UseGuards(JwtAuthGuard)
   @Post('subscribe')
-  createSubscription(@Body() dto: CreateSubscriptionPaymentDto, @Req() req: Request) {
-    return this.paymentsService.createSubscriptionPayment(dto, (req.user as JwtPayload).sub);
+  createSubscription(
+    @Body() dto: CreateSubscriptionPaymentDto,
+    @Req() req: Request,
+    @Headers('idempotency-key') idempotencyKey?: string,
+  ) {
+    const ip = req.ip || (req.headers['x-forwarded-for'] as string);
+    return this.paymentsService.createSubscriptionPayment(dto, (req.user as JwtPayload).sub, ip, idempotencyKey);
   }
 
   @Get('verify/:sessionId')

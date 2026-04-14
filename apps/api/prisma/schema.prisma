@@ -1463,20 +1463,41 @@ model Payment {
 
   thawaniSessionId  String?       @unique
   thawaniPaymentId  String?
+  idempotencyKey    String?       @unique
 
   entityType        String?       // e.g. LISTING, BUS_LISTING
   entityId          String?
   metadata          Json?
+  ipAddress         String?
 
   createdAt         DateTime      @default(now())
   paidAt            DateTime?
 
   subscription      Subscription?
+  events            PaymentEvent[]
 
   @@index([userId])
   @@index([status])
   @@index([thawaniSessionId])
+  @@index([idempotencyKey])
+  @@index([ipAddress])
   @@map("payments")
+}
+
+model PaymentEvent {
+  id        String   @id @default(cuid())
+
+  paymentId String
+  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  event     String   // CREATED, SESSION_CREATED, WEBHOOK_RECEIVED, VERIFIED, PAID, FAILED, RECONCILED
+  data      Json?    // extra context
+
+  createdAt DateTime @default(now())
+
+  @@index([paymentId])
+  @@index([event])
+  @@map("payment_events")
 }
 
 model Subscription {

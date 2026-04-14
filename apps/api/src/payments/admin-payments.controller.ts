@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards, Logger } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, Logger } from '@nestjs/common';
 import { AdminApiKeyGuard } from '../common/guards/admin-api-key.guard';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -86,5 +86,14 @@ export class AdminPaymentsController {
       byStatus: statusMap,
       fraudSignals: recentFraudSignals.map(s => ({ userId: s.userId, attempts: s._count })),
     };
+  }
+
+  @Get(':paymentId/events')
+  async getPaymentEvents(@Param('paymentId') paymentId: string) {
+    const events = await this.prisma.paymentEvent.findMany({
+      where: { paymentId },
+      orderBy: { createdAt: 'asc' },
+    });
+    return { paymentId, events };
   }
 }

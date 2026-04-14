@@ -36,10 +36,55 @@ export class PaymentsService {
     }
   }
 
+  private async logEvent(paymentId: string, event: string, data?: any) {
+    try {
+      await this.prisma.paymentEvent.create({
+        data: { paymentId, event, data: data ?? undefined },
+      });
+    } catch { /* non-critical */ }
+  }
+
+  private async checkFraud(userId: string, ip?: string): Promise<void> {
+    const oneHourAgo = new Date(Date.now() - 3600_000);
+
+    // Rule 1: > 10 attempts per user per hour
+    const userAttempts = await this.prisma.payment.count({
+      where: { userId, createdAt: { gte: oneHourAgo } },
+    });
+    if (userAttempts >= 10) {
+      this.logger.warn(`FRAUD: user ${userId} has ${userAttempts} attempts in 1h`);
+      throw new BadRequestException('تم تجاوز الحد الأقصى لمحاولات الدفع. حاول لاحقاً.');
+    }
+
+    // Rule 2: > 15 attempts per IP per hour
+    if (ip) {
+      const ipAttempts = await this.prisma.payment.count({
+        where: { ipAddress: ip, createdAt: { gte: oneHourAgo } },
+      });
+      if (ipAttempts >= 15) {
+        this.logger.warn(`FRAUD: IP ${ip} has ${ipAttempts} attempts in 1h`);
+        throw new BadRequestException('تم تجاوز الحد الأقصى لمحاولات الدفع. حاول لاحقاً.');
+      }
+    }
+  }
+
   // ── Featured listing payment ──
 
-  async createFeaturedPayment(dto: CreateFeaturedPaymentDto, userId: string) {
+  async createFeaturedPayment(dto: CreateFeaturedPaymentDto, userId: string, ip?: string, idempotencyKey?: string) {
     this.assertEnabled();
+    await this.checkFraud(userId, ip);
+
+    // Idempotency: return existing payment for same key
+    if (idempotencyKey) {
+      const byKey = await this.prisma.payment.findUnique({ where: { idempotencyKey } });
+      if (byKey?.thawaniSessionId) {
+        return {
+          paymentId: byKey.id,
+          checkoutUrl: this.thawani.getCheckoutUrl(byKey.thawaniSessionId),
+          sessionId: byKey.thawaniSessionId,
+        };
+      }
+    }
 
     // Prevent double payment for same entity
     const existing = await this.prisma.payment.findFirst({
@@ -63,8 +108,12 @@ export class PaymentsService {
         type: 'FEATURED',
         entityType: dto.entityType,
         entityId: dto.entityId,
+        ipAddress: ip,
+        idempotencyKey,
       },
     });
+
+    await this.logEvent(payment.id, 'CREATED', { entityType: dto.entityType, entityId: dto.entityId });
 
     const session = await this.thawani.createSession({
       clientReferenceId: payment.id,
@@ -79,6 +128,7 @@ export class PaymentsService {
       data: { thawaniSessionId: session.session_id },
     });
 
+    await this.logEvent(payment.id, 'SESSION_CREATED', { sessionId: session.session_id });
     this.logger.log(`Featured payment created: ${payment.id} for ${dto.entityType}:${dto.entityId} by user ${userId}`);
 
     return {
@@ -90,11 +140,24 @@ export class PaymentsService {
 
   // ── Subscription payment ──
 
-  async createSubscriptionPayment(dto: CreateSubscriptionPaymentDto, userId: string) {
+  async createSubscriptionPayment(dto: CreateSubscriptionPaymentDto, userId: string, ip?: string, idempotencyKey?: string) {
     this.assertEnabled();
+    await this.checkFraud(userId, ip);
 
     const planInfo = PLAN_PRICES[dto.plan];
     if (!planInfo) throw new BadRequestException('الخطة غير صالحة');
+
+    // Idempotency
+    if (idempotencyKey) {
+      const byKey = await this.prisma.payment.findUnique({ where: { idempotencyKey } });
+      if (byKey?.thawaniSessionId) {
+        return {
+          paymentId: byKey.id,
+          checkoutUrl: this.thawani.getCheckoutUrl(byKey.thawaniSessionId),
+          sessionId: byKey.thawaniSessionId,
+        };
+      }
+    }
 
     // Prevent double payment
     const existing = await this.prisma.payment.findFirst({
@@ -117,8 +180,12 @@ export class PaymentsService {
         amount: planInfo.baisa,
         type: 'SUBSCRIPTION',
         metadata: { plan: dto.plan },
+        ipAddress: ip,
+        idempotencyKey,
       },
     });
+
+    await this.logEvent(payment.id, 'CREATED', { plan: dto.plan });
 
     const session = await this.thawani.createSession({
       clientReferenceId: payment.id,
@@ -133,6 +200,7 @@ export class PaymentsService {
       data: { thawaniSessionId: session.session_id },
     });
 
+    await this.logEvent(payment.id, 'SESSION_CREATED', { sessionId: session.session_id });
     this.logger.log(`Subscription payment created: ${payment.id} plan=${dto.plan} by user ${userId}`);
 
     return {
@@ -154,6 +222,7 @@ export class PaymentsService {
 
     if (session.payment_status === 'paid' && payment.status !== 'PAID') {
       await this.handlePaymentSuccess(payment.id);
+      await this.logEvent(payment.id, 'VERIFIED', { source: 'verify_endpoint' });
     }
 
     return { status: session.payment_status, paymentId: payment.id };
@@ -167,10 +236,15 @@ export class PaymentsService {
 
     if (!sessionId) return { received: true };
 
+    const payment = await this.prisma.payment.findUnique({
+      where: { thawaniSessionId: sessionId },
+    });
+
+    if (payment) {
+      await this.logEvent(payment.id, 'WEBHOOK_RECEIVED', { status });
+    }
+
     if (status === 'paid') {
-      const payment = await this.prisma.payment.findUnique({
-        where: { thawaniSessionId: sessionId },
-      });
       if (payment && payment.status !== 'PAID') {
         await this.handlePaymentSuccess(payment.id);
       } else if (payment) {
@@ -188,6 +262,7 @@ export class PaymentsService {
     });
 
     this.logger.log(`Payment SUCCESS: ${payment.id} type=${payment.type} amount=${payment.amount} user=${payment.userId}`);
+    await this.logEvent(paymentId, 'PAID', { type: payment.type, amount: payment.amount });
 
     if (payment.type === 'FEATURED' && payment.entityType && payment.entityId) {
       await this.activateFeatured(payment.entityType, payment.entityId);
@@ -290,6 +365,17 @@ export class PaymentsService {
       { plan: 'PRO', price: 5, priceLabel: '5 ر.ع./شهر', listings: 20, featured: 2, priority: false },
       { plan: 'ENTERPRISE', price: 15, priceLabel: '15 ر.ع./شهر', listings: -1, featured: 10, priority: true },
     ];
+  }
+
+  // ── Reconciliation (called by cron) ──
+
+  async reconcilePayment(paymentId: string) {
+    const payment = await this.prisma.payment.findUnique({ where: { id: paymentId } });
+    if (!payment || payment.status === 'PAID') return;
+
+    this.logger.log(`Reconciliation: activating payment ${paymentId}`);
+    await this.handlePaymentSuccess(paymentId);
+    await this.logEvent(paymentId, 'RECONCILED');
   }
 
   async cancelSubscription(userId: string) {
