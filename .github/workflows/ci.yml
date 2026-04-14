@@ -54,7 +54,7 @@ jobs:
           restore-keys: turbo-${{ runner.os }}-
 
       - name: Lint (affected)
-        run: npx turbo run lint --filter="...[origin/main...HEAD]" --fallback
+        run: npx turbo run lint --filter="...[origin/main...HEAD]"
         if: github.event_name == 'pull_request'
 
       - name: Lint (all)
@@ -62,7 +62,7 @@ jobs:
         if: github.event_name == 'push'
 
       - name: TypeCheck (affected)
-        run: npx turbo run typecheck --filter="...[origin/main...HEAD]" --fallback
+        run: npx turbo run typecheck --filter="...[origin/main...HEAD]"
         if: github.event_name == 'pull_request'
 
       - name: TypeCheck (all)
