@@ -1,4 +1,5 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Request } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -22,13 +23,13 @@ export class AuthController {
 
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('login')
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  login(@Body() dto: LoginDto, @Req() req: Request) {
+    return this.authService.login(dto, req.ip, req.headers['user-agent']);
   }
 
   @Post('google')
-  googleAuth(@Body() dto: GoogleAuthDto) {
-    return this.authService.googleAuth(dto);
+  googleAuth(@Body() dto: GoogleAuthDto, @Req() req: Request) {
+    return this.authService.googleAuth(dto, req.ip, req.headers['user-agent']);
   }
 
   @Post('refresh')

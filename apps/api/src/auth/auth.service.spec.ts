@@ -18,6 +18,9 @@ const mockPrisma = {
     findUnique: jest.fn(),
     update: jest.fn(),
   },
+  loginAudit: {
+    create: jest.fn().mockResolvedValue({}),
+  },
 };
 
 const mockJwt = {
@@ -37,7 +40,8 @@ const mockRedis = {
   getTTL: jest.fn().mockResolvedValue(900),
 };
 
-function hashToken(token) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function hashToken(token: any) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
@@ -387,6 +391,72 @@ describe('AuthService', () => {
       const result = await service.logout(rawToken);
       expect(result.message).toContain('خروج');
       expect(mockPrisma.refreshToken.update).not.toHaveBeenCalled();
+    });
+  });
+
+  /* ═══════ LOGIN AUDIT ═══════ */
+  describe('loginAudit', () => {
+    it('should log successful login', async () => {
+      const bcrypt = require('bcryptjs');
+      const hash = await bcrypt.hash('Password1', 10);
+      mockRedis.get.mockResolvedValue(null);
+
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'user-1', email: 'test@example.com', username: 'u', role: 'USER', passwordHash: hash,
+      });
+      mockPrisma.refreshToken.create.mockResolvedValue({ token: 'ht' });
+
+      await service.login({ email: 'test@example.com', password: 'Password1' }, '127.0.0.1', 'TestAgent');
+
+      expect(mockPrisma.loginAudit.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          email: 'test@example.com',
+          userId: 'user-1',
+          success: true,
+          method: 'EMAIL',
+          ipAddress: '127.0.0.1',
+          userAgent: 'TestAgent',
+        }),
+      });
+    });
+
+    it('should log failed login (wrong password)', async () => {
+      const bcrypt = require('bcryptjs');
+      const hash = await bcrypt.hash('Password1', 10);
+      mockRedis.get.mockResolvedValue(null);
+
+      mockPrisma.user.findUnique.mockResolvedValue({
+        id: 'user-1', email: 'fail@example.com', username: 'u', role: 'USER', passwordHash: hash,
+      });
+
+      await expect(
+        service.login({ email: 'fail@example.com', password: 'WrongPass1' }, '10.0.0.1', 'Bot'),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockPrisma.loginAudit.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          email: 'fail@example.com',
+          success: false,
+          reason: 'WRONG_PASSWORD',
+        }),
+      });
+    });
+
+    it('should log lockout attempt', async () => {
+      mockRedis.get.mockResolvedValue(5);
+      mockRedis.getTTL.mockResolvedValue(600);
+
+      await expect(
+        service.login({ email: 'locked@example.com', password: 'Any1' }, '10.0.0.1'),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(mockPrisma.loginAudit.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          email: 'locked@example.com',
+          success: false,
+          reason: 'ACCOUNT_LOCKED',
+        }),
+      });
     });
   });
 });

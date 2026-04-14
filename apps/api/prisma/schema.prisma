@@ -67,10 +67,32 @@ model User {
   averageRating      Float?
   reviewCount        Int                 @default(0)
   pushSubscriptions  PushSubscription[]
+  loginAudits        LoginAudit[]
 
   @@index([email])
   @@index([username])
   @@map("users")
+}
+
+// ──────────────────────────────────────
+// سجل محاولات الدخول — LoginAudit
+// ──────────────────────────────────────
+model LoginAudit {
+  id        String   @id @default(cuid())
+  email     String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  success   Boolean
+  method    String   @default("EMAIL") // EMAIL | GOOGLE
+  ipAddress String?
+  userAgent String?
+  reason    String?  // e.g. "WRONG_PASSWORD", "ACCOUNT_LOCKED", "GOOGLE_ONLY"
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("login_audits")
 }
 
 // ──────────────────────────────────────

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
@@ -21,6 +21,7 @@ const LOCKOUT_DURATION_SECONDS = 15 * 60; // 15 minutes
 @Injectable()
 export class AuthService {
   private readonly googleClient: OAuth2Client;
+  private readonly logger = new Logger(AuthService.name);
 
   constructor(
     private readonly prisma: PrismaService,
@@ -105,7 +106,28 @@ export class AuthService {
     return { accessToken, refreshToken, user: this.sanitizeUser(user), requiresVerification: true };
   }
 
-  async login(dto: LoginDto) {
+  private async logAudit(data: {
+    email: string; userId?: string; success: boolean;
+    method?: string; reason?: string; ip?: string; userAgent?: string;
+  }) {
+    try {
+      await this.prisma.loginAudit.create({
+        data: {
+          email: data.email,
+          userId: data.userId,
+          success: data.success,
+          method: data.method || 'EMAIL',
+          ipAddress: data.ip,
+          userAgent: data.userAgent,
+          reason: data.reason,
+        },
+      });
+    } catch (err) {
+      this.logger.error('Failed to write login audit', err);
+    }
+  }
+
+  async login(dto: LoginDto, ip?: string, userAgent?: string) {
     const email = dto.email.trim().toLowerCase();
 
     // Brute-force lockout check
@@ -113,6 +135,7 @@ export class AuthService {
     const attempts = await this.redis.get<number>(lockoutKey);
     if (attempts !== null && attempts >= MAX_LOGIN_ATTEMPTS) {
       const ttl = await this.redis.getTTL(lockoutKey);
+      await this.logAudit({ email, success: false, reason: 'ACCOUNT_LOCKED', ip, userAgent });
       throw new UnauthorizedException(
         `تم قفل الحساب مؤقتاً بسبب محاولات فاشلة متعددة. حاول مرة أخرى بعد ${Math.ceil(ttl / 60)} دقيقة.`,
       );
@@ -121,20 +144,24 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
       await this.redis.incr(lockoutKey, LOCKOUT_DURATION_SECONDS);
+      await this.logAudit({ email, success: false, reason: 'USER_NOT_FOUND', ip, userAgent });
       throw new UnauthorizedException('بيانات الدخول غير صحيحة');
     }
 
     if (!user.passwordHash) {
+      await this.logAudit({ email, userId: user.id, success: false, reason: 'GOOGLE_ONLY', ip, userAgent });
       throw new UnauthorizedException('هذا الحساب مسجل بواسطة Google. استخدم تسجيل الدخول بـ Google.');
     }
     const ok = await bcrypt.compare(dto.password, user.passwordHash);
     if (!ok) {
       await this.redis.incr(lockoutKey, LOCKOUT_DURATION_SECONDS);
+      await this.logAudit({ email, userId: user.id, success: false, reason: 'WRONG_PASSWORD', ip, userAgent });
       throw new UnauthorizedException('بيانات الدخول غير صحيحة');
     }
 
     // Reset lockout on success
     await this.redis.del(lockoutKey);
+    await this.logAudit({ email, userId: user.id, success: true, ip, userAgent });
 
     const accessToken = await this.jwtService.signAsync(this.buildPayload(user));
     const refreshToken = await this.generateRefreshToken(user.id);
@@ -167,7 +194,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async googleAuth(dto: GoogleAuthDto) {
+  async googleAuth(dto: GoogleAuthDto, ip?: string, userAgent?: string) {
     let payload;
     try {
       const ticket = await this.googleClient.verifyIdToken({
@@ -181,6 +208,11 @@ export class AuthService {
 
     if (!payload || !payload.email) {
       throw new UnauthorizedException('لم يتم العثور على بريد إلكتروني في حساب Google');
+    }
+
+    // Nonce validation for CSRF protection
+    if (dto.nonce && payload.nonce !== dto.nonce) {
+      throw new UnauthorizedException('رمز التحقق (nonce) غير متطابق — محاولة غير آمنة');
     }
 
     const { email, sub: googleId, name, picture } = payload;
@@ -213,6 +245,8 @@ export class AuthService {
         });
       }
     }
+
+    await this.logAudit({ email, userId: user.id, success: true, method: 'GOOGLE', ip, userAgent });
 
     const accessToken = await this.jwtService.signAsync(this.buildPayload(user));
     const refreshToken = await this.generateRefreshToken(user.id);

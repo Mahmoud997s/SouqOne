@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { JwtPayload } from '../auth/auth.types';
@@ -26,6 +26,30 @@ export class UsersController {
   @Patch('me/password')
   changePassword(@CurrentUser() user: JwtPayload, @Body() dto: ChangePasswordDto) {
     return this.usersService.changePassword(user.sub, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me/sessions')
+  getActiveSessions(@CurrentUser() user: JwtPayload) {
+    return this.usersService.getActiveSessions(user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('me/sessions/:sessionId')
+  revokeSession(@CurrentUser() user: JwtPayload, @Param('sessionId') sessionId: string) {
+    return this.usersService.revokeSession(user.sub, sessionId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('me/sessions/revoke-all')
+  revokeAllSessions(@CurrentUser() user: JwtPayload) {
+    return this.usersService.revokeAllSessions(user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me/login-history')
+  getLoginHistory(@CurrentUser() user: JwtPayload) {
+    return this.usersService.getLoginHistory(user.sub);
   }
 
   @Get(':id')

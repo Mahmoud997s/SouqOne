@@ -97,4 +97,47 @@ export class UsersService {
 
     return { message: 'تم تغيير كلمة المرور بنجاح' };
   }
+
+  async getActiveSessions(userId: string) {
+    const sessions = await this.prisma.refreshToken.findMany({
+      where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
+      select: { id: true, createdAt: true, expiresAt: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    return sessions;
+  }
+
+  async revokeSession(userId: string, sessionId: string) {
+    const token = await this.prisma.refreshToken.findFirst({
+      where: { id: sessionId, userId, revokedAt: null },
+    });
+    if (!token) {
+      throw new NotFoundException('الجلسة غير موجودة أو منتهية');
+    }
+    await this.prisma.refreshToken.update({
+      where: { id: sessionId },
+      data: { revokedAt: new Date() },
+    });
+    return { message: 'تم إنهاء الجلسة بنجاح' };
+  }
+
+  async revokeAllSessions(userId: string) {
+    const { count } = await this.prisma.refreshToken.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    return { message: `تم إنهاء ${count} جلسة بنجاح` };
+  }
+
+  async getLoginHistory(userId: string) {
+    return this.prisma.loginAudit.findMany({
+      where: { userId },
+      select: {
+        id: true, success: true, method: true,
+        ipAddress: true, userAgent: true, reason: true, createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+  }
 }
