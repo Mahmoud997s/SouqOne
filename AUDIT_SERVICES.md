@@ -202,74 +202,100 @@ erDiagram
 
 ---
 
-# 5. ISSUES DETECTION
+# 5. ISSUES DETECTION & STATUS
 
 ## 🔴 Critical
 
-| # | المشكلة | الموقع | التفاصيل |
+| # | المشكلة | الحالة | التفاصيل |
 |---|---------|--------|----------|
-| SV1 | **viewCount manipulation** | كل الـ 4 services في `findOne()` | يزيد بدون rate-limit |
-| SV2 | **myServices() without pagination** | كل الـ 4 services | يرجع كل الإعلانات |
+| SV1 | **viewCount manipulation** | ✅ Fixed | Redis rate-limit per IP (1h cooldown) via `view-count.helper.ts` |
+| SV2 | **myServices() without pagination** | ✅ Fixed | `myListings(userId, page, limit)` في BaseListingService |
 
 ## 🟡 Medium
 
-| # | المشكلة | الموقع | التفاصيل |
+| # | المشكلة | الحالة | التفاصيل |
 |---|---------|--------|----------|
-| SV3 | **No Redis cache** | كل الـ 4 modules | DB مباشرة لكل request |
-| SV4 | **4 copies of generateSlug()** | services, transport, trips, insurance | تكرار كامل |
-| SV5 | **No UpdateDto** | الأربع modules | `Partial<CreateDto>` |
-| SV6 | **Manual field mapping in update()** | services only | `for...of Object.entries()` pattern — أفضل من if/if لكن unsafe |
-| SV7 | **No notifications** | كل الـ 4 | لا يوجد إشعارات عند أي event |
-| SV8 | **Trips/Insurance without images** | trips, insurance | لا يدعمون صور |
+| SV3 | **No Redis cache** | ✅ Fixed | findAll cached 5min, findOne cached 10min, invalidated on CUD |
+| SV4 | **4 copies of generateSlug()** | ✅ Fixed | Shared `entity.utils.ts` — يدعم عربي |
+| SV5 | **No UpdateDto** | ✅ Fixed | Safe mapping via `decimalFields`/`dateFields` config in Base |
+| SV6 | **Manual field mapping in update()** | ✅ Fixed | BaseListingService handles Decimal/Date conversion safely |
+| SV7 | **No notifications** | ⏳ Deferred | يتطلب تحديد triggers — مؤجل لـ sprint لاحق |
+| SV8 | **Trips/Insurance without images** | ⏳ Deferred | يتطلب Prisma schema + Frontend — مؤجل |
 
 ## 🟢 Low / Code Smell
 
-| # | المشكلة | التفاصيل |
-|---|---------|----------|
-| SV9 | **4 identical service structures** | يمكن استخراج Base/Generic service |
-| SV10 | **Search sync inconsistency** | Services/Transport sync images URL, Trips/Insurance لا |
-| SV11 | **No status management** | لا يوجد endpoint لتغيير الحالة (ACTIVE → INACTIVE) |
+| # | المشكلة | الحالة | التفاصيل |
+|---|---------|--------|----------|
+| SV9 | **4 identical service structures** | ✅ Fixed | `BaseListingService` — ~700 LOC → ~250 LOC |
+| SV10 | **Search sync inconsistency** | ✅ Fixed | `buildMeiliDoc()` consistent, `imageUrl: null` for Trips/Insurance |
+| SV11 | **No status management** | ✅ Fixed | `PATCH /{module}/:id/status` — toggles ACTIVE ↔ INACTIVE |
+
+**Result: 9/11 Fixed ✅ · 2/11 Deferred ⏳**
 
 ---
 
-# 6. PRIORITY FIX PLAN
+# 6. IMPLEMENTATION SUMMARY
 
-| Priority | # | الإصلاح | الجهد |
-|----------|---|---------|-------|
-| 🔴 | 1 | viewCount rate-limit for all 4 modules | 2h |
-| 🔴 | 2 | Pagination for all my*() methods | 30min |
-| 🟡 | 3 | Redis cache (shared pattern) | 3h |
-| 🟡 | 4 | Extract shared `BaseListingService` | 4h |
-| 🟡 | 5 | Add image support for Trips + Insurance | 2h |
-| 🟢 | 6 | Status toggle endpoint | 1h |
-| 🟢 | 7 | Notifications on status changes | 2h |
+## 6.1 New Files
 
----
+| File | Purpose |
+|------|---------|
+| `common/services/base-listing.service.ts` | Abstract base — CRUD, cache, viewCount, status toggle |
+| `common/utils/view-count.helper.ts` | Redis rate-limited view counter |
+| `services/services.service.spec.ts` | 16 test cases |
+| `transport/transport.service.spec.ts` | 4 test cases |
+| `trips/trips.service.spec.ts` | 3 test cases |
+| `insurance/insurance.service.spec.ts` | 3 test cases |
 
-# 7. REFACTORING SUGGESTION — Generic Base Service
+## 6.2 Refactored Files
 
-الأربع modules متطابقين في الـ structure. يمكن إنشاء `BaseListingService<T>`:
+| File | Change |
+|------|--------|
+| `services/services.service.ts` | extends BaseListingService (176→78 lines) |
+| `transport/transport.service.ts` | extends BaseListingService (175→76 lines) |
+| `trips/trips.service.ts` | extends BaseListingService (183→96 lines) |
+| `insurance/insurance.service.ts` | extends BaseListingService (164→81 lines) |
+| `services/services.controller.ts` | +slug, +status toggle, +IP, +pagination |
+| `transport/transport.controller.ts` | +slug, +status toggle, +IP, +pagination |
+| `trips/trips.controller.ts` | +slug, +status toggle, +IP, +pagination |
+| `insurance/insurance.controller.ts` | +slug, +status toggle, +IP, +pagination |
 
-```typescript
-// Pseudo-code
-abstract class BaseListingService<TCreate, TQuery> {
-  abstract readonly model: PrismaDelegate;
-  abstract readonly meiliIndex: IndexName;
+## 6.3 New API Endpoints (per module)
 
-  generateSlug(title: string): string { /* shared */ }
-  async create(dto: TCreate, userId: string) { /* shared CRUD + meili sync */ }
-  async findAll(query: TQuery) { /* shared pagination */ }
-  async findOne(id: string) { /* shared + viewCount */ }
-  async my(userId: string, page: number, limit: number) { /* shared */ }
-  async update(id: string, userId: string, dto: Partial<TCreate>) { /* shared */ }
-  async remove(id: string, userId: string) { /* shared + orphan cleanup */ }
-}
+| Method | Route | Auth | الوصف |
+|--------|-------|:----:|-------|
+| GET | `/{module}/slug/:slug` | ❌ | بحث بالـ slug (rate-limited viewCount) |
+| PATCH | `/{module}/:id/status` | ✅ | تبديل الحالة ACTIVE ↔ INACTIVE |
 
-class ServicesService extends BaseListingService<CreateServiceDto, QueryServicesDto> { }
-class TransportService extends BaseListingService<CreateTransportDto, QueryTransportDto> { }
+## 6.4 Test Results
+
+```
+Test Suites: 4 passed, 4 total
+Tests:       26 passed, 26 total
 ```
 
-**الفائدة:** يقلل ~600 lines من duplicated code إلى ~150 lines مشتركة.
+---
+
+# 7. BaseListingService Architecture (Implemented ✅)
+
+```
+BaseListingService (abstract)
+├── create()         → buildCreateData() + Meilisearch sync + cache invalidation
+├── findAll()        → buildWhereFilter() + Redis cache (5min TTL)
+├── findOne()        → Redis cache (10min) + rate-limited viewCount
+├── findBySlug()     → same as findOne but by slug
+├── myListings()     → paginated (page, limit)
+├── update()         → safe Decimal/Date mapping via config + Meilisearch sync
+├── remove()         → orphan cleanup + Meilisearch remove + cache invalidation
+└── toggleStatus()   → ACTIVE ↔ INACTIVE + Meilisearch sync
+
+Subclass only implements:
+├── config            → modelName, meiliIndex, entityType, decimalFields, dateFields
+├── buildCreateData() → DTO → Prisma data mapping
+├── buildMeiliDoc()   → record → search document
+├── buildWhereFilter()→ query DTO → Prisma where clause
+└── getXxxInclude()   → optional override for Prisma includes
+```
 
 ---
 
@@ -281,3 +307,7 @@ class TransportService extends BaseListingService<CreateTransportDto, QueryTrans
 - **Remove from Meilisearch on delete** — تنظيف الـ index عند الحذف
 - **Rich data models** — حقول متخصصة لكل نوع (routes لـ trips, coverage لـ transport, etc.)
 - **Decimal handling** — `Prisma.Decimal` للأسعار — ✅ دقيق
+- **BaseListingService** — ~700 LOC duplicated → ~250 LOC shared ✅
+- **Redis caching** — findAll + findOne مع auto-invalidation ✅
+- **viewCount rate-limit** — Redis-backed per IP (1h cooldown) ✅
+- **26 tests passing** — coverage across all 4 modules ✅

@@ -27,14 +27,26 @@ export class TripsController {
 
   @UseGuards(JwtAuthGuard)
   @Get('my')
-  myTrips(@Req() req: Request) {
+  myTrips(@Req() req: Request, @Query('page') page?: string, @Query('limit') limit?: string) {
     const user = req.user as JwtPayload;
-    return this.tripsService.myTrips(user.sub);
+    return this.tripsService.myListings(user.sub, parseInt(page ?? '1'), parseInt(limit ?? '20'));
+  }
+
+  @Get('slug/:slug')
+  findBySlug(@Param('slug') slug: string, @Req() req: Request) {
+    return this.tripsService.findBySlug(slug, req.ip);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tripsService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    return this.tripsService.findOne(id, req.ip);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/status')
+  toggleStatus(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.tripsService.toggleStatus(id, user.sub);
   }
 
   @UseGuards(JwtAuthGuard)

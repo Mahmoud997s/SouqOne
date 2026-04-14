@@ -27,14 +27,26 @@ export class InsuranceController {
 
   @UseGuards(JwtAuthGuard)
   @Get('my')
-  myOffers(@Req() req: Request) {
+  myOffers(@Req() req: Request, @Query('page') page?: string, @Query('limit') limit?: string) {
     const user = req.user as JwtPayload;
-    return this.insuranceService.myOffers(user.sub);
+    return this.insuranceService.myListings(user.sub, parseInt(page ?? '1'), parseInt(limit ?? '20'));
+  }
+
+  @Get('slug/:slug')
+  findBySlug(@Param('slug') slug: string, @Req() req: Request) {
+    return this.insuranceService.findBySlug(slug, req.ip);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.insuranceService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    return this.insuranceService.findOne(id, req.ip);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/status')
+  toggleStatus(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.insuranceService.toggleStatus(id, user.sub);
   }
 
   @UseGuards(JwtAuthGuard)

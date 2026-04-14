@@ -27,14 +27,26 @@ export class ServicesController {
 
   @UseGuards(JwtAuthGuard)
   @Get('my')
-  myServices(@Req() req: Request) {
+  myServices(@Req() req: Request, @Query('page') page?: string, @Query('limit') limit?: string) {
     const user = req.user as JwtPayload;
-    return this.servicesService.myServices(user.sub);
+    return this.servicesService.myListings(user.sub, parseInt(page ?? '1'), parseInt(limit ?? '20'));
+  }
+
+  @Get('slug/:slug')
+  findBySlug(@Param('slug') slug: string, @Req() req: Request) {
+    return this.servicesService.findBySlug(slug, req.ip);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.servicesService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    return this.servicesService.findOne(id, req.ip);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/status')
+  toggleStatus(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.servicesService.toggleStatus(id, user.sub);
   }
 
   @UseGuards(JwtAuthGuard)

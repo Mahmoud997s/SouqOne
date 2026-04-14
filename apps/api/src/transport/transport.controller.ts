@@ -27,14 +27,26 @@ export class TransportController {
 
   @UseGuards(JwtAuthGuard)
   @Get('my')
-  myTransport(@Req() req: Request) {
+  myTransport(@Req() req: Request, @Query('page') page?: string, @Query('limit') limit?: string) {
     const user = req.user as JwtPayload;
-    return this.transportService.myTransport(user.sub);
+    return this.transportService.myListings(user.sub, parseInt(page ?? '1'), parseInt(limit ?? '20'));
+  }
+
+  @Get('slug/:slug')
+  findBySlug(@Param('slug') slug: string, @Req() req: Request) {
+    return this.transportService.findBySlug(slug, req.ip);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transportService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    return this.transportService.findOne(id, req.ip);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/status')
+  toggleStatus(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.transportService.toggleStatus(id, user.sub);
   }
 
   @UseGuards(JwtAuthGuard)
