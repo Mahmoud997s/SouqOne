@@ -9,11 +9,17 @@ import { ListingSkeleton } from '@/components/loading-skeleton';
 import { ErrorState } from '@/components/error-state';
 import { EmptyState } from '@/components/empty-state';
 import { usePublicProfile, useListings, useCreateConversation } from '@/lib/api';
+import { useReviews, useReviewSummary } from '@/lib/api/reviews';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
 import { VerifiedBadge } from '@/components/verified-badge';
+import { StarRating } from '@/components/reviews/star-rating';
+import { ReviewSummaryCard } from '@/components/reviews/review-summary';
+import { ReviewCard } from '@/components/reviews/review-card';
+import { ReviewForm } from '@/components/reviews/review-form';
 import { getImageUrl } from '@/lib/image-utils';
 import { useTranslations, useLocale } from 'next-intl';
+import { useAuth } from '@/providers/auth-provider';
 
 export default function SellerPage() {
   const { id } = useParams<{ id: string }>();
@@ -23,8 +29,12 @@ export default function SellerPage() {
   const createConv = useCreateConversation();
   const requireAuth = useRequireAuth();
   const { addToast } = useToast();
+  const { user } = useAuth();
   const tp = useTranslations('pages');
+  const tr = useTranslations('reviews');
   const locale = useLocale();
+  const { data: reviewSummary } = useReviewSummary(seller?.id);
+  const { data: reviews } = useReviews(seller ? { userId: seller.id, limit: '10' } : undefined);
 
   function handleContact() {
     requireAuth(async () => {
@@ -90,6 +100,12 @@ export default function SellerPage() {
               <h1 className="text-2xl font-black">{seller.displayName || seller.username}</h1>
               {seller.isVerified && <VerifiedBadge />}
             </div>
+            {reviewSummary && reviewSummary.reviewCount > 0 && (
+              <div className="flex items-center gap-1.5 mb-1">
+                <StarRating value={Math.round(reviewSummary.averageRating)} size="sm" readonly />
+                <span className="text-xs text-on-surface-variant font-bold">({reviewSummary.reviewCount})</span>
+              </div>
+            )}
             {seller.governorate && (
               <p className="text-on-surface-variant text-sm flex items-center gap-1">
                 <span className="material-symbols-outlined text-sm">location_on</span>
@@ -149,6 +165,34 @@ export default function SellerPage() {
             description={tp('sellerEmptyDesc')}
           />
         )}
+        {/* Reviews Section */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-black mb-6 flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">reviews</span>
+            {tr('ratingsAndReviews')}
+          </h2>
+
+          {reviewSummary && reviewSummary.reviewCount > 0 && (
+            <div className="bg-surface-container-lowest dark:bg-surface-container rounded-2xl border border-outline-variant/10 p-6 mb-6">
+              <ReviewSummaryCard summary={reviewSummary} />
+            </div>
+          )}
+
+          {user && user.id !== seller.id && (
+            <div className="bg-surface-container-lowest dark:bg-surface-container rounded-2xl border border-outline-variant/10 p-6 mb-6">
+              <h3 className="text-sm font-black text-on-surface mb-3">{tr('writeReview')}</h3>
+              <ReviewForm entityType="LISTING" entityId={seller.id} revieweeId={seller.id} />
+            </div>
+          )}
+
+          {reviews && reviews.items.length > 0 ? (
+            <div className="space-y-3">
+              {reviews.items.map(r => <ReviewCard key={r.id} review={r} />)}
+            </div>
+          ) : (
+            <p className="text-center text-on-surface-variant/60 text-sm py-8">{tr('noReviews')}</p>
+          )}
+        </div>
       </main>
       <Footer />
     </>

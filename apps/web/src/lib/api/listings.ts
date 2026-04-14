@@ -42,6 +42,8 @@ export interface ListingItem {
   city: string | null;
   latitude: number | null;
   longitude: number | null;
+  isPremium?: boolean;
+  featuredUntil?: string | null;
   viewCount: number;
   status: string;
   createdAt: string;

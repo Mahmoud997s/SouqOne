@@ -18,4 +18,6 @@ export * from './transport';
 export * from './trips';
 export * from './insurance';
 export * from './search';
+export * from './reviews';
+export * from './payments';
 export * from './equipment';

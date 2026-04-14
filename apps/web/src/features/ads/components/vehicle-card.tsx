@@ -33,6 +33,7 @@ interface VehicleCardProps {
   listingType?: string;
   dailyPrice?: string | number | null;
   monthlyPrice?: string | number | null;
+  isPremium?: boolean;
 }
 
 function formatPrice(price: string | number, currencyLabel: string, suffix?: string) {
@@ -142,6 +143,14 @@ export function VehicleCard(props: VehicleCardProps) {
               {priceText}
             </span>
           </div>
+
+          {/* ── Featured badge (bottom-left if no distance) ── */}
+          {props.isPremium && (
+            <span className="absolute top-2 left-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded px-1.5 py-0.5 flex items-center gap-0.5 text-[9px] font-black shadow-sm z-10">
+              <span className="material-symbols-outlined text-[10px]">workspace_premium</span>
+              {t('featured')}
+            </span>
+          )}
 
           {/* ── Distance (bottom-left on image) ── */}
           {props.distance != null && (

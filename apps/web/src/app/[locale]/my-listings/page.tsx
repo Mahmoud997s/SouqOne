@@ -7,7 +7,9 @@ import { Footer } from '@/components/layout/footer';
 import { AuthGuard } from '@/components/auth-guard';
 import { VehicleCard } from '@/features/ads/components/vehicle-card';
 import { useMyListings, useDeleteListing } from '@/lib/api';
+import { useCreateFeaturedPayment } from '@/lib/api/payments';
 import { getImageUrl } from '@/lib/image-utils';
+import { useToast } from '@/components/toast';
 import { useTranslations, useLocale } from 'next-intl';
 
 type StatusFilter = 'ALL' | 'ACTIVE' | 'DRAFT' | 'SOLD';
@@ -19,6 +21,8 @@ export default function MyListingsPage() {
 
   const { data, isLoading, refetch } = useMyListings(params);
   const deleteListing = useDeleteListing();
+  const featureMut = useCreateFeaturedPayment();
+  const { addToast } = useToast();
   const tp = useTranslations('pages');
   const locale = useLocale();
 
@@ -144,6 +148,20 @@ export default function MyListingsPage() {
                         <span className="material-symbols-outlined text-sm">edit</span>
                         {tp('myListingsEdit')}
                       </Link>
+                      <div className="w-px bg-outline-variant/10 dark:bg-outline-variant/20" />
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await featureMut.mutateAsync({ entityType: 'LISTING', entityId: item.id });
+                            window.location.href = res.checkoutUrl;
+                          } catch (err: any) { addToast('error', err?.message || tp('myListingsFeatureError')); }
+                        }}
+                        disabled={featureMut.isPending || item.isPremium}
+                        className={`flex-1 py-2.5 text-center text-xs font-black transition-all flex items-center justify-center gap-1.5 ${item.isPremium ? 'text-amber-500 bg-amber-50 dark:bg-amber-900/10' : 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/10'}`}
+                      >
+                        <span className="material-symbols-outlined text-sm">workspace_premium</span>
+                        {item.isPremium ? tp('myListingsFeatured') : tp('myListingsFeature')}
+                      </button>
                       <div className="w-px bg-outline-variant/10 dark:bg-outline-variant/20" />
                       <button
                         onClick={() => {

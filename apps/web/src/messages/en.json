@@ -298,7 +298,8 @@
     "browseInOman": "Browse {total} {label} in Oman",
     "loadError": "Error loading data",
     "tryDifferentSearch": "Try different search terms",
-    "new": "New"
+    "new": "New",
+    "featured": "Featured"
   },
   "categories": {
     "vehiclesParts": "Vehicles & Parts",
@@ -2478,6 +2479,52 @@
     "eqrErrDesc": "Description is required",
     "eqrErrType": "Equipment type is required",
     "eqrSuccess": "Request published successfully — wait for supplier offers",
-    "eqrError": "An error occurred"
+    "eqrError": "An error occurred",
+    "myListingsFeature": "Feature",
+    "myListingsFeatured": "Featured ✦",
+    "myListingsFeatureError": "Error featuring listing"
+  },
+  "reviews": {
+    "ratingsAndReviews": "Ratings & Reviews",
+    "writeReview": "Write a Review",
+    "yourRating": "Your Rating",
+    "commentPlaceholder": "Write your comment here (optional)...",
+    "submitReview": "Submit Review",
+    "submitting": "Submitting...",
+    "reviewSubmitted": "Review submitted successfully",
+    "reviewError": "Error submitting review",
+    "selectRating": "Select a star rating",
+    "noReviews": "No reviews yet",
+    "reviewCount": "{count} reviews",
+    "sellerReply": "Seller Reply",
+    "rateTransaction": "Rate this transaction"
+  },
+  "pricing": {
+    "title": "Subscription Plans",
+    "subtitle": "Choose the right plan to grow your business on SouqOne",
+    "popular": "Most Popular",
+    "planBASIC": "Basic",
+    "planPRO": "Pro",
+    "planENTERPRISE": "Enterprise",
+    "free": "Free",
+    "perMonth": "OMR/mo",
+    "unlimitedListings": "Unlimited listings",
+    "listingsCount": "{count} listings/month",
+    "noFeatured": "No featured listings",
+    "featuredCount": "{count} featured/month",
+    "prioritySearch": "Priority in search results",
+    "currentPlan": "Current Plan",
+    "defaultPlan": "Default Plan",
+    "subscribe": "Subscribe Now",
+    "processing": "Processing...",
+    "loginFirst": "Please login first",
+    "error": "An error occurred",
+    "paymentSuccess": "Payment Successful!",
+    "paymentSuccessDesc": "Your service has been activated. You can return to your listings.",
+    "paymentCancelled": "Payment Cancelled",
+    "paymentCancelledDesc": "Payment was not completed. You can try again.",
+    "goToListings": "Go to My Listings",
+    "backToHome": "Back to Home",
+    "tryAgain": "Try Again"
   }
 }

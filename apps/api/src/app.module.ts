@@ -26,6 +26,8 @@ import { SearchModule } from './search/search.module';
 import { BusesModule } from './buses/buses.module';
 import { EquipmentModule } from './equipment/equipment.module';
 import { OperatorsModule } from './operators/operators.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -53,6 +55,8 @@ import { OperatorsModule } from './operators/operators.module';
     BusesModule,
     EquipmentModule,
     OperatorsModule,
+    ReviewsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -12,6 +12,8 @@ import { SellerCard } from '@/components/seller-card';
 import { getImageUrl } from '@/lib/image-utils';
 import { bookingStatusLabels, cancelLabels as cancelLabelsT } from '@/lib/constants/mappings';
 import { useTranslations, useLocale } from 'next-intl';
+import { ReviewForm } from '@/components/reviews/review-form';
+import { useState } from 'react';
 
 
 export default function BookingDetailPage() {
@@ -330,6 +332,12 @@ function BookingDetailContent() {
                     {tp('bookingDetailComplete')}
                   </button>
                 )}
+                {booking.status === 'COMPLETED' && isRenter && (
+                  <ReviewSection bookingId={booking.id} ownerId={booking.ownerId} />
+                )}
+                {booking.status === 'COMPLETED' && isOwner && (
+                  <ReviewSection bookingId={booking.id} ownerId={booking.renterId} />
+                )}
                 {isRenter && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
                   <button onClick={() => handleStatus('CANCELLED')} disabled={updateStatus.isPending} className="w-full py-3.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 font-black text-sm hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-lg">cancel</span>
@@ -361,6 +369,30 @@ function DetailCell({ icon, label, value }: { icon: string; label: string; value
         <p className="text-[11px] text-on-surface-variant font-bold">{label}</p>
       </div>
       <p className="font-black text-sm text-on-surface">{value}</p>
+    </div>
+  );
+}
+
+function ReviewSection({ bookingId, ownerId }: { bookingId: string; ownerId: string }) {
+  const [done, setDone] = useState(false);
+  const tr = useTranslations('reviews');
+
+  if (done) {
+    return (
+      <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4 rounded-lg text-center">
+        <span className="material-symbols-outlined text-emerald-600 text-2xl mb-1 block">check_circle</span>
+        <p className="text-sm font-black text-emerald-700 dark:text-emerald-400">{tr('reviewSubmitted')}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 p-4 rounded-lg">
+      <p className="text-sm font-black text-on-surface mb-3 flex items-center gap-1.5">
+        <span className="material-symbols-outlined text-primary text-base">rate_review</span>
+        {tr('rateTransaction')}
+      </p>
+      <ReviewForm entityType="BOOKING" entityId={bookingId} revieweeId={ownerId} onSuccess={() => setDone(true)} />
     </div>
   );
 }

@@ -298,7 +298,8 @@
     "browseInOman": "تصفح {total} {label} في سلطنة عمان",
     "loadError": "حدث خطأ في تحميل البيانات",
     "tryDifferentSearch": "جرب البحث بكلمات مختلفة",
-    "new": "جديد"
+    "new": "جديد",
+    "featured": "مميز"
   },
   "categories": {
     "vehiclesParts": "سيارات وقطع غيار",
@@ -2478,6 +2479,52 @@
     "eqrErrDesc": "الوصف مطلوب",
     "eqrErrType": "نوع المعدة مطلوب",
     "eqrSuccess": "تم نشر الطلب بنجاح — انتظر عروض الموردين",
-    "eqrError": "حدث خطأ"
+    "eqrError": "حدث خطأ",
+    "myListingsFeature": "تمييز",
+    "myListingsFeatured": "مميز ✦",
+    "myListingsFeatureError": "حدث خطأ في عملية التمييز"
+  },
+  "reviews": {
+    "ratingsAndReviews": "التقييمات والمراجعات",
+    "writeReview": "اكتب تقييمك",
+    "yourRating": "تقييمك",
+    "commentPlaceholder": "اكتب تعليقك هنا (اختياري)...",
+    "submitReview": "إرسال التقييم",
+    "submitting": "جاري الإرسال...",
+    "reviewSubmitted": "تم إرسال التقييم بنجاح",
+    "reviewError": "حدث خطأ في إرسال التقييم",
+    "selectRating": "اختر عدد النجوم",
+    "noReviews": "لا توجد تقييمات بعد",
+    "reviewCount": "{count} تقييم",
+    "sellerReply": "رد البائع",
+    "rateTransaction": "قيّم هذه الصفقة"
+  },
+  "pricing": {
+    "title": "خطط الاشتراك",
+    "subtitle": "اختر الخطة المناسبة لتنمية أعمالك في سوق وان",
+    "popular": "الأكثر شيوعاً",
+    "planBASIC": "أساسي",
+    "planPRO": "برو",
+    "planENTERPRISE": "إنتربرايز",
+    "free": "مجاني",
+    "perMonth": "ر.ع/شهر",
+    "unlimitedListings": "إعلانات بلا حدود",
+    "listingsCount": "{count} إعلان/شهر",
+    "noFeatured": "بدون تمييز",
+    "featuredCount": "{count} إعلان مميز/شهر",
+    "prioritySearch": "أولوية في نتائج البحث",
+    "currentPlan": "خطتك الحالية",
+    "defaultPlan": "الخطة الافتراضية",
+    "subscribe": "اشترك الآن",
+    "processing": "جاري المعالجة...",
+    "loginFirst": "سجل دخولك أولاً",
+    "error": "حدث خطأ",
+    "paymentSuccess": "تمت عملية الدفع بنجاح!",
+    "paymentSuccessDesc": "تم تفعيل خدمتك. يمكنك العودة لإعلاناتك.",
+    "paymentCancelled": "تم إلغاء الدفع",
+    "paymentCancelledDesc": "لم تتم عملية الدفع. يمكنك المحاولة مرة أخرى.",
+    "goToListings": "العودة لإعلاناتي",
+    "backToHome": "العودة للرئيسية",
+    "tryAgain": "حاول مرة أخرى"
   }
 }

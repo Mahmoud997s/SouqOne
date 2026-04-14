@@ -60,6 +60,12 @@ model User {
   equipmentRequests  EquipmentRequest[]  @relation("UserEquipmentRequests")
   equipmentBids      EquipmentBid[]      @relation("UserEquipmentBids")
   operatorListings   OperatorListing[]   @relation("UserOperatorListings")
+  reviewsGiven       Review[]            @relation("ReviewsGiven")
+  reviewsReceived    Review[]            @relation("ReviewsReceived")
+  payments           Payment[]
+  subscription       Subscription?
+  averageRating      Float?
+  reviewCount        Int                 @default(0)
 
   @@index([email])
   @@index([username])
@@ -135,6 +141,7 @@ model Listing {
   condition         ItemCondition  @default(USED)
   status            ListingStatus  @default(DRAFT)
   isPremium         Boolean        @default(false)
+  featuredUntil     DateTime?
 
   // الموقع
   governorate       String?
@@ -633,6 +640,10 @@ enum NotificationType {
   JOB_APPLICATION
   JOB_APPLICATION_ACCEPTED
   JOB_APPLICATION_REJECTED
+  REVIEW_RECEIVED
+  PAYMENT_SUCCESS
+  SUBSCRIPTION_ACTIVATED
+  FEATURED_EXPIRED
 }
 
 // ══════════════════════════════════════════════════
@@ -1064,6 +1075,8 @@ model BusListing {
   whatsapp          String?
 
   status            ListingStatus   @default(ACTIVE)
+  isPremium         Boolean         @default(false)
+  featuredUntil     DateTime?
   viewCount         Int             @default(0)
 
   userId            String
@@ -1185,6 +1198,8 @@ model EquipmentListing {
   whatsapp            String?
 
   status              ListingStatus        @default(ACTIVE)
+  isPremium           Boolean              @default(false)
+  featuredUntil       DateTime?
   viewCount           Int                  @default(0)
 
   userId              String
@@ -1336,4 +1351,135 @@ model OperatorListing {
   @@index([governorate])
   @@index([slug])
   @@map("operator_listings")
+}
+
+// ══════════════════════════════════════════════════
+// التقييمات — Reviews
+// ══════════════════════════════════════════════════
+
+enum ReviewEntityType {
+  LISTING
+  BUS_LISTING
+  EQUIPMENT_LISTING
+  BOOKING
+  OPERATOR_LISTING
+}
+
+model Review {
+  id           String           @id @default(cuid())
+  rating       Int              // 1-5
+  comment      String?
+
+  entityType   ReviewEntityType
+  entityId     String
+
+  reviewerId   String
+  reviewer     User             @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  revieweeId   String
+  reviewee     User             @relation("ReviewsReceived", fields: [revieweeId], references: [id], onDelete: Cascade)
+
+  reply        ReviewReply?
+
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([reviewerId, entityType, entityId])
+  @@index([revieweeId])
+  @@index([entityType, entityId])
+  @@index([rating])
+  @@map("reviews")
+}
+
+model ReviewReply {
+  id        String   @id @default(cuid())
+  body      String
+
+  reviewId  String   @unique
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("review_replies")
+}
+
+// ══════════════════════════════════════════════════
+// المدفوعات — Payments & Subscriptions (Thawani)
+// ══════════════════════════════════════════════════
+
+enum PaymentType {
+  FEATURED
+  SUBSCRIPTION
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum SubscriptionPlan {
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  amount            Int           // amount in baisa (1 OMR = 1000 baisa)
+  currency          String        @default("OMR")
+  type              PaymentType
+  status            PaymentStatus @default(PENDING)
+
+  thawaniSessionId  String?       @unique
+  thawaniPaymentId  String?
+
+  entityType        String?       // e.g. LISTING, BUS_LISTING
+  entityId          String?
+  metadata          Json?
+
+  createdAt         DateTime      @default(now())
+  paidAt            DateTime?
+
+  subscription      Subscription?
+
+  @@index([userId])
+  @@index([status])
+  @@index([thawaniSessionId])
+  @@map("payments")
+}
+
+model Subscription {
+  id          String             @id @default(cuid())
+
+  userId      String             @unique
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  plan        SubscriptionPlan   @default(BASIC)
+  status      SubscriptionStatus @default(ACTIVE)
+
+  startDate   DateTime           @default(now())
+  endDate     DateTime?
+  autoRenew   Boolean            @default(true)
+
+  paymentId   String?            @unique
+  payment     Payment?           @relation(fields: [paymentId], references: [id])
+
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([status])
+  @@index([endDate])
+  @@map("subscriptions")
 }
