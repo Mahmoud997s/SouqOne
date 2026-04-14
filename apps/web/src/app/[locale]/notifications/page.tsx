@@ -10,6 +10,7 @@ import {
   ChevronLeft, ChevronRight, AlertCircle, Tag, Calendar, Loader2,
 } from 'lucide-react';
 import { Footer } from '@/components/layout/footer';
+import { PushNotificationBanner } from '@/components/push-notification-banner';
 import { useTranslations, useLocale } from 'next-intl';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
@@ -114,6 +115,8 @@ export default function NotificationsPage() {
               </button>
             )}
           </div>
+
+          <PushNotificationBanner />
 
           {/* List */}
           {isLoading ? (

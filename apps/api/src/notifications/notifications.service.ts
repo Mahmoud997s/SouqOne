@@ -2,12 +2,14 @@ import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/commo
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { ChatGateway } from '../chat/chat.gateway';
+import { PushService } from './push.service';
 
 @Injectable()
 export class NotificationsService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(forwardRef(() => ChatGateway)) private readonly chatGateway: ChatGateway,
+    private readonly pushService: PushService,
   ) {}
 
   async create(dto: CreateNotificationDto) {
@@ -25,6 +27,16 @@ export class NotificationsService {
     try {
       await this.chatGateway.sendNotification(dto.userId, notification);
     } catch { /* gateway may not be initialized yet */ }
+
+    // Send Web Push notification
+    try {
+      await this.pushService.sendToUser(dto.userId, {
+        title: dto.title,
+        body: dto.body,
+        url: '/notifications',
+        data: dto.data,
+      });
+    } catch { /* push may not be configured */ }
 
     return notification;
   }

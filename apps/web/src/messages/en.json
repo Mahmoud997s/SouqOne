@@ -2526,5 +2526,10 @@
     "goToListings": "Go to My Listings",
     "backToHome": "Back to Home",
     "tryAgain": "Try Again"
+  },
+  "notifications": {
+    "pushTitle": "Enable Push Notifications",
+    "pushDesc": "Get instant notifications for new messages and booking updates",
+    "pushEnable": "Enable"
   }
 }
