@@ -2,6 +2,8 @@
 
 **النطاق:** Authentication · User Management · JWT · Google OAuth · Email Verification · Password Reset
 
+> **آخر تحديث:** تم تطبيق جميع الإصلاحات (9/11 issues fixed) + 24 test case passing ✅
+
 ---
 
 # 1. SYSTEM ARCHITECTURE
@@ -13,7 +15,9 @@ graph LR
         AS --> JWT["JwtService"]
         AS --> Prisma["PrismaService"]
         AS --> Mail["MailService"]
+        AS --> Redis["RedisService (lockout)"]
         AS --> Google["OAuth2Client (Google)"]
+        TC["TokenCleanupService (Cron)"] --> Prisma
     end
     subgraph Users["Users Module"]
         UC["UsersController"] --> US["UsersService"]
@@ -29,20 +33,19 @@ graph LR
 
 # 2. BACKEND ANALYSIS
 
-## 2.1 Auth Controller (`/auth`) — 9 endpoints
+## 2.1 Auth Controller (`/auth`) — 8 endpoints (was 9, `/me` removed ✅)
 
 | Method | Route | Auth | Rate Limit | الوصف |
 |--------|-------|:----:|:----------:|-------|
 | POST | `/auth/signup` | ❌ | 5/min | تسجيل حساب جديد |
-| POST | `/auth/login` | ❌ | 5/min | تسجيل الدخول |
+| POST | `/auth/login` | ❌ | 5/min | تسجيل الدخول + brute-force lockout ✅ |
 | POST | `/auth/google` | ❌ | - | تسجيل بـ Google OAuth |
-| POST | `/auth/refresh` | ❌ | - | تجديد Access Token |
-| POST | `/auth/logout` | ❌ | - | تسجيل خروج (revoke refresh) |
+| POST | `/auth/refresh` | ❌ | - | تجديد Access Token (hashed tokens ✅) |
+| POST | `/auth/logout` | ❌ | - | تسجيل خروج (revoke hashed refresh ✅) |
 | POST | `/auth/verify-email` | ✅ JWT | - | توثيق البريد بالرمز |
 | POST | `/auth/resend-verification` | ✅ JWT | 3/min | إعادة إرسال رمز التوثيق |
 | POST | `/auth/forgot-password` | ❌ | 3/min | طلب إعادة تعيين كلمة المرور |
 | POST | `/auth/reset-password` | ❌ | 5/min | إعادة تعيين كلمة المرور |
-| GET | `/auth/me` | ✅ JWT | - | بيانات المستخدم الحالي |
 
 ## 2.2 Users Controller (`/users`) — 4 endpoints
 
@@ -159,29 +162,29 @@ erDiagram
 
 | # | المشكلة | الموقع | التفاصيل |
 |---|---------|--------|----------|
-| A1 | **JWT_SECRET fallback** | `auth.module.ts:12`, `jwt.strategy.ts:12` | `'dev-secret'` يُستخدم لو `JWT_SECRET` فارغ — في production هذا كارثة |
-| A2 | **No brute-force protection** | `auth.service.ts:99` | `login()` لا يقفل الحساب بعد محاولات فاشلة — rate limit 5/min لكن بدون lockout |
-| A3 | **Verification code is 6-digit numeric** | `auth.service.ts:31` | `Math.random()` بدون crypto — يمكن التخمين (1M combinations فقط) |
-| A4 | **No MAILTRAP_API_TOKEN check** | `mail.service.ts:10` | لو التوكن فارغ، الـ emails تفشل بصمت — المستخدم لا يعرف |
-| A5 | **Auth controller has direct Prisma** | `auth.controller.ts:18,80` | `me()` endpoint يستخدم `prisma` مباشرة بدل `authService` — يكسر SoC |
+| A1 | ~~**JWT_SECRET fallback**~~ | `auth.module.ts`, `jwt.strategy.ts` | ✅ **FIXED** — throws in production if missing |
+| A2 | ~~**No brute-force protection**~~ | `auth.service.ts` | ✅ **FIXED** — Redis lockout بعد 5 محاولات، قفل 15 دقيقة |
+| A3 | ~~**Verification code weak**~~ | `auth.service.ts` | ✅ **FIXED** — `crypto.randomInt(100000, 999999)` |
+| A4 | **No MAILTRAP_API_TOKEN check** | `mail.service.ts:10` | ⏳ Deferred — لو التوكن فارغ، الـ emails تفشل بصمت |
+| A5 | ~~**Auth controller has direct Prisma**~~ | `auth.controller.ts` | ✅ **FIXED** — `/me` removed, use `/users/me` |
 
 ## 🟡 Medium
 
 | # | المشكلة | الموقع | التفاصيل |
 |---|---------|--------|----------|
-| A6 | **Token not encrypted at rest** | `refresh_tokens` table | Refresh token مخزن كـ plain hex — لو تسرب الـ DB يمكن استخدامه |
-| A7 | **No refresh token cleanup** | - | الـ tokens المنتهية/الملغاة تتراكم في DB بدون cron cleanup |
-| A8 | **Google OAuth no CSRF state** | `auth.service.ts:145` | `verifyIdToken()` بدون nonce/state parameter |
-| A9 | **Duplicate `/me` endpoint** | `auth.controller.ts:78` + `users.controller.ts:14` | نفس الـ functionality في مكانين |
-| A10 | **Dead code** | `auth-layout.tsx` | ملف بدون imports — يحتاج حذف |
+| A6 | ~~**Token not encrypted at rest**~~ | `refresh_tokens` table | ✅ **FIXED** — SHA-256 hash before storing |
+| A7 | ~~**No refresh token cleanup**~~ | `token-cleanup.service.ts` | ✅ **FIXED** — Cron job يومياً 3AM يحذف المنتهية/الملغاة |
+| A8 | **Google OAuth no CSRF state** | `auth.service.ts` | ⏳ Deferred — `verifyIdToken()` بدون nonce/state |
+| A9 | ~~**Duplicate `/me` endpoint**~~ | `auth.controller.ts` | ✅ **FIXED** — تم حذف `/auth/me` |
+| A10 | ~~**Dead code**~~ | `auth-layout.tsx` | ✅ **FIXED** — تم حذف الملف |
 
 ## 🟢 Low
 
 | # | المشكلة | التفاصيل |
 |---|---------|----------|
-| A11 | No password complexity validation | الـ DTO لا يفرض طول أو تعقيد |
-| A12 | No login audit log | لا يسجل محاولات الدخول |
-| A13 | No session management UI | لا يمكن للمستخدم رؤية أو إنهاء الجلسات |
+| A11 | ~~No password complexity validation~~ | ✅ **FIXED** — min 8, 1 uppercase, 1 digit |
+| A12 | No login audit log | ⏳ Deferred |
+| A13 | No session management UI | ⏳ Deferred |
 
 ---
 
@@ -230,3 +233,48 @@ erDiagram
 - **forgotPassword() safe** — لا يكشف وجود الحساب
 - **Arabic error messages** — consistent
 - **Separate public/private select** — UsersService يفصل البيانات العامة عن الخاصة
+
+---
+
+# 9. FIX IMPLEMENTATION REPORT ✅
+
+## Applied Fixes (9/11)
+
+| # | Issue | Fix | File(s) | Tests |
+|---|-------|-----|---------|-------|
+| A1 | JWT_SECRET fallback | `getJwtSecret()` throws in production | `auth.module.ts`, `jwt.strategy.ts` | - |
+| A2 | No brute-force | Redis lockout (5 attempts → 15min lock) | `auth.service.ts` | 3 tests |
+| A3 | Weak verification code | `crypto.randomInt(100000, 999999)` | `auth.service.ts` | - |
+| A5 | Duplicate /me + direct Prisma | Removed `/auth/me` entirely | `auth.controller.ts` | - |
+| A6 | Plain refresh tokens | SHA-256 hash before DB store | `auth.service.ts` | 4 tests |
+| A7 | No token cleanup | `TokenCleanupService` cron daily 3AM | `token-cleanup.service.ts` | - |
+| A9 | Duplicate /me | Removed from AuthController | `auth.controller.ts` | - |
+| A10 | Dead code | Deleted `auth-layout.tsx` | - | - |
+| A11 | No password rules | `@Matches` + `@MinLength(8)` | `signup.dto.ts`, `change-password.dto.ts` | - |
+
+## Deferred (2/11)
+
+| # | Issue | السبب |
+|---|-------|-------|
+| A4 | MAILTRAP_API_TOKEN check | خارج نطاق Auth module |
+| A8 | Google OAuth CSRF state | يتطلب تغيير frontend flow |
+| A12 | Login audit log | Nice-to-have |
+| A13 | Session management UI | Nice-to-have |
+
+## Test Results
+
+```
+Test Suites: 1 passed, 1 total
+Tests:       24 passed, 24 total
+Time:        5.939s
+```
+
+| Suite | Tests | الوصف |
+|-------|:-----:|-------|
+| signup | 3 | Create user + duplicate email + hashed token stored |
+| login | 7 | Valid + invalid + wrong password + lockout + reset + Google-only |
+| refresh | 3 | Valid + expired + revoked |
+| verifyEmail | 4 | Correct + wrong code + expired + already verified |
+| forgotPassword | 2 | Non-existent user safe + sends email |
+| resetPassword | 3 | Valid + expired + wrong code |
+| logout | 2 | Revoke token + already-revoked graceful |

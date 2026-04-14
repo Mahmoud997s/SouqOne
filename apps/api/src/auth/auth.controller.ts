@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Post, UseGuards, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
-import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -13,10 +12,7 @@ import type { JwtPayload } from './auth.types';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('signup')
@@ -74,28 +70,4 @@ export class AuthController {
     return this.authService.resetPassword(email, code, newPassword);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('me')
-  async me(@CurrentUser() jwt: JwtPayload) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: jwt.sub },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        displayName: true,
-        avatarUrl: true,
-        phone: true,
-        bio: true,
-        country: true,
-        governorate: true,
-        city: true,
-        isVerified: true,
-        role: true,
-        createdAt: true,
-      },
-    });
-    if (!user) throw new NotFoundException('المستخدم غير موجود');
-    return user;
-  }
 }

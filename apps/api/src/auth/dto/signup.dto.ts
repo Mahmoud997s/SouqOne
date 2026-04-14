@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsString, MinLength, MaxLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, MinLength, MaxLength, Matches } from 'class-validator';
 
 export class SignupDto {
   @IsEmail({}, { message: 'البريد الإلكتروني غير صالح' })
@@ -10,7 +10,8 @@ export class SignupDto {
   username!: string;
 
   @IsString()
-  @MinLength(6, { message: 'كلمة المرور يجب أن تكون ٦ أحرف على الأقل' })
+  @MinLength(8, { message: 'كلمة المرور يجب أن تكون ٨ أحرف على الأقل' })
+  @Matches(/^(?=.*[A-Z])(?=.*\d)/, { message: 'كلمة المرور يجب أن تحتوي على حرف كبير ورقم على الأقل' })
   password!: string;
 
   @IsOptional()

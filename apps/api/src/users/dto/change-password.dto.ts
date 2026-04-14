@@ -1,4 +1,4 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsString, MinLength, Matches } from 'class-validator';
 
 export class ChangePasswordDto {
   @IsString()
@@ -6,6 +6,7 @@ export class ChangePasswordDto {
   currentPassword!: string;
 
   @IsString()
-  @MinLength(6, { message: 'كلمة المرور الجديدة يجب أن تكون ٦ أحرف على الأقل' })
+  @MinLength(8, { message: 'كلمة المرور الجديدة يجب أن تكون ٨ أحرف على الأقل' })
+  @Matches(/^(?=.*[A-Z])(?=.*\d)/, { message: 'كلمة المرور يجب أن تحتوي على حرف كبير ورقم على الأقل' })
   newPassword!: string;
 }

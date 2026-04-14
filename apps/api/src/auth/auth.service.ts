@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
@@ -14,6 +15,8 @@ import { MailService } from '../mail/mail.service';
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 
 const REFRESH_TOKEN_EXPIRY_DAYS = 30;
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION_SECONDS = 15 * 60; // 15 minutes
 
 @Injectable()
 export class AuthService {
@@ -23,12 +26,13 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly redis: RedisService,
   ) {
     this.googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
   }
 
   private generateVerificationCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    return crypto.randomInt(100000, 999999).toString();
   }
 
   private sanitizeUser(user: User) {
@@ -46,13 +50,18 @@ export class AuthService {
     };
   }
 
+  private hashToken(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
   private async generateRefreshToken(userId: string): Promise<string> {
     const token = crypto.randomBytes(64).toString('hex');
+    const hashedToken = this.hashToken(token);
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRY_DAYS);
 
     await this.prisma.refreshToken.create({
-      data: { token, userId, expiresAt },
+      data: { token: hashedToken, userId, expiresAt },
     });
 
     return token;
@@ -99,8 +108,19 @@ export class AuthService {
   async login(dto: LoginDto) {
     const email = dto.email.trim().toLowerCase();
 
+    // Brute-force lockout check
+    const lockoutKey = `auth:fail:${email}`;
+    const attempts = await this.redis.get<number>(lockoutKey);
+    if (attempts !== null && attempts >= MAX_LOGIN_ATTEMPTS) {
+      const ttl = await this.redis.getTTL(lockoutKey);
+      throw new UnauthorizedException(
+        `تم قفل الحساب مؤقتاً بسبب محاولات فاشلة متعددة. حاول مرة أخرى بعد ${Math.ceil(ttl / 60)} دقيقة.`,
+      );
+    }
+
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
+      await this.redis.incr(lockoutKey, LOCKOUT_DURATION_SECONDS);
       throw new UnauthorizedException('بيانات الدخول غير صحيحة');
     }
 
@@ -109,8 +129,12 @@ export class AuthService {
     }
     const ok = await bcrypt.compare(dto.password, user.passwordHash);
     if (!ok) {
+      await this.redis.incr(lockoutKey, LOCKOUT_DURATION_SECONDS);
       throw new UnauthorizedException('بيانات الدخول غير صحيحة');
     }
+
+    // Reset lockout on success
+    await this.redis.del(lockoutKey);
 
     const accessToken = await this.jwtService.signAsync(this.buildPayload(user));
     const refreshToken = await this.generateRefreshToken(user.id);
@@ -119,7 +143,8 @@ export class AuthService {
   }
 
   async refresh(token: string) {
-    const stored = await this.prisma.refreshToken.findUnique({ where: { token } });
+    const hashedToken = this.hashToken(token);
+    const stored = await this.prisma.refreshToken.findUnique({ where: { token: hashedToken } });
 
     if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
       throw new UnauthorizedException('رمز التجديد غير صالح أو منتهي');
@@ -276,7 +301,8 @@ export class AuthService {
   }
 
   async logout(token: string) {
-    const stored = await this.prisma.refreshToken.findUnique({ where: { token } });
+    const hashedToken = this.hashToken(token);
+    const stored = await this.prisma.refreshToken.findUnique({ where: { token: hashedToken } });
     if (stored && !stored.revokedAt) {
       await this.prisma.refreshToken.update({
         where: { id: stored.id },
