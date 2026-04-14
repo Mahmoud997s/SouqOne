@@ -53,7 +53,8 @@
     "platformTagline": "المنصة الأولى في سلطنة عمان لبيع وشراء السيارات بكل ثقة وأمان.",
     "language": "اللغة",
     "arabic": "العربية",
-    "english": "English"
+    "english": "English",
+    "siteName": "سوق وان"
   },
   "nav": {
     "browseNewUsedCars": "تصفح سيارات جديدة ومستعملة",
@@ -299,7 +300,9 @@
     "loadError": "حدث خطأ في تحميل البيانات",
     "tryDifferentSearch": "جرب البحث بكلمات مختلفة",
     "new": "جديد",
-    "featured": "مميز"
+    "featured": "مميز",
+    "typeSale": "للبيع",
+    "typeRental": "للإيجار"
   },
   "categories": {
     "vehiclesParts": "سيارات وقطع غيار",
@@ -388,7 +391,11 @@
     "sortOldest": "الأقدم",
     "sortPriceLow": "السعر: الأقل",
     "sortPriceHigh": "السعر: الأعلى",
-    "sortYearNew": "السنة: الأحدث"
+    "sortYearNew": "السنة: الأحدث",
+    "fullTime": "دوام كامل",
+    "partTime": "دوام جزئي",
+    "temporary": "مؤقت",
+    "contract": "عقد"
   },
   "colors": {
     "white": "أبيض",

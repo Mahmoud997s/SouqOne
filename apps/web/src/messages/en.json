@@ -53,7 +53,8 @@
     "platformTagline": "Oman's leading platform for buying and selling cars with confidence.",
     "language": "Language",
     "arabic": "العربية",
-    "english": "English"
+    "english": "English",
+    "siteName": "SouqOne"
   },
   "nav": {
     "browseNewUsedCars": "Browse new & used cars",
@@ -299,7 +300,9 @@
     "loadError": "Error loading data",
     "tryDifferentSearch": "Try different search terms",
     "new": "New",
-    "featured": "Featured"
+    "featured": "Featured",
+    "typeSale": "For Sale",
+    "typeRental": "For Rent"
   },
   "categories": {
     "vehiclesParts": "Vehicles & Parts",
@@ -388,7 +391,11 @@
     "sortOldest": "Oldest",
     "sortPriceLow": "Price: Low to High",
     "sortPriceHigh": "Price: High to Low",
-    "sortYearNew": "Year: Newest"
+    "sortYearNew": "Year: Newest",
+    "fullTime": "Full Time",
+    "partTime": "Part Time",
+    "temporary": "Temporary",
+    "contract": "Contract"
   },
   "colors": {
     "white": "White",
