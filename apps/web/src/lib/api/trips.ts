@@ -33,6 +33,7 @@ export interface TripItem {
   viewCount: number;
   userId: string;
   user: { id: string; username: string; displayName?: string; avatarUrl?: string; phone?: string; governorate?: string; isVerified?: boolean; createdAt?: string };
+  images?: { id: string; url: string; isPrimary: boolean; order: number }[];
   createdAt: string;
   updatedAt: string;
 }
