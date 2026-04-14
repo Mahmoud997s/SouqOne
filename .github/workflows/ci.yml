@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -17,8 +17,7 @@ env:
 
 jobs:
   # ════════════════════════════════════════
-  # Quality: Lint + TypeCheck + Build
-  # Single job — avoids repeated npm ci / cache restore
+  # 1. Quality: Lint + TypeCheck + Build
   # ════════════════════════════════════════
   quality:
     name: Quality
@@ -74,10 +73,35 @@ jobs:
         run: npx turbo run build
 
   # ════════════════════════════════════════
-  # API Tests — only when API code changes
+  # 2. Security: Dependency audit
+  # ════════════════════════════════════════
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Audit (high + critical)
+        run: npm audit --audit-level=high --omit=dev
+        continue-on-error: true
+
+      - name: Check for known vulnerabilities
+        run: npx audit-ci --high
+        continue-on-error: true
+
+  # ════════════════════════════════════════
+  # 3. API Unit Tests
   # ════════════════════════════════════════
   test-api:
-    name: API Tests
+    name: API Unit Tests
     runs-on: ubuntu-latest
     needs: quality
     services:
@@ -112,6 +136,7 @@ jobs:
           cache: npm
 
       - name: Restore node_modules
+        id: cache-modules
         uses: actions/cache@v4
         with:
           path: |
@@ -119,6 +144,10 @@ jobs:
             apps/*/node_modules
             packages/*/node_modules
           key: modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: npm ci
 
       - name: Generate Prisma client
         run: npx turbo run db:generate
@@ -129,7 +158,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/carone_test
 
-      - name: Run tests
+      - name: Run unit tests
         run: npm test
         working-directory: apps/api
         env:
@@ -140,19 +169,232 @@ jobs:
           NODE_ENV: test
 
   # ════════════════════════════════════════
-  # Gate — single required status check
+  # 4. API E2E Tests (supertest)
+  # ════════════════════════════════════════
+  test-api-e2e:
+    name: API E2E Tests
+    runs-on: ubuntu-latest
+    needs: quality
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: carone_e2e
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Restore node_modules
+        id: cache-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx turbo run db:generate
+
+      - name: Push E2E schema
+        run: npx prisma db push --skip-generate --accept-data-loss
+        working-directory: apps/api
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/carone_e2e
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+        working-directory: apps/api
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/carone_e2e
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: ci-jwt-secret-do-not-use-in-prod
+          JWT_REFRESH_SECRET: ci-jwt-refresh-secret-do-not-use-in-prod
+          CLOUDINARY_URL: cloudinary://fake:fake@fake
+          MAIL_HOST: localhost
+          MAIL_PORT: "1025"
+          MEILISEARCH_HOST: http://localhost:7700
+          MEILISEARCH_API_KEY: fake-key
+          NODE_ENV: test
+
+  # ════════════════════════════════════════
+  # 5. Frontend E2E Tests (Playwright)
+  # ════════════════════════════════════════
+  test-web-e2e:
+    name: Web E2E Tests
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Restore node_modules
+        id: cache-modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+
+      - name: Build web app
+        run: npx turbo run build --filter=@carone/web
+
+      - name: Run Playwright tests (Chromium only)
+        run: npx playwright test --project=chromium
+        working-directory: apps/web
+        env:
+          CI: "true"
+          NEXT_PUBLIC_API_URL: http://localhost:4000
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/test-results/
+          retention-days: 7
+
+  # ════════════════════════════════════════
+  # 6. Gate — single required status check
   # ════════════════════════════════════════
   ci-ok:
     name: CI ✓
     runs-on: ubuntu-latest
     if: always()
-    needs: [quality, test-api]
+    needs: [quality, security, test-api, test-api-e2e, test-web-e2e]
     steps:
       - name: Check results
         run: |
+          echo "Quality:      ${{ needs.quality.result }}"
+          echo "Security:     ${{ needs.security.result }}"
+          echo "Unit Tests:   ${{ needs.test-api.result }}"
+          echo "API E2E:      ${{ needs.test-api-e2e.result }}"
+          echo "Web E2E:      ${{ needs.test-web-e2e.result }}"
+
+          # Quality + Unit tests must pass. E2E + Security are soft-fail for now.
           if [[ "${{ needs.quality.result }}" != "success" ]] || \
              [[ "${{ needs.test-api.result }}" != "success" ]]; then
-            echo "❌ CI failed"
+            echo "❌ CI failed — required checks did not pass"
             exit 1
           fi
-          echo "✅ All checks passed"
+
+          # Warn on E2E / Security failures but don't block
+          if [[ "${{ needs.test-api-e2e.result }}" != "success" ]] || \
+             [[ "${{ needs.test-web-e2e.result }}" != "success" ]] || \
+             [[ "${{ needs.security.result }}" != "success" ]]; then
+            echo "⚠️  Some optional checks failed — review recommended"
+          fi
+
+          echo "✅ All required checks passed"
+
+  # ════════════════════════════════════════
+  # 7. Deploy — only on main push after CI ✓
+  # ════════════════════════════════════════
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: ci-ok
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    steps:
+      - name: Trigger Railway deploy (API)
+        run: |
+          if [ -n "${{ secrets.RAILWAY_DEPLOY_HOOK_API }}" ]; then
+            curl -X POST "${{ secrets.RAILWAY_DEPLOY_HOOK_API }}" \
+              -H "Content-Type: application/json" \
+              --fail --silent --show-error
+            echo "✅ API deploy triggered"
+          else
+            echo "⚠️  RAILWAY_DEPLOY_HOOK_API secret not set — skipping"
+          fi
+
+      - name: Trigger Railway deploy (Web)
+        run: |
+          if [ -n "${{ secrets.RAILWAY_DEPLOY_HOOK_WEB }}" ]; then
+            curl -X POST "${{ secrets.RAILWAY_DEPLOY_HOOK_WEB }}" \
+              -H "Content-Type: application/json" \
+              --fail --silent --show-error
+            echo "✅ Web deploy triggered"
+          else
+            echo "⚠️  RAILWAY_DEPLOY_HOOK_WEB secret not set — skipping"
+          fi
+
+      - name: Wait for deploy
+        run: sleep 60
+
+      - name: Health check (API)
+        run: |
+          if [ -n "${{ secrets.PROD_API_URL }}" ]; then
+            for i in 1 2 3 4 5; do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.PROD_API_URL }}/api/health" || true)
+              if [ "$STATUS" = "200" ]; then
+                echo "✅ API is healthy"
+                exit 0
+              fi
+              echo "⏳ Attempt $i — status $STATUS, retrying in 15s..."
+              sleep 15
+            done
+            echo "❌ API health check failed after 5 attempts"
+            exit 1
+          else
+            echo "⚠️  PROD_API_URL secret not set — skipping health check"
+          fi
+
+      - name: Health check (Web)
+        run: |
+          if [ -n "${{ secrets.PROD_WEB_URL }}" ]; then
+            for i in 1 2 3 4 5; do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.PROD_WEB_URL }}" || true)
+              if [ "$STATUS" = "200" ]; then
+                echo "✅ Web is healthy"
+                exit 0
+              fi
+              echo "⏳ Attempt $i — status $STATUS, retrying in 15s..."
+              sleep 15
+            done
+            echo "❌ Web health check failed after 5 attempts"
+            exit 1
+          else
+            echo "⚠️  PROD_WEB_URL secret not set — skipping health check"
+          fi
