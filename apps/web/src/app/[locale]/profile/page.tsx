@@ -12,6 +12,7 @@ import { getGovernorates } from '@/lib/location-data';
 import { inputCls, labelCls } from '@/lib/constants/form-styles';
 import { getImageUrl } from '@/lib/image-utils';
 import { VerifiedBadge } from '@/components/verified-badge';
+import { useTranslations, useLocale } from 'next-intl';
 
 type Tab = 'listings' | 'favorites' | 'settings';
 
@@ -38,6 +39,8 @@ export default function ProfilePage() {
   const uploadImage = useUploadImage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const tp = useTranslations('pages');
+  const locale = useLocale();
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -77,10 +80,10 @@ export default function ProfilePage() {
         governorate: governorate || undefined,
       });
       setEditMode(false);
-      setProfileMsg('تم الحفظ بنجاح');
+      setProfileMsg(tp('profileSaved'));
       refetchUser();
     } catch (err) {
-      setProfileMsg(err instanceof Error ? err.message : 'خطأ');
+      setProfileMsg(err instanceof Error ? err.message : tp('profileError'));
     }
   }
 
@@ -89,11 +92,11 @@ export default function ProfilePage() {
     setPwMsg('');
     try {
       await changePassword.mutateAsync({ currentPassword, newPassword });
-      setPwMsg('تم تغيير كلمة المرور بنجاح');
+      setPwMsg(tp('profilePasswordChanged'));
       setCurrentPassword('');
       setNewPassword('');
     } catch (err) {
-      setPwMsg(err instanceof Error ? err.message : 'خطأ');
+      setPwMsg(err instanceof Error ? err.message : tp('profileError'));
     }
   }
 
@@ -133,14 +136,14 @@ export default function ProfilePage() {
   const activeCount = myListings?.items?.length ?? 0;
   const favsCount = favorites?.items?.length ?? 0;
   const totalViews = myListings?.items?.reduce((s, i) => s + (i.viewCount || 0), 0) ?? 0;
-  const memberSince = new Date(user.createdAt).toLocaleDateString('ar-OM', { year: 'numeric', month: 'long' });
+  const memberSince = new Date(user.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US', { year: 'numeric', month: 'long' });
   const initial = (user.displayName || user.username)[0]?.toUpperCase();
-  const govOptions = getGovernorates('OM');
+  const govOptions = getGovernorates('OM', locale);
 
   const tabs: { key: Tab; label: string; icon: string; count?: number }[] = [
-    { key: 'listings', label: 'إعلاناتي', icon: 'directions_car', count: activeCount },
-    { key: 'favorites', label: 'المفضلة', icon: 'favorite', count: favsCount },
-    { key: 'settings', label: 'الإعدادات', icon: 'settings' },
+    { key: 'listings', label: tp('profileTabListings'), icon: 'directions_car', count: activeCount },
+    { key: 'favorites', label: tp('profileTabFavorites'), icon: 'favorite', count: favsCount },
+    { key: 'settings', label: tp('profileTabSettings'), icon: 'settings' },
   ];
 
   return (
@@ -204,7 +207,7 @@ export default function ProfilePage() {
                     )}
                     <span className="flex items-center gap-1">
                       <span className="material-symbols-outlined text-sm">calendar_month</span>
-                      عضو منذ {memberSince}
+                      {tp('profileMemberSince', { date: memberSince })}
                     </span>
                   </div>
                   {user.bio && (
@@ -216,11 +219,11 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 self-start sm:self-center">
                   <button onClick={startEdit} className="h-8 sm:h-10 px-3 sm:px-5 bg-primary text-on-primary text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 hover:brightness-110 transition-all rounded-lg">
                     <span className="material-symbols-outlined text-base sm:text-lg">edit</span>
-                    <span className="hidden sm:inline">تعديل</span>
+                    <span className="hidden sm:inline">{tp('profileEdit')}</span>
                   </button>
                   <Link href="/add-listing" className="h-8 sm:h-10 px-3 sm:px-5 btn-success text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 hover:brightness-105 transition-all rounded-lg">
                     <span className="material-symbols-outlined text-base sm:text-lg">add</span>
-                    <span className="hidden sm:inline">أضف إعلان</span>
+                    <span className="hidden sm:inline">{tp('profileAddListing')}</span>
                   </Link>
                 </div>
               </div>
@@ -230,15 +233,15 @@ export default function ProfilePage() {
             <div className="border-t border-outline-variant/10 dark:border-outline-variant/20 grid grid-cols-3 divide-x divide-outline-variant/10 dark:divide-outline-variant/20">
               <button onClick={() => setTab('listings')} className="py-3 sm:py-4 px-2 sm:px-3 text-center hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/30 transition-colors group">
                 <p className="text-lg sm:text-xl md:text-2xl font-black text-on-surface group-hover:text-primary transition-colors">{activeCount}</p>
-                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">إعلانات</p>
+                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">{tp('profileStatsListings')}</p>
               </button>
               <button onClick={() => setTab('favorites')} className="py-3 sm:py-4 px-2 sm:px-3 text-center hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/30 transition-colors group">
                 <p className="text-lg sm:text-xl md:text-2xl font-black text-on-surface group-hover:text-error transition-colors">{favsCount}</p>
-                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">المفضلة</p>
+                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">{tp('profileStatsFavorites')}</p>
               </button>
               <div className="py-3 sm:py-4 px-2 sm:px-3 text-center">
                 <p className="text-lg sm:text-xl md:text-2xl font-black text-on-surface">{totalViews}</p>
-                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">مشاهدات</p>
+                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">{tp('profileStatsViews')}</p>
               </div>
             </div>
           </div>
@@ -293,7 +296,7 @@ export default function ProfilePage() {
                     <div className="w-16 h-16 rounded-full bg-primary/10 dark:bg-primary/15 flex items-center justify-center group-hover:scale-110 transition-transform">
                       <span className="material-symbols-outlined text-3xl text-primary">add</span>
                     </div>
-                    <span className="font-black text-sm group-hover:text-primary transition-colors">أضف إعلان جديد</span>
+                    <span className="font-black text-sm group-hover:text-primary transition-colors">{tp('profileAddNewListing')}</span>
                   </Link>
 
                   {myListings.items.map((item) => {
@@ -322,7 +325,7 @@ export default function ProfilePage() {
                                 ? 'bg-brand-green/90 text-white'
                                 : 'bg-surface-container-high/90 text-on-surface-variant'
                             }`}>
-                              {item.status === 'ACTIVE' ? 'نشط' : item.status}
+                              {item.status === 'ACTIVE' ? tp('profileStatusActive') : item.status}
                             </span>
                           </div>
                         </div>
@@ -335,7 +338,7 @@ export default function ProfilePage() {
                           </span>
                           <span className="flex items-center gap-0.5">
                             <span className="material-symbols-outlined text-xs">schedule</span>
-                            {new Date(item.createdAt).toLocaleDateString('ar-OM')}
+                            {new Date(item.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')}
                           </span>
                         </div>
 
@@ -343,15 +346,15 @@ export default function ProfilePage() {
                         <div className="flex border-t border-outline-variant/10 dark:border-outline-variant/20">
                           <Link href={`/edit-listing/${item.id}`} className="flex-1 py-2.5 text-center text-xs font-black text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-1.5">
                             <span className="material-symbols-outlined text-sm">edit</span>
-                            تعديل
+                            {tp('profileEditAction')}
                           </Link>
                           <div className="w-px bg-outline-variant/10 dark:bg-outline-variant/20" />
                           <button
-                            onClick={() => { if (confirm('هل أنت متأكد من حذف هذا الإعلان؟')) deleteListing.mutate(item.id); }}
+                            onClick={() => { if (confirm(tp('profileDeleteConfirm'))) deleteListing.mutate(item.id); }}
                             className="flex-1 py-2.5 text-center text-xs font-black text-on-surface-variant hover:text-error hover:bg-error/5 transition-all flex items-center justify-center gap-1.5"
                           >
                             <span className="material-symbols-outlined text-sm">delete</span>
-                            حذف
+                            {tp('profileDeleteAction')}
                           </button>
                         </div>
                       </div>
@@ -363,11 +366,11 @@ export default function ProfilePage() {
                   <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-primary/10 dark:bg-primary/15 flex items-center justify-center">
                     <span className="material-symbols-outlined text-4xl text-primary">inventory_2</span>
                   </div>
-                  <h3 className="text-lg font-black text-on-surface mb-2">لا توجد إعلانات بعد</h3>
-                  <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">أضف إعلانك الأول وابدأ الوصول لآلاف المهتمين</p>
+                  <h3 className="text-lg font-black text-on-surface mb-2">{tp('profileNoListings')}</h3>
+                  <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">{tp('profileNoListingsDesc')}</p>
                   <Link href="/add-listing" className="inline-flex items-center gap-2 btn-primary px-8 py-3 text-sm font-black hover:brightness-110 transition-all">
                     <span className="material-symbols-outlined text-lg">add</span>
-                    أضف إعلانك الأول
+                    {tp('profileAddFirst')}
                   </Link>
                 </div>
               )}
@@ -414,11 +417,11 @@ export default function ProfilePage() {
                   <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-error/10 dark:bg-error/15 flex items-center justify-center">
                     <span className="material-symbols-outlined text-4xl text-error">favorite</span>
                   </div>
-                  <h3 className="text-lg font-black text-on-surface mb-2">لا توجد مفضلات</h3>
-                  <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">احفظ السيارات التي تعجبك لتعود إليها لاحقاً</p>
+                  <h3 className="text-lg font-black text-on-surface mb-2">{tp('profileNoFavorites')}</h3>
+                  <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">{tp('profileNoFavoritesDesc')}</p>
                   <Link href="/listings" className="inline-flex items-center gap-2 btn-primary px-8 py-3 text-sm font-black hover:brightness-110 transition-all">
                     <span className="material-symbols-outlined text-lg">search</span>
-                    تصفح الإعلانات
+                    {tp('profileBrowseListings')}
                   </Link>
                 </div>
               )}
@@ -435,7 +438,7 @@ export default function ProfilePage() {
                   <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary">person</span>
-                      <h3 className="text-base font-black">تعديل الملف الشخصي</h3>
+                      <h3 className="text-base font-black">{tp('profileEditTitle')}</h3>
                     </div>
                     <button type="button" onClick={() => setEditMode(false)} className="text-on-surface-variant hover:text-on-surface transition-colors">
                       <span className="material-symbols-outlined text-xl">close</span>
@@ -444,41 +447,41 @@ export default function ProfilePage() {
                   <div className="p-6 space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
-                        <label className={labelCls}>الاسم المعروض</label>
-                        <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="الاسم المعروض" className={inputCls} />
+                        <label className={labelCls}>{tp('profileDisplayNameLabel')}</label>
+                        <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder={tp('profileDisplayNamePlaceholder')} className={inputCls} />
                       </div>
                       <div>
-                        <label className={labelCls}>رقم الهاتف</label>
+                        <label className={labelCls}>{tp('profilePhoneLabel')}</label>
                         <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+968 9XXX XXXX" className={inputCls} dir="ltr" />
                       </div>
                     </div>
                     <div>
-                      <label className={labelCls}>المحافظة</label>
+                      <label className={labelCls}>{tp('profileGovernorateLabel')}</label>
                       <select value={governorate} onChange={(e) => setGovernorate(e.target.value)} className={inputCls}>
-                        <option value="">اختر المحافظة</option>
+                        <option value="">{tp('profileGovernoratePlaceholder')}</option>
                         {govOptions.map((g) => <option key={g.value} value={g.label}>{g.label}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className={labelCls}>نبذة عنك</label>
-                      <textarea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="أخبر المشترين عنك..." className={inputCls + ' resize-none'} />
+                      <label className={labelCls}>{tp('profileBioLabel')}</label>
+                      <textarea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder={tp('profileBioPlaceholder')} className={inputCls + ' resize-none'} />
                     </div>
                     {profileMsg && (
-                      <div className={`flex items-center gap-2 p-3 text-sm font-bold ${profileMsg.includes('خطأ') ? 'bg-error/10 text-error' : 'bg-brand-green/10 text-brand-green'}`}>
-                        <span className="material-symbols-outlined text-base">{profileMsg.includes('خطأ') ? 'error' : 'check_circle'}</span>
+                      <div className={`flex items-center gap-2 p-3 text-sm font-bold ${profileMsg.includes(tp('profileError')) ? 'bg-error/10 text-error' : 'bg-brand-green/10 text-brand-green'}`}>
+                        <span className="material-symbols-outlined text-base">{profileMsg.includes(tp('profileError')) ? 'error' : 'check_circle'}</span>
                         {profileMsg}
                       </div>
                     )}
                     <div className="flex gap-3 pt-2">
                       <button type="submit" disabled={updateProfile.isPending} className="btn-primary flex-1 py-3 text-sm font-black hover:brightness-110 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
                         {updateProfile.isPending ? (
-                          <><span className="material-symbols-outlined text-base animate-spin">progress_activity</span> جارٍ الحفظ...</>
+                          <><span className="material-symbols-outlined text-base animate-spin">progress_activity</span> {tp('profileSaving')}</>
                         ) : (
-                          <><span className="material-symbols-outlined text-base">save</span> حفظ التغييرات</>
+                          <><span className="material-symbols-outlined text-base">save</span> {tp('profileSaveChanges')}</>
                         )}
                       </button>
                       <button type="button" onClick={() => setEditMode(false)} className="px-6 py-3 text-sm font-black text-on-surface-variant border border-outline-variant/15 dark:border-outline-variant/30 hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-all">
-                        إلغاء
+                        {tp('profileCancel')}
                       </button>
                     </div>
                   </div>
@@ -488,21 +491,21 @@ export default function ProfilePage() {
                   <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary">person</span>
-                      <h3 className="text-base font-black">المعلومات الشخصية</h3>
+                      <h3 className="text-base font-black">{tp('profilePersonalInfo')}</h3>
                     </div>
                     <button onClick={startEdit} className="text-primary text-xs font-black hover:underline flex items-center gap-1">
                       <span className="material-symbols-outlined text-sm">edit</span>
-                      تعديل
+                      {tp('profileEdit')}
                     </button>
                   </div>
                   <div className="p-6">
                     <div className="space-y-4">
                       {[
-                        { icon: 'badge', label: 'الاسم', value: user.displayName || '—' },
-                        { icon: 'alternate_email', label: 'اسم المستخدم', value: `@${user.username}` },
-                        { icon: 'mail', label: 'البريد', value: user.email },
-                        { icon: 'phone', label: 'الهاتف', value: user.phone || '—' },
-                        { icon: 'location_on', label: 'المحافظة', value: user.governorate || '—' },
+                        { icon: 'badge', label: tp('profileInfoName'), value: user.displayName || '—' },
+                        { icon: 'alternate_email', label: tp('profileInfoUsername'), value: `@${user.username}` },
+                        { icon: 'mail', label: tp('profileInfoEmail'), value: user.email },
+                        { icon: 'phone', label: tp('profileInfoPhone'), value: user.phone || '—' },
+                        { icon: 'location_on', label: tp('profileInfoGovernorate'), value: user.governorate || '—' },
                       ].map((row) => (
                         <div key={row.label} className="flex items-center gap-3">
                           <span className="material-symbols-outlined text-lg text-on-surface-variant/50 shrink-0">{row.icon}</span>
@@ -526,29 +529,29 @@ export default function ProfilePage() {
                 <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20">
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">lock</span>
-                    <h3 className="text-base font-black">تغيير كلمة المرور</h3>
+                    <h3 className="text-base font-black">{tp('profileChangePassword')}</h3>
                   </div>
                 </div>
                 <div className="p-6 space-y-5">
                   <div>
-                    <label className={labelCls}>كلمة المرور الحالية</label>
+                    <label className={labelCls}>{tp('profileCurrentPassword')}</label>
                     <input type="password" required value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>كلمة المرور الجديدة</label>
+                    <label className={labelCls}>{tp('profileNewPassword')}</label>
                     <input type="password" required minLength={8} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={inputCls} />
                   </div>
                   {pwMsg && (
-                    <div className={`flex items-center gap-2 p-3 text-sm font-bold ${pwMsg.includes('خطأ') ? 'bg-error/10 text-error' : 'bg-brand-green/10 text-brand-green'}`}>
-                      <span className="material-symbols-outlined text-base">{pwMsg.includes('خطأ') ? 'error' : 'check_circle'}</span>
+                    <div className={`flex items-center gap-2 p-3 text-sm font-bold ${pwMsg.includes(tp('profileError')) ? 'bg-error/10 text-error' : 'bg-brand-green/10 text-brand-green'}`}>
+                      <span className="material-symbols-outlined text-base">{pwMsg.includes(tp('profileError')) ? 'error' : 'check_circle'}</span>
                       {pwMsg}
                     </div>
                   )}
                   <button type="submit" disabled={changePassword.isPending} className="btn-primary w-full py-3 text-sm font-black hover:brightness-110 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
                     {changePassword.isPending ? (
-                      <><span className="material-symbols-outlined text-base animate-spin">progress_activity</span> جارٍ التغيير...</>
+                      <><span className="material-symbols-outlined text-base animate-spin">progress_activity</span> {tp('profileChangingPassword')}</>
                     ) : (
-                      <><span className="material-symbols-outlined text-base">lock_reset</span> تغيير كلمة المرور</>
+                      <><span className="material-symbols-outlined text-base">lock_reset</span> {tp('profileChangePasswordBtn')}</>
                     )}
                   </button>
                 </div>

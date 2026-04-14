@@ -14,7 +14,8 @@ import { useListings, useSearch, type SearchHit } from '@/lib/api';
 import { haversineDistance } from '@/lib/geo-utils';
 import { getImageUrl } from '@/lib/image-utils';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
-import { FUEL_OPTIONS, CONDITION_OPTIONS } from '@/lib/constants/mappings';
+import { fuelOptions as fuelOptionsFn, conditionOptions as conditionOptionsFn } from '@/lib/constants/mappings';
+import { useTranslations } from 'next-intl';
 
 const ListingsMap = dynamic(() => import('@/components/map/listings-map'), { ssr: false });
 
@@ -26,11 +27,12 @@ export default function ListingsPage() {
   );
 }
 
-const fuelOptions = FUEL_OPTIONS;
-
-const conditionOptions = CONDITION_OPTIONS.filter(o => ['NEW', 'USED', 'LIKE_NEW'].includes(o.value));
-
 function ListingsContent() {
+  const tp = useTranslations('pages');
+  const tm = useTranslations('mappings');
+  const tl = useTranslations('listings');
+  const fuelOpts = fuelOptionsFn(tm);
+  const condOpts = conditionOptionsFn(tm).filter(o => ['NEW', 'USED', 'LIKE_NEW'].includes(o.value));
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -201,14 +203,14 @@ function ListingsContent() {
   const totalPages = data?.meta.totalPages ?? 1;
 
   const bodyTypes = [
-    { value: 'SEDAN', label: 'سيدان', icon: 'directions_car' },
-    { value: 'SUV', label: 'دفع رباعي', icon: 'airport_shuttle' },
-    { value: 'HATCHBACK', label: 'هاتشباك', icon: 'electric_car' },
-    { value: 'TRUCK', label: 'بيك أب', icon: 'local_shipping' },
-    { value: 'COUPE', label: 'كوبيه', icon: 'sports_score' },
-    { value: 'VAN', label: 'ڤان', icon: 'commute' },
-    { value: 'CONVERTIBLE', label: 'مكشوفة', icon: 'no_crash' },
-    { value: 'WAGON', label: 'واغن', icon: 'rv_hookup' },
+    { value: 'SEDAN', label: tp('bodySedan'), icon: 'directions_car' },
+    { value: 'SUV', label: tp('bodySUV'), icon: 'airport_shuttle' },
+    { value: 'HATCHBACK', label: tp('bodyHatchback'), icon: 'electric_car' },
+    { value: 'TRUCK', label: tp('bodyTruck'), icon: 'local_shipping' },
+    { value: 'COUPE', label: tp('bodyCoupe'), icon: 'sports_score' },
+    { value: 'VAN', label: tp('bodyVan'), icon: 'commute' },
+    { value: 'CONVERTIBLE', label: tp('bodyConvertible'), icon: 'no_crash' },
+    { value: 'WAGON', label: tp('bodyWagon'), icon: 'rv_hookup' },
   ];
 
   function applyBodyFilter(body: string) {
@@ -232,19 +234,19 @@ function ListingsContent() {
         <div className="relative z-10 pt-16 pb-6 sm:pt-24 sm:pb-10 md:pt-28 md:pb-14">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
             <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-2 sm:mb-3 drop-shadow-sm">
-              اختر سيارتك من سوق وان
+              {tp('listingsTitle')}
             </h1>
             <p className="text-white/70 text-xs sm:text-sm md:text-base mb-4 sm:mb-8 max-w-lg mx-auto">
-              سيارات جديدة ومستعملة للبيع والإيجار في سلطنة عمان
+              {tp('listingsSubtitle')}
             </p>
 
             {/* Listing Type Tabs */}
             <div className="flex justify-center gap-1.5 sm:gap-2 mb-4 sm:mb-6">
               {[
-                { value: '', label: 'الكل', icon: 'apps' },
-                { value: 'SALE', label: 'للبيع', icon: 'sell' },
-                { value: 'RENTAL', label: 'للإيجار', icon: 'car_rental' },
-                { value: 'WANTED', label: 'مطلوب', icon: 'search' },
+                { value: '', label: tp('all'), icon: 'apps' },
+                { value: 'SALE', label: tl('typeSale'), icon: 'sell' },
+                { value: 'RENTAL', label: tl('typeRental'), icon: 'car_rental' },
+                { value: 'WANTED', label: tp('listingsWanted'), icon: 'search' },
               ].map(tab => (
                 <button
                   key={tab.value}
@@ -271,7 +273,7 @@ function ListingsContent() {
                       type="text"
                       value={searchInput}
                       onChange={(e) => setSearchInput(e.target.value)}
-                      placeholder="ابحث عن ماركة، موديل، سنة..."
+                      placeholder={tp('listingsSearch')}
                       className="flex-1 bg-transparent text-sm font-medium text-on-surface dark:text-white placeholder:text-on-surface-variant/50 dark:placeholder:text-white/40 focus:outline-none min-w-0"
                     />
                     {searchInput && (
@@ -282,13 +284,13 @@ function ListingsContent() {
                   </div>
                   <button type="submit" className="shrink-0 bg-white text-primary px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 font-black text-xs sm:text-sm rounded-lg sm:rounded-xl hover:bg-white/90 active:scale-[0.97] transition-all flex items-center gap-1.5 shadow-lg">
                     <span className="material-symbols-outlined text-base">search</span>
-                    <span className="hidden sm:inline">بحث</span>
+                    <span className="hidden sm:inline">{tp('rentalsSearchBtn')}</span>
                   </button>
                 </div>
 
                 {/* Quick filter chips */}
                 <div className="flex overflow-x-auto no-scrollbar gap-1.5 sm:gap-2 sm:flex-wrap mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-white/10">
-                  {conditionOptions.map((opt) => (
+                  {condOpts.map((opt) => (
                     <button
                       key={opt.value}
                       type="button"
@@ -303,7 +305,7 @@ function ListingsContent() {
                     </button>
                   ))}
                   <span className="w-px h-6 bg-white/20 mx-1 self-center" />
-                  {fuelOptions.map((opt) => (
+                  {fuelOpts.map((opt) => (
                     <button
                       key={opt.value}
                       type="button"
@@ -326,15 +328,15 @@ function ListingsContent() {
               <div className="flex items-center gap-1.5 text-white/60">
                 <span className="material-symbols-outlined text-sm">directions_car</span>
                 <span className="text-xs font-bold text-white">{data?.meta.total ?? '...'}</span>
-                <span className="text-xs">إعلان</span>
+                <span className="text-xs">{tp('listingsCount')}</span>
               </div>
               <div className="flex items-center gap-1.5 text-white/60">
                 <span className="material-symbols-outlined text-sm">verified</span>
-                <span className="text-xs">بائعين موثوقين</span>
+                <span className="text-xs">{tp('listingsVerifiedSellers')}</span>
               </div>
               <Link href="/add-listing" className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors">
                 <span className="material-symbols-outlined text-sm">add_circle</span>
-                <span className="text-xs font-bold">أضف إعلانك مجاناً</span>
+                <span className="text-xs font-bold">{tp('listingsAddFree')}</span>
               </Link>
             </div>
           </div>
@@ -346,7 +348,7 @@ function ListingsContent() {
         <div className="max-w-7xl mx-auto px-6 py-10">
           <div className="flex items-center gap-3 mb-6">
             <div className="h-7 w-1 bg-primary rounded-full" />
-            <h2 className="text-xl font-black text-on-surface">تصفح حسب نوع السيارة</h2>
+            <h2 className="text-xl font-black text-on-surface">{tp('listingsBrowseByType')}</h2>
           </div>
           <div className="grid grid-cols-4 md:grid-cols-8 gap-2 sm:gap-3">
             {bodyTypes.map((bt) => (
@@ -380,26 +382,26 @@ function ListingsContent() {
             className="lg:hidden flex items-center gap-2 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl px-4 py-2.5 min-h-[44px] text-sm font-black text-on-surface-variant hover:border-primary/30 transition-all"
           >
             <span className="material-symbols-outlined text-base">tune</span>
-            تصفية النتائج
+            {tp('filterResults')}
             <span className="material-symbols-outlined text-sm">expand_more</span>
           </button>
 
           {/* ── Mobile Bottom Sheet Filters ── */}
-          <BottomSheet open={showMobileFilters} onClose={() => setShowMobileFilters(false)} title="تصفية النتائج">
+          <BottomSheet open={showMobileFilters} onClose={() => setShowMobileFilters(false)} title={tp('filterResults')}>
             <div className="space-y-5">
               <div>
-                <label className="text-xs font-bold text-on-surface-variant block mb-2">السعر الأقصى (ر.ع)</label>
-                <input type="number" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} placeholder="مثال: 15000" className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm" />
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsMaxPrice')}</label>
+                <input type="number" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} placeholder={tp('listingsPriceExample')} className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm" />
               </div>
               <div>
-                <label className="text-xs font-bold text-on-surface-variant block mb-2">الحالة</label>
-                <div className="space-y-1.5">{conditionOptions.map((opt) => (<label key={opt.value} className="flex items-center gap-2.5 cursor-pointer group py-1.5"><input type="radio" name="condition-mobile" checked={selectedCondition === opt.value} onChange={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)} className="w-4 h-4 accent-primary" /><span className="text-sm font-medium text-on-surface">{opt.label}</span></label>))}</div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsConditionLabel')}</label>
+                <div className="space-y-1.5">{condOpts.map((opt) => (<label key={opt.value} className="flex items-center gap-2.5 cursor-pointer group py-1.5"><input type="radio" name="condition-mobile" checked={selectedCondition === opt.value} onChange={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)} className="w-4 h-4 accent-primary" /><span className="text-sm font-medium text-on-surface">{opt.label}</span></label>))}</div>
               </div>
               <div>
-                <label className="text-xs font-bold text-on-surface-variant block mb-2">نوع الوقود</label>
-                <div className="flex flex-wrap gap-2">{fuelOptions.map((opt) => (<button key={opt.value} onClick={() => toggleFuel(opt.value)} className={`px-3.5 py-2 min-h-[44px] text-xs font-bold rounded-lg transition-all ${selectedFuels.includes(opt.value) ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant'}`}>{opt.label}</button>))}</div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsFuelLabel')}</label>
+                <div className="flex flex-wrap gap-2">{fuelOpts.map((opt) => (<button key={opt.value} onClick={() => toggleFuel(opt.value)} className={`px-3.5 py-2 min-h-[44px] text-xs font-bold rounded-lg transition-all ${selectedFuels.includes(opt.value) ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant'}`}>{opt.label}</button>))}</div>
               </div>
-              <button onClick={() => { applyFilters(); setShowMobileFilters(false); }} className="bg-primary text-on-primary w-full py-3 min-h-[44px] text-sm font-black rounded-xl hover:brightness-110 transition-colors">تطبيق الفلاتر</button>
+              <button onClick={() => { applyFilters(); setShowMobileFilters(false); }} className="bg-primary text-on-primary w-full py-3 min-h-[44px] text-sm font-black rounded-xl hover:brightness-110 transition-colors">{tp('applyFilters')}</button>
             </div>
           </BottomSheet>
 
@@ -407,27 +409,27 @@ function ListingsContent() {
           <aside className="hidden lg:block lg:w-64 shrink-0">
             <div className="sticky top-24 space-y-5 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl p-5 shadow-sm">
               <div>
-                <h2 className="text-lg font-black mb-0.5">تصفية النتائج</h2>
-                <p className="text-on-surface-variant text-xs">خصص بحثك</p>
+                <h2 className="text-lg font-black mb-0.5">{tp('filterResults')}</h2>
+                <p className="text-on-surface-variant text-xs">{tp('listingsCustomize')}</p>
               </div>
 
               {/* Price Range */}
               <div>
-                <label className="text-xs font-bold text-on-surface-variant block mb-2">السعر الأقصى (ر.ع)</label>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsMaxPrice')}</label>
                 <input
                   type="number"
                   value={priceMax}
                   onChange={(e) => setPriceMax(e.target.value)}
-                  placeholder="مثال: 15000"
+                  placeholder={tp('listingsPriceExample')}
                   className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm"
                 />
               </div>
 
               {/* Condition */}
               <div>
-                <label className="text-xs font-bold text-on-surface-variant block mb-2">الحالة</label>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsConditionLabel')}</label>
                 <div className="space-y-1.5">
-                  {conditionOptions.map((opt) => (
+                  {condOpts.map((opt) => (
                     <label key={opt.value} className="flex items-center gap-2.5 cursor-pointer group py-1">
                       <input
                         type="radio"
@@ -444,9 +446,9 @@ function ListingsContent() {
 
               {/* Fuel Type */}
               <div>
-                <label className="text-xs font-bold text-on-surface-variant block mb-2">نوع الوقود</label>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsFuelLabel')}</label>
                 <div className="flex flex-wrap gap-1.5">
-                  {fuelOptions.map((opt) => (
+                  {fuelOpts.map((opt) => (
                     <button
                       key={opt.value}
                       onClick={() => toggleFuel(opt.value)}
@@ -463,14 +465,14 @@ function ListingsContent() {
               </div>
 
               <button onClick={applyFilters} className="bg-primary text-on-primary w-full py-2.5 text-sm font-black rounded-xl hover:brightness-110 transition-colors">
-                تطبيق الفلاتر
+                {tp('applyFilters')}
               </button>
 
               <Link
                 href="/add-listing"
                 className="block bg-on-surface text-surface font-black text-center py-2.5 rounded-xl hover:bg-primary hover:text-on-primary transition-all text-sm"
               >
-                أضف إعلانك
+                {tp('listingsAddYours')}
               </Link>
             </div>
           </aside>
@@ -480,10 +482,10 @@ function ListingsContent() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-2xl font-black">
-                  {listingType === 'SALE' ? 'سيارات للبيع' : listingType === 'RENTAL' ? 'سيارات للإيجار' : listingType === 'WANTED' ? 'مطلوب سيارة' : 'جميع السيارات'}
+                  {listingType === 'SALE' ? tp('listingsForSale') : listingType === 'RENTAL' ? tp('listingsForRent') : listingType === 'WANTED' ? tp('listingsWantedCar') : tp('listingsAllCars')}
                 </h2>
                 <p className="text-on-surface-variant text-sm mt-0.5">
-                  {data ? `${data.meta.total} إعلان متاح` : 'تصفح أحدث إعلانات السيارات'}
+                  {data ? tp('listingsAvailable', { count: data.meta.total }) : tp('listingsBrowseLatest')}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -493,14 +495,14 @@ function ListingsContent() {
                     className={`px-4 py-2.5 min-h-[44px] text-xs font-black flex items-center gap-1 transition-all ${viewMode === 'list' ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:bg-surface-container'}`}
                   >
                     <span className="material-symbols-outlined text-sm">view_list</span>
-                    قائمة
+                    {tp('listingsViewList')}
                   </button>
                   <button
                     onClick={() => setViewMode('map')}
                     className={`px-4 py-2.5 min-h-[44px] text-xs font-black flex items-center gap-1 transition-all ${viewMode === 'map' ? 'bg-on-surface text-surface' : 'text-on-surface-variant hover:bg-surface-container'}`}
                   >
                     <span className="material-symbols-outlined text-sm">map</span>
-                    خريطة
+                    {tp('listingsViewMap')}
                   </button>
                 </div>
                 <select
@@ -508,10 +510,10 @@ function ListingsContent() {
                   onChange={(e) => setSort(e.target.value)}
                   className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl py-2 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-xs font-bold"
                 >
-                  <option value="">الأحدث</option>
-                  <option value="price_asc">السعر: الأقل</option>
-                  <option value="price_desc">السعر: الأعلى</option>
-                  <option value="year_desc">السنة: الأحدث</option>
+                  <option value="">{tm('sortNewest')}</option>
+                  <option value="price_asc">{tm('sortPriceLow')}</option>
+                  <option value="price_desc">{tm('sortPriceHigh')}</option>
+                  <option value="year_desc">{tp('sortYearNewest')}</option>
                 </select>
               </div>
             </div>
@@ -521,14 +523,14 @@ function ListingsContent() {
               <div className="mb-6 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-2xl p-4 flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-3 flex-1 min-w-[200px]">
                   <span className="material-symbols-outlined text-primary">radar</span>
-                  <span className="text-sm font-black text-on-surface">نطاق البحث:</span>
+                  <span className="text-sm font-black text-on-surface">{tp('listingsSearchRadius')}:</span>
                   <input type="range" min={5} max={200} step={5} value={radius} onChange={(e) => setRadius(parseInt(e.target.value))} className="flex-1 accent-primary" />
-                  <span className="text-sm font-black text-primary min-w-[50px]">{radius} كم</span>
+                  <span className="text-sm font-black text-primary min-w-[50px]">{radius} {tp('listingsKm')}</span>
                 </div>
                 {!userLocation && (
                   <button onClick={requestLocation} className="flex items-center gap-2 bg-on-surface text-surface px-4 py-2 text-xs font-black rounded-xl hover:bg-primary hover:text-on-primary transition-all">
                     <span className="material-symbols-outlined text-sm">my_location</span>
-                    حدد موقعي
+                    {tp('listingsLocateMe')}
                   </button>
                 )}
               </div>
@@ -612,7 +614,7 @@ function ListingsContent() {
                       disabled={currentPage <= 1}
                       className="w-10 h-10 border border-outline-variant/10 rounded-xl flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30"
                     >
-                      <span className="material-symbols-outlined">chevron_right</span>
+                      <span className="material-symbols-outlined icon-flip">chevron_right</span>
                     </button>
                     {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => {
                       const p = i + 1;
@@ -650,7 +652,7 @@ function ListingsContent() {
                       disabled={currentPage >= totalPages}
                       className="w-10 h-10 border border-outline-variant/10 rounded-xl flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30"
                     >
-                      <span className="material-symbols-outlined">chevron_left</span>
+                      <span className="material-symbols-outlined icon-flip">chevron_left</span>
                     </button>
                   </div>
                 )}
@@ -659,9 +661,9 @@ function ListingsContent() {
             ) : (
               <EmptyState
                 icon="search_off"
-                title="لا توجد نتائج"
-                description={search ? `لم نجد نتائج لـ "${search}"` : 'لا توجد إعلانات حالياً'}
-                action={{ label: 'أضف إعلان', href: '/add-listing' }}
+                title={tp('listingsNoResults')}
+                description={search ? tp('listingsNoResultsFor', { query: search }) : tp('listingsNoListings')}
+                action={{ label: tp('listingsAddListing'), href: '/add-listing' }}
               />
             )}
           </div>

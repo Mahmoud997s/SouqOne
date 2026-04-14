@@ -7,6 +7,7 @@ import { ChatBubble } from '@/features/chat/components/chat-bubble';
 import { DateSeparator } from '@/features/chat/components/date-separator';
 import { ChatInput } from '@/features/chat/components/chat-input';
 import { WifiOff, Loader2, RefreshCw, MessageCircle, Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function ChatRoomPage() {
   const { id: conversationId } = useParams<{ id: string }>();
@@ -34,6 +35,7 @@ export default function ChatRoomPage() {
     handleDelete,
     handleReact,
   } = useChatRoom(conversationId);
+  const tp = useTranslations('pages');
 
   // ── Render ──
 
@@ -43,7 +45,7 @@ export default function ChatRoomPage() {
         <div className="w-12 h-12 rounded-2xl bg-primary/8 flex items-center justify-center">
           <Loader2 className="animate-spin text-primary" size={24} />
         </div>
-        <span className="text-[11px] text-on-surface-variant/40">جاري تحميل المحادثة...</span>
+        <span className="text-[11px] text-on-surface-variant/40">{tp('msgChatLoading')}</span>
       </div>
     );
   }
@@ -55,14 +57,14 @@ export default function ChatRoomPage() {
           <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
             <WifiOff size={24} className="text-red-400" />
           </div>
-          <p className="text-sm font-semibold text-on-surface/70 mb-1">حدث خطأ</p>
-          <p className="text-[11px] text-on-surface-variant/40 mb-4">تعذر تحميل المحادثة</p>
+          <p className="text-sm font-semibold text-on-surface/70 mb-1">{tp('msgChatError')}</p>
+          <p className="text-[11px] text-on-surface-variant/40 mb-4">{tp('msgChatErrorDesc')}</p>
           <button
             onClick={() => refetch()}
             className="bg-primary text-on-primary hover:brightness-110 rounded-xl px-5 py-2.5 text-xs font-bold inline-flex items-center gap-2 active:scale-95 transition-all shadow-sm"
           >
             <RefreshCw size={13} />
-            إعادة المحاولة
+            {tp('msgChatRetry')}
           </button>
         </div>
       </div>
@@ -75,7 +77,7 @@ export default function ChatRoomPage() {
       {!connected && (
         <div className="bg-amber-500/90 backdrop-blur-sm text-white text-[11px] text-center py-2 flex items-center justify-center gap-2 font-medium">
           <WifiOff size={13} />
-          <span>جاري إعادة الاتصال...</span>
+          <span>{tp('msgChatReconnecting')}</span>
           <Loader2 size={12} className="animate-spin" />
         </div>
       )}
@@ -94,11 +96,11 @@ export default function ChatRoomPage() {
       {searchMode && (
         <div className="px-4 py-2.5 bg-surface-container-lowest/80 backdrop-blur-xl border-b border-outline-variant/8">
           <div className="relative">
-            <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/35" />
+            <Search size={14} className="absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant/35" />
             <input
               type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-              placeholder="بحث في الرسائل..." autoFocus
-              className="w-full pr-9 pl-3 py-2.5 bg-surface-container rounded-xl text-xs border-none focus:ring-2 focus:ring-primary/20 focus:outline-none placeholder:text-on-surface-variant/30 transition-shadow"
+              placeholder={tp('msgChatSearchPlaceholder')} autoFocus
+              className="w-full pe-9 ps-3 py-2.5 bg-surface-container rounded-xl text-xs border-none focus:ring-2 focus:ring-primary/20 focus:outline-none placeholder:text-on-surface-variant/30 transition-shadow"
             />
           </div>
         </div>
@@ -118,7 +120,7 @@ export default function ChatRoomPage() {
             <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center">
               <MessageCircle size={28} className="text-primary/25" />
             </div>
-            <p className="text-[12px] text-on-surface-variant/35 font-medium">ابدأ المحادثة بإرسال رسالة</p>
+            <p className="text-[12px] text-on-surface-variant/35 font-medium">{tp('msgChatStartConversation')}</p>
           </div>
         )}
 

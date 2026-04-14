@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from '@/i18n/navigation';
 import { haversineDistance } from '@/lib/geo-utils';
+import { useTranslations } from 'next-intl';
 
 interface NearbyListing {
   id: string;
@@ -25,6 +26,7 @@ interface NearbyListingsProps {
 }
 
 export default function NearbyListings({ listings, maxItems = 6 }: NearbyListingsProps) {
+  const tp = useTranslations('pages');
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
   const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied' | 'loading'>('prompt');
@@ -79,9 +81,9 @@ export default function NearbyListings({ listings, maxItems = 6 }: NearbyListing
     return (
       <div className="bg-surface-container-lowest rounded-3xl p-8 text-center">
         <span className="material-symbols-outlined text-5xl text-primary/40 mb-4 block">near_me</span>
-        <h3 className="text-xl font-extrabold mb-2">إعلانات قريبة منك</h3>
+        <h3 className="text-xl font-extrabold mb-2">{tp('nearbyTitle')}</h3>
         <p className="text-on-surface-variant text-sm mb-6 max-w-md mx-auto">
-          اسمح لنا بمعرفة موقعك لنعرض لك أقرب الإعلانات المتاحة
+          {tp('nearbyPermissionDesc')}
         </p>
         <button
           onClick={requestLocation}
@@ -91,12 +93,12 @@ export default function NearbyListings({ listings, maxItems = 6 }: NearbyListing
           {permissionState === 'loading' ? (
             <span className="flex items-center gap-2">
               <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-              جارٍ تحديد الموقع...
+              {tp('nearbyLocating')}
             </span>
           ) : (
             <span className="flex items-center gap-2">
               <span className="material-symbols-outlined text-sm">my_location</span>
-              حدد موقعي
+              {tp('nearbyLocateMe')}
             </span>
           )}
         </button>
@@ -118,13 +120,13 @@ export default function NearbyListings({ listings, maxItems = 6 }: NearbyListing
         <div>
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-[3px] rounded-full bg-primary" />
-            <span className="text-primary font-extrabold text-[11px] tracking-[0.2em] uppercase">قريب منك</span>
+            <span className="text-primary font-extrabold text-[11px] tracking-[0.2em] uppercase">{tp('nearbyLabel')}</span>
           </div>
-          <h2 className="text-3xl lg:text-4xl font-black text-on-surface">إعلانات قريبة منك</h2>
+          <h2 className="text-3xl lg:text-4xl font-black text-on-surface">{tp('nearbyTitle')}</h2>
         </div>
         <Link href="/listings" className="hidden sm:flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-bold text-sm group">
-          عرض الكل
-          <span className="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform">arrow_back</span>
+          {tp('nearbyViewAll')}
+          <span className="material-symbols-outlined icon-flip text-lg rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 transition-transform">arrow_back</span>
         </Link>
       </div>
 
@@ -152,14 +154,14 @@ export default function NearbyListings({ listings, maxItems = 6 }: NearbyListing
               <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
                 <span className="material-symbols-outlined text-sm text-primary">near_me</span>
                 <span className="text-xs font-bold text-on-surface">
-                  {item.distance < 1 ? `${Math.round(item.distance * 1000)} م` : `${item.distance} كم`}
+                  {item.distance < 1 ? tp('nearbyMeters', { distance: Math.round(item.distance * 1000) }) : tp('nearbyKm', { distance: item.distance })}
                 </span>
               </div>
 
               {/* Type badge */}
               {item.listingType === 'RENTAL' && (
                 <div className="absolute top-3 left-3 bg-primary/90 text-on-primary px-2.5 py-1 rounded-full text-[11px] font-bold">
-                  إيجار
+                  {tp('nearbyRental')}
                 </div>
               )}
             </div>

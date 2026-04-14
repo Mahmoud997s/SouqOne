@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import Script from 'next/script';
+import { useTranslations, useLocale } from 'next-intl';
 import { apiRequest } from '@/lib/auth';
 import { useAuth } from '@/providers/auth-provider';
 
@@ -30,6 +31,8 @@ interface GoogleSignInProps {
 export function GoogleSignInButton({ onError, onSuccess }: GoogleSignInProps) {
   const router = useRouter();
   const { login: authLogin } = useAuth();
+  const t = useTranslations('auth');
+  const locale = useLocale();
   const btnRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
 
@@ -52,7 +55,7 @@ export function GoogleSignInButton({ onError, onSuccess }: GoogleSignInProps) {
           theme: 'outline',
           size: 'large',
           text: 'continue_with',
-          locale: 'ar',
+          locale,
           width: btnRef.current.offsetWidth || 400,
         });
       }
@@ -79,7 +82,7 @@ export function GoogleSignInButton({ onError, onSuccess }: GoogleSignInProps) {
         router.push(returnUrl);
       }
     } catch (err) {
-      onError?.(err instanceof Error ? err.message : 'فشل تسجيل الدخول بواسطة Google');
+      onError?.(err instanceof Error ? err.message : t('googleLoginFailed'));
     } finally {
       setLoading(false);
     }
@@ -98,7 +101,7 @@ export function GoogleSignInButton({ onError, onSuccess }: GoogleSignInProps) {
           <path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 010-9.18l-7.98-6.19a24.003 24.003 0 000 21.56l7.98-6.19z"/>
           <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
         </svg>
-        المتابعة مع Google
+        {t('continueWithGoogle')}
       </button>
     );
   }
@@ -112,7 +115,7 @@ export function GoogleSignInButton({ onError, onSuccess }: GoogleSignInProps) {
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          جارٍ التحقق...
+          {t('googleVerifying')}
         </div>
       ) : (
         <div ref={btnRef} className="flex justify-center [&>div]:!w-full" />

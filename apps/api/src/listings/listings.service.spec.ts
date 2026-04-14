@@ -3,6 +3,8 @@ import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { ListingsService } from './listings.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
+import { SearchService } from '../search/search.service';
+import { ListingsRepository } from './listings.repository';
 
 const mockListing = {
   id: 'listing-1',
@@ -14,17 +16,19 @@ const mockListing = {
   year: 2024,
   price: { toNumber: () => 12000 },
   status: 'ACTIVE',
+  currency: 'OMR',
+  images: [],
 };
 
 const mockPrisma = {
   listing: {
-    create: jest.fn().mockResolvedValue(mockListing),
     findUnique: jest.fn(),
     findMany: jest.fn().mockResolvedValue([mockListing]),
     count: jest.fn().mockResolvedValue(1),
     update: jest.fn(),
     delete: jest.fn(),
   },
+  cleanupPolymorphicOrphans: jest.fn().mockResolvedValue(undefined),
   $transaction: jest.fn().mockImplementation((args) => Promise.all(args)),
 };
 
@@ -33,6 +37,24 @@ const mockRedis = {
   set: jest.fn().mockResolvedValue(undefined),
   del: jest.fn().mockResolvedValue(undefined),
   delPattern: jest.fn().mockResolvedValue(undefined),
+};
+
+const mockSearchService = {
+  indexDocument: jest.fn().mockResolvedValue(undefined),
+  removeDocument: jest.fn().mockResolvedValue(undefined),
+};
+
+const mockRepo = {
+  create: jest.fn().mockResolvedValue({
+    ...mockListing,
+    price: { toNumber: () => 12000 },
+  }),
+  findById: jest.fn(),
+  findBySlug: jest.fn(),
+  findMany: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn().mockResolvedValue(undefined),
+  incrementViewCount: jest.fn(),
 };
 
 describe('ListingsService', () => {
@@ -46,6 +68,8 @@ describe('ListingsService', () => {
         ListingsService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: RedisService, useValue: mockRedis },
+        { provide: SearchService, useValue: mockSearchService },
+        { provide: ListingsRepository, useValue: mockRepo },
       ],
     }).compile();
 
@@ -66,14 +90,15 @@ describe('ListingsService', () => {
         'seller-1',
       );
 
-      expect(result).toEqual(mockListing);
-      expect(mockPrisma.listing.create).toHaveBeenCalledTimes(1);
+      expect(result).toBeDefined();
+      expect(mockRepo.create).toHaveBeenCalledTimes(1);
+      expect(mockRedis.delPattern).toHaveBeenCalledWith('listings:*');
     });
   });
 
   describe('findAll', () => {
     it('should return paginated listings', async () => {
-      mockPrisma.$transaction.mockResolvedValueOnce([[mockListing], 1]);
+      mockRepo.findMany.mockResolvedValueOnce([[mockListing], 1]);
 
       const result = await service.findAll({ page: 1, limit: 10 });
 
@@ -89,20 +114,20 @@ describe('ListingsService', () => {
       const result = await service.findAll({ page: 1, limit: 10 });
 
       expect(result).toEqual(cached);
-      expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+      expect(mockRepo.findMany).not.toHaveBeenCalled();
     });
   });
 
   describe('findOne', () => {
     it('should return a listing by id', async () => {
-      mockPrisma.listing.findUnique.mockResolvedValue(mockListing);
+      mockRepo.findById.mockResolvedValue(mockListing);
 
       const result = await service.findOne('listing-1');
       expect(result.id).toBe('listing-1');
     });
 
     it('should throw NotFoundException for missing listing', async () => {
-      mockPrisma.listing.findUnique.mockResolvedValue(null);
+      mockRepo.findById.mockResolvedValue(null);
 
       await expect(service.findOne('nonexistent')).rejects.toThrow(NotFoundException);
     });
@@ -110,15 +135,16 @@ describe('ListingsService', () => {
 
   describe('remove', () => {
     it('should delete the listing if user is the seller', async () => {
-      mockPrisma.listing.findUnique.mockResolvedValue(mockListing);
-      mockPrisma.listing.delete.mockResolvedValue(mockListing);
+      mockRepo.findById.mockResolvedValue(mockListing);
 
-      const result = await service.remove('listing-1', 'seller-1');
-      expect(mockPrisma.listing.delete).toHaveBeenCalledWith({ where: { id: 'listing-1' } });
+      await service.remove('listing-1', 'seller-1');
+      expect(mockRepo.delete).toHaveBeenCalledWith('listing-1');
+      expect(mockRedis.delPattern).toHaveBeenCalledWith('listings:*');
+      expect(mockRedis.del).toHaveBeenCalledWith('listing:listing-1');
     });
 
     it('should throw ForbiddenException if user is not the seller', async () => {
-      mockPrisma.listing.findUnique.mockResolvedValue(mockListing);
+      mockRepo.findById.mockResolvedValue(mockListing);
 
       await expect(service.remove('listing-1', 'other-user')).rejects.toThrow(ForbiddenException);
     });

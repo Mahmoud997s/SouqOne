@@ -5,11 +5,13 @@ import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { apiRequest } from '@/lib/auth';
 import { useAuth } from '@/providers/auth-provider';
+import { useTranslations } from 'next-intl';
 import { GoogleSignInButton } from '@/components/google-sign-in';
 import { InputField } from '@/components/auth/input-field';
 
 export default function LoginForm() {
   const router = useRouter();
+  const t = useTranslations('auth');
   const searchParams = useSearchParams();
   const returnUrl = searchParams.get('returnUrl');
   const { login: authLogin } = useAuth();
@@ -39,7 +41,7 @@ export default function LoginForm() {
       await authLogin(result.accessToken, result.refreshToken);
       navigateAfterLogin();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'حدث خطأ غير متوقع';
+      const msg = err instanceof Error ? err.message : t('unexpectedError');
       setError(msg);
       setShake(true);
       setTimeout(() => setShake(false), 500);
@@ -52,21 +54,21 @@ export default function LoginForm() {
     <div className={shake ? 'animate-shake' : ''}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <InputField
-          label="البريد الإلكتروني"
+          label={t('emailLabel')}
           icon="mail"
           type="email"
           required
           autoFocus
           value={email}
           onChange={(e) => setEmail(e.currentTarget.value)}
-          placeholder="البريد الإلكتروني"
+          placeholder={t('emailPlaceholder')}
         />
 
         <div className="flex flex-col gap-1.5">
           <div className="flex justify-between items-center">
-            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">كلمة المرور</label>
+            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">{t('passwordLabel')}</label>
             <Link href="/forgot-password" className="text-xs text-primary hover:text-primary/70 transition-colors font-medium">
-              نسيت كلمة المرور؟
+              {t('forgotPassword')}
             </Link>
           </div>
           <InputField
@@ -95,11 +97,11 @@ export default function LoginForm() {
           {loading ? (
             <>
               <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
-              جارٍ الدخول...
+              {t('loggingIn')}
             </>
           ) : (
             <>
-              تسجيل الدخول
+              {t('loginBtn')}
               <span className="material-symbols-outlined text-base">login</span>
             </>
           )}
@@ -109,7 +111,7 @@ export default function LoginForm() {
       {/* Divider */}
       <div className="flex items-center gap-4 my-6">
         <div className="h-px flex-1 bg-outline/20" />
-        <span className="text-xs text-on-surface-variant/60 font-medium">أو</span>
+        <span className="text-xs text-on-surface-variant/60 font-medium">{t('or')}</span>
         <div className="h-px flex-1 bg-outline/20" />
       </div>
 
@@ -117,9 +119,9 @@ export default function LoginForm() {
       <GoogleSignInButton onError={setError} onSuccess={navigateAfterLogin} />
 
       <p className="text-center text-on-surface-variant text-sm mt-5 font-medium">
-        ليس لديك حساب؟{' '}
+        {t('noAccount')}{' '}
         <Link href="/register" className="text-primary font-bold hover:underline transition-all">
-          إنشاء حساب جديد
+          {t('createNewAccount')}
         </Link>
       </p>
     </div>

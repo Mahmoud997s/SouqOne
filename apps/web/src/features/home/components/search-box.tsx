@@ -2,46 +2,48 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { Search } from 'lucide-react';
 
-const categories = [
-  { key: 'all',       label: 'الكل',      icon: 'search',              route: '/listings',  placeholder: 'ابحث في سوق وان...' },
-  { key: 'cars',      label: 'سيارات',    icon: 'directions_car',      route: '/listings',  placeholder: 'ماركة، موديل، سنة...' },
-  { key: 'rentals',   label: 'إيجار',     icon: 'car_rental',          route: '/rentals',   placeholder: 'ابحث عن سيارة للإيجار...' },
-  { key: 'parts',     label: 'قطع غيار',  icon: 'build',               route: '/parts',     placeholder: 'ابحث عن قطعة غيار...' },
-  { key: 'services',  label: 'خدمات',     icon: 'home_repair_service', route: '/services',  placeholder: 'ابحث عن خدمة سيارات...' },
-  { key: 'transport', label: 'نقل',       icon: 'local_shipping',      route: '/transport', placeholder: 'ابحث عن خدمة نقل...' },
-  { key: 'trips',     label: 'رحلات',     icon: 'tour',                route: '/trips',     placeholder: 'ابحث عن رحلة...' },
-  { key: 'insurance', label: 'تأمين',     icon: 'verified_user',       route: '/insurance', placeholder: 'ابحث عن تأمين...' },
-  { key: 'jobs',      label: 'وظائف',     icon: 'work',                route: '/jobs',      placeholder: 'ابحث عن وظيفة سائق...' },
-];
+const SB_META = [
+  { key: 'all',       labelKey: 'all',       icon: 'search',              route: '/listings',  placeholderKey: 'boxPlaceholder' },
+  { key: 'cars',      labelKey: 'cars',      icon: 'directions_car',      route: '/listings',  placeholderKey: 'boxCarsPlaceholder' },
+  { key: 'rentals',   labelKey: 'rentals',   icon: 'car_rental',          route: '/rentals',   placeholderKey: 'boxRentalsPlaceholder' },
+  { key: 'parts',     labelKey: 'parts',     icon: 'build',               route: '/parts',     placeholderKey: 'boxPartsPlaceholder' },
+  { key: 'services',  labelKey: 'services',  icon: 'home_repair_service', route: '/services',  placeholderKey: 'boxServicesPlaceholder' },
+  { key: 'transport', labelKey: 'transport', icon: 'local_shipping',      route: '/transport', placeholderKey: 'boxTransportPlaceholder' },
+  { key: 'trips',     labelKey: 'trips',     icon: 'tour',                route: '/trips',     placeholderKey: 'boxTripsPlaceholder' },
+  { key: 'insurance', labelKey: 'insurance', icon: 'verified_user',       route: '/insurance', placeholderKey: 'boxInsurancePlaceholder' },
+  { key: 'jobs',      labelKey: 'jobs',      icon: 'work',                route: '/jobs',      placeholderKey: 'boxJobsPlaceholder' },
+] as const;
 
 export function SearchBox() {
   const router = useRouter();
+  const t = useTranslations('search');
   const inputRef = useRef<HTMLInputElement>(null);
   const [activeKey, setActiveKey] = useState('all');
   const [query, setQuery] = useState('');
-  const cat = categories.find(c => c.key === activeKey)!;
+  const cat = SB_META.find(c => c.key === activeKey)!;
 
   useEffect(() => { inputRef.current?.focus(); }, [activeKey]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (!query.trim()) return;
-    router.push(`${cat.route}?search=${encodeURIComponent(query.trim())}`);
+    router.push(`${cat.route}?search=${encodeURIComponent(query.trim())}` as any);
   }
 
   return (
     <section className="relative z-20 max-w-7xl mx-auto px-6 pb-8">
       <div className="flex items-center gap-3 mb-4">
         <div className="h-8 w-1 bg-primary" />
-        <h2 className="text-2xl font-black">ابحث في سوق وان</h2>
+        <h2 className="text-2xl font-black">{t('searchInSouqOne')}</h2>
       </div>
       <div className="bg-surface-container-lowest dark:bg-surface-container-high rounded-xl shadow-[0_8px_24px_rgba(15,23,42,0.06)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] overflow-hidden">
 
         {/* ── Category Tabs ── */}
         <div className="flex overflow-x-auto no-scrollbar">
-          {categories.map((c) => {
+          {SB_META.map((c) => {
             const active = activeKey === c.key;
             return (
               <button
@@ -55,7 +57,7 @@ export function SearchBox() {
                 }`}
               >
                 <span className="material-symbols-outlined text-[16px]">{c.icon}</span>
-                {c.label}
+                {t(c.labelKey)}
               </button>
             );
           })}
@@ -71,7 +73,7 @@ export function SearchBox() {
                 type="text"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                placeholder={cat.placeholder}
+                placeholder={t(cat.placeholderKey)}
                 className="flex-1 bg-transparent text-sm font-medium text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none"
               />
               {query && (
@@ -85,7 +87,7 @@ export function SearchBox() {
               className="btn-primary shrink-0 px-6 py-2.5 font-bold text-sm flex items-center justify-center gap-2 hover:shadow-ambient hover:brightness-105 active:scale-[0.97]"
             >
               <Search size={16} />
-              <span>بحث</span>
+              <span>{t('searchBtn')}</span>
             </button>
           </div>
         </form>

@@ -4,16 +4,17 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { useAutocomplete } from '@/lib/api/search';
 import { Search, Clock, TrendingUp, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 const RECENT_SEARCHES_KEY = 'carone.recent_searches';
 const MAX_RECENT = 5;
 
 const POPULAR_SEARCHES = [
-  'تويوتا لاندكروزر',
-  'نيسان باترول',
-  'هوندا سيفيك',
-  'تويوتا كامري',
-  'سيارات للإيجار',
+  'Toyota Land Cruiser',
+  'Nissan Patrol',
+  'Honda Civic',
+  'Toyota Camry',
+  'Cars for Rent',
 ];
 
 function getRecentSearches(): string[] {
@@ -37,6 +38,7 @@ interface SearchSuggestionsProps {
 }
 
 export function SearchSuggestions({ onClose, className }: SearchSuggestionsProps) {
+  const ts = useTranslations('search');
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
@@ -78,19 +80,19 @@ export function SearchSuggestions({ onClose, className }: SearchSuggestionsProps
   };
 
   const ENTITY_LABELS: Record<string, string> = {
-    LISTING: 'سيارة',
-    SPARE_PART: 'قطعة غيار',
-    SERVICE: 'خدمة',
-    JOB: 'وظيفة',
-    TRANSPORT: 'نقل',
-    TRIP: 'رحلة',
-    INSURANCE: 'تأمين',
+    LISTING: ts('entityListing'),
+    SPARE_PART: ts('entitySparePart'),
+    SERVICE: ts('entityService'),
+    JOB: ts('entityJob'),
+    TRANSPORT: ts('entityTransport'),
+    TRIP: ts('entityTrip'),
+    INSURANCE: ts('entityInsurance'),
   };
 
   return (
     <div ref={dropdownRef} className={`relative ${className ?? ''}`}>
       <form onSubmit={handleSubmit} className="relative">
-        <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40" />
+        <Search size={18} className="absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40" />
         <input
           ref={inputRef}
           type="text"
@@ -100,14 +102,14 @@ export function SearchSuggestions({ onClose, className }: SearchSuggestionsProps
             setShowDropdown(true);
           }}
           onFocus={() => setShowDropdown(true)}
-          placeholder="ابحث عن سيارات، قطع غيار، خدمات..."
-          className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/20 rounded-xl py-2.5 pr-10 pl-4 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
+          placeholder={ts('searchPlaceholder')}
+          className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/20 rounded-xl py-2.5 pe-10 ps-4 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition-all"
         />
         {query && (
           <button
             type="button"
             onClick={() => setQuery('')}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-on-surface-variant"
+            className="absolute start-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-on-surface-variant"
           >
             <X size={16} />
           </button>
@@ -124,7 +126,7 @@ export function SearchSuggestions({ onClose, className }: SearchSuggestionsProps
                 <button
                   key={s.id}
                   onClick={() => handleSearch(s.title)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-right hover:bg-surface-container transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-start hover:bg-surface-container transition-colors"
                 >
                   <Search size={14} className="text-on-surface-variant/40 shrink-0" />
                   <div className="flex-1 min-w-0">
@@ -140,14 +142,14 @@ export function SearchSuggestions({ onClose, className }: SearchSuggestionsProps
           {query.length < 2 && recentSearches.length > 0 && (
             <div className="p-2">
               <div className="flex items-center justify-between px-3 py-1.5 mb-1">
-                <span className="text-xs font-bold text-on-surface-variant">عمليات بحث سابقة</span>
-                <button onClick={clearRecent} className="text-[11px] text-primary hover:underline">مسح</button>
+                <span className="text-xs font-bold text-on-surface-variant">{ts('recentSearchesLabel')}</span>
+                <button onClick={clearRecent} className="text-[11px] text-primary hover:underline">{ts('clearRecent')}</button>
               </div>
               {recentSearches.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => handleSearch(s)}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-right hover:bg-surface-container transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-start hover:bg-surface-container transition-colors"
                 >
                   <Clock size={14} className="text-on-surface-variant/30 shrink-0" />
                   <span className="text-sm text-on-surface">{s}</span>
@@ -161,7 +163,7 @@ export function SearchSuggestions({ onClose, className }: SearchSuggestionsProps
             <div className="p-2 border-t border-outline-variant/10">
               <div className="flex items-center gap-1.5 px-3 py-1.5 mb-1">
                 <TrendingUp size={13} className="text-primary" />
-                <span className="text-xs font-bold text-on-surface-variant">عمليات بحث شائعة</span>
+                <span className="text-xs font-bold text-on-surface-variant">{ts('popularSearches')}</span>
               </div>
               <div className="flex flex-wrap gap-1.5 px-3 pb-2">
                 {POPULAR_SEARCHES.map((s) => (
@@ -180,7 +182,7 @@ export function SearchSuggestions({ onClose, className }: SearchSuggestionsProps
           {/* No results */}
           {query.length >= 2 && suggestions && suggestions.length === 0 && (
             <div className="p-6 text-center">
-              <p className="text-sm text-on-surface-variant">لا توجد نتائج لـ &ldquo;{query}&rdquo;</p>
+              <p className="text-sm text-on-surface-variant">{ts('noResultsFor', { query })}</p>
             </div>
           )}
         </div>

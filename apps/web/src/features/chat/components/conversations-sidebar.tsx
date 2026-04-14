@@ -8,15 +8,16 @@ import { connectSocket } from '@/lib/socket';
 import { Search, MessageCircle, Archive, Loader2, CheckCheck } from 'lucide-react';
 import { ConversationFilters } from './conversation-filters';
 import { getImageUrl } from '@/lib/image-utils';
+import { useTranslations, useLocale } from 'next-intl';
 
-const ENTITY_LABELS: Record<string, string> = {
-  LISTING: 'إعلان',
-  SPARE_PART: 'قطعة غيار',
-  CAR_SERVICE: 'خدمة',
-  TRANSPORT: 'نقل',
-  TRIP: 'رحلة',
-  INSURANCE: 'تأمين',
-  JOB: 'وظيفة',
+const ENTITY_KEYS: Record<string, string> = {
+  LISTING: 'entityListing',
+  SPARE_PART: 'entitySparePart',
+  CAR_SERVICE: 'entityCarService',
+  TRANSPORT: 'entityTransport',
+  TRIP: 'entityTrip',
+  INSURANCE: 'entityInsurance',
+  JOB: 'entityJob',
 };
 
 const AVATAR_GRADIENTS = [
@@ -33,18 +34,20 @@ function getAvatarGradient(id: string) {
   return AVATAR_GRADIENTS[idx];
 }
 
-function formatTimeAgo(dateStr: string): string {
+function formatTimeAgo(dateStr: string, tp: (key: string, values?: Record<string, string | number | Date>) => string, locale: string): string {
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (diff < 60) return 'الآن';
-  if (diff < 3600) return `${Math.floor(diff / 60)} د`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} س`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)} ي`;
-  return new Date(dateStr).toLocaleDateString('ar-OM');
+  if (diff < 60) return tp('sidebarTimeNow');
+  if (diff < 3600) return tp('sidebarTimeMin', { value: Math.floor(diff / 60) });
+  if (diff < 86400) return tp('sidebarTimeHour', { value: Math.floor(diff / 3600) });
+  if (diff < 604800) return tp('sidebarTimeDay', { value: Math.floor(diff / 86400) });
+  return new Date(dateStr).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US');
 }
 
 export default function ConversationsSidebar() {
   const { user } = useAuth();
   const pathname = usePathname();
+  const tp = useTranslations('pages');
+  const locale = useLocale();
   const { data: conversations, isLoading, refetch } = useConversations();
   const archiveMutation = useArchiveConversation();
   const [search, setSearch] = useState('');
@@ -106,20 +109,20 @@ export default function ConversationsSidebar() {
       {/* Header */}
       <div className="px-5 pt-5 pb-3 flex flex-col gap-3.5">
         <div className="flex items-center justify-between">
-          <h2 className="font-headline text-xl font-black text-on-surface">الدردشات</h2>
+          <h2 className="font-headline text-xl font-black text-on-surface">{tp('sidebarTitle')}</h2>
           <button className="w-9 h-9 rounded-xl bg-primary/8 hover:bg-primary/15 flex items-center justify-center transition-colors">
             <span className="material-symbols-outlined text-primary text-lg">edit_square</span>
           </button>
         </div>
         <ConversationFilters active={filter} onChange={setFilter} />
         <div className="relative">
-          <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40" />
+          <Search size={15} className="absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="بحث في المحادثات..."
-            className="w-full pr-9 pl-3 py-2.5 bg-surface-container rounded-xl text-xs border-none focus:ring-2 focus:ring-primary/20 focus:outline-none placeholder:text-on-surface-variant/35 transition-shadow"
+            placeholder={tp('sidebarSearchPlaceholder')}
+            className="w-full pe-9 ps-3 py-2.5 bg-surface-container rounded-xl text-xs border-none focus:ring-2 focus:ring-primary/20 focus:outline-none placeholder:text-on-surface-variant/35 transition-shadow"
           />
         </div>
       </div>
@@ -129,7 +132,7 @@ export default function ConversationsSidebar() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
             <Loader2 className="animate-spin text-primary" size={28} />
-            <span className="text-[11px] text-on-surface-variant/50">جاري التحميل...</span>
+            <span className="text-[11px] text-on-surface-variant/50">{tp('sidebarLoading')}</span>
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 px-6">
@@ -137,16 +140,16 @@ export default function ConversationsSidebar() {
               <MessageCircle size={32} className="text-primary/30" />
             </div>
             <p className="text-sm font-bold text-on-surface/60 mb-1">
-              {search ? 'لا توجد نتائج' : 'لا توجد محادثات'}
+              {search ? tp('sidebarNoResults') : tp('sidebarNoConversations')}
             </p>
             <p className="text-[11px] text-on-surface-variant/40 leading-relaxed">
-              {search ? 'جرب بحث آخر' : 'ابدأ محادثة من صفحة أي إعلان'}
+              {search ? tp('sidebarTryAnother') : tp('sidebarStartConversation')}
             </p>
           </div>
         ) : (
           filtered.map(conv => {
             const other = conv.participants?.find(p => p.id !== user?.id);
-            const name = other?.displayName || other?.username || 'مستخدم';
+            const name = other?.displayName || other?.username || tp('chatDefaultUser');
             const initial = name[0]?.toUpperCase() || '?';
             const isActive = activeConvId === conv.id;
             const isOnline = other ? onlineUsers.has(other.id) : false;
@@ -185,8 +188,8 @@ export default function ConversationsSidebar() {
                       {name}
                     </span>
                     {lastMsg && (
-                      <span className={`text-[10px] shrink-0 mr-2 tabular-nums ${hasUnread ? 'text-primary font-bold' : 'text-on-surface-variant/45'}`}>
-                        {formatTimeAgo(lastMsg.createdAt)}
+                      <span className={`text-[10px] shrink-0 me-2 tabular-nums ${hasUnread ? 'text-primary font-bold' : 'text-on-surface-variant/45'}`}>
+                        {formatTimeAgo(lastMsg.createdAt, tp, locale)}
                       </span>
                     )}
                   </div>
@@ -198,13 +201,13 @@ export default function ConversationsSidebar() {
                       {lastMsg ? (
                         <>
                           {lastMsg.senderId === user?.id && (
-                            <CheckCheck size={13} className="inline-block ml-0.5 -mt-0.5 text-on-surface-variant/35" />
+                            <CheckCheck size={13} className="inline-block ms-0.5 -mt-0.5 text-on-surface-variant/35" />
                           )}
                           {lastMsg.senderId === user?.id && ' '}
-                          {lastMsg.content || (lastMsg.type === 'IMAGE' ? '📷 صورة' : '🎤 صوتية')}
+                          {lastMsg.content || (lastMsg.type === 'IMAGE' ? tp('sidebarImageMsg') : tp('sidebarAudioMsg'))}
                         </>
                       ) : (
-                        <span className="text-on-surface-variant/35">ابدأ المحادثة...</span>
+                        <span className="text-on-surface-variant/35">{tp('sidebarStartChat')}</span>
                       )}
                     </p>
 
@@ -219,7 +222,7 @@ export default function ConversationsSidebar() {
                     <div className="mt-1.5 flex items-center gap-1.5">
                       {conv.entityType && conv.entityType !== 'LISTING' && (
                         <span className="bg-primary/8 text-primary text-[9px] font-bold px-1.5 py-0.5 rounded-md shrink-0">
-                          {ENTITY_LABELS[conv.entityType] || conv.entityType}
+                          {ENTITY_KEYS[conv.entityType] ? tp(ENTITY_KEYS[conv.entityType]) : conv.entityType}
                         </span>
                       )}
                       <span className="text-[10px] text-on-surface-variant/40 truncate max-w-[160px]">
@@ -236,8 +239,8 @@ export default function ConversationsSidebar() {
                     e.stopPropagation();
                     archiveMutation.mutate({ id: conv.id, archive: true });
                   }}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 w-8 h-8 rounded-xl bg-surface-container-high/80 hover:bg-surface-container-highest flex items-center justify-center transition-all duration-200 shadow-sm"
-                  title="أرشفة"
+                  className="absolute start-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 w-8 h-8 rounded-xl bg-surface-container-high/80 hover:bg-surface-container-highest flex items-center justify-center transition-all duration-200 shadow-sm"
+                  title={tp('sidebarArchive')}
                 >
                   <Archive size={14} className="text-on-surface-variant/60" />
                 </button>

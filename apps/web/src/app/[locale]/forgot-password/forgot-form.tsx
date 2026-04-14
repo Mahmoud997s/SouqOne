@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { InputField } from '@/components/auth/input-field';
 import { apiRequest } from '@/lib/auth';
 
 export default function ForgotForm() {
+  const t = useTranslations('auth');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,7 +24,7 @@ export default function ForgotForm() {
       });
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : t('unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -33,14 +35,14 @@ export default function ForgotForm() {
       {!success ? (
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <InputField
-            label="البريد الإلكتروني"
+            label={t('emailLabel')}
             icon="mail"
             type="email"
             required
             autoFocus
             value={email}
             onChange={(e) => setEmail(e.currentTarget.value)}
-            placeholder="البريد الإلكتروني"
+            placeholder={t('emailPlaceholder')}
             error={error || undefined}
           />
 
@@ -52,11 +54,11 @@ export default function ForgotForm() {
             {loading ? (
               <>
                 <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
-                جارٍ الإرسال...
+                {t('sending')}
               </>
             ) : (
               <>
-                إرسال رمز الاستعادة
+                {t('sendResetCode')}
                 <span className="material-symbols-outlined text-base">send</span>
               </>
             )}
@@ -69,24 +71,24 @@ export default function ForgotForm() {
               mark_email_read
             </span>
           </div>
-          <h3 className="font-bold text-lg text-on-surface mb-2">تم الإرسال بنجاح!</h3>
+          <h3 className="font-bold text-lg text-on-surface mb-2">{t('sentSuccess')}</h3>
           <p className="text-sm text-on-surface-variant leading-relaxed max-w-xs">
-            لقد أرسلنا رمز الاستعادة إلى <strong className="text-on-surface">{email}</strong>، يرجى مراجعة صندوق الوارد.
+            {t('sentDesc')} <strong className="text-on-surface">{email}</strong>{', '}{t('checkInbox')}
           </p>
           <Link
             href={`/reset-password?email=${encodeURIComponent(email)}`}
             className="btn-primary mt-6 w-full py-3 flex items-center justify-center gap-2 font-black text-sm rounded-xl hover:brightness-110 hover:shadow-lg transition-all"
           >
-            إدخال الرمز
-            <span className="material-symbols-outlined text-base">arrow_back</span>
+            {t('enterCode')}
+            <span className="material-symbols-outlined icon-flip text-base">arrow_back</span>
           </Link>
         </div>
       )}
 
       <p className="text-center text-on-surface-variant text-sm mt-5 font-medium">
-        تذكرت كلمة المرور؟{' '}
+        {t('rememberedPassword')}{' '}
         <Link href="/login" className="text-primary font-bold hover:underline transition-all">
-          العودة لتسجيل الدخول
+          {t('backToLogin')}
         </Link>
       </p>
     </div>

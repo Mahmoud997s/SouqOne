@@ -2,6 +2,7 @@
 
 import { useToggleFavorite, useFavoriteIds, type EntityType } from '@/lib/api';
 import { useRequireAuth } from '@/hooks/use-require-auth';
+import { useTranslations } from 'next-intl';
 
 interface FavoriteButtonProps {
   entityType: EntityType;
@@ -13,6 +14,7 @@ export function FavoriteButton({ entityType, entityId, className }: FavoriteButt
   const requireAuth = useRequireAuth();
   const { data: favoriteIds } = useFavoriteIds();
   const toggleFav = useToggleFavorite();
+  const tp = useTranslations('pages');
 
   const key = `${entityType}:${entityId}`;
   const isFavorite = favoriteIds?.includes(key) ?? false;
@@ -22,7 +24,7 @@ export function FavoriteButton({ entityType, entityId, className }: FavoriteButt
     e.stopPropagation();
     requireAuth(
       () => toggleFav.mutate({ entityType, entityId }),
-      'سجّل الدخول لإضافة المفضلة',
+      tp('favBtnLogin'),
     );
   };
 
@@ -33,7 +35,7 @@ export function FavoriteButton({ entityType, entityId, className }: FavoriteButt
         className ||
         'absolute top-2 left-2 w-7 h-7 rounded-md bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-all z-10'
       }
-      aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+      aria-label={isFavorite ? tp('favBtnRemove') : tp('favBtnAdd')}
     >
       <span
         className="material-symbols-outlined text-[14px]"

@@ -16,17 +16,12 @@ import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
 import { haversineDistance } from '@/lib/geo-utils';
 import { getImageUrl } from '@/lib/image-utils';
-import { FUEL_LABELS, TRANSMISSION_LABELS, CONDITION_LABELS, DRIVE_LABELS, CANCEL_LABELS, EXTERIOR_COLORS, INTERIOR_COLORS } from '@/lib/constants/mappings';
-import { relativeTime } from '@/lib/time-utils';
+import { fuelLabels, transmissionLabels, conditionLabels, driveLabels, cancelLabels, exteriorColors, interiorColors } from '@/lib/constants/mappings';
+import { relativeTimeT } from '@/lib/time-utils';
+import { useTranslations, useLocale } from 'next-intl';
 import { ImageCarousel } from '@/components/ui/image-carousel';
 
 const MapView = dynamic(() => import('@/components/map/map-view'), { ssr: false });
-
-const fuelMap = FUEL_LABELS;
-const transMap = TRANSMISSION_LABELS;
-const condMap = CONDITION_LABELS;
-const driveMap = DRIVE_LABELS;
-const cancelMap = CANCEL_LABELS;
 
 export default function CarDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -39,6 +34,17 @@ export default function CarDetailsPage() {
   const requireAuth = useRequireAuth();
   const { addToast } = useToast();
   const createBooking = useCreateBooking();
+  const tp = useTranslations('pages');
+  const tm = useTranslations('mappings');
+  const tt = useTranslations('time');
+  const locale = useLocale();
+  const fuelMap = fuelLabels(tm);
+  const transMap = transmissionLabels(tm);
+  const condMap = conditionLabels(tm);
+  const driveMap = driveLabels(tm);
+  const cancelMap = cancelLabels(tm);
+  const extColors = exteriorColors(tm);
+  const intColors = interiorColors(tm);
 
   // Rental state
   const [startDate, setStartDate] = useState('');
@@ -57,9 +63,9 @@ export default function CarDetailsPage() {
         const conv = await createConv.mutateAsync({ entityType: 'LISTING', entityId: car.id });
         router.push(`/messages/${conv.id}`);
       } catch (err) {
-        addToast('error', err instanceof Error ? err.message : 'حدث خطأ أثناء إنشاء المحادثة');
+        addToast('error', err instanceof Error ? err.message : tp('carErrorConversation'));
       }
-    }, 'سجّل الدخول لإرسال رسالة');
+    }, tp('carLoginToMessage'));
   }
 
   function handleBuyNow() {
@@ -69,15 +75,15 @@ export default function CarDetailsPage() {
         const conv = await createConv.mutateAsync({ entityType: 'LISTING', entityId: car.id });
         router.push(`/messages/${conv.id}`);
       } catch (err) {
-        addToast('error', err instanceof Error ? err.message : 'حدث خطأ أثناء إنشاء المحادثة');
+        addToast('error', err instanceof Error ? err.message : tp('carErrorConversation'));
       }
-    }, 'سجّل الدخول لإتمام الشراء');
+    }, tp('carLoginToBuy'));
   }
 
   function handleBooking() {
     requireAuth(async () => {
       if (!car || !startDate || !endDate) {
-        addToast('error', 'يرجى اختيار تاريخ البداية والنهاية');
+        addToast('error', tp('carSelectDates'));
         return;
       }
       try {
@@ -86,12 +92,12 @@ export default function CarDetailsPage() {
           startDate,
           endDate,
         });
-        addToast('success', 'تم إرسال طلب الحجز بنجاح!');
+        addToast('success', tp('carBookingSuccess'));
         router.push(`/bookings/${booking.id}`);
       } catch (err) {
-        addToast('error', err instanceof Error ? err.message : 'حدث خطأ أثناء الحجز');
+        addToast('error', err instanceof Error ? err.message : tp('carErrorBooking'));
       }
-    }, 'سجّل الدخول لإتمام الحجز');
+    }, tp('carLoginToBook'));
   }
 
   if (isLoading) return <><Navbar /><div className="min-h-screen bg-background"><div className="h-40 bg-gradient-to-bl from-[#004ac6] via-[#2563eb] to-[#0B2447]" /><main className="max-w-6xl mx-auto px-4 md:px-8 -mt-16"><DetailSkeleton /></main></div></>;
@@ -101,22 +107,22 @@ export default function CarDetailsPage() {
   const priceFormatted = Number(car.price).toLocaleString('en-US');
 
   const specs = [
-    { icon: 'speed', label: 'المسافة', value: car.mileage ? `${car.mileage.toLocaleString('en-US')} كم` : '—' },
-    { icon: 'local_gas_station', label: 'المحرك', value: car.engineSize || '—' },
-    { icon: 'settings', label: 'ناقل الحركة', value: car.transmission ? (transMap[car.transmission] ?? car.transmission) : '—' },
-    { icon: 'bolt', label: 'القوة', value: car.horsepower ? `${car.horsepower} حصان` : '—' },
+    { icon: 'speed', label: tp('carSpecMileage'), value: car.mileage ? tp('carSpecKm', { km: car.mileage.toLocaleString('en-US') }) : '—' },
+    { icon: 'local_gas_station', label: tp('carSpecEngine'), value: car.engineSize || '—' },
+    { icon: 'settings', label: tp('carSpecTransmission'), value: car.transmission ? (transMap[car.transmission] ?? car.transmission) : '—' },
+    { icon: 'bolt', label: tp('carSpecPower'), value: car.horsepower ? tp('carSpecPowerUnit', { hp: car.horsepower }) : '—' },
   ];
 
   const detailRows = [
-    { label: 'سنة الصنع', value: car.year },
-    { label: 'اللون الخارجي', value: car.exteriorColor || '—', colorHex: EXTERIOR_COLORS.find(c => c.value === car.exteriorColor)?.hex },
-    { label: 'اللون الداخلي', value: car.interior || '—', colorHex: INTERIOR_COLORS.find(c => c.value === car.interior)?.hex },
-    { label: 'نوع الوقود', value: car.fuelType ? (fuelMap[car.fuelType] ?? car.fuelType) : '—' },
-    { label: 'نوع الدفع', value: car.driveType ? (driveMap[car.driveType] ?? car.driveType) : '—' },
-    { label: 'الأبواب', value: car.doors || '—' },
-    { label: 'المقاعد', value: car.seats || '—' },
-    { label: 'نوع الهيكل', value: car.bodyType || '—' },
-    { label: 'الحالة', value: car.condition ? (condMap[car.condition] ?? car.condition) : '—' },
+    { label: tp('carDetailYear'), value: car.year },
+    { label: tp('carDetailExterior'), value: car.exteriorColor || '—', colorHex: extColors.find(c => c.value === car.exteriorColor)?.hex },
+    { label: tp('carDetailInterior'), value: car.interior || '—', colorHex: intColors.find(c => c.value === car.interior)?.hex },
+    { label: tp('carDetailFuel'), value: car.fuelType ? (fuelMap[car.fuelType] ?? car.fuelType) : '—' },
+    { label: tp('carDetailDrive'), value: car.driveType ? (driveMap[car.driveType] ?? car.driveType) : '—' },
+    { label: tp('carDetailDoors'), value: car.doors || '—' },
+    { label: tp('carDetailSeats'), value: car.seats || '—' },
+    { label: tp('carDetailBody'), value: car.bodyType || '—' },
+    { label: tp('carDetailCondition'), value: car.condition ? (condMap[car.condition] ?? car.condition) : '—' },
   ];
 
   const filteredSimilar = similar?.items?.filter((s) => s.id !== car.id).slice(0, 4) ?? [];
@@ -133,9 +139,9 @@ export default function CarDetailsPage() {
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
             <Link href="/listings" className="hover:text-white transition-colors flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">storefront</span> السوق
+              <span className="material-symbols-outlined text-sm">storefront</span> {tp('carBreadcrumbMarket')}
             </Link>
-            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <span className="material-symbols-outlined icon-flip text-xs">chevron_left</span>
             <span className="text-white font-bold line-clamp-1">{car.title}</span>
           </nav>
 
@@ -157,7 +163,7 @@ export default function CarDetailsPage() {
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">tune</span>
-                  <h2 className="font-black text-on-surface">المواصفات</h2>
+                  <h2 className="font-black text-on-surface">{tp('carSpecs')}</h2>
                 </div>
                 <div className="p-4 sm:p-6 md:p-8">
                   <div className="grid grid-cols-4 gap-2 sm:gap-4 mb-6">
@@ -190,7 +196,7 @@ export default function CarDetailsPage() {
                 <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                   <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">stars</span>
-                    <h2 className="font-black text-on-surface">كماليات السيارة</h2>
+                    <h2 className="font-black text-on-surface">{tp('carFeatures')}</h2>
                   </div>
                   <div className="p-6">
                     <div className="flex flex-wrap gap-2">
@@ -210,7 +216,7 @@ export default function CarDetailsPage() {
                 <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                   <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">description</span>
-                    <h2 className="font-black text-on-surface">الوصف</h2>
+                    <h2 className="font-black text-on-surface">{tp('carDescription')}</h2>
                   </div>
                   <div className="p-6">
                     <p className="text-on-surface-variant leading-relaxed whitespace-pre-line">{car.description}</p>
@@ -223,7 +229,7 @@ export default function CarDetailsPage() {
                 <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                   <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">location_on</span>
-                    <h2 className="font-black text-on-surface">الموقع</h2>
+                    <h2 className="font-black text-on-surface">{tp('carLocation')}</h2>
                   </div>
                   <div className="p-6">
                     <LocationSection car={car} />
@@ -251,27 +257,27 @@ export default function CarDetailsPage() {
                           <div className="flex justify-between items-center px-3 py-2.5 border-b border-blue-100/60 dark:border-blue-900/20">
                             <div className="flex items-center gap-1.5">
                               <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-sm">today</span>
-                              <span className="text-blue-900 dark:text-blue-200 text-xs font-bold">يومي</span>
+                              <span className="text-blue-900 dark:text-blue-200 text-xs font-bold">{tp('carRentalDaily')}</span>
                             </div>
-                            <span className="text-lg font-black text-blue-700 dark:text-blue-300">{Number(car.dailyPrice).toLocaleString('en-US')} <small className="text-[10px] font-bold text-blue-500 dark:text-blue-400">ر.ع./يوم</small></span>
+                            <span className="text-lg font-black text-blue-700 dark:text-blue-300">{Number(car.dailyPrice).toLocaleString('en-US')} <small className="text-[10px] font-bold text-blue-500 dark:text-blue-400">{tp('carRentalPerDay')}</small></span>
                           </div>
                         )}
                         {car.weeklyPrice && (
                           <div className="flex justify-between items-center px-3 py-2.5 border-b border-blue-100/60 dark:border-blue-900/20">
                             <div className="flex items-center gap-1.5">
                               <span className="material-symbols-outlined text-blue-500 dark:text-blue-400 text-sm">date_range</span>
-                              <span className="text-blue-800 dark:text-blue-300 text-xs font-bold">أسبوعي</span>
+                              <span className="text-blue-800 dark:text-blue-300 text-xs font-bold">{tp('carRentalWeekly')}</span>
                             </div>
-                            <span className="font-black text-on-surface text-sm">{Number(car.weeklyPrice).toLocaleString('en-US')} <small className="text-[10px] text-on-surface-variant font-bold">ر.ع.</small></span>
+                            <span className="font-black text-on-surface text-sm">{Number(car.weeklyPrice).toLocaleString('en-US')} <small className="text-[10px] text-on-surface-variant font-bold">{tp('carCurrencyOMR')}</small></span>
                           </div>
                         )}
                         {car.monthlyPrice && (
                           <div className="flex justify-between items-center px-3 py-2.5">
                             <div className="flex items-center gap-1.5">
                               <span className="material-symbols-outlined text-blue-500 dark:text-blue-400 text-sm">calendar_month</span>
-                              <span className="text-blue-800 dark:text-blue-300 text-xs font-bold">شهري</span>
+                              <span className="text-blue-800 dark:text-blue-300 text-xs font-bold">{tp('carRentalMonthly')}</span>
                             </div>
-                            <span className="font-black text-on-surface text-sm">{Number(car.monthlyPrice).toLocaleString('en-US')} <small className="text-[10px] text-on-surface-variant font-bold">ر.ع.</small></span>
+                            <span className="font-black text-on-surface text-sm">{Number(car.monthlyPrice).toLocaleString('en-US')} <small className="text-[10px] text-on-surface-variant font-bold">{tp('carCurrencyOMR')}</small></span>
                           </div>
                         )}
                       </div>
@@ -280,17 +286,17 @@ export default function CarDetailsPage() {
                       <div className="flex flex-wrap gap-1.5 mb-3">
                         {car.deliveryAvailable && (
                           <span className="inline-flex items-center gap-1 bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 text-[11px] font-black px-2.5 py-1 rounded-md">
-                            <span className="material-symbols-outlined text-[11px]">local_shipping</span>توصيل متاح
+                            <span className="material-symbols-outlined text-[11px]">local_shipping</span>{tp('carDeliveryAvailable')}
                           </span>
                         )}
                         {car.insuranceIncluded && (
                           <span className="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-800/40 text-blue-700 dark:text-blue-300 text-[11px] font-black px-2.5 py-1 rounded-md">
-                            <span className="material-symbols-outlined text-[11px]">shield</span>تأمين شامل
+                            <span className="material-symbols-outlined text-[11px]">shield</span>{tp('carInsuranceIncluded')}
                           </span>
                         )}
                         {car.withDriver && (
                           <span className="inline-flex items-center gap-1 bg-emerald-100 dark:bg-emerald-800/40 text-emerald-700 dark:text-emerald-300 text-[11px] font-black px-2.5 py-1 rounded-md">
-                            <span className="material-symbols-outlined text-[11px]">person</span>مع سائق
+                            <span className="material-symbols-outlined text-[11px]">person</span>{tp('carWithDriver')}
                           </span>
                         )}
                         {car.cancellationPolicy && (
@@ -306,22 +312,22 @@ export default function CarDetailsPage() {
                           {car.minRentalDays && (
                             <div className="bg-violet-50 dark:bg-violet-950/40 border border-violet-100 dark:border-violet-800/30 rounded-lg p-2 text-center">
                               <span className="material-symbols-outlined text-violet-600 dark:text-violet-400 text-base block mb-0.5">timer</span>
-                              <p className="text-[9px] text-violet-500 dark:text-violet-400 font-medium">أقل مدة</p>
-                              <p className="text-xs font-black text-violet-800 dark:text-violet-200">{car.minRentalDays} يوم</p>
+                              <p className="text-[9px] text-violet-500 dark:text-violet-400 font-medium">{tp('carMinDuration')}</p>
+                              <p className="text-xs font-black text-violet-800 dark:text-violet-200">{tp('carDaysUnit', { days: car.minRentalDays })}</p>
                             </div>
                           )}
                           {car.kmLimitPerDay && (
                             <div className="bg-teal-50 dark:bg-teal-950/40 border border-teal-100 dark:border-teal-800/30 rounded-lg p-2 text-center">
                               <span className="material-symbols-outlined text-teal-600 dark:text-teal-400 text-base block mb-0.5">speed</span>
-                              <p className="text-[9px] text-teal-500 dark:text-teal-400 font-medium">حد يومي</p>
-                              <p className="text-xs font-black text-teal-800 dark:text-teal-200">{car.kmLimitPerDay} كم</p>
+                              <p className="text-[9px] text-teal-500 dark:text-teal-400 font-medium">{tp('carDailyLimit')}</p>
+                              <p className="text-xs font-black text-teal-800 dark:text-teal-200">{tp('carKmUnit', { km: car.kmLimitPerDay })}</p>
                             </div>
                           )}
                           {car.depositAmount && (
                             <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-800/30 rounded-lg p-2 text-center">
                               <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-base block mb-0.5">account_balance_wallet</span>
-                              <p className="text-[9px] text-amber-500 dark:text-amber-400 font-medium">تأمين</p>
-                              <p className="text-xs font-black text-amber-800 dark:text-amber-200">{Number(car.depositAmount).toLocaleString('en-US')} ر.ع.</p>
+                              <p className="text-[9px] text-amber-500 dark:text-amber-400 font-medium">{tp('carDeposit')}</p>
+                              <p className="text-xs font-black text-amber-800 dark:text-amber-200">{tp('carDepositAmount', { amount: Number(car.depositAmount).toLocaleString('en-US') })}</p>
                             </div>
                           )}
                         </div>
@@ -330,10 +336,10 @@ export default function CarDetailsPage() {
                       {/* Date Picker */}
                       {!isOwner && (
                         <div className="space-y-2.5">
-                          <p className="text-[11px] font-bold text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-xs text-primary">calendar_month</span>اختر موعد الإيجار</p>
+                          <p className="text-[11px] font-bold text-on-surface-variant flex items-center gap-1"><span className="material-symbols-outlined text-xs text-primary">calendar_month</span>{tp('carChooseRentalDate')}</p>
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <label className="text-[10px] font-bold text-on-surface-variant block mb-1">من</label>
+                              <label className="text-[10px] font-bold text-on-surface-variant block mb-1">{tp('carDateFrom')}</label>
                               <input
                                 type="date"
                                 value={startDate}
@@ -343,7 +349,7 @@ export default function CarDetailsPage() {
                               />
                             </div>
                             <div>
-                              <label className="text-[10px] font-bold text-on-surface-variant block mb-1">إلى</label>
+                              <label className="text-[10px] font-bold text-on-surface-variant block mb-1">{tp('carDateTo')}</label>
                               <input
                                 type="date"
                                 value={endDate}
@@ -360,11 +366,11 @@ export default function CarDetailsPage() {
                                 <span className="text-xs text-emerald-700 dark:text-emerald-300">{priceCalc.breakdown}</span>
                               </div>
                               <div className="flex justify-between items-center">
-                                <span className="font-black text-on-surface text-xs">المجموع</span>
-                                <span className="text-lg font-black text-emerald-700 dark:text-emerald-300">{priceCalc.totalPrice.toLocaleString('en-US')} ر.ع.</span>
+                                <span className="font-black text-on-surface text-xs">{tp('carTotal')}</span>
+                                <span className="text-lg font-black text-emerald-700 dark:text-emerald-300">{tp('carTotalAmount', { amount: priceCalc.totalPrice.toLocaleString('en-US') })}</span>
                               </div>
                               {priceCalc.depositAmount && (
-                                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">+ تأمين {priceCalc.depositAmount.toLocaleString('en-US')} ر.ع. (مسترد)</p>
+                                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">{tp('carDepositRefundable', { amount: priceCalc.depositAmount.toLocaleString('en-US') })}</p>
                               )}
                             </div>
                           )}
@@ -372,10 +378,10 @@ export default function CarDetailsPage() {
                           {/* Booked dates warning */}
                           {availability && availability.length > 0 && (
                             <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/40 rounded-lg p-2.5">
-                              <p className="text-[11px] font-black text-amber-700 dark:text-amber-400 mb-0.5 flex items-center gap-1"><span className="material-symbols-outlined text-xs">event_busy</span>فترات محجوزة:</p>
+                              <p className="text-[11px] font-black text-amber-700 dark:text-amber-400 mb-0.5 flex items-center gap-1"><span className="material-symbols-outlined text-xs">event_busy</span>{tp('carBookedPeriods')}</p>
                               {availability.map((a, i) => (
-                                <p key={i} className="text-[10px] text-amber-600 dark:text-amber-400 mr-4">
-                                  {new Date(a.startDate).toLocaleDateString('ar-OM')} — {new Date(a.endDate).toLocaleDateString('ar-OM')}
+                                <p key={i} className="text-[10px] text-amber-600 dark:text-amber-400 me-4">
+                                  {new Date(a.startDate).toLocaleDateString(locale)} — {new Date(a.endDate).toLocaleDateString(locale)}
                                 </p>
                               ))}
                             </div>
@@ -387,14 +393,14 @@ export default function CarDetailsPage() {
                             className="btn-success w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-1.5"
                           >
                             <span className="material-symbols-outlined text-base">event_available</span>
-                            {createBooking.isPending ? 'جارٍ الحجز...' : 'احجز الآن'}
+                            {createBooking.isPending ? tp('carBookingPending') : tp('carBookNow')}
                           </button>
                         </div>
                       )}
 
                       {isOwner && (
                         <Link href={`/edit-listing/${car.id}`} className="bg-on-surface text-surface w-full py-2.5 rounded-xl text-center block text-sm font-black hover:bg-primary hover:text-on-primary transition-colors">
-                          تعديل الإعلان
+                          {tp('carEditListing')}
                         </Link>
                       )}
                     </>
@@ -403,12 +409,12 @@ export default function CarDetailsPage() {
                       {isWanted ? (
                         <>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="bg-orange-500 text-white px-2.5 py-1 rounded-lg text-xs font-black">مطلوب</span>
+                            <span className="bg-orange-500 text-white px-2.5 py-1 rounded-lg text-xs font-black">{tp('carWanted')}</span>
                           </div>
                           {Number(car.price) > 0 && (
                             <p className="text-2xl font-black text-orange-500 mb-0.5" style={{ fontFamily: 'var(--font-body)' }}>
                               {priceFormatted} <small className="text-sm font-bold text-on-surface-variant">{car.currency}</small>
-                              <span className="text-xs font-bold text-on-surface-variant mr-2">الميزانية</span>
+                              <span className="text-xs font-bold text-on-surface-variant me-2">{tp('carBudget')}</span>
                             </p>
                           )}
                         </>
@@ -418,21 +424,21 @@ export default function CarDetailsPage() {
                             {priceFormatted} <small className="text-sm font-bold text-on-surface-variant">{car.currency}</small>
                           </p>
                           {car.isPriceNegotiable && (
-                            <p className="text-primary text-xs font-bold mb-3 flex items-center gap-1"><span className="material-symbols-outlined text-xs">swap_horiz</span>قابل للتفاوض</p>
+                            <p className="text-primary text-xs font-bold mb-3 flex items-center gap-1"><span className="material-symbols-outlined text-xs">swap_horiz</span>{tp('carNegotiable')}</p>
                           )}
                         </>
                       )}
 
                       {isOwner ? (
                         <Link href={`/edit-listing/${car.id}`} className="bg-on-surface text-surface w-full py-2.5 rounded-xl text-center block text-sm font-black hover:bg-primary hover:text-on-primary transition-colors">
-                          تعديل الإعلان
+                          {tp('carEditListing')}
                         </Link>
                       ) : (
                         <button onClick={handleBuyNow} disabled={createConv.isPending} className={`w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-1.5 ${
                           isWanted ? 'btn-warning' : 'btn-primary'
                         }`}>
                           <span className="material-symbols-outlined text-base">{isWanted ? 'chat' : 'shopping_cart'}</span>
-                          {createConv.isPending ? 'جارٍ التواصل...' : isWanted ? 'تواصل مع الطالب' : 'اشترِ الآن'}
+                          {createConv.isPending ? tp('carContactPending') : isWanted ? tp('carContactRequester') : tp('carBuyNow')}
                         </button>
                       )}
                     </>
@@ -448,16 +454,16 @@ export default function CarDetailsPage() {
                 location={car.seller.governorate}
                 phone={car.seller.phone}
                 sellerId={car.seller.id}
-                whatsappText={`مرحباً، أنا مهتم بإعلانك: ${car.title}`}
+                whatsappText={tp('carWhatsappText', { title: car.title })}
                 onMessage={handleMessage}
                 messagePending={createConv.isPending}
                 onShare={() => {
                   const url = window.location.href;
                   if (navigator.share) {
-                    navigator.share({ title: car.title, text: `${car.title} - ${priceFormatted} ${car.currency === 'OMR' ? 'ر.ع' : car.currency}`, url });
+                    navigator.share({ title: car.title, text: `${car.title} - ${priceFormatted} ${car.currency === 'OMR' ? tp('carCurrencyOMR') : car.currency}`, url });
                   } else {
                     navigator.clipboard.writeText(url);
-                    addToast('success', 'تم نسخ الرابط');
+                    addToast('success', tp('carLinkCopied'));
                   }
                 }}
                 isOwner={!!isOwner}
@@ -469,18 +475,18 @@ export default function CarDetailsPage() {
                   <div className="flex items-center gap-1.5 text-on-surface-variant text-xs">
                     <span className="material-symbols-outlined text-sm text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
                     <span className="font-black text-on-surface">{car.viewCount}</span>
-                    <span>مشاهدة</span>
+                    <span>{tp('carViews')}</span>
                   </div>
                   <span className="text-outline-variant/20">|</span>
                   <div className="flex items-center gap-1 text-on-surface-variant text-xs">
                     <span className="material-symbols-outlined text-sm text-primary">schedule</span>
-                    <span>{relativeTime(car.createdAt)}</span>
+                    <span>{relativeTimeT(car.createdAt, tt, locale)}</span>
                   </div>
                 </div>
                 {car.viewCount >= 10 && (
                   <div className="mt-2 flex items-center gap-1.5 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2.5 py-1.5 rounded-md text-[11px] font-black">
                     <span className="material-symbols-outlined text-xs">local_fire_department</span>
-                    إعلان مطلوب — {car.viewCount} شخص شاهد هذا الإعلان
+                    {tp('carHotListing', { count: car.viewCount })}
                   </div>
                 )}
               </div>
@@ -491,9 +497,9 @@ export default function CarDetailsPage() {
           {filteredSimilar.length > 0 && (
             <section className="mt-16">
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-black text-on-surface">إعلانات مشابهة</h2>
+                <h2 className="text-2xl font-black text-on-surface">{tp('carSimilar')}</h2>
                 <Link href={`/listings?search=${car.make}`} className="text-primary font-bold border-b-2 border-primary pb-1 hover:brightness-110 transition-colors">
-                  عرض الكل
+                  {tp('carViewAll')}
                 </Link>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -534,18 +540,18 @@ export default function CarDetailsPage() {
               <div className="shrink-0">
                 {isWanted ? (
                   <div>
-                    <span className="bg-orange-500 text-white px-2 py-0.5 rounded text-xs font-black">مطلوب</span>
-                    {Number(car.price) > 0 && <span className="text-sm font-black text-orange-500 mr-2">{priceFormatted} ر.ع</span>}
+                    <span className="bg-orange-500 text-white px-2 py-0.5 rounded text-xs font-black">{tp('carWanted')}</span>
+                    {Number(car.price) > 0 && <span className="text-sm font-black text-orange-500 me-2">{priceFormatted} {tp('carCurrencyOMR')}</span>}
                   </div>
                 ) : isRental && car.dailyPrice ? (
                   <div>
                     <span className="text-lg font-black text-primary leading-none">{Number(car.dailyPrice).toLocaleString('en-US')}</span>
-                    <span className="text-[10px] text-on-surface-variant mr-1">ر.ع./يوم</span>
+                    <span className="text-[10px] text-on-surface-variant me-1">{tp('carRentalPerDay')}</span>
                   </div>
                 ) : (
                   <div>
                     <span className="text-lg font-black text-primary leading-none">{priceFormatted}</span>
-                    <span className="text-[10px] text-on-surface-variant mr-1">{car.currency === 'OMR' ? 'ر.ع' : car.currency}</span>
+                    <span className="text-[10px] text-on-surface-variant me-1">{car.currency === 'OMR' ? tp('carCurrencyOMR') : car.currency}</span>
                   </div>
                 )}
               </div>
@@ -553,7 +559,7 @@ export default function CarDetailsPage() {
               <div className="flex-1 flex items-center gap-2 justify-end">
                 {car.seller.phone && (
                   <a
-                    href={`https://wa.me/${car.seller.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`مرحباً، أنا مهتم بإعلانك: ${car.title}`)}`}
+                    href={`https://wa.me/${car.seller.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(tp('carWhatsappText', { title: car.title }))}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#25D366] text-white"
@@ -567,7 +573,7 @@ export default function CarDetailsPage() {
                   className="flex items-center gap-1.5 bg-surface-container-low dark:bg-surface-container-high text-on-surface px-4 py-2.5 rounded-xl text-sm font-black transition-all hover:bg-primary hover:text-on-primary"
                 >
                   <span className="material-symbols-outlined text-base">chat</span>
-                  مراسلة
+                  {tp('carMessage')}
                 </button>
 
                 {isRental ? (
@@ -577,7 +583,7 @@ export default function CarDetailsPage() {
                     className="btn-success px-5 py-2.5 rounded-xl text-sm font-black shadow-lg disabled:opacity-50 flex items-center gap-1.5"
                   >
                     <span className="material-symbols-outlined text-base">event_available</span>
-                    احجز
+                    {tp('carBook')}
                   </button>
                 ) : isWanted ? (
                   <button
@@ -586,7 +592,7 @@ export default function CarDetailsPage() {
                     className="btn-warning px-5 py-2.5 rounded-xl text-sm font-black shadow-lg hover:brightness-110 transition-all flex items-center gap-1.5"
                   >
                     <span className="material-symbols-outlined text-base">chat</span>
-                    تواصل
+                    {tp('carContact')}
                   </button>
                 ) : (
                   <button
@@ -595,7 +601,7 @@ export default function CarDetailsPage() {
                     className="btn-primary px-5 py-2.5 rounded-xl text-sm font-black shadow-lg hover:brightness-110 transition-all flex items-center gap-1.5"
                   >
                     <span className="material-symbols-outlined text-base">shopping_cart</span>
-                    اشترِ الآن
+                    {tp('carBuyNow')}
                   </button>
                 )}
               </div>
@@ -611,6 +617,7 @@ export default function CarDetailsPage() {
 
 // قسم الموقع مع الخريطة + المسافة + Street View
 function LocationSection({ car }: { car: { latitude: number | null; longitude: number | null; title: string; governorate: string | null; city: string | null; seller: { phone: string | null } } }) {
+  const tp = useTranslations('pages');
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
   const [showStreetView, setShowStreetView] = useState(false);
@@ -654,7 +661,7 @@ function LocationSection({ car }: { car: { latitude: number | null; longitude: n
         {distance !== null && (
           <span className="bg-primary/10 text-primary px-3 py-1.5 text-xs font-black flex items-center gap-1.5">
             <span className="material-symbols-outlined text-sm">near_me</span>
-            {distance < 1 ? `${Math.round(distance * 1000)} م منك` : `${distance} كم منك`}
+            {distance < 1 ? tp('carDistanceM', { distance: Math.round(distance * 1000) }) : tp('carDistanceKm', { distance })}
           </span>
         )}
       </div>
@@ -676,7 +683,7 @@ function LocationSection({ car }: { car: { latitude: number | null; longitude: n
           className="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-primary transition-colors"
         >
           <span className="material-symbols-outlined text-base">streetview</span>
-          {showStreetView ? 'إخفاء Street View' : 'عرض Street View'}
+          {showStreetView ? tp('carHideStreetView') : tp('carShowStreetView')}
         </button>
         {showStreetView && (
           <div className="mt-3 h-[300px] overflow-hidden border border-outline-variant/10">

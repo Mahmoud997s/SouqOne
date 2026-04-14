@@ -3,6 +3,7 @@
 import { Link, useRouter } from '@/i18n/navigation';
 import { ArrowRight, Search, X, MoreVertical, ExternalLink } from 'lucide-react';
 import { getImageUrl } from '@/lib/image-utils';
+import { useTranslations } from 'next-intl';
 
 interface Participant {
   id: string;
@@ -37,7 +38,8 @@ export function ChatHeader({
   onToggleSearch,
 }: ChatHeaderProps) {
   const router = useRouter();
-  const name = participant?.displayName || participant?.username || 'مستخدم';
+  const tp = useTranslations('pages');
+  const name = participant?.displayName || participant?.username || tp('chatDefaultUser');
 
   return (
     <div className="bg-surface-container-lowest/80 backdrop-blur-xl px-4 py-3 flex items-center justify-between z-10 border-b border-outline-variant/8 shrink-0">
@@ -74,15 +76,15 @@ export function ChatHeader({
                   <span className="w-1 h-1 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
                   <span className="w-1 h-1 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
                 </span>
-                يكتب
+                {tp('chatTyping')}
               </span>
             ) : isOnline ? (
               <span className="text-green-600 text-[11px] font-medium flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                متصل
+                {tp('chatOnline')}
               </span>
             ) : (
-              <span className="text-on-surface-variant/40 text-[11px]">غير متصل</span>
+              <span className="text-on-surface-variant/40 text-[11px]">{tp('chatOffline')}</span>
             )}
           </div>
         </div>
@@ -102,7 +104,7 @@ export function ChatHeader({
             className="hidden md:flex items-center gap-1.5 text-primary hover:bg-primary/8 px-3 py-2 rounded-xl text-[11px] font-bold transition-all"
           >
             <ExternalLink size={13} />
-            الإعلان
+            {tp('chatViewListing')}
           </Link>
         )}
         <button className="w-9 h-9 rounded-xl hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant/40 transition-colors">

@@ -5,7 +5,8 @@ import { Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { AuthGuard } from '@/components/auth-guard';
-import { MAIN_CATEGORIES } from '@/lib/constants/categories';
+import { getMainCategories } from '@/lib/constants/categories';
+import { useTranslations } from 'next-intl';
 
 const CATEGORY_STYLE: Record<string, { icon: string; bg: string; text: string }> = {
   'vehicles-parts': { icon: 'garage_home', bg: 'bg-sky-50 dark:bg-sky-950/40', text: 'text-sky-600 dark:text-sky-400' },
@@ -23,9 +24,12 @@ const DEFAULT_STYLE = { icon: 'category', bg: 'bg-slate-50 dark:bg-slate-950/40'
 
 export default function AddListingPage() {
   const router = useRouter();
+  const tp = useTranslations('pages');
+  const tc = useTranslations('categories');
+  const cats = getMainCategories(tc);
 
-  const available = MAIN_CATEGORIES.filter(c => c.subcategories.some(s => s.available));
-  const comingSoon = MAIN_CATEGORIES.filter(c => !c.subcategories.some(s => s.available));
+  const available = cats.filter(c => c.subcategories.some(s => s.available));
+  const comingSoon = cats.filter(c => !c.subcategories.some(s => s.available));
 
   return (
     <AuthGuard>
@@ -41,13 +45,13 @@ export default function AddListingPage() {
           <div className="max-w-3xl mx-auto px-6 text-center">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/80 px-4 py-1.5 rounded-full text-xs font-bold mb-5">
               <span className="material-symbols-outlined text-sm">campaign</span>
-              مجاني بالكامل — بدون رسوم
+              {tp('addListingBadge')}
             </div>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-3 drop-shadow-sm">
-              انشر إعلانك في ثواني
+              {tp('addListingTitle')}
             </h1>
             <p className="text-white/60 text-sm md:text-base max-w-md mx-auto">
-              اختر القسم المناسب وابدأ بنشر إعلانك. يصل إعلانك لآلاف المستخدمين في سلطنة عمان.
+              {tp('addListingSubtitle')}
             </p>
           </div>
         </div>
@@ -72,7 +76,7 @@ export default function AddListingPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h2 className="font-black text-on-surface text-base md:text-lg">{cat.label}</h2>
-                    <p className="text-xs text-on-surface-variant mt-0.5">{availableSubs.length} نوع متاح — اختر واحد وابدأ</p>
+                    <p className="text-xs text-on-surface-variant mt-0.5">{tp('addListingAvailableCount', { count: availableSubs.length })}</p>
                   </div>
                 </div>
 
@@ -89,7 +93,7 @@ export default function AddListingPage() {
                           <span className="material-symbols-outlined text-lg text-on-surface-variant group-hover:text-primary transition-colors">add_circle</span>
                           <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors truncate">{sub.label}</span>
                         </div>
-                        <span className="material-symbols-outlined text-sm text-on-surface-variant/30 group-hover:text-primary transition-all group-hover:-translate-x-1 shrink-0">arrow_back</span>
+                        <span className="material-symbols-outlined icon-flip text-sm text-on-surface-variant/30 group-hover:text-primary transition-all rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 shrink-0">arrow_back</span>
                       </button>
                     ))}
                   </div>
@@ -104,7 +108,7 @@ export default function AddListingPage() {
           <div className="mt-12">
             <div className="flex items-center gap-3 mb-5">
               <div className="h-6 w-1 bg-on-surface-variant/20 rounded-full" />
-              <h3 className="text-sm font-black text-on-surface-variant/50 uppercase tracking-wider">أقسام قادمة قريباً</h3>
+              <h3 className="text-sm font-black text-on-surface-variant/50 uppercase tracking-wider">{tp('addListingComingSoonHeader')}</h3>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {comingSoon.map((cat) => {
@@ -121,7 +125,7 @@ export default function AddListingPage() {
                       <p className="font-bold text-on-surface-variant text-xs">{cat.label}</p>
                       <div className="flex items-center justify-center gap-1 text-[10px] text-on-surface-variant/40 mt-1">
                         <span className="material-symbols-outlined text-[10px]">schedule</span>
-                        قريباً
+                        {tp('addListingComingSoonBadge')}
                       </div>
                     </div>
                   </div>
@@ -134,16 +138,16 @@ export default function AddListingPage() {
         {/* ═══════════ HELP SECTION ═══════════ */}
         <div className="mt-12 bg-surface-container-low/50 dark:bg-surface-container/30 border border-outline-variant/10 rounded-2xl p-6 md:p-8 text-center">
           <span className="material-symbols-outlined text-primary text-3xl mb-3 block">help</span>
-          <h3 className="font-black text-on-surface mb-1">محتاج مساعدة؟</h3>
+          <h3 className="font-black text-on-surface mb-1">{tp('addListingHelpTitle')}</h3>
           <p className="text-xs text-on-surface-variant max-w-md mx-auto mb-4">
-            لو مش متأكد من القسم المناسب لإعلانك أو عندك أي استفسار، تواصل معنا وهنساعدك.
+            {tp('addListingHelpDesc')}
           </p>
           <Link
             href="/messages"
             className="inline-flex items-center gap-1.5 bg-primary text-on-primary px-5 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-all"
           >
             <span className="material-symbols-outlined text-sm">chat</span>
-            تواصل معنا
+            {tp('addListingHelpContact')}
           </Link>
         </div>
       </main>

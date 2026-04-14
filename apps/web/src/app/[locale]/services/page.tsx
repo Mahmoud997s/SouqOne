@@ -5,44 +5,48 @@ import { useCarServices } from '@/lib/api';
 import { getImageUrl } from '@/lib/image-utils';
 import { BADGE_COLORS } from '@/lib/constants/mappings';
 import { ListingPageShell } from '@/components/listing-page-shell';
-
-const SERVICE_CATS = [
-  { value: '', label: 'الكل' },
-  { value: 'MAINTENANCE', label: 'صيانة' },
-  { value: 'CLEANING', label: 'تلميع' },
-  { value: 'INSPECTION', label: 'فحص' },
-  { value: 'BODYWORK', label: 'سمكرة' },
-  { value: 'TOWING', label: 'سطحة' },
-  { value: 'MODIFICATION', label: 'تعديل' },
-  { value: 'KEYS_LOCKS', label: 'مفاتيح' },
-  { value: 'ACCESSORIES_INSTALL', label: 'إكسسوارات' },
-];
-
-const TYPE_LABELS: Record<string, string> = {
-  MAINTENANCE: 'صيانة وإصلاح', CLEANING: 'تلميع وتنظيف', INSPECTION: 'فحص سيارات',
-  BODYWORK: 'سمكرة ودهان', TOWING: 'سطحة ونجدة', MODIFICATION: 'تعديل وتيونينج',
-  KEYS_LOCKS: 'مفاتيح وأقفال', ACCESSORIES_INSTALL: 'تركيب إكسسوارات', OTHER_SERVICE: 'أخرى',
-};
-
-const PROVIDER_LABELS: Record<string, string> = { WORKSHOP: 'ورشة', INDIVIDUAL: 'فرد', MOBILE: 'خدمة متنقلة', COMPANY: 'شركة' };
+import { useTranslations } from 'next-intl';
 
 export default function ServicesPage() {
+  const t = useTranslations('pages');
+  const tl = useTranslations('listings');
+
+  const SERVICE_CATS = [
+    { value: '', label: t('all') },
+    { value: 'MAINTENANCE', label: t('servicesCatMaintenance') },
+    { value: 'CLEANING', label: t('servicesCatCleaning') },
+    { value: 'INSPECTION', label: t('servicesCatInspection') },
+    { value: 'BODYWORK', label: t('servicesCatBodywork') },
+    { value: 'TOWING', label: t('servicesCatTowing') },
+    { value: 'MODIFICATION', label: t('servicesCatModification') },
+    { value: 'KEYS_LOCKS', label: t('servicesCatKeys') },
+    { value: 'ACCESSORIES_INSTALL', label: t('servicesCatAccessories') },
+  ];
+
+  const TYPE_LABELS: Record<string, string> = {
+    MAINTENANCE: t('servicesTypeMaintenance'), CLEANING: t('servicesTypeCleaning'), INSPECTION: t('servicesTypeInspection'),
+    BODYWORK: t('servicesTypeBodywork'), TOWING: t('servicesTypeTowing'), MODIFICATION: t('servicesTypeModification'),
+    KEYS_LOCKS: t('servicesTypeKeys'), ACCESSORIES_INSTALL: t('servicesTypeAccessories'), OTHER_SERVICE: t('servicesTypeOther'),
+  };
+
+  const PROVIDER_LABELS: Record<string, string> = { WORKSHOP: t('servicesProviderWorkshop'), INDIVIDUAL: t('servicesProviderIndividual'), MOBILE: t('servicesProviderMobile'), COMPANY: t('servicesProviderCompany') };
+
   return (
     <ListingPageShell
-      title="خدمات سيارات"
-      countLabel="خدمة"
-      searchPlaceholder="ابحث عن خدمة..."
+      title={t('servicesTitle')}
+      countLabel={t('servicesCount')}
+      searchPlaceholder={t('servicesSearch')}
       addHref="/add-listing/service"
-      addLabel="+ أضف خدمة"
+      addLabel={t('servicesAdd')}
       addBtnClass="btn-warning"
       heroIcon="home_repair_service"
-      heroSubtitle="اكتشف أفضل ورش الصيانة وخدمات السيارات في سلطنة عمان"
+      heroSubtitle={t('servicesSubtitle')}
       basePath="/services"
       categories={SERVICE_CATS}
       filterParamKey="serviceType"
       useDataHook={useCarServices}
-      emptyTitle="لا توجد خدمات"
-      emptyDescription="جرب البحث بكلمات مختلفة"
+      emptyTitle={t('servicesEmpty')}
+      emptyDescription={tl('tryDifferentSearch')}
       renderCard={(svc) => (
         <Link key={svc.id} href={`/services/${svc.id}`} className="glass-card rounded-xl overflow-hidden group">
           <div className="aspect-[16/9] bg-surface-container-low relative overflow-hidden">
@@ -56,7 +60,7 @@ export default function ServicesPage() {
             </span>
             {svc.isHomeService && (
               <span className={`absolute top-3 left-3 px-2 py-0.5 text-[10px] font-black ${BADGE_COLORS.mobile} flex items-center gap-1`}>
-                <span className="material-symbols-outlined text-xs">home</span> متنقلة
+                <span className="material-symbols-outlined text-xs">home</span> {t('servicesMobile')}
               </span>
             )}
           </div>
@@ -69,10 +73,10 @@ export default function ServicesPage() {
                   {svc.priceFrom && `${parseFloat(svc.priceFrom).toFixed(3)}`}
                   {svc.priceFrom && svc.priceTo && ' - '}
                   {svc.priceTo && `${parseFloat(svc.priceTo).toFixed(3)}`}
-                  <span className="text-[11px] font-medium text-on-surface-variant mr-1">ر.ع.</span>
+                  <span className="text-[11px] font-medium text-on-surface-variant me-1">{tl('currency')}</span>
                 </span>
               ) : (
-                <span className="text-xs text-on-surface-variant">اتصل للسعر</span>
+                <span className="text-xs text-on-surface-variant">{t('callForPrice')}</span>
               )}
               <span className="flex items-center gap-1 text-[11px] text-on-surface-variant">
                 <span className="material-symbols-outlined text-xs">location_on</span> {svc.governorate}

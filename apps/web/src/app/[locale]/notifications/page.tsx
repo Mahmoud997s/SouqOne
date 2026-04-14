@@ -10,6 +10,7 @@ import {
   ChevronLeft, ChevronRight, AlertCircle, Tag, Calendar, Loader2,
 } from 'lucide-react';
 import { Footer } from '@/components/layout/footer';
+import { useTranslations, useLocale } from 'next-intl';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   MESSAGE: <MessageCircle size={18} className="text-primary" />,
@@ -28,16 +29,20 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   JOB_APPLICATION_REJECTED: <AlertCircle size={18} className="text-red-500" />,
 };
 
-function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'الآن';
-  if (mins < 60) return `منذ ${mins} دقيقة`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `منذ ${hrs} ساعة`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `منذ ${days} يوم`;
-  return new Date(dateStr).toLocaleDateString('ar-OM');
+function useTimeAgo() {
+  const tp = useTranslations('pages');
+  const locale = useLocale();
+  return (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return tp('notifTimeNow');
+    if (mins < 60) return tp('notifTimeMinutes', { count: mins });
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return tp('notifTimeHours', { count: hrs });
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return tp('notifTimeDays', { count: days });
+    return new Date(dateStr).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US');
+  };
 }
 
 export default function NotificationsPage() {
@@ -48,6 +53,8 @@ export default function NotificationsPage() {
   const { data: unreadData } = useUnreadCount();
   const markRead = useMarkNotificationRead();
   const markAllRead = useMarkAllNotificationsRead();
+  const tp = useTranslations('pages');
+  const timeAgo = useTimeAgo();
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) router.push(`/login?returnUrl=${encodeURIComponent('/notifications')}`);
@@ -90,7 +97,7 @@ export default function NotificationsPage() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <Bell size={24} className="text-primary" />
-              <h1 className="text-xl font-bold text-on-surface">الإشعارات</h1>
+              <h1 className="text-xl font-bold text-on-surface">{tp('notifTitle')}</h1>
               {unreadCount > 0 && (
                 <span className="bg-primary text-on-primary text-xs font-bold px-2 py-0.5 rounded-full">
                   {unreadCount}
@@ -103,7 +110,7 @@ export default function NotificationsPage() {
                 disabled={markAllRead.isPending}
                 className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
               >
-                {markAllRead.isPending ? 'جاري...' : 'تعليم الكل كمقروء'}
+                {markAllRead.isPending ? tp('notifMarkingRead') : tp('notifMarkAllRead')}
               </button>
             )}
           </div>
@@ -116,7 +123,7 @@ export default function NotificationsPage() {
           ) : notifications.length === 0 ? (
             <div className="text-center py-20">
               <Bell size={48} className="mx-auto text-on-surface-variant/30 mb-4" />
-              <p className="text-on-surface-variant">لا توجد إشعارات</p>
+              <p className="text-on-surface-variant">{tp('notifEmpty')}</p>
             </div>
           ) : (
             <div className="bg-surface-container-lowest shadow-sm border border-outline-variant/20 overflow-hidden divide-y divide-outline-variant/10">
@@ -124,7 +131,7 @@ export default function NotificationsPage() {
                 <button
                   key={n.id}
                   onClick={() => handleClick(n)}
-                  className={`w-full flex items-start gap-3 p-4 text-right transition-colors hover:bg-surface-container ${
+                  className={`w-full flex items-start gap-3 p-4 text-start transition-colors hover:bg-surface-container ${
                     !n.isRead ? 'bg-primary/[0.03]' : ''
                   }`}
                 >

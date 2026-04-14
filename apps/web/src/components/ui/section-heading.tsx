@@ -37,7 +37,7 @@ export function SectionHeading({ title, subtitle, badge, action, className }: Se
           className="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all shrink-0"
         >
           {action.label}
-          <span className="material-symbols-outlined text-lg">
+          <span className="material-symbols-outlined icon-flip text-lg">
             {action.icon ?? 'arrow_back'}
           </span>
         </Link>

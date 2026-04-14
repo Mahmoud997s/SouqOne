@@ -15,30 +15,31 @@ import { API_BASE } from '@/lib/config';
 import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
 import { inputCls, labelCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
+import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 
 const LocationPicker = dynamic(() => import('@/components/map/location-picker'), { ssr: false });
 
 const TRANSPORT_TYPES = [
-  { value: 'CARGO', label: 'نقل بضائع' },
-  { value: 'FURNITURE', label: 'نقل أثاث' },
-  { value: 'DELIVERY', label: 'توصيل طرود' },
-  { value: 'HEAVY_TRANSPORT', label: 'نقل ثقيل' },
-  { value: 'TRUCK_RENTAL', label: 'تأجير شاحنات' },
-  { value: 'OTHER_TRANSPORT', label: 'أخرى' },
+  { value: 'CARGO', key: 'trTypeCargo' },
+  { value: 'FURNITURE', key: 'trTypeFurniture' },
+  { value: 'DELIVERY', key: 'trTypeDelivery' },
+  { value: 'HEAVY_TRANSPORT', key: 'trTypeHeavy' },
+  { value: 'TRUCK_RENTAL', key: 'trTypeTruckRent' },
+  { value: 'OTHER_TRANSPORT', key: 'trTypeOther' },
 ];
 
 const PRICING_TYPES = [
-  { value: 'FIXED', label: 'سعر ثابت' },
-  { value: 'PER_KM', label: 'لكل كم' },
-  { value: 'PER_TRIP', label: 'لكل رحلة' },
-  { value: 'HOURLY', label: 'بالساعة' },
-  { value: 'NEGOTIABLE_PRICE', label: 'قابل للتفاوض' },
+  { value: 'FIXED', key: 'trPriceFixed' },
+  { value: 'PER_KM', key: 'trPricePerKm' },
+  { value: 'PER_TRIP', key: 'trPricePerTrip' },
+  { value: 'HOURLY', key: 'trPriceHourly' },
+  { value: 'NEGOTIABLE_PRICE', key: 'trPriceNeg' },
 ];
 
 const PROVIDER_TYPES = [
-  { value: 'INDIVIDUAL', label: 'فرد' },
-  { value: 'COMPANY', label: 'شركة' },
+  { value: 'INDIVIDUAL', key: 'trProvIndividual' },
+  { value: 'COMPANY', key: 'trProvCompany' },
 ];
 
 export default function AddTransportPage() {
@@ -50,6 +51,8 @@ export default function AddTransportPage() {
 }
 
 function AddTransportContent() {
+  const tp = useTranslations('pages');
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialType = searchParams.get('type') || '';
@@ -83,17 +86,17 @@ function AddTransportContent() {
 
   const [selectedCountry, setSelectedCountry] = useState('OM');
   const [selectedGov, setSelectedGov] = useState('');
-  const governorateOptions = getGovernorates(selectedCountry);
-  const cityOptions = getCities(selectedCountry, selectedGov);
+  const governorateOptions = getGovernorates(selectedCountry, locale);
+  const cityOptions = getCities(selectedCountry, selectedGov, locale);
 
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm(prev => ({ ...prev, [key]: value }));
   }
 
   const steps = [
-    { label: 'البيانات الأساسية' },
-    { label: 'التفاصيل والأسعار' },
-    { label: 'الموقع والاتصال' },
+    { label: tp('trStepBasic') },
+    { label: tp('trStepDetails') },
+    { label: tp('trStepLocation') },
   ];
 
   const canProceed = step === 0 ? !!form.transportType && !!form.title && !!form.providerName : step === 1 ? true : !!form.governorate;
@@ -141,10 +144,10 @@ function AddTransportContent() {
         }
       }
 
-      addToast('success', 'تم نشر إعلان النقل بنجاح!');
+      addToast('success', tp('trSuccess'));
       router.push(`/transport/${item.id}`);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'حدث خطأ';
+      const msg = err instanceof Error ? err.message : tp('trError');
       setErrorMessages(msg.split('\n').filter(Boolean));
     }
   }
@@ -162,47 +165,47 @@ function AddTransportContent() {
           onBack={() => setStep(s => Math.max(s - 1, 0))}
           onSubmit={handleSubmit}
           isLoading={isLoading}
-          submitLabel="نشر الإعلان"
+          submitLabel={tp('trSubmit')}
           canProceed={canProceed}
-          title="إضافة خدمة نقل"
+          title={tp('trTitle')}
         >
           {step === 0 && (
             <div className="space-y-8">
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">نوع النقل *</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('trLabelType')}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {TRANSPORT_TYPES.map(t => (
                     <button key={t.value} type="button" onClick={() => set('transportType', t.value)}
                       className={`py-2.5 rounded-lg text-sm font-bold transition-all ${form.transportType === t.value ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
-                      {t.label}
+                      {tp(t.key)}
                     </button>
                   ))}
                 </div>
               </section>
 
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-6">تحميل الصور</h2>
+                <h2 className="text-lg font-extrabold mb-6">{tp('trLabelPhotos')}</h2>
                 <ImageUploader images={images} onChange={setImages} disabled={isLoading} />
               </section>
 
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">بيانات مقدم الخدمة</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('trLabelProvider')}</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className={labelCls}>عنوان الإعلان *</label>
-                    <input type="text" value={form.title} onChange={e => set('title', e.target.value)} placeholder="مثال: خدمة نقل أثاث في مسقط" className={inputCls} />
+                    <label className={labelCls}>{tp('trLabelTitle')}</label>
+                    <input type="text" value={form.title} onChange={e => set('title', e.target.value)} placeholder={tp('trPlaceholderTitle')} className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>اسم المزود *</label>
+                    <label className={labelCls}>{tp('trLabelProvName')}</label>
                     <input type="text" value={form.providerName} onChange={e => set('providerName', e.target.value)} className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>نوع المزود</label>
+                    <label className={labelCls}>{tp('trLabelProvType')}</label>
                     <div className="flex gap-3">
                       {PROVIDER_TYPES.map(p => (
                         <button key={p.value} type="button" onClick={() => set('providerType', p.value)}
                           className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all ${form.providerType === p.value ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
-                          {p.label}
+                          {tp(p.key)}
                         </button>
                       ))}
                     </div>
@@ -215,57 +218,57 @@ function AddTransportContent() {
           {step === 1 && (
             <div className="space-y-8">
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">التفاصيل</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('trLabelDetailsSection')}</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className={labelCls}>الوصف</label>
-                    <textarea rows={4} value={form.description} onChange={e => set('description', e.target.value)} placeholder="صف خدمة النقل..." className={inputCls + ' resize-none'} />
+                    <label className={labelCls}>{tp('trLabelDesc')}</label>
+                    <textarea rows={4} value={form.description} onChange={e => set('description', e.target.value)} placeholder={tp('trPlaceholderDesc')} className={inputCls + ' resize-none'} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>نوع المركبة</label>
-                      <input type="text" value={form.vehicleType} onChange={e => set('vehicleType', e.target.value)} placeholder="شاحنة، فان، بيك أب..." className={inputCls} />
+                      <label className={labelCls}>{tp('trLabelVehicle')}</label>
+                      <input type="text" value={form.vehicleType} onChange={e => set('vehicleType', e.target.value)} placeholder={tp('trPlaceholderVehicle')} className={inputCls} />
                     </div>
                     <div>
-                      <label className={labelCls}>سعة الحمولة</label>
-                      <input type="text" value={form.vehicleCapacity} onChange={e => set('vehicleCapacity', e.target.value)} placeholder="3 طن" className={inputCls} />
+                      <label className={labelCls}>{tp('trLabelCapacity')}</label>
+                      <input type="text" value={form.vehicleCapacity} onChange={e => set('vehicleCapacity', e.target.value)} placeholder={tp('trPlaceholderCapacity')} className={inputCls} />
                     </div>
                   </div>
                 </div>
               </section>
 
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">التسعير</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('trLabelPricingSection')}</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className={labelCls}>نوع التسعير</label>
+                    <label className={labelCls}>{tp('trLabelPricingType')}</label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {PRICING_TYPES.map(p => (
                         <button key={p.value} type="button" onClick={() => set('pricingType', p.value)}
                           className={`py-2.5 rounded-lg text-sm font-bold transition-all ${form.pricingType === p.value ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
-                          {p.label}
+                          {tp(p.key)}
                         </button>
                       ))}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>السعر الأساسي (ر.ع.)</label>
+                      <label className={labelCls}>{tp('trLabelBasePrice')}</label>
                       <input type="number" step="0.01" value={form.basePrice} onChange={e => set('basePrice', e.target.value)} className={inputCls} />
                     </div>
                     <div>
-                      <label className={labelCls}>سعر الكيلومتر (ر.ع.)</label>
+                      <label className={labelCls}>{tp('trLabelPricePerKm')}</label>
                       <input type="number" step="0.001" value={form.pricePerKm} onChange={e => set('pricePerKm', e.target.value)} className={inputCls} />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <label className="flex items-center gap-3 cursor-pointer bg-surface-container-lowest rounded-lg p-3 border border-outline-variant/10">
                       <input type="checkbox" checked={form.hasInsurance} onChange={e => set('hasInsurance', e.target.checked)} className="w-5 h-5 accent-primary" />
-                      <span className="text-sm font-medium text-on-surface">تأمين على الشحنة</span>
+                      <span className="text-sm font-medium text-on-surface">{tp('trLabelInsurance')}</span>
                     </label>
                     <label className="flex items-center gap-3 cursor-pointer bg-surface-container-lowest rounded-lg p-3 border border-outline-variant/10">
                       <input type="checkbox" checked={form.hasTracking} onChange={e => set('hasTracking', e.target.checked)} className="w-5 h-5 accent-primary" />
-                      <span className="text-sm font-medium text-on-surface">تتبع الشحنة</span>
+                      <span className="text-sm font-medium text-on-surface">{tp('trLabelTracking')}</span>
                     </label>
                   </div>
                 </div>
@@ -276,26 +279,26 @@ function AddTransportContent() {
           {step === 2 && (
             <div className="space-y-8">
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">الموقع *</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('trLabelLocation')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className={labelCls}>الدولة</label>
+                    <label className={labelCls}>{tp('trLabelCountry')}</label>
                     <select value={selectedCountry} onChange={e => { setSelectedCountry(e.target.value); setSelectedGov(''); set('governorate', ''); set('city', ''); }} className={inputCls}>
-                      <option value="">اختر</option>
-                      {getCountries().map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                      <option value="">{tp('trSelect')}</option>
+                      {getCountries(locale).map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className={labelCls}>المحافظة *</label>
+                    <label className={labelCls}>{tp('trLabelGov')}</label>
                     <select value={selectedGov} onChange={e => { setSelectedGov(e.target.value); const g = governorateOptions.find(x => x.value === e.target.value); set('governorate', g?.label ?? ''); set('city', ''); }} className={inputCls}>
-                      <option value="">اختر</option>
+                      <option value="">{tp('trSelect')}</option>
                       {governorateOptions.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className={labelCls}>المدينة</label>
+                    <label className={labelCls}>{tp('trLabelCity')}</label>
                     <select value={form.city} onChange={e => set('city', e.target.value)} className={inputCls} disabled={!selectedGov}>
-                      <option value="">اختر</option>
+                      <option value="">{tp('trSelect')}</option>
                       {cityOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
                   </div>
@@ -303,19 +306,19 @@ function AddTransportContent() {
               </section>
 
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">حدد الموقع على الخريطة</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('trLabelMap')}</h2>
                 <LocationPicker latitude={form.latitude} longitude={form.longitude} onChange={(lat, lng) => { set('latitude', lat); set('longitude', lng); }} />
               </section>
 
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">بيانات الاتصال</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('trLabelContact')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>رقم الهاتف</label>
+                    <label className={labelCls}>{tp('trLabelPhone')}</label>
                     <input type="tel" value={form.contactPhone} onChange={e => set('contactPhone', e.target.value)} placeholder="+968..." className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>واتساب</label>
+                    <label className={labelCls}>{tp('trLabelWhatsapp')}</label>
                     <input type="tel" value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="+968..." className={inputCls} />
                   </div>
                 </div>

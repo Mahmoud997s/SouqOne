@@ -12,34 +12,35 @@ import { useToast } from '@/components/toast';
 import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
 import { inputCls, labelCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
+import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 
 const LocationPicker = dynamic(() => import('@/components/map/location-picker'), { ssr: false });
 
 const TRIP_TYPES = [
-  { value: 'BUS_SUBSCRIPTION', label: 'اشتراكات باصات' },
-  { value: 'SCHOOL_TRANSPORT', label: 'توصيل مدارس' },
-  { value: 'TOURISM', label: 'رحلات سياحية' },
-  { value: 'CORPORATE', label: 'توصيل موظفين' },
-  { value: 'CARPOOLING', label: 'مشاركة رحلات' },
-  { value: 'OTHER_TRIP', label: 'أخرى' },
+  { value: 'BUS_SUBSCRIPTION', key: 'tripTypeBusSub' },
+  { value: 'SCHOOL_TRANSPORT', key: 'tripTypeSchool' },
+  { value: 'TOURISM', key: 'tripTypeTourism' },
+  { value: 'CORPORATE', key: 'tripTypeCorp' },
+  { value: 'CARPOOLING', key: 'tripTypeCarpool' },
+  { value: 'OTHER_TRIP', key: 'tripTypeOther' },
 ];
 
 const SCHEDULE_TYPES = [
-  { value: 'SCHEDULE_DAILY', label: 'يومي' },
-  { value: 'SCHEDULE_WEEKLY', label: 'أسبوعي' },
-  { value: 'SCHEDULE_MONTHLY', label: 'شهري' },
-  { value: 'ONE_TIME', label: 'مرة واحدة' },
+  { value: 'SCHEDULE_DAILY', key: 'tripSchedDaily' },
+  { value: 'SCHEDULE_WEEKLY', key: 'tripSchedWeekly' },
+  { value: 'SCHEDULE_MONTHLY', key: 'tripSchedMonthly' },
+  { value: 'ONE_TIME', key: 'tripSchedOnce' },
 ];
 
 const DAYS = [
-  { value: 'SAT', label: 'السبت' },
-  { value: 'SUN', label: 'الأحد' },
-  { value: 'MON', label: 'الإثنين' },
-  { value: 'TUE', label: 'الثلاثاء' },
-  { value: 'WED', label: 'الأربعاء' },
-  { value: 'THU', label: 'الخميس' },
-  { value: 'FRI', label: 'الجمعة' },
+  { value: 'SAT', key: 'tripDaySat' },
+  { value: 'SUN', key: 'tripDaySun' },
+  { value: 'MON', key: 'tripDayMon' },
+  { value: 'TUE', key: 'tripDayTue' },
+  { value: 'WED', key: 'tripDayWed' },
+  { value: 'THU', key: 'tripDayThu' },
+  { value: 'FRI', key: 'tripDayFri' },
 ];
 
 export default function AddTripPage() {
@@ -51,6 +52,8 @@ export default function AddTripPage() {
 }
 
 function AddTripContent() {
+  const tp = useTranslations('pages');
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialType = searchParams.get('type') || '';
@@ -89,17 +92,17 @@ function AddTripContent() {
 
   const [selectedCountry, setSelectedCountry] = useState('OM');
   const [selectedGov, setSelectedGov] = useState('');
-  const governorateOptions = getGovernorates(selectedCountry);
-  const cityOptions = getCities(selectedCountry, selectedGov);
+  const governorateOptions = getGovernorates(selectedCountry, locale);
+  const cityOptions = getCities(selectedCountry, selectedGov, locale);
 
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm(prev => ({ ...prev, [key]: value }));
   }
 
   const steps = [
-    { label: 'البيانات الأساسية' },
-    { label: 'المسار والجدول' },
-    { label: 'الأسعار والاتصال' },
+    { label: tp('tripStepBasic') },
+    { label: tp('tripStepRoute') },
+    { label: tp('tripStepPrice') },
   ];
 
   const canProceed = step === 0 ? !!form.tripType && !!form.title && !!form.providerName : step === 1 ? !!form.routeFrom && !!form.routeTo : true;
@@ -135,10 +138,10 @@ function AddTripContent() {
       if (form.endDate) payload.endDate = form.endDate;
 
       const item = await create.mutateAsync(payload);
-      addToast('success', 'تم نشر إعلان الرحلة بنجاح!');
+      addToast('success', tp('tripSuccess'));
       router.push(`/trips/${item.id}`);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'حدث خطأ';
+      const msg = err instanceof Error ? err.message : tp('tripError');
       setErrorMessages(msg.split('\n').filter(Boolean));
     }
   }
@@ -156,42 +159,42 @@ function AddTripContent() {
           onBack={() => setStep(s => Math.max(s - 1, 0))}
           onSubmit={handleSubmit}
           isLoading={isLoading}
-          submitLabel="نشر الإعلان"
+          submitLabel={tp('tripSubmit')}
           canProceed={canProceed}
-          title="إضافة رحلة / اشتراك"
+          title={tp('tripTitle')}
         >
           {step === 0 && (
             <div className="space-y-8">
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">نوع الرحلة *</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('tripLabelType')}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {TRIP_TYPES.map(t => (
                     <button key={t.value} type="button" onClick={() => set('tripType', t.value)}
                       className={`py-2.5 rounded-lg text-sm font-bold transition-all ${form.tripType === t.value ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
-                      {t.label}
+                      {tp(t.key)}
                     </button>
                   ))}
                 </div>
               </section>
 
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">بيانات مقدم الخدمة</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('tripLabelProvider')}</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className={labelCls}>عنوان الإعلان *</label>
-                    <input type="text" value={form.title} onChange={e => set('title', e.target.value)} placeholder="مثال: رحلة يومية مسقط - صلالة" className={inputCls} />
+                    <label className={labelCls}>{tp('tripLabelTitle')}</label>
+                    <input type="text" value={form.title} onChange={e => set('title', e.target.value)} placeholder={tp('tripPlaceholderTitle')} className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>اسم المزود *</label>
+                    <label className={labelCls}>{tp('tripLabelProviderName')}</label>
                     <input type="text" value={form.providerName} onChange={e => set('providerName', e.target.value)} className={inputCls} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>نوع المركبة</label>
-                      <input type="text" value={form.vehicleType} onChange={e => set('vehicleType', e.target.value)} placeholder="باص، ميني باص..." className={inputCls} />
+                      <label className={labelCls}>{tp('tripLabelVehicle')}</label>
+                      <input type="text" value={form.vehicleType} onChange={e => set('vehicleType', e.target.value)} placeholder={tp('tripPlaceholderVehicle')} className={inputCls} />
                     </div>
                     <div>
-                      <label className={labelCls}>السعة (مقعد)</label>
+                      <label className={labelCls}>{tp('tripLabelCapacity')}</label>
                       <input type="number" value={form.capacity} onChange={e => set('capacity', e.target.value)} placeholder="30" className={inputCls} />
                     </div>
                   </div>
@@ -203,22 +206,22 @@ function AddTripContent() {
           {step === 1 && (
             <div className="space-y-8">
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">المسار *</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('tripLabelRoute')}</h2>
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>من *</label>
-                      <input type="text" value={form.routeFrom} onChange={e => set('routeFrom', e.target.value)} placeholder="مسقط" className={inputCls} />
+                      <label className={labelCls}>{tp('tripLabelFrom')}</label>
+                      <input type="text" value={form.routeFrom} onChange={e => set('routeFrom', e.target.value)} placeholder={tp('tripPlaceholderFrom')} className={inputCls} />
                     </div>
                     <div>
-                      <label className={labelCls}>إلى *</label>
-                      <input type="text" value={form.routeTo} onChange={e => set('routeTo', e.target.value)} placeholder="صلالة" className={inputCls} />
+                      <label className={labelCls}>{tp('tripLabelTo')}</label>
+                      <input type="text" value={form.routeTo} onChange={e => set('routeTo', e.target.value)} placeholder={tp('tripPlaceholderTo')} className={inputCls} />
                     </div>
                   </div>
                   <div>
-                    <label className={labelCls}>محطات التوقف</label>
+                    <label className={labelCls}>{tp('tripLabelStops')}</label>
                     <div className="flex gap-2">
-                      <input type="text" value={form.newStop} onChange={e => set('newStop', e.target.value)} placeholder="أضف محطة" className={inputCls}
+                      <input type="text" value={form.newStop} onChange={e => set('newStop', e.target.value)} placeholder={tp('tripPlaceholderStop')} className={inputCls}
                         onKeyDown={e => { if (e.key === 'Enter' && form.newStop.trim()) { e.preventDefault(); set('routeStops', [...form.routeStops, form.newStop.trim()]); set('newStop', ''); } }} />
                       <button type="button" onClick={() => { if (form.newStop.trim()) { set('routeStops', [...form.routeStops, form.newStop.trim()]); set('newStop', ''); } }}
                         className="px-4 py-2 bg-primary text-on-primary rounded-lg text-sm font-bold shrink-0">+</button>
@@ -238,43 +241,43 @@ function AddTripContent() {
               </section>
 
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">الجدول الزمني</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('tripLabelSchedule')}</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className={labelCls}>نوع الجدول</label>
+                    <label className={labelCls}>{tp('tripLabelSchedType')}</label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {SCHEDULE_TYPES.map(s => (
                         <button key={s.value} type="button" onClick={() => set('scheduleType', s.value)}
                           className={`py-2.5 rounded-lg text-sm font-bold transition-all ${form.scheduleType === s.value ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
-                          {s.label}
+                          {tp(s.key)}
                         </button>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <label className={labelCls}>أيام التشغيل</label>
+                    <label className={labelCls}>{tp('tripLabelDays')}</label>
                     <div className="flex flex-wrap gap-2">
                       {DAYS.map(d => (
                         <button key={d.value} type="button" onClick={() => set('operatingDays', form.operatingDays.includes(d.value) ? form.operatingDays.filter(x => x !== d.value) : [...form.operatingDays, d.value])}
                           className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${form.operatingDays.includes(d.value) ? 'bg-primary text-on-primary' : 'bg-surface border border-outline text-on-surface-variant hover:border-primary'}`}>
-                          {d.label}
+                          {tp(d.key)}
                         </button>
                       ))}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>تاريخ البداية</label>
+                      <label className={labelCls}>{tp('tripLabelStartDate')}</label>
                       <input type="date" value={form.startDate} onChange={e => set('startDate', e.target.value)} className={inputCls} />
                     </div>
                     <div>
-                      <label className={labelCls}>تاريخ النهاية</label>
+                      <label className={labelCls}>{tp('tripLabelEndDate')}</label>
                       <input type="date" value={form.endDate} onChange={e => set('endDate', e.target.value)} className={inputCls} />
                     </div>
                   </div>
                   <div>
-                    <label className={labelCls}>الوصف</label>
-                    <textarea rows={3} value={form.description} onChange={e => set('description', e.target.value)} placeholder="تفاصيل إضافية عن الرحلة..." className={inputCls + ' resize-none'} />
+                    <label className={labelCls}>{tp('tripLabelDesc')}</label>
+                    <textarea rows={3} value={form.description} onChange={e => set('description', e.target.value)} placeholder={tp('tripPlaceholderDesc')} className={inputCls + ' resize-none'} />
                   </div>
                 </div>
               </section>
@@ -284,60 +287,60 @@ function AddTripContent() {
           {step === 2 && (
             <div className="space-y-8">
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">الأسعار</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('tripLabelPrices')}</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>سعر الرحلة (ر.ع.)</label>
+                    <label className={labelCls}>{tp('tripLabelPriceTrip')}</label>
                     <input type="number" step="0.01" value={form.pricePerTrip} onChange={e => set('pricePerTrip', e.target.value)} placeholder="5.000" className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>الاشتراك الشهري (ر.ع.)</label>
+                    <label className={labelCls}>{tp('tripLabelPriceMonthly')}</label>
                     <input type="number" step="0.01" value={form.priceMonthly} onChange={e => set('priceMonthly', e.target.value)} placeholder="50.000" className={inputCls} />
                   </div>
                 </div>
                 <div className="mt-4">
-                  <label className={labelCls}>المقاعد المتاحة</label>
+                  <label className={labelCls}>{tp('tripLabelSeats')}</label>
                   <input type="number" value={form.availableSeats} onChange={e => set('availableSeats', e.target.value)} placeholder="20" className={inputCls} />
                 </div>
               </section>
 
               <section className="glass-card rounded-xl p-6 md:p-8">
-                <h2 className="text-lg font-extrabold mb-4">الموقع والاتصال</h2>
+                <h2 className="text-lg font-extrabold mb-4">{tp('tripLabelLocationContact')}</h2>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className={labelCls}>الدولة</label>
+                      <label className={labelCls}>{tp('tripLabelCountry')}</label>
                       <select value={selectedCountry} onChange={e => { setSelectedCountry(e.target.value); setSelectedGov(''); set('governorate', ''); set('city', ''); }} className={inputCls}>
-                        <option value="">اختر</option>
-                        {getCountries().map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                        <option value="">{tp('tripSelect')}</option>
+                        {getCountries(locale).map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className={labelCls}>المحافظة</label>
+                      <label className={labelCls}>{tp('tripLabelGov')}</label>
                       <select value={selectedGov} onChange={e => { setSelectedGov(e.target.value); const g = governorateOptions.find(x => x.value === e.target.value); set('governorate', g?.label ?? ''); set('city', ''); }} className={inputCls}>
-                        <option value="">اختر</option>
+                        <option value="">{tp('tripSelect')}</option>
                         {governorateOptions.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className={labelCls}>المدينة</label>
+                      <label className={labelCls}>{tp('tripLabelCity')}</label>
                       <select value={form.city} onChange={e => set('city', e.target.value)} className={inputCls} disabled={!selectedGov}>
-                        <option value="">اختر</option>
+                        <option value="">{tp('tripSelect')}</option>
                         {cityOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                       </select>
                     </div>
                   </div>
                   <div className="mt-4">
-                    <label className={labelCls}>حدد الموقع على الخريطة (اختياري)</label>
+                    <label className={labelCls}>{tp('tripLabelMap')}</label>
                     <LocationPicker latitude={form.latitude} longitude={form.longitude} onChange={(lat, lng) => { set('latitude', lat); set('longitude', lng); }} />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>رقم الهاتف</label>
+                      <label className={labelCls}>{tp('tripLabelPhone')}</label>
                       <input type="tel" value={form.contactPhone} onChange={e => set('contactPhone', e.target.value)} placeholder="+968..." className={inputCls} />
                     </div>
                     <div>
-                      <label className={labelCls}>واتساب</label>
+                      <label className={labelCls}>{tp('tripLabelWhatsapp')}</label>
                       <input type="tel" value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="+968..." className={inputCls} />
                     </div>
                   </div>

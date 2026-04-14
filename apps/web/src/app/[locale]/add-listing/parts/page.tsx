@@ -15,28 +15,29 @@ import { API_BASE } from '@/lib/config';
 import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
 import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
+import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 
 const LocationPicker = dynamic(() => import('@/components/map/location-picker'), { ssr: false });
 
 const PART_CATEGORIES = [
-  { value: 'ENGINE', label: 'محرك' },
-  { value: 'BODY', label: 'هيكل' },
-  { value: 'ELECTRICAL', label: 'كهرباء' },
-  { value: 'SUSPENSION', label: 'تعليق' },
-  { value: 'BRAKES', label: 'فرامل' },
-  { value: 'INTERIOR', label: 'داخلية' },
-  { value: 'TIRES', label: 'إطارات' },
-  { value: 'BATTERIES', label: 'بطاريات' },
-  { value: 'OILS', label: 'زيوت' },
-  { value: 'ACCESSORIES', label: 'إكسسوارات' },
-  { value: 'OTHER', label: 'أخرى' },
+  { value: 'ENGINE', key: 'partCatEngine' },
+  { value: 'BODY', key: 'partCatBody' },
+  { value: 'ELECTRICAL', key: 'partCatElectrical' },
+  { value: 'SUSPENSION', key: 'partCatSuspension' },
+  { value: 'BRAKES', key: 'partCatBrakes' },
+  { value: 'INTERIOR', key: 'partCatInterior' },
+  { value: 'TIRES', key: 'partCatTires' },
+  { value: 'BATTERIES', key: 'partCatBatteries' },
+  { value: 'OILS', key: 'partCatOils' },
+  { value: 'ACCESSORIES', key: 'partCatAccessories' },
+  { value: 'OTHER', key: 'partCatOther' },
 ];
 
 const PART_CONDITIONS = [
-  { value: 'NEW', label: 'جديد' },
-  { value: 'USED', label: 'مستعمل' },
-  { value: 'REFURBISHED', label: 'مجدد' },
+  { value: 'NEW', key: 'partCondNew' },
+  { value: 'USED', key: 'partCondUsed' },
+  { value: 'REFURBISHED', key: 'partCondRefurb' },
 ];
 
 export default function AddPartPage() {
@@ -48,6 +49,8 @@ export default function AddPartPage() {
 }
 
 function AddPartContent() {
+  const tp = useTranslations('pages');
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialCat = searchParams.get('cat') || '';
@@ -81,17 +84,17 @@ function AddPartContent() {
 
   const [selectedCountry, setSelectedCountry] = useState('OM');
   const [selectedGov, setSelectedGov] = useState('');
-  const governorateOptions = getGovernorates(selectedCountry);
-  const cityOptions = getCities(selectedCountry, selectedGov);
+  const governorateOptions = getGovernorates(selectedCountry, locale);
+  const cityOptions = getCities(selectedCountry, selectedGov, locale);
 
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm(prev => ({ ...prev, [key]: value }));
   }
 
   const steps = [
-    { label: 'البيانات الأساسية' },
-    { label: 'تفاصيل القطعة' },
-    { label: 'السعر والموقع' },
+    { label: tp('partStepBasic') },
+    { label: tp('partStepDetails') },
+    { label: tp('partStepPrice') },
   ];
 
   const canProceed = step === 0
@@ -142,10 +145,10 @@ function AddPartContent() {
         }
       }
 
-      addToast('success', 'تم نشر إعلان القطعة بنجاح!');
+      addToast('success', tp('partSuccess'));
       router.push(`/parts/${part.id}`);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'حدث خطأ';
+      const msg = err instanceof Error ? err.message : tp('partError');
       setErrorMessages(msg.split('\n').filter(Boolean));
     }
   }
@@ -163,50 +166,50 @@ function AddPartContent() {
           onBack={() => setStep(s => Math.max(s - 1, 0))}
           onSubmit={handleSubmit}
           isLoading={isLoading}
-          submitLabel="نشر الإعلان"
+          submitLabel={tp('partSubmit')}
           canProceed={canProceed}
-          title="إضافة قطعة غيار"
+          title={tp('partTitle')}
         >
           {step === 0 && (
             <div className="space-y-8">
               <section className={sectionCls}>
-                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">settings</span>القسم</h2>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">settings</span>{tp('partLabelSection')}</h2>
                 <div className="flex items-center gap-3 bg-surface-container-low/50 dark:bg-surface-container-high/30 rounded-xl px-4 py-3 mb-4 border border-outline-variant/10">
                   <span className="material-symbols-outlined text-primary text-lg">garage_home</span>
-                  <span className="text-sm text-on-surface-variant">سيارات وقطع غيار</span>
-                  <span className="material-symbols-outlined text-on-surface-variant/30 text-xs">chevron_left</span>
-                  <span className="text-sm font-bold text-on-surface">قطع غيار</span>
+                  <span className="text-sm text-on-surface-variant">{tp('partBreadcrumb1')}</span>
+                  <span className="material-symbols-outlined icon-flip text-on-surface-variant/30 text-xs">chevron_left</span>
+                  <span className="text-sm font-bold text-on-surface">{tp('partBreadcrumb2')}</span>
                 </div>
-                <label className={labelCls}>نوع القطعة *</label>
+                <label className={labelCls}>{tp('partLabelCategory')}</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {PART_CATEGORIES.map(c => (
                     <button key={c.value} type="button" onClick={() => set('partCategory', c.value)}
                       className={chipCls(form.partCategory === c.value)}>
-                      {c.label}
+                      {tp(c.key)}
                     </button>
                   ))}
                 </div>
               </section>
 
               <section className={sectionCls}>
-                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">add_photo_alternate</span>تحميل الصور</h2>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">add_photo_alternate</span>{tp('partLabelPhotos')}</h2>
                 <ImageUploader images={images} onChange={setImages} disabled={isLoading} />
               </section>
 
               <section className={sectionCls}>
-                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">edit_note</span>البيانات الأساسية</h2>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">edit_note</span>{tp('partLabelBasicInfo')}</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className={labelCls}>عنوان الإعلان *</label>
-                    <input type="text" value={form.title} onChange={e => set('title', e.target.value)} placeholder="مثال: فلتر هواء تويوتا كامري" className={inputCls} />
+                    <label className={labelCls}>{tp('partLabelTitle')}</label>
+                    <input type="text" value={form.title} onChange={e => set('title', e.target.value)} placeholder={tp('partPlaceholderTitle')} className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>الحالة *</label>
+                    <label className={labelCls}>{tp('partLabelCondition')}</label>
                     <div className="flex gap-3">
                       {PART_CONDITIONS.map(c => (
                         <button key={c.value} type="button" onClick={() => set('condition', c.value)}
                           className={chipCls(form.condition === c.value) + ' flex-1'}>
-                          {c.label}
+                          {tp(c.key)}
                         </button>
                       ))}
                     </div>
@@ -219,36 +222,36 @@ function AddPartContent() {
           {step === 1 && (
             <div className="space-y-8">
               <section className={sectionCls}>
-                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">info</span>تفاصيل القطعة</h2>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">info</span>{tp('partLabelDetailsSection')}</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className={labelCls}>رقم القطعة OEM</label>
-                    <input type="text" value={form.partNumber} onChange={e => set('partNumber', e.target.value)} placeholder="اختياري" className={inputCls} />
+                    <label className={labelCls}>{tp('partLabelOEM')}</label>
+                    <input type="text" value={form.partNumber} onChange={e => set('partNumber', e.target.value)} placeholder={tp('partPlaceholderOptional')} className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>الماركات المتوافقة</label>
+                    <label className={labelCls}>{tp('partLabelBrands')}</label>
                     <select multiple value={form.compatibleMakes} onChange={e => set('compatibleMakes', Array.from(e.target.selectedOptions, o => o.value))} className={inputCls + ' h-28'}>
                       {brands.map(b => <option key={b.id} value={b.name}>{b.nameAr || b.name}</option>)}
                     </select>
-                    <p className="text-[11px] text-on-surface-variant mt-1">اضغط Ctrl للاختيار المتعدد</p>
+                    <p className="text-[11px] text-on-surface-variant mt-1">{tp('partHintMultiSelect')}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>من سنة</label>
+                      <label className={labelCls}>{tp('partLabelYearFrom')}</label>
                       <input type="number" value={form.yearFrom} onChange={e => set('yearFrom', e.target.value)} placeholder="2015" className={inputCls} />
                     </div>
                     <div>
-                      <label className={labelCls}>إلى سنة</label>
+                      <label className={labelCls}>{tp('partLabelYearTo')}</label>
                       <input type="number" value={form.yearTo} onChange={e => set('yearTo', e.target.value)} placeholder="2023" className={inputCls} />
                     </div>
                   </div>
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" checked={form.isOriginal} onChange={e => set('isOriginal', e.target.checked)} className="w-5 h-5 accent-primary" />
-                    <span className="text-sm font-medium text-on-surface">قطعة أصلية (OEM)</span>
+                    <span className="text-sm font-medium text-on-surface">{tp('partLabelOriginal')}</span>
                   </label>
                   <div>
-                    <label className={labelCls}>الوصف</label>
-                    <textarea rows={4} value={form.description} onChange={e => set('description', e.target.value)} placeholder="صف القطعة بالتفصيل..." className={inputCls + ' resize-none'} />
+                    <label className={labelCls}>{tp('partLabelDesc')}</label>
+                    <textarea rows={4} value={form.description} onChange={e => set('description', e.target.value)} placeholder={tp('partPlaceholderDesc')} className={inputCls + ' resize-none'} />
                   </div>
                 </div>
               </section>
@@ -258,56 +261,56 @@ function AddPartContent() {
           {step === 2 && (
             <div className="space-y-8">
               <section className={sectionCls}>
-                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">sell</span>السعر</h2>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">sell</span>{tp('partLabelPrice')}</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className={labelCls}>السعر (ر.ع.) *</label>
+                    <label className={labelCls}>{tp('partLabelPriceOMR')}</label>
                     <input type="number" step="0.01" value={form.price} onChange={e => set('price', e.target.value)} placeholder="0.000" className={inputCls} />
                   </div>
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" checked={form.isPriceNegotiable} onChange={e => set('isPriceNegotiable', e.target.checked)} className="w-5 h-5 accent-primary" />
-                    <span className="text-sm font-medium text-on-surface">السعر قابل للتفاوض</span>
+                    <span className="text-sm font-medium text-on-surface">{tp('partLabelNegotiable')}</span>
                   </label>
                 </div>
               </section>
 
               <section className={sectionCls}>
-                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>الموقع والاتصال</h2>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>{tp('partLabelLocationContact')}</h2>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className={labelCls}>الدولة</label>
+                      <label className={labelCls}>{tp('partLabelCountry')}</label>
                       <select value={selectedCountry} onChange={e => { setSelectedCountry(e.target.value); setSelectedGov(''); set('governorate', ''); set('city', ''); }} className={inputCls}>
-                        <option value="">اختر</option>
-                        {getCountries().map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                        <option value="">{tp('partSelect')}</option>
+                        {getCountries(locale).map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className={labelCls}>المحافظة</label>
+                      <label className={labelCls}>{tp('partLabelGov')}</label>
                       <select value={selectedGov} onChange={e => { setSelectedGov(e.target.value); const g = governorateOptions.find(x => x.value === e.target.value); set('governorate', g?.label ?? ''); set('city', ''); }} className={inputCls} disabled={!selectedCountry}>
-                        <option value="">اختر</option>
+                        <option value="">{tp('partSelect')}</option>
                         {governorateOptions.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className={labelCls}>المدينة</label>
+                      <label className={labelCls}>{tp('partLabelCity')}</label>
                       <select value={form.city} onChange={e => set('city', e.target.value)} className={inputCls} disabled={!selectedGov}>
-                        <option value="">اختر</option>
+                        <option value="">{tp('partSelect')}</option>
                         {cityOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                       </select>
                     </div>
                   </div>
                   <div className="mt-4">
-                    <label className={labelCls}>حدد الموقع على الخريطة (اختياري)</label>
+                    <label className={labelCls}>{tp('partLabelMap')}</label>
                     <LocationPicker latitude={form.latitude} longitude={form.longitude} onChange={(lat, lng) => { set('latitude', lat); set('longitude', lng); }} />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>رقم الهاتف</label>
+                      <label className={labelCls}>{tp('partLabelPhone')}</label>
                       <input type="tel" value={form.contactPhone} onChange={e => set('contactPhone', e.target.value)} placeholder="+968..." className={inputCls} />
                     </div>
                     <div>
-                      <label className={labelCls}>واتساب</label>
+                      <label className={labelCls}>{tp('partLabelWhatsapp')}</label>
                       <input type="tel" value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="+968..." className={inputCls} />
                     </div>
                   </div>

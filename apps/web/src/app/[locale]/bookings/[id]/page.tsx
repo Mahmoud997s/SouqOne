@@ -10,19 +10,9 @@ import { useAuth } from '@/providers/auth-provider';
 import { useToast } from '@/components/toast';
 import { SellerCard } from '@/components/seller-card';
 import { getImageUrl } from '@/lib/image-utils';
-import { BOOKING_STATUS_LABELS, CANCEL_LABELS } from '@/lib/constants/mappings';
+import { bookingStatusLabels, cancelLabels as cancelLabelsT } from '@/lib/constants/mappings';
+import { useTranslations, useLocale } from 'next-intl';
 
-const statusLabels = BOOKING_STATUS_LABELS;
-const cancelLabels = CANCEL_LABELS;
-
-const statusConfig: Record<string, { icon: string; bg: string; text: string; border: string; badge: string; desc: string }> = {
-  PENDING:   { icon: 'hourglass_top', bg: 'bg-amber-50 dark:bg-amber-950/30',  text: 'text-amber-700 dark:text-amber-400',  border: 'border-amber-200 dark:border-amber-800', badge: 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400', desc: 'في انتظار موافقة المؤجر' },
-  CONFIRMED: { icon: 'check_circle',  bg: 'bg-emerald-50 dark:bg-emerald-950/30', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800', badge: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400', desc: 'تم تأكيد الحجز بنجاح' },
-  ACTIVE:    { icon: 'play_circle',   bg: 'bg-blue-50 dark:bg-blue-950/30',    text: 'text-blue-700 dark:text-blue-400',    border: 'border-blue-200 dark:border-blue-800', badge: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400', desc: 'السيارة مع المستأجر حالياً' },
-  COMPLETED: { icon: 'task_alt',      bg: 'bg-emerald-50 dark:bg-emerald-950/30', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800', badge: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400', desc: 'تم إكمال الحجز بنجاح' },
-  CANCELLED: { icon: 'cancel',       bg: 'bg-red-50 dark:bg-red-950/30',      text: 'text-red-700 dark:text-red-400',      border: 'border-red-200 dark:border-red-800', badge: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400', desc: 'تم إلغاء هذا الحجز' },
-  REJECTED:  { icon: 'block',        bg: 'bg-red-50 dark:bg-red-950/30',      text: 'text-red-700 dark:text-red-400',      border: 'border-red-200 dark:border-red-800', badge: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400', desc: 'تم رفض هذا الحجز' },
-};
 
 export default function BookingDetailPage() {
   return (
@@ -36,8 +26,22 @@ function BookingDetailContent() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { addToast } = useToast();
+  const tp = useTranslations('pages');
+  const tm = useTranslations('mappings');
+  const locale = useLocale();
+  const statusLabels = bookingStatusLabels(tm);
+  const cancelLabels = cancelLabelsT(tm);
   const { data: booking, isLoading, isError } = useBooking(id);
   const updateStatus = useUpdateBookingStatus();
+
+  const statusConfig: Record<string, { icon: string; bg: string; text: string; border: string; badge: string; desc: string }> = {
+    PENDING:   { icon: 'hourglass_top', bg: 'bg-amber-50 dark:bg-amber-950/30',  text: 'text-amber-700 dark:text-amber-400',  border: 'border-amber-200 dark:border-amber-800', badge: 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400', desc: tp('bookingDetailStatusPendingDesc') },
+    CONFIRMED: { icon: 'check_circle',  bg: 'bg-emerald-50 dark:bg-emerald-950/30', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800', badge: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400', desc: tp('bookingDetailStatusConfirmedDesc') },
+    ACTIVE:    { icon: 'play_circle',   bg: 'bg-blue-50 dark:bg-blue-950/30',    text: 'text-blue-700 dark:text-blue-400',    border: 'border-blue-200 dark:border-blue-800', badge: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400', desc: tp('bookingDetailStatusActiveDesc') },
+    COMPLETED: { icon: 'task_alt',      bg: 'bg-emerald-50 dark:bg-emerald-950/30', text: 'text-emerald-700 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800', badge: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400', desc: tp('bookingDetailStatusCompletedDesc') },
+    CANCELLED: { icon: 'cancel',       bg: 'bg-red-50 dark:bg-red-950/30',      text: 'text-red-700 dark:text-red-400',      border: 'border-red-200 dark:border-red-800', badge: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400', desc: tp('bookingDetailStatusCancelledDesc') },
+    REJECTED:  { icon: 'block',        bg: 'bg-red-50 dark:bg-red-950/30',      text: 'text-red-700 dark:text-red-400',      border: 'border-red-200 dark:border-red-800', badge: 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400', desc: tp('bookingDetailStatusRejectedDesc') },
+  };
 
   const isOwner = user && booking?.ownerId === user.id;
   const isRenter = user && booking?.renterId === user.id;
@@ -45,9 +49,9 @@ function BookingDetailContent() {
   async function handleStatus(status: string) {
     try {
       await updateStatus.mutateAsync({ id, status });
-      addToast('success', 'تم تحديث حالة الحجز');
+      addToast('success', tp('bookingDetailStatusUpdated'));
     } catch (err) {
-      addToast('error', err instanceof Error ? err.message : 'حدث خطأ');
+      addToast('error', err instanceof Error ? err.message : tp('bookingDetailError'));
     }
   }
 
@@ -85,11 +89,11 @@ function BookingDetailContent() {
             <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-error/10 flex items-center justify-center">
               <span className="material-symbols-outlined text-4xl text-error">error</span>
             </div>
-            <h2 className="text-xl font-black text-on-surface mb-2">الحجز غير موجود</h2>
-            <p className="text-sm text-on-surface-variant mb-6">قد يكون تم حذف هذا الحجز أو لا تملك صلاحية الوصول إليه</p>
+            <h2 className="text-xl font-black text-on-surface mb-2">{tp('bookingDetailNotFound')}</h2>
+            <p className="text-sm text-on-surface-variant mb-6">{tp('bookingDetailNotFoundDesc')}</p>
             <Link href="/bookings" className="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 text-sm font-black hover:brightness-110 transition-all">
-              <span className="material-symbols-outlined text-lg">arrow_forward</span>
-              العودة للحجوزات
+              <span className="material-symbols-outlined icon-flip text-lg">arrow_forward</span>
+              {tp('bookingDetailBackToBookings')}
             </Link>
           </main>
         </div>
@@ -116,10 +120,10 @@ function BookingDetailContent() {
           <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
             <Link href="/bookings" className="hover:text-white transition-colors flex items-center gap-1">
               <span className="material-symbols-outlined text-sm">event</span>
-              الحجوزات
+              {tp('bookingDetailBreadcrumb')}
             </Link>
-            <span className="material-symbols-outlined text-xs">chevron_left</span>
-            <span className="text-white font-bold">تفاصيل الحجز</span>
+            <span className="material-symbols-outlined icon-flip text-xs">chevron_left</span>
+            <span className="text-white font-bold">{tp('bookingDetailTitle')}</span>
           </nav>
 
           {/* Status Banner Card */}
@@ -158,7 +162,7 @@ function BookingDetailContent() {
                   </div>
                   <div className="flex-1 p-5 md:p-6 flex flex-col justify-center">
                     <Link href={`/cars/${booking.listingId}`} className="font-black text-on-surface text-base md:text-lg hover:text-primary transition-colors line-clamp-2">
-                      {booking.listing?.title ?? 'سيارة'}
+                      {booking.listing?.title ?? tp('bookingDetailCar')}
                     </Link>
                     <p className="text-xs text-on-surface-variant mt-1.5 flex items-center gap-1.5">
                       <span className="font-bold">{booking.listing?.make} {booking.listing?.model}</span>
@@ -172,8 +176,8 @@ function BookingDetailContent() {
                       </p>
                     )}
                     <Link href={`/cars/${booking.listingId}`} className="mt-3 inline-flex items-center gap-1 text-primary text-xs font-bold hover:underline">
-                      عرض السيارة
-                      <span className="material-symbols-outlined text-sm">arrow_back</span>
+                      {tp('bookingDetailViewCar')}
+                      <span className="material-symbols-outlined icon-flip text-sm">arrow_back</span>
                     </Link>
                   </div>
                 </div>
@@ -183,16 +187,16 @@ function BookingDetailContent() {
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">event_note</span>
-                  <h2 className="font-black text-on-surface">تفاصيل الحجز</h2>
+                  <h2 className="font-black text-on-surface">{tp('bookingDetailDetails')}</h2>
                 </div>
                 <div className="p-6">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-                    <DetailCell icon="event" label="تاريخ البداية" value={new Date(booking.startDate).toLocaleDateString('ar-OM', { year: 'numeric', month: 'long', day: 'numeric' })} />
-                    <DetailCell icon="event_upcoming" label="تاريخ النهاية" value={new Date(booking.endDate).toLocaleDateString('ar-OM', { year: 'numeric', month: 'long', day: 'numeric' })} />
-                    <DetailCell icon="timelapse" label="المدة" value={`${booking.totalDays} يوم`} />
-                    <DetailCell icon="gavel" label="سياسة الإلغاء" value={cancelLabels[booking.cancellationPolicy] ?? booking.cancellationPolicy} />
-                    {booking.pickupLocation && <DetailCell icon="pin_drop" label="موقع الاستلام" value={booking.pickupLocation} />}
-                    {booking.dropoffLocation && <DetailCell icon="flag" label="موقع التسليم" value={booking.dropoffLocation} />}
+                    <DetailCell icon="event" label={tp('bookingDetailStartDate')} value={new Date(booking.startDate).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />
+                    <DetailCell icon="event_upcoming" label={tp('bookingDetailEndDate')} value={new Date(booking.endDate).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />
+                    <DetailCell icon="timelapse" label={tp('bookingDetailDuration')} value={tp('bookingDetailDays', { days: booking.totalDays })} />
+                    <DetailCell icon="gavel" label={tp('bookingDetailCancelPolicy')} value={cancelLabels[booking.cancellationPolicy] ?? booking.cancellationPolicy} />
+                    {booking.pickupLocation && <DetailCell icon="pin_drop" label={tp('bookingDetailPickup')} value={booking.pickupLocation} />}
+                    {booking.dropoffLocation && <DetailCell icon="flag" label={tp('bookingDetailDropoff')} value={booking.dropoffLocation} />}
                   </div>
 
                   {/* Service badges */}
@@ -201,13 +205,13 @@ function BookingDetailContent() {
                       {booking.driverRequested && (
                         <span className="inline-flex items-center gap-1.5 bg-primary/10 dark:bg-primary/20 text-primary text-xs font-bold px-3 py-2 rounded-lg">
                           <span className="material-symbols-outlined text-sm">person</span>
-                          مع سائق
+                          {tp('bookingDetailWithDriver')}
                         </span>
                       )}
                       {booking.insuranceSelected && (
                         <span className="inline-flex items-center gap-1.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-3 py-2 rounded-lg">
                           <span className="material-symbols-outlined text-sm">verified_user</span>
-                          تأمين شامل
+                          {tp('bookingDetailInsurance')}
                         </span>
                       )}
                     </div>
@@ -218,7 +222,7 @@ function BookingDetailContent() {
                     <div className="mt-5 pt-5 border-t border-outline-variant/10 dark:border-outline-variant/20">
                       <p className="text-xs font-bold text-on-surface-variant mb-2 flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm">sticky_note_2</span>
-                        ملاحظات
+                        {tp('bookingDetailNotes')}
                       </p>
                       <p className="text-sm text-on-surface bg-surface-container-low dark:bg-surface-container-high p-4 rounded-lg leading-relaxed">{booking.notes}</p>
                     </div>
@@ -230,17 +234,17 @@ function BookingDetailContent() {
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">timeline</span>
-                  <h2 className="font-black text-on-surface">السجل الزمني</h2>
+                  <h2 className="font-black text-on-surface">{tp('bookingDetailTimeline')}</h2>
                 </div>
                 <div className="p-6">
-                  <div className="relative pr-4">
+                  <div className="relative pe-4">
                     {/* Timeline line */}
-                    <div className="absolute right-[7px] top-2 bottom-2 w-0.5 bg-outline-variant/20 dark:bg-outline-variant/30" />
+                    <div className="absolute end-[7px] top-2 bottom-2 w-0.5 bg-outline-variant/20 dark:bg-outline-variant/30" />
                     <div className="space-y-5">
-                      <TimelineItem date={booking.createdAt} label="تم إنشاء الحجز" color="bg-primary" />
-                      {booking.confirmedAt && <TimelineItem date={booking.confirmedAt} label="تم تأكيد الحجز" color="bg-emerald-500" />}
-                      {booking.cancelledAt && <TimelineItem date={booking.cancelledAt} label="تم إلغاء الحجز" color="bg-red-500" />}
-                      {booking.completedAt && <TimelineItem date={booking.completedAt} label="تم إكمال الحجز" color="bg-emerald-500" />}
+                      <TimelineItem date={booking.createdAt} label={tp('bookingDetailCreated')} color="bg-primary" locale={locale} />
+                      {booking.confirmedAt && <TimelineItem date={booking.confirmedAt} label={tp('bookingDetailConfirmed')} color="bg-emerald-500" locale={locale} />}
+                      {booking.cancelledAt && <TimelineItem date={booking.cancelledAt} label={tp('bookingDetailCancelled')} color="bg-red-500" locale={locale} />}
+                      {booking.completedAt && <TimelineItem date={booking.completedAt} label={tp('bookingDetailCompleted')} color="bg-emerald-500" locale={locale} />}
                     </div>
                   </div>
                 </div>
@@ -254,30 +258,30 @@ function BookingDetailContent() {
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">receipt_long</span>
-                  <h3 className="font-black text-on-surface text-sm">ملخص الدفع</h3>
+                  <h3 className="font-black text-on-surface text-sm">{tp('bookingDetailPaymentSummary')}</h3>
                 </div>
                 <div className="p-6">
                   <div className="space-y-3 mb-5">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-on-surface-variant">إيجار {booking.totalDays} يوم</span>
-                      <span className="font-bold text-sm text-on-surface">{Number(booking.totalPrice).toLocaleString('en-US')} ر.ع.</span>
+                      <span className="text-sm text-on-surface-variant">{tp('bookingDetailRentalDays', { days: booking.totalDays })}</span>
+                      <span className="font-bold text-sm text-on-surface">{Number(booking.totalPrice).toLocaleString('en-US')} {tp('bookingDetailCurrencyOMR')}</span>
                     </div>
                     {booking.depositAmount && (
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-on-surface-variant flex items-center gap-1">
-                          مبلغ التأمين
-                          <span className="text-[10px] text-on-surface-variant/60">(مسترد)</span>
+                          {tp('bookingDetailDeposit')}
+                          <span className="text-[10px] text-on-surface-variant/60">{tp('bookingDetailDepositRefundable')}</span>
                         </span>
-                        <span className="font-bold text-sm text-on-surface">{Number(booking.depositAmount).toLocaleString('en-US')} ر.ع.</span>
+                        <span className="font-bold text-sm text-on-surface">{Number(booking.depositAmount).toLocaleString('en-US')} {tp('bookingDetailCurrencyOMR')}</span>
                       </div>
                     )}
                   </div>
                   <div className="border-t border-outline-variant/10 dark:border-outline-variant/20 pt-4">
                     <div className="flex justify-between items-center">
-                      <span className="font-black text-on-surface">الإجمالي</span>
-                      <div className="text-left">
+                      <span className="font-black text-on-surface">{tp('bookingDetailTotal')}</span>
+                      <div className="text-end">
                         <span className="text-2xl font-black text-primary">{Number(booking.totalPrice).toLocaleString('en-US')}</span>
-                        <span className="text-xs text-on-surface-variant mr-1">ر.ع.</span>
+                        <span className="text-xs text-on-surface-variant me-1">{tp('bookingDetailCurrencyOMR')}</span>
                       </div>
                     </div>
                   </div>
@@ -287,14 +291,14 @@ function BookingDetailContent() {
               {/* Other User Card */}
               {otherUser && (
                 <SellerCard
-                  title={isOwner ? 'المستأجر' : 'المؤجر'}
+                  title={isOwner ? tp('bookingDetailRenter') : tp('bookingDetailOwner')}
                   name={otherUser.displayName || otherUser.username}
                   username={otherUser.username}
                   avatarUrl={otherUser.avatarUrl}
                   phone={otherUser.phone}
                   onShare={() => {
                     const url = window.location.href;
-                    if (navigator.share) navigator.share({ title: `حجز #${booking.id}`, url });
+                    if (navigator.share) navigator.share({ title: `#${booking.id}`, url });
                     else navigator.clipboard.writeText(url);
                   }}
                 />
@@ -306,36 +310,36 @@ function BookingDetailContent() {
                   <>
                     <button onClick={() => handleStatus('CONFIRMED')} disabled={updateStatus.isPending} className="w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all shadow-ambient disabled:opacity-60 flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-lg">check_circle</span>
-                      قبول الحجز
+                      {tp('bookingDetailAccept')}
                     </button>
                     <button onClick={() => handleStatus('REJECTED')} disabled={updateStatus.isPending} className="w-full py-3.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 font-black text-sm hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-lg">block</span>
-                      رفض الحجز
+                      {tp('bookingDetailReject')}
                     </button>
                   </>
                 )}
                 {isOwner && booking.status === 'CONFIRMED' && (
                   <button onClick={() => handleStatus('ACTIVE')} disabled={updateStatus.isPending} className="w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-lg">play_circle</span>
-                    تفعيل الحجز (تم استلام السيارة)
+                    {tp('bookingDetailActivate')}
                   </button>
                 )}
                 {isOwner && booking.status === 'ACTIVE' && (
                   <button onClick={() => handleStatus('COMPLETED')} disabled={updateStatus.isPending} className="w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all shadow-ambient disabled:opacity-60 flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-lg">task_alt</span>
-                    إكمال الحجز (تم إرجاع السيارة)
+                    {tp('bookingDetailComplete')}
                   </button>
                 )}
                 {isRenter && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
                   <button onClick={() => handleStatus('CANCELLED')} disabled={updateStatus.isPending} className="w-full py-3.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 font-black text-sm hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-lg">cancel</span>
-                    إلغاء الحجز
+                    {tp('bookingDetailCancel')}
                   </button>
                 )}
 
                 <Link href="/bookings" className="flex items-center justify-center gap-2 py-3 text-primary font-bold text-sm hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg transition-colors">
-                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                  العودة للحجوزات
+                  <span className="material-symbols-outlined icon-flip text-lg">arrow_forward</span>
+                  {tp('bookingDetailBackToBookings')}
                 </Link>
               </div>
             </div>
@@ -361,14 +365,14 @@ function DetailCell({ icon, label, value }: { icon: string; label: string; value
   );
 }
 
-function TimelineItem({ date, label, color }: { date: string; label: string; color: string }) {
+function TimelineItem({ date, label, color, locale }: { date: string; label: string; color: string; locale: string }) {
   return (
     <div className="flex items-start gap-4 relative">
       <div className={`w-3.5 h-3.5 rounded-full ${color} ring-4 ring-background shrink-0 mt-0.5 relative z-10`} />
       <div className="pb-1">
         <p className="text-sm font-black text-on-surface">{label}</p>
         <p className="text-xs text-on-surface-variant mt-0.5">
-          {new Date(date).toLocaleDateString('ar-OM', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          {new Date(date).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>
     </div>

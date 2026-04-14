@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface Option {
   value: string;
@@ -16,6 +19,7 @@ interface CustomSelectProps {
 }
 
 export function CustomSelect({ value, onChange, options, placeholder, disabled = false, searchable = false, variant = 'default' }: CustomSelectProps) {
+  const tp = useTranslations('pages');
   const isLight = variant === 'light';
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -68,7 +72,7 @@ export function CustomSelect({ value, onChange, options, placeholder, disabled =
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="ابحث..."
+                placeholder={tp('customSelectSearch')}
                 className="w-full bg-surface-container border border-outline-variant/20 rounded-lg py-2 px-3 text-sm text-on-surface placeholder-on-surface-variant/50 focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all"
                
               />
@@ -111,7 +115,7 @@ export function CustomSelect({ value, onChange, options, placeholder, disabled =
               );
             })}
             {searchable && filtered.length === 0 && (
-              <div className="px-3 py-6 text-center text-sm font-medium text-on-surface-variant">لا توجد نتائج</div>
+              <div className="px-3 py-6 text-center text-sm font-medium text-on-surface-variant">{tp('customSelectNoResults')}</div>
             )}
           </div>
         </div>

@@ -1,28 +1,30 @@
 'use client';
 
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
-const categories = [
-  { label: 'سيارات', icon: 'directions_car', href: '/listings', color: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400', desc: 'بيع وإيجار' },
-  { label: 'قطع غيار', icon: 'settings', href: '/parts', color: 'bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400', desc: 'أصلية وبديلة' },
-  { label: 'خدمات سيارات', icon: 'build', href: '/services', color: 'bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400', desc: 'صيانة وفحص' },
-  { label: 'نقل وشحن', icon: 'local_shipping', href: '/coming-soon?section=transport', color: 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400', desc: 'بضائع وأثاث' },
-  { label: 'رحلات', icon: 'departure_board', href: '/coming-soon?section=trips', color: 'bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400', desc: 'باصات وسياحة' },
-  { label: 'وظائف', icon: 'badge', href: '/jobs', color: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400', desc: 'سائقين وشركات' },
-];
+const CAT_META = [
+  { labelKey: 'catCars',      descKey: 'catCarsDesc',      icon: 'directions_car',   href: '/listings',                      color: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' },
+  { labelKey: 'catParts',     descKey: 'catPartsDesc',     icon: 'settings',         href: '/parts',                         color: 'bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400' },
+  { labelKey: 'catServices',  descKey: 'catServicesDesc',  icon: 'build',            href: '/services',                      color: 'bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400' },
+  { labelKey: 'catTransport', descKey: 'catTransportDesc', icon: 'local_shipping',   href: '/coming-soon?section=transport', color: 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400' },
+  { labelKey: 'catTrips',     descKey: 'catTripsDesc',     icon: 'departure_board',  href: '/coming-soon?section=trips',     color: 'bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400' },
+  { labelKey: 'catJobs',      descKey: 'catJobsDesc',      icon: 'badge',            href: '/jobs',                          color: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' },
+] as const;
 
 export function CategoriesSection() {
+  const t = useTranslations('home');
   return (
     <section className="max-w-7xl mx-auto px-6 py-10">
       <div className="flex items-center gap-3 mb-6">
         <div className="h-8 w-1 bg-primary" />
-        <h2 className="text-2xl font-black">تصفح الأقسام</h2>
+        <h2 className="text-2xl font-black">{t('browseCategories')}</h2>
       </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
-        {categories.map((cat) => (
+        {CAT_META.map((cat) => (
           <Link
-            key={cat.label}
+            key={cat.labelKey}
             href={cat.href}
             className="group bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 p-3 sm:p-5 flex flex-col items-center text-center gap-2 sm:gap-3 hover:border-primary/30 hover:shadow-lg transition-all duration-300"
           >
@@ -30,8 +32,8 @@ export function CategoriesSection() {
               <span className="material-symbols-outlined text-xl sm:text-2xl">{cat.icon}</span>
             </div>
             <div>
-              <h3 className="font-bold text-xs sm:text-sm text-on-surface mb-0.5">{cat.label}</h3>
-              <span className="text-[10px] sm:text-[11px] text-on-surface-variant">{cat.desc}</span>
+              <h3 className="font-bold text-xs sm:text-sm text-on-surface mb-0.5">{t(cat.labelKey)}</h3>
+              <span className="text-[10px] sm:text-[11px] text-on-surface-variant">{t(cat.descKey)}</span>
             </div>
           </Link>
         ))}

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { useAuth } from '@/providers/auth-provider';
+import { useTranslations } from 'next-intl';
 import { useToast } from '@/components/toast';
 import { apiRequest } from '@/lib/auth';
 import AuthPage from '@/components/auth/auth-page';
@@ -10,6 +11,7 @@ import { OtpInput } from '@/components/auth/otp-input';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
+  const t = useTranslations('auth');
   const { user, isAuthenticated } = useAuth();
   const { addToast } = useToast();
   const [code, setCode] = useState(['', '', '', '', '', '']);
@@ -23,27 +25,27 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     if (countdown <= 0) return;
-    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
   }, [countdown]);
 
   const handleResend = useCallback(async () => {
     setResending(true);
     try {
       await apiRequest('/auth/resend-verification', { method: 'POST' });
-      addToast('success', 'تم إرسال رمز تحقق جديد إلى بريدك');
+      addToast('success', t('newCodeSent'));
       setCountdown(60);
     } catch (err) {
-      addToast('error', err instanceof Error ? err.message : 'حدث خطأ أثناء إعادة الإرسال');
+      addToast('error', err instanceof Error ? err.message : t('resendError'));
     } finally {
       setResending(false);
     }
-  }, [addToast]);
+  }, [addToast, t]);
 
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface">
-        <p className="text-sm text-on-surface-variant">جارٍ التحويل...</p>
+        <p className="text-sm text-on-surface-variant">{t('redirecting')}</p>
       </div>
     );
   }
@@ -52,7 +54,7 @@ export default function VerifyEmailPage() {
     e.preventDefault();
     const fullCode = code.join('');
     if (fullCode.length !== 6) {
-      addToast('warning', 'أدخل الرمز المكون من 6 أرقام');
+      addToast('warning', t('enter6Digits'));
       return;
     }
 
@@ -62,10 +64,10 @@ export default function VerifyEmailPage() {
         method: 'POST',
         body: JSON.stringify({ code: fullCode }),
       });
-      addToast('success', 'تم توثيق البريد الإلكتروني بنجاح!');
+      addToast('success', t('emailVerified'));
       router.push('/');
     } catch (err) {
-      addToast('error', err instanceof Error ? err.message : 'رمز التحقق غير صحيح');
+      addToast('error', err instanceof Error ? err.message : t('codeInvalid'));
     } finally {
       setLoading(false);
     }
@@ -73,8 +75,8 @@ export default function VerifyEmailPage() {
 
   return (
     <AuthPage
-      title="تأكيد البريد الإلكتروني"
-      subtitle="أدخل الرمز المرسل إلى بريدك لتفعيل حسابك"
+      title={t('verifyEmailTitle')}
+      subtitle={t('verifyEmailSubtitle')}
     >
       <div>
         <div className="text-center mb-6">
@@ -82,7 +84,7 @@ export default function VerifyEmailPage() {
             <span className="material-symbols-outlined text-primary text-2xl">mark_email_read</span>
           </div>
           <p className="text-on-surface-variant text-sm">
-            أرسلنا رمز تحقق مكون من 6 أرقام إلى
+            {t('weSentCode')}
           </p>
           <p className="text-on-surface font-bold text-sm mt-1">{user?.email}</p>
         </div>
@@ -98,19 +100,19 @@ export default function VerifyEmailPage() {
             {loading ? (
               <>
                 <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
-                جارٍ التحقق...
+                {t('verifying')}
               </>
             ) : (
-              'تأكيد'
+              t('confirm')
             )}
           </button>
         </form>
 
         <div className="mt-6 text-center text-sm text-on-surface-variant">
-          لم تستلم الرمز؟{' '}
+          {t('didntReceiveCode')}{' '}
           {countdown > 0 ? (
             <span className="text-on-surface-variant/60 font-medium">
-              إعادة إرسال بعد {countdown} ثانية
+              {t('resendAfter', { countdown })}
             </span>
           ) : (
             <button
@@ -118,7 +120,7 @@ export default function VerifyEmailPage() {
               disabled={resending}
               className="text-primary font-bold hover:underline transition-colors disabled:opacity-50"
             >
-              {resending ? 'جارٍ الإرسال...' : 'إعادة إرسال'}
+              {resending ? t('resending') : t('resend')}
             </button>
           )}
         </div>
@@ -127,7 +129,7 @@ export default function VerifyEmailPage() {
           onClick={() => router.push('/')}
           className="mt-3 w-full text-center text-sm text-on-surface-variant/60 hover:text-on-surface transition-colors"
         >
-          تخطي الآن
+          {t('skipNow')}
         </button>
       </div>
     </AuthPage>

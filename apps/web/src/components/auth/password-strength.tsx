@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface PasswordStrengthProps {
   password: string;
 }
@@ -19,17 +21,27 @@ function getStrength(password: string): number {
   return 4;
 }
 
-const LEVELS: Record<number, { label: string; color: string }> = {
-  0: { label: '', color: 'bg-outline-variant/20' },
-  1: { label: 'ضعيفة', color: 'bg-red-500' },
-  2: { label: 'متوسطة', color: 'bg-orange-400' },
-  3: { label: 'جيدة', color: 'bg-yellow-400' },
-  4: { label: 'قوية', color: 'bg-green-500' },
+const LEVEL_COLORS: Record<number, string> = {
+  0: 'bg-outline-variant/20',
+  1: 'bg-red-500',
+  2: 'bg-orange-400',
+  3: 'bg-yellow-400',
+  4: 'bg-green-500',
+};
+
+const LEVEL_KEYS: Record<number, string> = {
+  0: '',
+  1: 'strengthWeak',
+  2: 'strengthFair',
+  3: 'strengthGood',
+  4: 'strengthStrong',
 };
 
 export function PasswordStrength({ password }: PasswordStrengthProps) {
+  const t = useTranslations('auth');
   const strength = password ? getStrength(password) : 0;
-  const level = LEVELS[strength];
+  const color = LEVEL_COLORS[strength];
+  const labelKey = LEVEL_KEYS[strength];
 
   if (!password) return null;
 
@@ -40,12 +52,12 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
           <div
             key={i}
             className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-              i <= strength ? level.color : 'bg-outline-variant/20'
+              i <= strength ? color : 'bg-outline-variant/20'
             }`}
           />
         ))}
       </div>
-      {level.label && (
+      {labelKey && (
         <span
           className={`text-[11px] font-bold whitespace-nowrap transition-colors ${
             strength <= 1
@@ -57,7 +69,7 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
                   : 'text-green-600'
           }`}
         >
-          {level.label}
+          {t(labelKey)}
         </span>
       )}
     </div>

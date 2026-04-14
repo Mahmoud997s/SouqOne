@@ -9,7 +9,8 @@ import { JobCard } from '@/features/jobs/components/job-card';
 import { ListingSkeleton } from '@/components/loading-skeleton';
 import { useJobs } from '@/lib/api';
 import { getGovernorates } from '@/lib/location-data';
-import { employmentOptions } from '@/lib/constants/jobs';
+import { employmentOptionsT } from '@/lib/constants/jobs';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function JobsPage() {
   return (
@@ -19,28 +20,33 @@ export default function JobsPage() {
   );
 }
 
-const licenseOptions = [
-  { value: 'LIGHT', label: 'خفيفة', icon: 'directions_car' },
-  { value: 'HEAVY', label: 'ثقيلة', icon: 'local_shipping' },
-  { value: 'TRANSPORT', label: 'نقل', icon: 'fire_truck' },
-  { value: 'BUS', label: 'حافلات', icon: 'directions_bus' },
-  { value: 'MOTORCYCLE', label: 'دراجة', icon: 'two_wheeler' },
-];
-
-const sortOptions = [
-  { value: 'createdAt_desc', label: 'الأحدث' },
-  { value: 'createdAt_asc', label: 'الأقدم' },
-  { value: 'salary_desc', label: 'الراتب: الأعلى' },
-  { value: 'salary_asc', label: 'الراتب: الأقل' },
-];
-
-const TABS = [
-  { value: '', label: 'الكل', icon: 'grid_view' },
-  { value: 'OFFERING', label: 'يبحثون عن عمل', icon: 'person_search' },
-  { value: 'HIRING', label: 'يبحثون عن سائق', icon: 'person_add' },
-];
-
 function JobsContent() {
+  const tp = useTranslations('pages');
+  const tm = useTranslations('mappings');
+
+  const licenseOpts = [
+    { value: 'LIGHT', label: tp('jobsLicenseLight'), icon: 'directions_car' },
+    { value: 'HEAVY', label: tp('jobsLicenseHeavy'), icon: 'local_shipping' },
+    { value: 'TRANSPORT', label: tp('jobsLicenseTransport'), icon: 'fire_truck' },
+    { value: 'BUS', label: tp('jobsLicenseBus'), icon: 'directions_bus' },
+    { value: 'MOTORCYCLE', label: tp('jobsLicenseMotorcycle'), icon: 'two_wheeler' },
+  ];
+
+  const sortOpts = [
+    { value: 'createdAt_desc', label: tp('sortNewest') },
+    { value: 'createdAt_asc', label: tp('sortOldest') },
+    { value: 'salary_desc', label: tp('sortSalaryHigh') },
+    { value: 'salary_asc', label: tp('sortSalaryLow') },
+  ];
+
+  const TABS = [
+    { value: '', label: tp('all'), icon: 'grid_view' },
+    { value: 'OFFERING', label: tp('jobsTabOffering'), icon: 'person_search' },
+    { value: 'HIRING', label: tp('jobsTabHiring'), icon: 'person_add' },
+  ];
+
+  const empOpts = employmentOptionsT(tm);
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -94,7 +100,8 @@ function JobsContent() {
     router.push('/jobs');
   }
 
-  const govs = getGovernorates('OM');
+  const locale = useLocale();
+  const govs = getGovernorates('OM', locale);
 
   return (
     <>
@@ -117,8 +124,8 @@ function JobsContent() {
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm mb-4">
               <span className="material-symbols-outlined text-white text-3xl">badge</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 drop-shadow-sm">وظائف السائقين</h1>
-            <p className="text-white/70 text-xs sm:text-sm mb-5 sm:mb-7 max-w-lg mx-auto">ابحث عن سائق محترف أو اعرض خدماتك في سلطنة عمان</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 drop-shadow-sm">{tp('jobsTitle')}</h1>
+            <p className="text-white/70 text-xs sm:text-sm mb-5 sm:mb-7 max-w-lg mx-auto">{tp('jobsSubtitle')}</p>
 
             {/* Glass Search Box */}
             <div className="max-w-3xl mx-auto">
@@ -131,7 +138,7 @@ function JobsContent() {
                       value={searchInput}
                       onChange={(e) => setSearchInput(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                      placeholder="ابحث بالعنوان أو الوصف..."
+                      placeholder={tp('jobsSearch')}
                       className="flex-1 bg-transparent text-sm font-medium text-on-surface dark:text-white placeholder:text-on-surface-variant/50 dark:placeholder:text-white/40 focus:outline-none min-w-0"
                      
                     />
@@ -143,7 +150,7 @@ function JobsContent() {
                   </div>
                   <button onClick={handleSearch} className="shrink-0 bg-white text-primary px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 font-black text-xs sm:text-sm rounded-lg sm:rounded-xl hover:bg-white/90 active:scale-[0.97] transition-all flex items-center gap-1.5 shadow-lg">
                     <span className="material-symbols-outlined text-base">search</span>
-                    <span className="hidden sm:inline">بحث</span>
+                    <span className="hidden sm:inline">{tp('rentalsSearchBtn')}</span>
                   </button>
                   <button
                     onClick={() => setShowFilters(!showFilters)}
@@ -154,7 +161,7 @@ function JobsContent() {
                     }`}
                   >
                     <span className="material-symbols-outlined text-sm">tune</span>
-                    <span className="hidden sm:inline text-xs">فلاتر</span>
+                    <span className="hidden sm:inline text-xs">{tp('filters')}</span>
                     {activeFilterCount > 0 && (
                       <span className="absolute -top-1.5 -left-1.5 w-5 h-5 bg-white text-primary text-[10px] font-black rounded-full flex items-center justify-center shadow-sm">
                         {activeFilterCount}
@@ -188,12 +195,12 @@ function JobsContent() {
               <div className="flex items-center gap-1.5 text-white/60">
                 <span className="material-symbols-outlined text-sm">work</span>
                 <span className="text-xs font-black text-white">{meta?.total ?? '...'}</span>
-                <span className="text-xs">وظيفة</span>
+                <span className="text-xs">{tp('jobsCount')}</span>
               </div>
               <span className="w-px h-4 bg-white/20" />
               <Link href="/jobs/new" className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors group">
                 <span className="material-symbols-outlined text-sm group-hover:scale-110 transition-transform">add_circle</span>
-                <span className="text-xs font-bold">أضف إعلان وظيفة</span>
+                <span className="text-xs font-bold">{tp('jobsAddJob')}</span>
               </Link>
             </div>
           </div>
@@ -211,7 +218,7 @@ function JobsContent() {
                 onChange={(e) => updateParam('governorate', e.target.value)}
                 className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-primary/40 min-w-[150px]"
               >
-                <option value="">كل المحافظات</option>
+                <option value="">{tp('allGovernorates')}</option>
                 {govs.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
               </select>
               <select
@@ -219,13 +226,13 @@ function JobsContent() {
                 onChange={(e) => updateParam('sortBy', e.target.value)}
                 className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-primary/40 min-w-[130px]"
               >
-                <option value="">الترتيب</option>
-                {sortOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                <option value="">{tp('sortLabel')}</option>
+                {sortOpts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
               {activeFilterCount > 0 && (
                 <button onClick={clearFilters} className="text-xs text-red-500 hover:text-red-600 font-bold flex items-center gap-1 transition-colors">
                   <span className="material-symbols-outlined text-sm">close</span>
-                  مسح الكل
+                  {tp('clearAll')}
                 </button>
               )}
             </div>
@@ -234,10 +241,10 @@ function JobsContent() {
             <div>
               <p className="text-[11px] text-on-surface-variant font-bold mb-2 flex items-center gap-1">
                 <span className="material-symbols-outlined text-xs">work</span>
-                نوع الدوام
+                {tp('jobsEmploymentType')}
               </p>
               <div className="flex flex-wrap gap-2">
-                {employmentOptions.map((o) => (
+                {empOpts.map((o) => (
                   <button
                     key={o.value}
                     onClick={() => updateParam('employmentType', employmentType === o.value ? '' : o.value)}
@@ -257,10 +264,10 @@ function JobsContent() {
             <div>
               <p className="text-[11px] text-on-surface-variant font-bold mb-2 flex items-center gap-1">
                 <span className="material-symbols-outlined text-xs">card_membership</span>
-                نوع الرخصة
+                {tp('jobsLicenseType')}
               </p>
               <div className="flex flex-wrap gap-2">
-                {licenseOptions.map((o) => (
+                {licenseOpts.map((o) => (
                   <button
                     key={o.value}
                     onClick={() => updateParam('licenseType', licenseType === o.value ? '' : o.value)}
@@ -293,20 +300,20 @@ function JobsContent() {
             <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
               <span className="material-symbols-outlined text-4xl text-red-400">error</span>
             </div>
-            <p className="text-lg font-black text-on-surface mb-2">حدث خطأ في تحميل البيانات</p>
-            <p className="text-sm text-on-surface-variant mb-6">يرجى المحاولة مرة أخرى</p>
-            <button onClick={() => refetch()} className="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all">إعادة المحاولة</button>
+            <p className="text-lg font-black text-on-surface mb-2">{tp('jobsLoadError')}</p>
+            <p className="text-sm text-on-surface-variant mb-6">{tp('tryAgain')}</p>
+            <button onClick={() => refetch()} className="bg-primary text-on-primary px-6 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all">{tp('retryBtn')}</button>
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-20">
             <div className="w-24 h-24 mx-auto mb-5 rounded-full bg-primary/10 flex items-center justify-center">
               <span className="material-symbols-outlined text-5xl text-primary/40">work_off</span>
             </div>
-            <p className="text-xl font-black text-on-surface mb-2">لا توجد وظائف</p>
-            <p className="text-on-surface-variant text-sm mb-6">جرّب تغيير معايير البحث أو كن أول من ينشر إعلان</p>
+            <p className="text-xl font-black text-on-surface mb-2">{tp('jobsNoJobs')}</p>
+            <p className="text-on-surface-variant text-sm mb-6">{tp('jobsNoJobsSub')}</p>
             <Link href="/jobs/new" className="inline-flex items-center gap-1.5 btn-primary px-6 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg">
               <span className="material-symbols-outlined text-base">add</span>
-              أضف إعلان وظيفة
+              {tp('jobsAddJob')}
             </Link>
           </div>
         ) : (
@@ -314,12 +321,12 @@ function JobsContent() {
             {/* Results count + active filters */}
             <div className="flex items-center justify-between mb-5">
               <p className="text-sm text-on-surface-variant font-bold">
-                <span className="text-on-surface font-black">{meta?.total ?? 0}</span> وظيفة
+                <span className="text-on-surface font-black">{meta?.total ?? 0}</span> {tp('jobsCount')}
               </p>
               {activeFilterCount > 0 && (
                 <button onClick={clearFilters} className="text-xs text-primary hover:text-primary/80 font-bold flex items-center gap-1 transition-colors">
                   <span className="material-symbols-outlined text-sm">filter_alt_off</span>
-                  مسح الفلاتر
+                  {tp('clearFilters')}
                 </button>
               )}
             </div>
@@ -348,7 +355,7 @@ function JobsContent() {
                 <div className="flex justify-center items-center gap-2 mt-10">
                   <button onClick={() => goTo(Math.max(1, current - 1))} disabled={current <= 1}
                     className="w-10 h-10 border border-outline-variant/10 rounded-xl flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30">
-                    <span className="material-symbols-outlined text-lg">chevron_right</span>
+                    <span className="material-symbols-outlined icon-flip text-lg">chevron_right</span>
                   </button>
                   {pages.map((p, i) =>
                     p === '...' ? (
@@ -359,7 +366,7 @@ function JobsContent() {
                   )}
                   <button onClick={() => goTo(Math.min(total, current + 1))} disabled={current >= total}
                     className="w-10 h-10 border border-outline-variant/10 rounded-xl flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30">
-                    <span className="material-symbols-outlined text-lg">chevron_left</span>
+                    <span className="material-symbols-outlined icon-flip text-lg">chevron_left</span>
                   </button>
                 </div>
               );

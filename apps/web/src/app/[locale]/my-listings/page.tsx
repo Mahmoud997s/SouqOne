@@ -8,22 +8,9 @@ import { AuthGuard } from '@/components/auth-guard';
 import { VehicleCard } from '@/features/ads/components/vehicle-card';
 import { useMyListings, useDeleteListing } from '@/lib/api';
 import { getImageUrl } from '@/lib/image-utils';
+import { useTranslations, useLocale } from 'next-intl';
 
 type StatusFilter = 'ALL' | 'ACTIVE' | 'DRAFT' | 'SOLD';
-
-const statusFilters: { key: StatusFilter; label: string; icon: string }[] = [
-  { key: 'ALL', label: 'الكل', icon: 'list' },
-  { key: 'ACTIVE', label: 'نشط', icon: 'check_circle' },
-  { key: 'DRAFT', label: 'مسودة', icon: 'edit_note' },
-  { key: 'SOLD', label: 'مباع', icon: 'sell' },
-];
-
-const statusLabels: Record<string, { label: string; cls: string }> = {
-  ACTIVE: { label: 'نشط', cls: 'bg-brand-green/90 text-white' },
-  DRAFT: { label: 'مسودة', cls: 'bg-amber-500/90 text-white' },
-  SOLD: { label: 'مباع', cls: 'bg-outline/80 text-white' },
-  EXPIRED: { label: 'منتهي', cls: 'bg-error/80 text-white' },
-};
 
 export default function MyListingsPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
@@ -32,6 +19,22 @@ export default function MyListingsPage() {
 
   const { data, isLoading, refetch } = useMyListings(params);
   const deleteListing = useDeleteListing();
+  const tp = useTranslations('pages');
+  const locale = useLocale();
+
+  const statusFilters: { key: StatusFilter; label: string; icon: string }[] = [
+    { key: 'ALL', label: tp('myListingsFilterAll'), icon: 'list' },
+    { key: 'ACTIVE', label: tp('myListingsFilterActive'), icon: 'check_circle' },
+    { key: 'DRAFT', label: tp('myListingsFilterDraft'), icon: 'edit_note' },
+    { key: 'SOLD', label: tp('myListingsFilterSold'), icon: 'sell' },
+  ];
+
+  const statusLabels: Record<string, { label: string; cls: string }> = {
+    ACTIVE: { label: tp('myListingsFilterActive'), cls: 'bg-brand-green/90 text-white' },
+    DRAFT: { label: tp('myListingsFilterDraft'), cls: 'bg-amber-500/90 text-white' },
+    SOLD: { label: tp('myListingsFilterSold'), cls: 'bg-outline/80 text-white' },
+    EXPIRED: { label: tp('myListingsFilterExpired'), cls: 'bg-error/80 text-white' },
+  };
 
   const items = data?.items ?? [];
   const total = data?.meta?.total ?? 0;
@@ -47,10 +50,10 @@ export default function MyListingsPage() {
             <div>
               <h1 className="text-2xl font-black text-on-surface flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-3xl">directions_car</span>
-                إعلاناتي
+                {tp('myListingsTitle')}
               </h1>
               <p className="text-sm text-on-surface-variant mt-1">
-                {total} إعلان{total !== 1 ? '' : ''}
+                {tp('myListingsCount', { count: total })}
               </p>
             </div>
             <Link
@@ -58,7 +61,7 @@ export default function MyListingsPage() {
               className="btn-success px-6 py-2.5 text-sm font-black flex items-center gap-2 hover:brightness-110 transition-all shadow-ambient"
             >
               <span className="material-symbols-outlined text-lg">add</span>
-              أضف إعلان جديد
+              {tp('myListingsAdd')}
             </Link>
           </div>
 
@@ -128,7 +131,7 @@ export default function MyListingsPage() {
                       </span>
                       <span className="flex items-center gap-0.5">
                         <span className="material-symbols-outlined text-xs">schedule</span>
-                        {new Date(item.createdAt).toLocaleDateString('ar-OM')}
+                        {new Date(item.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')}
                       </span>
                     </div>
 
@@ -139,19 +142,19 @@ export default function MyListingsPage() {
                         className="flex-1 py-2.5 text-center text-xs font-black text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-1.5"
                       >
                         <span className="material-symbols-outlined text-sm">edit</span>
-                        تعديل
+                        {tp('myListingsEdit')}
                       </Link>
                       <div className="w-px bg-outline-variant/10 dark:bg-outline-variant/20" />
                       <button
                         onClick={() => {
-                          if (confirm('هل أنت متأكد من حذف هذا الإعلان؟')) {
+                          if (confirm(tp('myListingsDeleteConfirm'))) {
                             deleteListing.mutate(item.id, { onSuccess: () => refetch() });
                           }
                         }}
                         className="flex-1 py-2.5 text-center text-xs font-black text-on-surface-variant hover:text-error hover:bg-error/5 transition-all flex items-center justify-center gap-1.5"
                       >
                         <span className="material-symbols-outlined text-sm">delete</span>
-                        حذف
+                        {tp('myListingsDelete')}
                       </button>
                     </div>
                   </div>
@@ -164,15 +167,15 @@ export default function MyListingsPage() {
                 <span className="material-symbols-outlined text-4xl text-primary">inventory_2</span>
               </div>
               <h3 className="text-lg font-black text-on-surface mb-2">
-                {statusFilter === 'ALL' ? 'لا توجد إعلانات بعد' : `لا توجد إعلانات ${statusFilters.find(f => f.key === statusFilter)?.label}`}
+                {statusFilter === 'ALL' ? tp('myListingsEmptyAll') : tp('myListingsEmptyFiltered', { filter: statusFilters.find(f => f.key === statusFilter)?.label ?? '' })}
               </h3>
-              <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">أضف إعلانك الأول وابدأ الوصول لآلاف المهتمين</p>
+              <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">{tp('myListingsEmptyDesc')}</p>
               <Link
                 href="/add-listing"
                 className="inline-flex items-center gap-2 btn-primary px-8 py-3 text-sm font-black hover:brightness-110 transition-all"
               >
                 <span className="material-symbols-outlined text-lg">add</span>
-                أضف إعلانك الأول
+                {tp('myListingsAddFirst')}
               </Link>
             </div>
           )}

@@ -1,5 +1,4 @@
 import { API_BASE } from './config';
-import { translateApiError } from './error-messages';
 
 export const authTokenKey = 'carone.auth_token';
 export const refreshTokenKey = 'carone.refresh_token';
@@ -131,8 +130,8 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}) {
       const retryText = await retryResponse.text();
       const retryData = retryText ? JSON.parse(retryText) : null;
       if (!retryResponse.ok) {
-        const retryError = retryData?.message || retryData?.error || 'حدث خطأ أثناء الاتصال بالخادم';
-        throw new Error(translateApiError(retryError));
+        const retryError = retryData?.message || retryData?.error || 'SERVER_ERROR';
+        throw new Error(retryError);
       }
       return retryData as T;
     }
@@ -140,8 +139,8 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}) {
 
   if (!response.ok) {
     const errorMessage =
-      data?.message || data?.error || 'حدث خطأ أثناء الاتصال بالخادم';
-    throw new Error(translateApiError(errorMessage));
+      data?.message || data?.error || 'SERVER_ERROR';
+    throw new Error(errorMessage);
   }
 
   return data as T;

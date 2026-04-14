@@ -5,12 +5,16 @@ import { useState, useRef, useEffect } from 'react';
 import { apiRequest } from '@/lib/auth';
 import { useAuth } from '@/providers/auth-provider';
 import { GoogleSignInButton } from '@/components/google-sign-in';
-import { countryCodes } from '@/lib/country-codes';
+import { getCountryCodes } from '@/lib/country-codes';
+import { useTranslations, useLocale } from 'next-intl';
 import { CustomSelect } from '@/components/ui/custom-select';
 import { getGovernorates, getCities } from '@/lib/location-data';
 
 export default function RegisterForm() {
   const router = useRouter();
+  const t = useTranslations('auth');
+  const tc = useTranslations('common');
+  const locale = useLocale();
   const { login: authLogin } = useAuth();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -25,14 +29,15 @@ export default function RegisterForm() {
   const [city, setCity] = useState('');
   const [agreedTerms, setAgreedTerms] = useState(false);
 
-  const governorateOptions = getGovernorates(country);
-  const cityOptions = getCities(country, governorate);
+  const governorateOptions = getGovernorates(country, locale);
+  const cityOptions = getCities(country, governorate, locale);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [shake, setShake] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const filteredCodes = countryCodes.filter(
+  const codes = getCountryCodes(locale);
+  const filteredCodes = codes.filter(
     (c) => c.name.includes(codeSearch) || c.dial.includes(codeSearch) || c.code.toLowerCase().includes(codeSearch.toLowerCase())
   );
 
@@ -67,7 +72,7 @@ export default function RegisterForm() {
       sessionStorage.setItem('new_user', 'true');
       router.push('/verify-email');
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'حدث خطأ غير متوقع';
+      const msg = err instanceof Error ? err.message : t('unexpectedError');
       setError(msg);
       setShake(true);
       setTimeout(() => setShake(false), 500);
@@ -81,26 +86,26 @@ export default function RegisterForm() {
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 
         {/* ── Section 1: المعلومات الأساسية ── */}
-        <div className="section-divider"><span>المعلومات الأساسية</span></div>
+        <div className="section-divider"><span>{t('basicInfo')}</span></div>
 
         {/* Username */}
         <div>
           <label style={{ fontSize: 11, fontWeight: 500, color: '#555', display: 'block', marginBottom: 3 }}>
-            اسم المستخدم
+            {t('username')}
           </label>
           <input
             className="auth-input"
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="اسم المستخدم"
+            placeholder={t('usernamePlaceholder')}
           />
         </div>
 
         {/* Email */}
         <div>
           <label style={{ fontSize: 11, fontWeight: 500, color: '#555', display: 'block', marginBottom: 3 }}>
-            البريد الإلكتروني
+            {t('emailLabel')}
           </label>
           <input
             className="auth-input"
@@ -108,15 +113,15 @@ export default function RegisterForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="البريد الإلكتروني"
+            placeholder={t('emailPlaceholder')}
           />
         </div>
 
         {/* Phone */}
         <div ref={dropdownRef}>
           <label style={{ fontSize: 11, fontWeight: 500, color: '#555', display: 'block', marginBottom: 3 }}>
-            رقم الهاتف{' '}
-            <span style={{ fontSize: 10, color: '#bbb', fontWeight: 400 }}>(اختياري)</span>
+            {t('phoneLabel')}{' '}
+            <span style={{ fontSize: 10, color: '#bbb', fontWeight: 400 }}>{t('phoneOptional')}</span>
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: 8, position: 'relative' }} dir="ltr">
             <button
@@ -133,7 +138,7 @@ export default function RegisterForm() {
               className="auth-input"
               value={phone}
               onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))}
-              placeholder="رقم الهاتف"
+              placeholder={t('phonePlaceholder')}
              
             />
             {showCodes && (
@@ -143,7 +148,7 @@ export default function RegisterForm() {
                     type="text"
                     value={codeSearch}
                     onChange={(e) => setCodeSearch(e.target.value)}
-                    placeholder="ابحث عن دولة..."
+                    placeholder={t('searchCountry')}
                     className="auth-input"
                     style={{ height: 36, fontSize: 12 }}
                     autoFocus
@@ -165,12 +170,12 @@ export default function RegisterForm() {
                       }}
                     >
                       <span>{c.flag}</span>
-                      <span style={{ flex: 1, textAlign: 'right' }}>{c.name}</span>
+                      <span style={{ flex: 1 }}>{c.name}</span>
                       <span style={{ fontSize: 11, color: c.dial === countryCode ? '#1a3a8f' : '#999' }} dir="ltr">{c.dial}</span>
                     </button>
                   ))}
                   {filteredCodes.length === 0 && (
-                    <div style={{ padding: '20px 12px', textAlign: 'center', fontSize: 13, color: '#999' }}>لا توجد نتائج</div>
+                    <div style={{ padding: '20px 12px', textAlign: 'center', fontSize: 13, color: '#999' }}>{tc('noResults')}</div>
                   )}
                 </div>
               </div>
@@ -179,19 +184,19 @@ export default function RegisterForm() {
         </div>
 
         {/* ── Section 2: الموقع ── */}
-        <div className="section-divider"><span>الموقع</span></div>
+        <div className="section-divider"><span>{t('location')}</span></div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <div>
             <label style={{ fontSize: 11, fontWeight: 500, color: '#555', display: 'block', marginBottom: 3 }}>
-              المحافظة
+              {t('governorate')}
             </label>
             <div className="auth-input" style={{ display: 'flex', alignItems: 'center', padding: 0, overflow: 'hidden' }}>
               <CustomSelect
                 value={governorate}
                 onChange={(val) => { setGovernorate(val); setCity(''); }}
                 options={governorateOptions}
-                placeholder={country ? 'المحافظة' : 'اختر الدولة أولاً'}
+                placeholder={country ? t('governoratePlaceholder') : t('selectCountryFirst')}
                 disabled={!country}
                 searchable
                 variant="light"
@@ -200,14 +205,14 @@ export default function RegisterForm() {
           </div>
           <div>
             <label style={{ fontSize: 11, fontWeight: 500, color: '#555', display: 'block', marginBottom: 3 }}>
-              المنطقة
+              {t('area')}
             </label>
             <div className="auth-input" style={{ display: 'flex', alignItems: 'center', padding: 0, overflow: 'hidden' }}>
               <CustomSelect
                 value={city}
                 onChange={setCity}
                 options={cityOptions}
-                placeholder={governorate ? 'المدينة' : 'اختر المحافظة أولاً'}
+                placeholder={governorate ? t('cityPlaceholder') : t('selectGovFirst')}
                 disabled={!governorate}
                 searchable
                 variant="light"
@@ -217,13 +222,13 @@ export default function RegisterForm() {
         </div>
 
         {/* ── Section 3: الأمان ── */}
-        <div className="section-divider"><span>الأمان</span></div>
+        <div className="section-divider"><span>{t('security')}</span></div>
 
         {/* Password */}
         <div>
           <label style={{ fontSize: 11, fontWeight: 500, color: '#555', display: 'block', marginBottom: 3 }}>
-            كلمة المرور{' '}
-            <span style={{ fontSize: 10, color: '#bbb', fontWeight: 400 }}>8 أحرف على الأقل</span>
+            {t('passwordLabel')}{' '}
+            <span style={{ fontSize: 10, color: '#bbb', fontWeight: 400 }}>{t('passwordHint')}</span>
           </label>
           <div style={{ position: 'relative' }}>
             <input
@@ -234,13 +239,13 @@ export default function RegisterForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              style={{ paddingLeft: 40 }}
+              style={{ paddingInlineStart: 40 }}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               style={{
-                position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)',
+                position: 'absolute', insetInlineStart: 10, top: '50%', transform: 'translateY(-50%)',
                 background: 'none', border: 'none', cursor: 'pointer', padding: 0,
                 display: 'flex', alignItems: 'center',
               }}
@@ -264,10 +269,10 @@ export default function RegisterForm() {
             style={{ width: 16, height: 16, borderRadius: 4, accentColor: '#1a3a8f', cursor: 'pointer', flexShrink: 0 }}
           />
           <span style={{ fontSize: 10, color: '#777', lineHeight: 1.5 }}>
-            أوافق على{' '}
-            <Link href="/terms" style={{ color: '#1a3a8f', textDecoration: 'none' }}>الشروط والأحكام</Link>
-            {' '}و{' '}
-            <Link href="/privacy" style={{ color: '#1a3a8f', textDecoration: 'none' }}>سياسة الخصوصية</Link>
+            {t('agreeToTerms')}{' '}
+            <Link href="/terms" style={{ color: '#1a3a8f', textDecoration: 'none' }}>{t('termsAndConditions')}</Link>
+            {' '}{t('and')}{' '}
+            <Link href="/privacy" style={{ color: '#1a3a8f', textDecoration: 'none' }}>{t('privacyPolicy')}</Link>
           </span>
         </label>
 
@@ -296,11 +301,11 @@ export default function RegisterForm() {
           {loading ? (
             <>
               <span className="material-symbols-outlined" style={{ fontSize: 16, animation: 'spin 1s linear infinite' }}>progress_activity</span>
-              جارٍ الإنشاء...
+              {t('creating')}
             </>
           ) : (
             <>
-              إنشاء حساب مجاني
+              {t('createFreeAccount')}
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>how_to_reg</span>
             </>
           )}
@@ -309,14 +314,14 @@ export default function RegisterForm() {
         {/* Trust line */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontSize: 11, color: '#bbb' }}>
           <span className="material-symbols-outlined" style={{ fontSize: 12 }}>lock</span>
-          بياناتك آمنة ومحمية بالكامل
+          {t('dataSecure')}
         </div>
       </form>
 
       {/* Divider */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '12px 0' }}>
         <div style={{ height: 0.5, flex: 1, background: '#ebebeb' }} />
-        <span style={{ fontSize: 12, color: '#ccc', fontWeight: 500 }}>أو</span>
+        <span style={{ fontSize: 12, color: '#ccc', fontWeight: 500 }}>{t('or')}</span>
         <div style={{ height: 0.5, flex: 1, background: '#ebebeb' }} />
       </div>
 
@@ -324,9 +329,9 @@ export default function RegisterForm() {
       <GoogleSignInButton onError={setError} />
 
       <p style={{ textAlign: 'center', fontSize: 12, color: '#888', marginTop: 12, fontWeight: 500 }}>
-        لديك حساب بالفعل؟{' '}
+        {t('hasAccount')}{' '}
         <Link href="/login" style={{ color: '#1a3a8f', fontWeight: 700, textDecoration: 'none' }}>
-          تسجيل الدخول
+          {t('loginBtn')}
         </Link>
       </p>
     </div>

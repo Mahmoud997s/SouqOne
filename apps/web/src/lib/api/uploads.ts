@@ -33,7 +33,7 @@ export function useUploadImage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'فشل رفع الصورة');
+        throw new Error(data?.message || 'UPLOAD_FAILED');
       }
 
       return res.json();
@@ -59,7 +59,7 @@ export function useAddListingImage(listingId: string) {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.message || 'فشل رفع الصورة');
+        throw new Error(data?.message || 'UPLOAD_FAILED');
       }
 
       return res.json();

@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useLeafletCSS } from '@/hooks/use-leaflet-css';
+import { useTranslations } from 'next-intl';
 
 // Fix Leaflet default marker icon
 const DefaultIcon = L.icon({
@@ -47,6 +48,7 @@ function FlyToLocation({ lat, lng }: { lat: number; lng: number }) {
 
 export default function LocationPicker({ latitude, longitude, onChange }: LocationPickerProps) {
   useLeafletCSS();
+  const tp = useTranslations('pages');
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState('');
 
@@ -60,7 +62,7 @@ export default function LocationPicker({ latitude, longitude, onChange }: Locati
 
   function handleLocateMe() {
     if (!navigator.geolocation) {
-      setError('المتصفح لا يدعم تحديد الموقع');
+      setError(tp('mapBrowserUnsupported'));
       return;
     }
 
@@ -76,16 +78,16 @@ export default function LocationPicker({ latitude, longitude, onChange }: Locati
         setLocating(false);
         switch (err.code) {
           case err.PERMISSION_DENIED:
-            setError('تم رفض إذن الموقع. يرجى السماح بالوصول من إعدادات المتصفح.');
+            setError(tp('mapPermissionDenied'));
             break;
           case err.POSITION_UNAVAILABLE:
-            setError('الموقع غير متاح حالياً');
+            setError(tp('mapPositionUnavailable'));
             break;
           case err.TIMEOUT:
-            setError('انتهت مهلة تحديد الموقع');
+            setError(tp('mapTimeout'));
             break;
           default:
-            setError('حدث خطأ أثناء تحديد الموقع');
+            setError(tp('mapError'));
         }
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -105,16 +107,16 @@ export default function LocationPicker({ latitude, longitude, onChange }: Locati
           {locating ? (
             <>
               <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
-              جارٍ التحديد...
+              {tp('mapLocating')}
             </>
           ) : (
             <>
               <span className="material-symbols-outlined text-sm">my_location</span>
-              حدد موقعي تلقائياً
+              {tp('mapLocateMe')}
             </>
           )}
         </button>
-        <span className="text-xs text-on-surface-variant">أو انقر على الخريطة لتحديد الموقع</span>
+        <span className="text-xs text-on-surface-variant">{tp('mapClickHint')}</span>
       </div>
 
       {error && (
@@ -155,8 +157,8 @@ export default function LocationPicker({ latitude, longitude, onChange }: Locati
       {hasPin && (
         <div className="flex items-center gap-4 text-xs text-on-surface-variant bg-surface-container-low rounded-xl px-4 py-2.5">
           <span className="material-symbols-outlined text-sm text-primary">location_on</span>
-          <span>خط العرض: <strong className="text-on-surface">{latitude!.toFixed(6)}</strong></span>
-          <span>خط الطول: <strong className="text-on-surface">{longitude!.toFixed(6)}</strong></span>
+          <span>{tp('mapLat')} <strong className="text-on-surface">{latitude!.toFixed(6)}</strong></span>
+          <span>{tp('mapLng')} <strong className="text-on-surface">{longitude!.toFixed(6)}</strong></span>
         </div>
       )}
     </div>

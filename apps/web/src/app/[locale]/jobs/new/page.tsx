@@ -8,29 +8,44 @@ import { AuthGuard } from '@/components/auth-guard';
 import { useCreateJob } from '@/lib/api';
 import { useToast } from '@/components/toast';
 import { getGovernorates } from '@/lib/location-data';
-import { employmentOptions } from '@/lib/constants/jobs';
+import { employmentOptionsT } from '@/lib/constants/jobs';
+import { useTranslations, useLocale } from 'next-intl';
 
 
-const licenseOptions = [
-  { value: 'LIGHT', label: 'رخصة خفيفة' },
-  { value: 'HEAVY', label: 'رخصة ثقيلة' },
-  { value: 'TRANSPORT', label: 'رخصة نقل' },
-  { value: 'BUS', label: 'رخصة حافلات' },
-  { value: 'MOTORCYCLE', label: 'رخصة دراجة' },
+const LICENSE_OPTIONS = [
+  { value: 'LIGHT', key: 'jnLicLight' },
+  { value: 'HEAVY', key: 'jnLicHeavy' },
+  { value: 'TRANSPORT', key: 'jnLicTransport' },
+  { value: 'BUS', key: 'jnLicBus' },
+  { value: 'MOTORCYCLE', key: 'jnLicMotorcycle' },
 ];
 
-const salaryPeriodOptions = [
-  { value: 'MONTHLY', label: 'شهرياً' },
-  { value: 'DAILY', label: 'يومياً' },
-  { value: 'YEARLY', label: 'سنوياً' },
-  { value: 'NEGOTIABLE', label: 'قابل للتفاوض' },
+const SALARY_PERIOD_OPTIONS = [
+  { value: 'MONTHLY', key: 'jnPeriodMonthly' },
+  { value: 'DAILY', key: 'jnPeriodDaily' },
+  { value: 'YEARLY', key: 'jnPeriodYearly' },
+  { value: 'NEGOTIABLE', key: 'jnPeriodNegotiable' },
 ];
 
-const vehicleTypeOptions = [
-  'سيدان', 'SUV', 'شاحنة خفيفة', 'شاحنة ثقيلة', 'باص', 'ليموزين', 'فان', 'بيك أب',
+const VEHICLE_TYPE_OPTIONS = [
+  { value: 'SEDAN', key: 'jnVtSedan' },
+  { value: 'SUV', key: 'jnVtSUV' },
+  { value: 'LIGHT_TRUCK', key: 'jnVtLightTruck' },
+  { value: 'HEAVY_TRUCK', key: 'jnVtHeavyTruck' },
+  { value: 'BUS', key: 'jnVtBus' },
+  { value: 'LIMO', key: 'jnVtLimo' },
+  { value: 'VAN', key: 'jnVtVan' },
+  { value: 'PICKUP', key: 'jnVtPickup' },
 ];
 
-const languageOptions = ['العربية', 'الإنجليزية', 'الأوردو', 'الهندية', 'البنغالية', 'الفلبينية'];
+const LANGUAGE_OPTIONS = [
+  { value: 'ARABIC', key: 'jnLangArabic' },
+  { value: 'ENGLISH', key: 'jnLangEnglish' },
+  { value: 'URDU', key: 'jnLangUrdu' },
+  { value: 'HINDI', key: 'jnLangHindi' },
+  { value: 'BENGALI', key: 'jnLangBengali' },
+  { value: 'FILIPINO', key: 'jnLangFilipino' },
+];
 
 export default function NewJobPage() {
   return (
@@ -41,10 +56,14 @@ export default function NewJobPage() {
 }
 
 function NewJobContent() {
+  const tp = useTranslations('pages');
+  const tj = useTranslations('jobs');
   const router = useRouter();
   const { addToast } = useToast();
   const createJob = useCreateJob();
-  const govs = getGovernorates('OM');
+  const locale = useLocale();
+  const govs = getGovernorates('OM', locale);
+  const empOptions = employmentOptionsT(tj);
 
   const [form, setForm] = useState({
     title: '',
@@ -82,7 +101,7 @@ function NewJobContent() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.title || !form.description || !form.governorate) {
-      addToast('error', 'يرجى ملء جميع الحقول المطلوبة');
+      addToast('error', tp('jnErrRequired'));
       return;
     }
 
@@ -111,10 +130,10 @@ function NewJobContent() {
 
     try {
       const result = await createJob.mutateAsync(payload);
-      addToast('success', 'تم نشر إعلان الوظيفة بنجاح!');
+      addToast('success', tp('jnSuccess'));
       router.push(`/jobs/${result.id}`);
     } catch (err: any) {
-      addToast('error', err?.message || 'فشل في إنشاء الإعلان');
+      addToast('error', err?.message || tp('jnError'));
     }
   }
 
@@ -123,15 +142,15 @@ function NewJobContent() {
       <Navbar />
       <main className="pt-28 pb-16 max-w-3xl mx-auto px-4 md:px-8">
         <h1 className="text-3xl font-extrabold mb-2">
-          <span className="material-symbols-outlined text-primary align-middle text-3xl ml-2">add_circle</span>
-          إعلان وظيفة جديد
+          <span className="material-symbols-outlined text-primary align-middle text-3xl ms-2">add_circle</span>
+          {tp('jnTitle')}
         </h1>
-        <p className="text-on-surface-variant mb-8">أضف إعلان وظيفة سائق أو اعرض خدماتك</p>
+        <p className="text-on-surface-variant mb-8">{tp('jnSubtitle')}</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Job Type Toggle */}
           <div className="glass-card rounded-xl p-6">
-            <label className="block font-bold text-sm mb-3">نوع الإعلان *</label>
+            <label className="block font-bold text-sm mb-3">{tp('jnTypeLabel')}</label>
             <div className="flex gap-3">
               <button
                 type="button"
@@ -143,7 +162,7 @@ function NewJobContent() {
                 }`}
               >
                 <span className="material-symbols-outlined">person_search</span>
-                أبحث عن عمل (سائق)
+                {tp('jnTypeOffering')}
               </button>
               <button
                 type="button"
@@ -155,7 +174,7 @@ function NewJobContent() {
                 }`}
               >
                 <span className="material-symbols-outlined">person_add</span>
-                أبحث عن سائق (توظيف)
+                {tp('jnTypeHiring')}
               </button>
             </div>
           </div>
@@ -164,68 +183,68 @@ function NewJobContent() {
           <div className="glass-card rounded-xl p-6 space-y-4">
             <h2 className="font-bold text-lg flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">info</span>
-              المعلومات الأساسية
+              {tp('jnBasicTitle')}
             </h2>
             <div>
-              <label className="block text-sm font-bold mb-1">العنوان *</label>
+              <label className="block text-sm font-bold mb-1">{tp('jnLabelTitle')}</label>
               <input
                 type="text"
                 value={form.title}
                 onChange={(e) => updateField('title', e.target.value)}
-                placeholder={form.jobType === 'OFFERING' ? 'مثال: سائق خبرة 5 سنوات يبحث عن عمل في مسقط' : 'مثال: مطلوب سائق خاص لعائلة في بوشر'}
+                placeholder={form.jobType === 'OFFERING' ? tp('jnPlaceholderTitleOffering') : tp('jnPlaceholderTitleHiring')}
                 className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none"
                
               />
             </div>
             <div>
-              <label className="block text-sm font-bold mb-1">الوصف *</label>
+              <label className="block text-sm font-bold mb-1">{tp('jnLabelDesc')}</label>
               <textarea
                 value={form.description}
                 onChange={(e) => updateField('description', e.target.value)}
-                placeholder="اكتب وصفاً تفصيلياً..."
+                placeholder={tp('jnPlaceholderDesc')}
                 className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none min-h-[120px] resize-none"
                
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold mb-1">نوع الدوام *</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelEmployment')}</label>
                 <select
                   value={form.employmentType}
                   onChange={(e) => updateField('employmentType', e.target.value)}
                   className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm"
                 >
-                  {employmentOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  {empOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-bold mb-1">المحافظة *</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelGovernorate')}</label>
                 <select
                   value={form.governorate}
                   onChange={(e) => updateField('governorate', e.target.value)}
                   className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm"
                 >
-                  <option value="">اختر المحافظة</option>
+                  <option value="">{tp('jnSelectGovernorate')}</option>
                   {govs.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-bold mb-1">المدينة</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelCity')}</label>
                 <input
                   type="text"
                   value={form.city}
                   onChange={(e) => updateField('city', e.target.value)}
-                  placeholder="مثال: بوشر"
+                  placeholder={tp('jnPlaceholderCity')}
                   className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold mb-1">الجنسية</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelNationality')}</label>
                 <input
                   type="text"
                   value={form.nationality}
                   onChange={(e) => updateField('nationality', e.target.value)}
-                  placeholder="مثال: عماني"
+                  placeholder={tp('jnPlaceholderNationality')}
                   className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none"
                 />
               </div>
@@ -236,28 +255,28 @@ function NewJobContent() {
           <div className="glass-card rounded-xl p-6 space-y-4">
             <h2 className="font-bold text-lg flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">payments</span>
-              الراتب
+              {tp('jnSalaryTitle')}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold mb-1">الراتب (ر.ع.)</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelSalary')}</label>
                 <input
                   type="number"
                   value={form.salary}
                   onChange={(e) => updateField('salary', e.target.value)}
-                  placeholder="مثال: 300"
+                  placeholder={tp('jnPlaceholderSalary')}
                   className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none"
                   min={0}
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold mb-1">فترة الراتب</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelSalaryPeriod')}</label>
                 <select
                   value={form.salaryPeriod}
                   onChange={(e) => updateField('salaryPeriod', e.target.value)}
                   className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm"
                 >
-                  {salaryPeriodOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  {SALARY_PERIOD_OPTIONS.map((o) => <option key={o.value} value={o.value}>{tp(o.key)}</option>)}
                 </select>
               </div>
             </div>
@@ -267,14 +286,14 @@ function NewJobContent() {
           <div className="glass-card rounded-xl p-6 space-y-4">
             <h2 className="font-bold text-lg flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">checklist</span>
-              المتطلبات
+              {tp('jnRequirementsTitle')}
             </h2>
 
             {/* License Types */}
             <div>
-              <label className="block text-sm font-bold mb-2">نوع الرخصة</label>
+              <label className="block text-sm font-bold mb-2">{tp('jnLabelLicense')}</label>
               <div className="flex flex-wrap gap-2">
-                {licenseOptions.map((o) => (
+                {LICENSE_OPTIONS.map((o) => (
                   <button
                     key={o.value}
                     type="button"
@@ -285,7 +304,7 @@ function NewJobContent() {
                         : 'bg-surface border border-outline text-on-surface hover:border-primary'
                     }`}
                   >
-                    {o.label}
+                    {tp(o.key)}
                   </button>
                 ))}
               </div>
@@ -294,35 +313,35 @@ function NewJobContent() {
             {/* Experience */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-bold mb-1">سنوات الخبرة</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelExperience')}</label>
                 <input
                   type="number"
                   value={form.experienceYears}
                   onChange={(e) => updateField('experienceYears', e.target.value)}
-                  placeholder="مثال: 3"
+                  placeholder={tp('jnPlaceholderExperience')}
                   className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none"
                   min={0}
                   max={50}
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold mb-1">العمر الأدنى</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelMinAge')}</label>
                 <input
                   type="number"
                   value={form.minAge}
                   onChange={(e) => updateField('minAge', e.target.value)}
-                  placeholder="مثال: 25"
+                  placeholder={tp('jnPlaceholderMinAge')}
                   className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none"
                   min={18}
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold mb-1">العمر الأقصى</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelMaxAge')}</label>
                 <input
                   type="number"
                   value={form.maxAge}
                   onChange={(e) => updateField('maxAge', e.target.value)}
-                  placeholder="مثال: 45"
+                  placeholder={tp('jnPlaceholderMaxAge')}
                   className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none"
                   max={70}
                 />
@@ -331,20 +350,20 @@ function NewJobContent() {
 
             {/* Languages */}
             <div>
-              <label className="block text-sm font-bold mb-2">اللغات</label>
+              <label className="block text-sm font-bold mb-2">{tp('jnLabelLanguages')}</label>
               <div className="flex flex-wrap gap-2">
-                {languageOptions.map((lang) => (
+                {LANGUAGE_OPTIONS.map((lang) => (
                   <button
-                    key={lang}
+                    key={lang.value}
                     type="button"
-                    onClick={() => toggleArrayItem('languages', lang)}
+                    onClick={() => toggleArrayItem('languages', lang.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                      form.languages.includes(lang)
+                      form.languages.includes(lang.value)
                         ? 'bg-primary text-on-primary'
                         : 'bg-surface border border-outline text-on-surface hover:border-primary'
                     }`}
                   >
-                    {lang}
+                    {tp(lang.key)}
                   </button>
                 ))}
               </div>
@@ -352,20 +371,20 @@ function NewJobContent() {
 
             {/* Vehicle Types */}
             <div>
-              <label className="block text-sm font-bold mb-2">أنواع المركبات</label>
+              <label className="block text-sm font-bold mb-2">{tp('jnLabelVehicleTypes')}</label>
               <div className="flex flex-wrap gap-2">
-                {vehicleTypeOptions.map((vt) => (
+                {VEHICLE_TYPE_OPTIONS.map((vt) => (
                   <button
-                    key={vt}
+                    key={vt.value}
                     type="button"
-                    onClick={() => toggleArrayItem('vehicleTypes', vt)}
+                    onClick={() => toggleArrayItem('vehicleTypes', vt.value)}
                     className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                      form.vehicleTypes.includes(vt)
+                      form.vehicleTypes.includes(vt.value)
                         ? 'bg-primary text-on-primary shadow-ambient'
                         : 'bg-surface border border-outline text-on-surface hover:border-primary'
                     }`}
                   >
-                    {vt}
+                    {tp(vt.key)}
                   </button>
                 ))}
               </div>
@@ -379,7 +398,7 @@ function NewJobContent() {
                 onChange={(e) => updateField('hasOwnVehicle', e.target.checked)}
                 className="w-5 h-5 rounded accent-primary"
               />
-              <span className="text-sm font-bold">لديه/لديك سيارة خاصة</span>
+              <span className="text-sm font-bold">{tp('jnHasOwnVehicle')}</span>
             </label>
           </div>
 
@@ -387,33 +406,33 @@ function NewJobContent() {
           <div className="glass-card rounded-xl p-6 space-y-4">
             <h2 className="font-bold text-lg flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">contact_phone</span>
-              معلومات التواصل
+              {tp('jnContactTitle')}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold mb-1">رقم الهاتف</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelPhone')}</label>
                 <input
                   type="tel"
                   value={form.contactPhone}
                   onChange={(e) => updateField('contactPhone', e.target.value)}
-                  placeholder="مثال: +968 9XXX XXXX"
+                  placeholder={tp('jnPlaceholderPhone')}
                   className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none"
                   dir="ltr"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold mb-1">واتساب</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelWhatsapp')}</label>
                 <input
                   type="tel"
                   value={form.whatsapp}
                   onChange={(e) => updateField('whatsapp', e.target.value)}
-                  placeholder="مثال: +968 9XXX XXXX"
+                  placeholder={tp('jnPlaceholderPhone')}
                   className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-lg py-3 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none"
                   dir="ltr"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-sm font-bold mb-1">البريد الإلكتروني</label>
+                <label className="block text-sm font-bold mb-1">{tp('jnLabelEmail')}</label>
                 <input
                   type="email"
                   value={form.contactEmail}
@@ -433,14 +452,14 @@ function NewJobContent() {
               disabled={createJob.isPending}
               className="bg-primary text-on-primary hover:brightness-110 rounded-lg shadow-ambient flex-1 py-4 text-base font-bold disabled:opacity-50"
             >
-              {createJob.isPending ? 'جاري النشر...' : 'نشر الإعلان'}
+              {createJob.isPending ? tp('jnSubmitting') : tp('jnSubmit')}
             </button>
             <button
               type="button"
               onClick={() => router.back()}
               className="bg-surface border border-outline text-on-surface-variant rounded-lg px-8 py-4 font-bold hover:border-primary transition-colors"
             >
-              إلغاء
+              {tp('jnCancel')}
             </button>
           </div>
         </form>

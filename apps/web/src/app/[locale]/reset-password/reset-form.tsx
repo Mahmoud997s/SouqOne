@@ -4,12 +4,14 @@ import { useState, Suspense } from 'react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useSearchParams } from 'next/navigation';
 import { apiRequest } from '@/lib/auth';
+import { useTranslations } from 'next-intl';
 import { InputField } from '@/components/auth/input-field';
 import { OtpInput } from '@/components/auth/otp-input';
 import { PasswordStrength } from '@/components/auth/password-strength';
 
 function ResetFormInner() {
   const router = useRouter();
+  const t = useTranslations('auth');
   const searchParams = useSearchParams();
   const emailFromQuery = searchParams.get('email') || '';
 
@@ -24,11 +26,11 @@ function ResetFormInner() {
     e.preventDefault();
     const fullCode = code.join('');
     if (fullCode.length !== 6) {
-      setError('أدخل الرمز المكون من 6 أرقام');
+      setError(t('enter6DigitCode'));
       return;
     }
     if (newPassword.length < 8) {
-      setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+      setError(t('passwordMin8'));
       return;
     }
 
@@ -41,7 +43,7 @@ function ResetFormInner() {
       });
       setDone(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : t('unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -56,15 +58,15 @@ function ResetFormInner() {
               check_circle
             </span>
           </div>
-          <h2 className="font-bold text-xl text-on-surface mb-2">تم تغيير كلمة المرور!</h2>
+          <h2 className="font-bold text-xl text-on-surface mb-2">{t('passwordChanged')}</h2>
           <p className="text-on-surface-variant text-sm mb-8">
-            يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.
+            {t('canLoginNow')}
           </p>
           <button
             onClick={() => router.push('/login')}
             className="btn-primary w-full py-3 flex items-center justify-center gap-2 font-black text-sm rounded-xl hover:brightness-110 hover:shadow-lg transition-all"
           >
-            تسجيل الدخول
+            {t('loginBtn')}
             <span className="material-symbols-outlined text-base">login</span>
           </button>
         </div>
@@ -73,7 +75,7 @@ function ResetFormInner() {
           {/* Email (if not in query) */}
           {!emailFromQuery && (
             <InputField
-              label="البريد الإلكتروني"
+              label={t('emailLabel')}
               icon="mail"
               type="email"
               required
@@ -86,7 +88,7 @@ function ResetFormInner() {
           {/* OTP */}
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-              رمز التحقق
+              {t('verificationCode')}
             </label>
             <OtpInput value={code} onChange={setCode} />
           </div>
@@ -94,7 +96,7 @@ function ResetFormInner() {
           {/* New Password */}
           <div>
             <InputField
-              label="كلمة المرور الجديدة"
+              label={t('newPassword')}
               icon="lock"
               isPassword
               required
@@ -121,10 +123,10 @@ function ResetFormInner() {
             {loading ? (
               <>
                 <span className="material-symbols-outlined text-base animate-spin">progress_activity</span>
-                جارٍ التغيير...
+                {t('changing')}
               </>
             ) : (
-              'تغيير كلمة المرور'
+              t('changePassword')
             )}
           </button>
         </form>
@@ -132,8 +134,8 @@ function ResetFormInner() {
 
       <p className="text-center text-on-surface-variant text-sm mt-5 font-medium">
         <Link href="/login" className="inline-flex items-center gap-1.5 text-primary font-bold hover:underline transition-all group">
-          <span className="material-symbols-outlined text-base transition-transform group-hover:-translate-x-1">arrow_back</span>
-          العودة لتسجيل الدخول
+          <span className="material-symbols-outlined icon-flip text-base transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1">arrow_back</span>
+          {t('backToLogin')}
         </Link>
       </p>
     </div>
@@ -142,7 +144,7 @@ function ResetFormInner() {
 
 export default function ResetForm() {
   return (
-    <Suspense fallback={<div className="text-center py-8 text-sm text-on-surface-variant">جارٍ التحميل...</div>}>
+    <Suspense fallback={<div className="text-center py-8 text-sm text-on-surface-variant">...</div>}>
       <ResetFormInner />
     </Suspense>
   );

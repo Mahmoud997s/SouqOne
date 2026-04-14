@@ -8,6 +8,7 @@ import { Footer } from '@/components/layout/footer';
 import { ListingSkeleton } from '@/components/loading-skeleton';
 import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
+import { useTranslations } from 'next-intl';
 
 /* ── Types ── */
 
@@ -84,13 +85,17 @@ function ListingPageContent<T>({
   gridClassName = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4',
   useDataHook,
   renderCard,
-  emptyTitle = 'لا توجد نتائج',
-  emptyDescription = 'جرب البحث بكلمات مختلفة',
+  emptyTitle: emptyTitleProp,
+  emptyDescription: emptyDescProp,
   heroIcon = 'category',
   heroSubtitle,
 }: ListingPageShellProps<T>) {
+  const tc = useTranslations('common');
+  const tl = useTranslations('listings');
   const searchParams = useSearchParams();
   const router = useRouter();
+  const emptyTitle = emptyTitleProp ?? tc('noResults');
+  const emptyDescription = emptyDescProp ?? tl('tryDifferentSearch');
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [selectedFilter, setSelectedFilter] = useState(searchParams.get(filterParamKey) || '');
 
@@ -140,7 +145,7 @@ function ListingPageContent<T>({
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-2 drop-shadow-sm">{title}</h1>
             <p className="text-white/70 text-xs sm:text-sm mb-5 sm:mb-7 max-w-lg mx-auto">
-              {heroSubtitle || `تصفح ${data?.meta.total ?? ''} ${countLabel} في سلطنة عمان`}
+              {heroSubtitle || tl('browseInOman', { total: String(data?.meta.total ?? ''), label: countLabel })}
             </p>
 
             {/* Glass Search Box */}
@@ -164,7 +169,7 @@ function ListingPageContent<T>({
                   </div>
                   <button type="submit" className="shrink-0 bg-white text-primary px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 font-black text-xs sm:text-sm rounded-lg sm:rounded-xl hover:bg-white/90 active:scale-[0.97] transition-all flex items-center gap-1.5 shadow-lg">
                     <span className="material-symbols-outlined text-base">search</span>
-                    <span className="hidden sm:inline">بحث</span>
+                    <span className="hidden sm:inline">{tc('search')}</span>
                   </button>
                 </div>
 
@@ -214,7 +219,7 @@ function ListingPageContent<T>({
           <div>
             <h2 className="text-lg sm:text-xl font-black text-on-surface">{title}</h2>
             <p className="text-sm text-on-surface-variant mt-0.5">
-              {data ? `${data.meta.total} ${countLabel}` : 'جارٍ التحميل...'}
+              {data ? `${data.meta.total} ${countLabel}` : tc('loading')}
             </p>
           </div>
         </div>
@@ -223,7 +228,7 @@ function ListingPageContent<T>({
         {isLoading ? (
           <ListingSkeleton count={6} />
         ) : error ? (
-          <ErrorState message="حدث خطأ في تحميل البيانات" />
+          <ErrorState message={tl('loadError')} />
         ) : !data?.items.length ? (
           <EmptyState title={emptyTitle} description={emptyDescription} />
         ) : (
@@ -250,7 +255,7 @@ function ListingPageContent<T>({
             <div className="flex justify-center items-center gap-2 mt-10">
               <button onClick={() => goTo(Math.max(1, current - 1))} disabled={current <= 1}
                 className="w-10 h-10 border border-outline-variant/10 rounded-xl flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30">
-                <span className="material-symbols-outlined text-lg">chevron_right</span>
+                <span className="material-symbols-outlined icon-flip text-lg">chevron_right</span>
               </button>
               {pages.map((p, i) =>
                 p === '...' ? (
@@ -261,7 +266,7 @@ function ListingPageContent<T>({
               )}
               <button onClick={() => goTo(Math.min(total, current + 1))} disabled={current >= total}
                 className="w-10 h-10 border border-outline-variant/10 rounded-xl flex items-center justify-center hover:bg-surface-container transition-all disabled:opacity-30">
-                <span className="material-symbols-outlined text-lg">chevron_left</span>
+                <span className="material-symbols-outlined icon-flip text-lg">chevron_left</span>
               </button>
             </div>
           );

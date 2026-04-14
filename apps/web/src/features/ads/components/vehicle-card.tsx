@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/image-utils';
-import { FUEL_LABELS, TRANSMISSION_LABELS, CONDITION_BADGE, PILL_COLORS } from '@/lib/constants/mappings';
+import { conditionBadge, fuelLabels, transmissionLabels, PILL_COLORS } from '@/lib/constants/mappings';
 import { VerifiedBadge } from '@/components/verified-badge';
-import { relativeTime } from '@/lib/time-utils';
+import { relativeTimeT } from '@/lib/time-utils';
 import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface VehicleCardProps {
   id: string;
@@ -34,15 +35,22 @@ interface VehicleCardProps {
   monthlyPrice?: string | number | null;
 }
 
-function formatPrice(price: string | number, currency: string, suffix?: string) {
+function formatPrice(price: string | number, currencyLabel: string, suffix?: string) {
   const num = typeof price === 'string' ? parseFloat(price) : price;
-  const formatted = `${num.toLocaleString('en-US')} ${currency === 'OMR' ? 'ر.ع' : currency}`;
+  const formatted = `${num.toLocaleString('en-US')} ${currencyLabel}`;
   return suffix ? `${formatted}${suffix}` : formatted;
 }
 
 export function VehicleCard(props: VehicleCardProps) {
+  const t = useTranslations('listings');
+  const tm = useTranslations('mappings');
+  const tt = useTranslations('time');
+  const locale = useLocale();
   const imgSrc = getImageUrl(props.imageUrl);
-  const badge = props.condition ? CONDITION_BADGE[props.condition] : null;
+  const badges = conditionBadge(tm);
+  const fuels = fuelLabels(tm);
+  const transmissions = transmissionLabels(tm);
+  const badge = props.condition ? badges[props.condition] : null;
   const { isAuthenticated } = useAuth();
   const { data: favIds } = useFavoriteIds();
   const toggleFav = useToggleFavorite();
@@ -52,12 +60,13 @@ export function VehicleCard(props: VehicleCardProps) {
 
   useEffect(() => { setLocalFav(serverFav); }, [serverFav]);
 
+  const currencyLabel = props.currency === 'OMR' ? t('currency') : props.currency;
   const isWanted = props.listingType === 'WANTED';
   const priceText = isWanted
-    ? (Number(props.price) > 0 ? `الميزانية: ${formatPrice(props.price, props.currency)}` : 'مطلوب')
+    ? (Number(props.price) > 0 ? `${t('budget')}: ${formatPrice(props.price, currencyLabel)}` : t('wanted'))
     : props.listingType === 'RENTAL'
-      ? formatPrice(props.dailyPrice || props.price, props.currency, '/يوم')
-      : formatPrice(props.price, props.currency);
+      ? formatPrice(props.dailyPrice || props.price, currencyLabel, t('perDay'))
+      : formatPrice(props.price, currencyLabel);
 
   const handleFav = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -89,7 +98,7 @@ export function VehicleCard(props: VehicleCardProps) {
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-on-surface-variant/30">
               <span className="material-symbols-outlined text-3xl sm:text-4xl">directions_car</span>
-              <span className="text-[9px] font-medium">لا توجد صورة</span>
+              <span className="text-[9px] font-medium">{t('noImage')}</span>
             </div>
           )}
 
@@ -101,7 +110,7 @@ export function VehicleCard(props: VehicleCardProps) {
             <button
               onClick={handleFav}
               className="absolute top-2 left-2 z-10 w-8 h-8 flex items-center justify-center"
-              aria-label={localFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+              aria-label={localFav ? t('removeFromFavorites') : t('addToFavorites')}
             >
               <span
                 className={`material-symbols-outlined text-[22px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all duration-200 ${
@@ -117,7 +126,7 @@ export function VehicleCard(props: VehicleCardProps) {
           {/* ── Condition / Wanted badge (top-right) ── */}
           {isWanted ? (
             <span className="absolute top-2 right-2 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-orange-500 text-white">
-              مطلوب
+              {t('wanted')}
             </span>
           ) : badge && (
             <span className={`absolute top-2 right-2 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold ${badge.cls}`}>
@@ -138,7 +147,7 @@ export function VehicleCard(props: VehicleCardProps) {
           {props.distance != null && (
             <span className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white rounded px-1.5 py-0.5 flex items-center gap-0.5 text-[9px] sm:text-[10px] font-bold">
               <span className="material-symbols-outlined text-[10px]">near_me</span>
-              {props.distance < 1 ? `${Math.round(props.distance * 1000)} م` : `${props.distance} كم`}
+              {props.distance < 1 ? `${Math.round(props.distance * 1000)} ${t('meters')}` : `${props.distance} ${t('km')}`}
             </span>
           )}
         </div>
@@ -168,13 +177,13 @@ export function VehicleCard(props: VehicleCardProps) {
               {props.listingType === 'RENTAL' && (
                 <span className={`inline-flex items-center gap-0.5 text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded ${PILL_COLORS.green}`}>
                   <span className="material-symbols-outlined text-[9px] sm:text-[10px]">car_rental</span>
-                  للإيجار
+                  {t('forRent')}
                 </span>
               )}
               {props.isPriceNegotiable && (
                 <span className={`inline-flex items-center gap-0.5 text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded ${PILL_COLORS.info}`}>
                   <span className="material-symbols-outlined text-[9px] sm:text-[10px]">handshake</span>
-                  قابل للتفاوض
+                  {t('negotiable')}
                 </span>
               )}
             </div>
@@ -187,21 +196,21 @@ export function VehicleCard(props: VehicleCardProps) {
               <span className="text-[9px] sm:text-[10px] font-bold text-on-surface leading-none">
                 {props.mileage != null ? props.mileage.toLocaleString('en-US') : '0'}
               </span>
-              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">كم</span>
+              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">{t('km')}</span>
             </div>
             <div className="flex flex-col items-center gap-0.5 bg-surface-container-low rounded py-1 sm:py-1.5 px-0.5">
               <span className="material-symbols-outlined text-primary text-[12px] sm:text-[13px]">local_gas_station</span>
               <span className="text-[9px] sm:text-[10px] font-bold text-on-surface leading-none">
-                {props.fuelType ? (FUEL_LABELS[props.fuelType] ?? props.fuelType) : 'بنزين'}
+                {props.fuelType ? (fuels[props.fuelType] ?? props.fuelType) : t('petrol')}
               </span>
-              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">الوقود</span>
+              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">{t('fuel')}</span>
             </div>
             <div className="flex flex-col items-center gap-0.5 bg-surface-container-low rounded py-1 sm:py-1.5 px-0.5">
               <span className="material-symbols-outlined text-primary text-[12px] sm:text-[13px]">settings</span>
               <span className="text-[9px] sm:text-[10px] font-bold text-on-surface leading-none">
-                {props.transmission ? (TRANSMISSION_LABELS[props.transmission] ?? props.transmission) : 'أوتوماتيك'}
+                {props.transmission ? (transmissions[props.transmission] ?? props.transmission) : t('automatic')}
               </span>
-              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">ناقل الحركة</span>
+              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">{t('transmission')}</span>
             </div>
           </div>
 
@@ -211,7 +220,7 @@ export function VehicleCard(props: VehicleCardProps) {
               {props.createdAt && (
                 <span className="flex items-center gap-0.5">
                   <span className="material-symbols-outlined text-[10px] sm:text-[11px]">schedule</span>
-                  {relativeTime(props.createdAt)}
+                  {relativeTimeT(props.createdAt, tt, locale)}
                 </span>
               )}
               {props.viewCount != null && props.viewCount > 0 && (
@@ -221,7 +230,7 @@ export function VehicleCard(props: VehicleCardProps) {
                 </span>
               )}
             </div>
-            <span className="material-symbols-outlined text-primary text-xs group-hover:-translate-x-1 transition-transform">arrow_back</span>
+            <span className="material-symbols-outlined icon-flip text-primary text-xs rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 transition-transform">arrow_back</span>
           </div>
         </div>
       </Link>

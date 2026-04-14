@@ -13,6 +13,7 @@ import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { getImageUrl } from '@/lib/image-utils';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function SellerPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,22 +23,24 @@ export default function SellerPage() {
   const createConv = useCreateConversation();
   const requireAuth = useRequireAuth();
   const { addToast } = useToast();
+  const tp = useTranslations('pages');
+  const locale = useLocale();
 
   function handleContact() {
     requireAuth(async () => {
       if (!seller) return;
       const firstListing = listings?.items?.[0];
       if (!firstListing) {
-        addToast('info', 'لا توجد إعلانات لهذا البائع حالياً');
+        addToast('info', tp('sellerNoListings'));
         return;
       }
       try {
         const conv = await createConv.mutateAsync({ entityType: 'LISTING', entityId: firstListing.id });
         router.push(`/messages/${conv.id}`);
       } catch (err) {
-        addToast('error', err instanceof Error ? err.message : 'حدث خطأ أثناء إنشاء المحادثة');
+        addToast('error', err instanceof Error ? err.message : tp('sellerErrorConversation'));
       }
-    }, 'سجّل الدخول للتواصل مع البائع');
+    }, tp('sellerLoginToContact'));
   }
 
   if (sellerLoading) {
@@ -95,7 +98,7 @@ export default function SellerPage() {
             )}
             {seller.bio && <p className="text-on-surface-variant text-sm mt-2">{seller.bio}</p>}
             <p className="text-xs text-on-surface-variant mt-2">
-              عضو منذ {new Date(seller.createdAt).toLocaleDateString('ar-OM')}
+              {tp('sellerMemberSince', { date: new Date(seller.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US') })}
             </p>
           </div>
           <button
@@ -104,12 +107,12 @@ export default function SellerPage() {
             className="bg-primary text-on-primary px-8 py-3 text-sm font-black flex items-center gap-2 hover:brightness-110 transition-colors"
           >
             <span className="material-symbols-outlined text-lg">chat</span>
-            {createConv.isPending ? 'جارٍ...' : 'تواصل مع البائع'}
+            {createConv.isPending ? tp('sellerContactPending') : tp('sellerContactSeller')}
           </button>
         </div>
 
         {/* Seller Listings */}
-        <h2 className="text-2xl font-black mb-6">إعلانات البائع</h2>
+        <h2 className="text-2xl font-black mb-6">{tp('sellerListings')}</h2>
 
         {listingsLoading ? (
           <ListingSkeleton count={4} />
@@ -142,8 +145,8 @@ export default function SellerPage() {
         ) : (
           <EmptyState
             icon="inventory_2"
-            title="لا توجد إعلانات"
-            description="هذا البائع ليس لديه إعلانات نشطة حالياً."
+            title={tp('sellerEmptyTitle')}
+            description={tp('sellerEmptyDesc')}
           />
         )}
       </main>

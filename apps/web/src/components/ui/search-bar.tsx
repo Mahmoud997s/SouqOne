@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import clsx from 'clsx';
+import { useTranslations } from 'next-intl';
 
 export interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -10,7 +11,8 @@ export interface SearchBarProps {
   className?: string;
 }
 
-export function SearchBar({ onSearch, placeholder = 'ابحث...', defaultValue = '', className }: SearchBarProps) {
+export function SearchBar({ onSearch, placeholder, defaultValue = '', className }: SearchBarProps) {
+  const tp = useTranslations('pages');
   const [query, setQuery] = useState(defaultValue);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -35,15 +37,15 @@ export function SearchBar({ onSearch, placeholder = 'ابحث...', defaultValue 
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={placeholder}
-            className="w-full bg-surface-container-lowest pr-14 py-4 md:py-5 text-on-surface placeholder:text-on-surface-variant/50 outline-none rounded-xl focus:ring-1 focus:ring-primary/30 transition-all"
+            placeholder={placeholder || tp('searchBarPlaceholder')}
+            className="w-full bg-surface-container-lowest pe-14 py-4 md:py-5 text-on-surface placeholder:text-on-surface-variant/50 outline-none rounded-xl focus:ring-1 focus:ring-primary/30 transition-all"
           />
         </div>
         <button
           type="submit"
           className="btn-primary px-10 md:px-12 py-4 md:py-5 font-headline font-black hover:brightness-105 hover:shadow-ambient text-lg"
         >
-          ابحث الآن
+          {tp('searchBarSubmit')}
         </button>
       </div>
     </form>

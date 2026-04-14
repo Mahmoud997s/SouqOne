@@ -13,12 +13,12 @@ function saveRecent(q: string) { const r = getRecent().filter(s => s !== q); r.u
 function useSearchCategories() {
   const ts = useTranslations('search');
   return [
-    { value: 'all', label: ts('all'), placeholder: ts('searchPlaceholder'), route: '/listings' },
-    { value: 'cars', label: ts('carsCategory'), placeholder: ts('searchCars'), route: '/listings' },
-    { value: 'parts', label: ts('partsCategory'), placeholder: ts('searchParts'), route: '/parts' },
-    { value: 'services', label: ts('servicesCategory'), placeholder: ts('searchServices'), route: '/services' },
-    { value: 'transport', label: ts('transportCategory'), placeholder: ts('searchTransport'), route: '/transport' },
-    { value: 'jobs', label: ts('jobsCategory'), placeholder: ts('searchJobs'), route: '/jobs' },
+    { value: 'all', label: ts('all'), placeholder: ts('navPlaceholder'), route: '/listings' },
+    { value: 'cars', label: ts('cars'), placeholder: ts('navCarsPlaceholder'), route: '/listings' },
+    { value: 'parts', label: ts('parts'), placeholder: ts('navPartsPlaceholder'), route: '/parts' },
+    { value: 'services', label: ts('services'), placeholder: ts('navServicesPlaceholder'), route: '/services' },
+    { value: 'transport', label: ts('transport'), placeholder: ts('navTransportPlaceholder'), route: '/transport' },
+    { value: 'jobs', label: ts('jobs'), placeholder: ts('navJobsPlaceholder'), route: '/jobs' },
   ];
 }
 
@@ -101,13 +101,13 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
               <span className={`material-symbols-outlined text-[11px] transition-transform duration-200 ${catOpen ? 'rotate-180' : ''}`}>expand_more</span>
             </button>
             {catOpen && (
-              <div className="absolute top-full right-0 mt-1.5 bg-surface-container-lowest dark:bg-surface-container-high border border-outline-variant/15 dark:border-outline-variant/30 shadow-lg dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] z-50 min-w-[140px] rounded-xl overflow-hidden py-1">
+              <div className="absolute top-full end-0 mt-1.5 bg-surface-container-lowest dark:bg-surface-container-high border border-outline-variant/15 dark:border-outline-variant/30 shadow-lg dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] z-50 min-w-[140px] rounded-xl overflow-hidden py-1">
                 {searchCategories.map(cat => (
                   <button
                     key={cat.value}
                     type="button"
                     onClick={() => { setSearchCategory(cat.value); setCatOpen(false); }}
-                    className={`w-full text-right px-4 py-2 text-[13px] font-semibold transition-colors ${
+                    className={`w-full text-start px-4 py-2 text-[13px] font-semibold transition-colors ${
                       searchCategory === cat.value
                         ? 'bg-primary/10 text-primary'
                         : 'text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-highest'
@@ -134,7 +134,7 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
               <div className="absolute top-[calc(100%+8px)] right-0 left-0 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl shadow-lg z-50 max-h-[50vh] overflow-y-auto py-1">
                 {searchQuery.length >= 2 && suggestions && suggestions.length > 0 ? (
                   suggestions.map((s) => (
-                    <button key={s.id} onClick={() => handleSuggestionClick(s.title)} className="w-full flex items-center gap-2 px-3 py-2 text-right hover:bg-surface-container transition-colors">
+                    <button key={s.id} onClick={() => handleSuggestionClick(s.title)} className="w-full flex items-center gap-2 px-3 py-2 text-start hover:bg-surface-container transition-colors">
                       <span className="material-symbols-outlined text-sm text-on-surface-variant/40">search</span>
                       <span className="text-sm text-on-surface truncate" dangerouslySetInnerHTML={{ __html: s.highlighted || s.title }} />
                     </button>
@@ -145,7 +145,7 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
                       <div className="px-3 py-1.5">
                         <span className="text-[11px] font-bold text-on-surface-variant">{ts('recentSearches')}</span>
                         {getRecent().map((r, i) => (
-                          <button key={i} onClick={() => handleSuggestionClick(r)} className="w-full flex items-center gap-2 py-1.5 text-right hover:text-primary transition-colors">
+                          <button key={i} onClick={() => handleSuggestionClick(r)} className="w-full flex items-center gap-2 py-1.5 text-start hover:text-primary transition-colors">
                             <span className="material-symbols-outlined text-sm text-on-surface-variant/30">history</span>
                             <span className="text-sm text-on-surface">{r}</span>
                           </button>

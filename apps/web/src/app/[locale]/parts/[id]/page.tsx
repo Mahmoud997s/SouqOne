@@ -13,12 +13,11 @@ import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
 import { SellerCard } from '@/components/seller-card';
 import dynamic from 'next/dynamic';
+import { useTranslations, useLocale } from 'next-intl';
 
 const MapView = dynamic(() => import('@/components/map/map-view'), { ssr: false });
 
-const COND_LABELS: Record<string, string> = { NEW: 'جديد', USED: 'مستعمل', REFURBISHED: 'مجدد' };
 const COND_COLORS: Record<string, string> = { NEW: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400', USED: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400', REFURBISHED: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400' };
-const CAT_LABELS: Record<string, string> = { ENGINE: 'محرك', BODY: 'هيكل', ELECTRICAL: 'كهرباء', SUSPENSION: 'تعليق', BRAKES: 'فرامل', INTERIOR: 'داخلية', TIRES: 'إطارات', BATTERIES: 'بطاريات', OILS: 'زيوت', ACCESSORIES: 'إكسسوارات', OTHER: 'أخرى' };
 
 export default function PartDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -29,6 +28,11 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
   const requireAuth = useRequireAuth();
   const createConv = useCreateConversation();
   const { addToast } = useToast();
+  const tp = useTranslations('pages');
+  const locale = useLocale();
+
+  const COND_LABELS: Record<string, string> = { NEW: tp('partDetailCondNew'), USED: tp('partDetailCondUsed'), REFURBISHED: tp('partDetailCondRefurbished') };
+  const CAT_LABELS: Record<string, string> = { ENGINE: tp('partDetailCatEngine'), BODY: tp('partDetailCatBody'), ELECTRICAL: tp('partDetailCatElectrical'), SUSPENSION: tp('partDetailCatSuspension'), BRAKES: tp('partDetailCatBrakes'), INTERIOR: tp('partDetailCatInterior'), TIRES: tp('partDetailCatTires'), BATTERIES: tp('partDetailCatBatteries'), OILS: tp('partDetailCatOils'), ACCESSORIES: tp('partDetailCatAccessories'), OTHER: tp('partDetailCatOther') };
 
   function handleMessage() {
     requireAuth(async () => {
@@ -37,13 +41,13 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
         const conv = await createConv.mutateAsync({ entityType: 'SPARE_PART', entityId: part.id });
         router.push(`/messages/${conv.id}`);
       } catch (err) {
-        addToast('error', err instanceof Error ? err.message : 'حدث خطأ أثناء إنشاء المحادثة');
+        addToast('error', err instanceof Error ? err.message : tp('partDetailErrorConversation'));
       }
-    }, 'سجّل الدخول لإرسال رسالة');
+    }, tp('partDetailLoginToMessage'));
   }
 
   if (isLoading) return <><Navbar /><div className="min-h-screen bg-background"><div className="h-40 bg-gradient-to-bl from-[#004ac6] via-[#2563eb] to-[#0B2447]" /><main className="max-w-5xl mx-auto px-4 md:px-8 -mt-16"><ListingSkeleton count={1} /></main></div></>;
-  if (error || !part) return <><Navbar /><div className="min-h-screen bg-background pt-28"><main className="max-w-5xl mx-auto px-4"><ErrorState message="قطعة الغيار غير موجودة" /></main></div><Footer /></>;
+  if (error || !part) return <><Navbar /><div className="min-h-screen bg-background pt-28"><main className="max-w-5xl mx-auto px-4"><ErrorState message={tp('partDetailNotFound')} /></main></div><Footer /></>;
 
   const images = part.images || [];
   const mainImage = images[activeImg]?.url;
@@ -59,9 +63,9 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
         <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 md:-mt-24 relative z-10 pb-16">
           <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
             <Link href="/parts" className="hover:text-white transition-colors flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">build</span> قطع غيار
+              <span className="material-symbols-outlined text-sm">build</span> {tp('partDetailBreadcrumb')}
             </Link>
-            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <span className="material-symbols-outlined icon-flip text-xs">chevron_left</span>
             <span className="text-white font-bold">{CAT_LABELS[part.partCategory] || part.partCategory}</span>
           </nav>
 
@@ -95,7 +99,7 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm mt-6">
                   <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">description</span>
-                    <h2 className="font-black text-on-surface">الوصف</h2>
+                    <h2 className="font-black text-on-surface">{tp('partDetailDescription')}</h2>
                   </div>
                   <div className="p-6">
                     <p className="text-sm text-on-surface-variant whitespace-pre-line leading-relaxed">{part.description}</p>
@@ -113,19 +117,19 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
                     <span className={`px-2.5 py-1 text-[11px] font-black ${COND_COLORS[part.condition] || 'bg-surface-container-low text-on-surface-variant'}`}>
                       {COND_LABELS[part.condition]}
                     </span>
-                    {part.isOriginal && <span className="px-2.5 py-1 text-[11px] font-black bg-primary/10 dark:bg-primary/20 text-primary">أصلي OEM</span>}
+                    {part.isOriginal && <span className="px-2.5 py-1 text-[11px] font-black bg-primary/10 dark:bg-primary/20 text-primary">{tp('partDetailOriginal')}</span>}
                     <span className="px-2.5 py-1 text-[11px] font-black bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant">{CAT_LABELS[part.partCategory]}</span>
                   </div>
                   <h1 className="text-xl font-black text-on-surface mb-4">{part.title}</h1>
                   <div className="flex items-baseline gap-2 mb-1">
                     <span className="text-3xl font-black text-primary">{parseFloat(part.price).toFixed(3)}</span>
-                    <span className="text-sm text-on-surface-variant">ر.ع.</span>
+                    <span className="text-sm text-on-surface-variant">{tp('partDetailCurrencyOMR')}</span>
                   </div>
-                  {part.isPriceNegotiable && <span className="text-xs text-on-surface-variant bg-surface-container-low dark:bg-surface-container-high px-2.5 py-1 inline-block mt-1">قابل للتفاوض</span>}
+                  {part.isPriceNegotiable && <span className="text-xs text-on-surface-variant bg-surface-container-low dark:bg-surface-container-high px-2.5 py-1 inline-block mt-1">{tp('partDetailNegotiable')}</span>}
 
                   <div className="flex items-center gap-4 text-xs text-on-surface-variant mt-4 pt-4 border-t border-outline-variant/10 dark:border-outline-variant/20">
-                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {part.viewCount} مشاهدة</span>
-                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(part.createdAt).toLocaleDateString('ar-OM')}</span>
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {part.viewCount} {tp('partDetailViews')}</span>
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(part.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')}</span>
                   </div>
                 </div>
 
@@ -134,18 +138,18 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
                   {user?.id !== part.seller?.id && (
                     <button onClick={handleMessage} disabled={createConv.isPending}
                       className="flex items-center justify-center gap-2 w-full py-3.5 bg-on-surface text-surface font-black text-sm hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-60">
-                      <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? 'جاري...' : 'تواصل عبر الشات'}
+                      <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? tp('partDetailChatPending') : tp('partDetailChat')}
                     </button>
                   )}
                   {part.contactPhone && (
                     <a href={`tel:${part.contactPhone}`} className="flex items-center justify-center gap-2 w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all">
-                      <span className="material-symbols-outlined text-lg">call</span> اتصل بالبائع
+                      <span className="material-symbols-outlined text-lg">call</span> {tp('partDetailCallSeller')}
                     </a>
                   )}
                   {part.whatsapp && (
                     <a href={`https://wa.me/${part.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full py-3.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-black text-sm hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
-                      <span className="material-symbols-outlined text-lg">chat</span> واتساب
+                      <span className="material-symbols-outlined text-lg">chat</span> {tp('partDetailWhatsapp')}
                     </a>
                   )}
                 </div>
@@ -153,12 +157,12 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
 
               {/* Seller card */}
               <SellerCard
-                title="البائع"
+                title={tp('partDetailSeller')}
                 name={part.seller.displayName || part.seller.username}
                 avatarUrl={part.seller.avatarUrl}
                 location={part.seller.governorate}
                 phone={part.contactPhone}
-                whatsappText={`مرحباً، أنا مهتم بإعلانك: ${part.title}`}
+                whatsappText={tp('partDetailWhatsappText', { title: part.title })}
                 onMessage={handleMessage}
                 messagePending={createConv.isPending}
                 isOwner={user?.id === part.seller?.id}
@@ -173,27 +177,27 @@ export default function PartDetailPage({ params }: { params: Promise<{ id: strin
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">info</span>
-                  <h3 className="font-black text-on-surface text-sm">تفاصيل القطعة</h3>
+                  <h3 className="font-black text-on-surface text-sm">{tp('partDetailDetails')}</h3>
                 </div>
                 <div className="p-6 space-y-3 text-sm">
                   {part.partNumber && (
                     <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20 last:border-0">
-                      <span className="text-on-surface-variant">رقم القطعة</span><span className="font-black text-on-surface">{part.partNumber}</span>
+                      <span className="text-on-surface-variant">{tp('partDetailPartNumber')}</span><span className="font-black text-on-surface">{part.partNumber}</span>
                     </div>
                   )}
                   {part.compatibleMakes.length > 0 && (
                     <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20 last:border-0">
-                      <span className="text-on-surface-variant">الماركات</span><span className="font-black text-on-surface">{part.compatibleMakes.join(', ')}</span>
+                      <span className="text-on-surface-variant">{tp('partDetailMakes')}</span><span className="font-black text-on-surface">{part.compatibleMakes.join(', ')}</span>
                     </div>
                   )}
                   {part.yearFrom && (
                     <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20 last:border-0">
-                      <span className="text-on-surface-variant">السنوات</span><span className="font-black text-on-surface">{part.yearFrom}{part.yearTo ? ` - ${part.yearTo}` : '+'}</span>
+                      <span className="text-on-surface-variant">{tp('partDetailYears')}</span><span className="font-black text-on-surface">{part.yearFrom}{part.yearTo ? ` - ${part.yearTo}` : '+'}</span>
                     </div>
                   )}
                   {part.governorate && (
                     <div className="flex justify-between items-center py-2">
-                      <span className="text-on-surface-variant">الموقع</span><span className="font-black text-on-surface">{part.governorate}{part.city ? ` - ${part.city}` : ''}</span>
+                      <span className="text-on-surface-variant">{tp('partDetailLocation')}</span><span className="font-black text-on-surface">{part.governorate}{part.city ? ` - ${part.city}` : ''}</span>
                     </div>
                   )}
                 </div>

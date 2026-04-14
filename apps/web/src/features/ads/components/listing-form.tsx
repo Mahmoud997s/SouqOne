@@ -5,9 +5,10 @@ import dynamic from 'next/dynamic';
 import { ImageUploader, type UploadedImage } from './image-uploader';
 import { useBrands, useCarModels, useCarYears } from '@/lib/api';
 import { getCountries, getGovernorates, getCities } from '@/lib/location-data';
-import { FUEL_LABELS, TRANSMISSION_LABELS, CONDITION_LABELS, CANCEL_LABELS, BODY_OPTIONS, DRIVE_OPTIONS, CANCEL_OPTIONS, EXTERIOR_COLORS, INTERIOR_COLORS } from '@/lib/constants/mappings';
+import { fuelLabels as fuelLabelsT, transmissionLabels as transLabelsT, conditionLabels as condLabelsT, cancelLabels as cancelLabelsT, exteriorColors as exteriorColorsT, interiorColors as interiorColorsT, BODY_OPTIONS, DRIVE_OPTIONS, CANCEL_OPTIONS } from '@/lib/constants/mappings';
 import { MultiStepForm } from '@/components/ui/multi-step-form';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
+import { useTranslations, useLocale } from 'next-intl';
 
 const LocationPicker = dynamic(() => import('@/components/map/location-picker'), { ssr: false });
 
@@ -99,15 +100,15 @@ interface ListingFormProps {
   submitLabel: string;
 }
 
-const CAR_FEATURES = [
-  'شاشة لمس', 'كاميرا خلفية', 'كاميرا 360°', 'حساسات ركن',
-  'نظام ملاحة GPS', 'سخانات مقاعد', 'تبريد مقاعد', 'مقاعد جلد',
-  'فتحة سقف', 'بلوتوث', 'Apple CarPlay', 'Android Auto',
-  'مثبت سرعة', 'مفتاح ذكي', 'تشغيل عن بعد', 'مكيف أوتوماتيك',
-  'إضاءة LED', 'نظام صوتي متقدم', 'حساسات مطر', 'ريموت فتح',
-  'مرايا كهربائية', 'شبابيك كهربائية', 'مساعد المسار', 'فرامل تلقائية',
-  'شاحن لاسلكي', 'مراقبة النقطة العمياء', 'تحكم كروز تكيفي',
-];
+const CAR_FEATURE_KEYS = [
+  'lfFeatureTouchscreen', 'lfFeatureRearCamera', 'lfFeature360Camera', 'lfFeatureParkingSensors',
+  'lfFeatureGPS', 'lfFeatureSeatHeaters', 'lfFeatureSeatCooling', 'lfFeatureLeatherSeats',
+  'lfFeatureSunroof', 'lfFeatureBluetooth', 'lfFeatureCarPlay', 'lfFeatureAndroidAuto',
+  'lfFeatureCruiseControl', 'lfFeatureSmartKey', 'lfFeatureRemoteStart', 'lfFeatureAutoAC',
+  'lfFeatureLED', 'lfFeatureAudio', 'lfFeatureRainSensor', 'lfFeatureRemoteOpen',
+  'lfFeatureElectricMirrors', 'lfFeatureElectricWindows', 'lfFeatureLaneAssist', 'lfFeatureAutoBrake',
+  'lfFeatureWirelessCharger', 'lfFeatureBlindSpot', 'lfFeatureAdaptiveCruise',
+] as const;
 
 const fuelOptions = ['PETROL', 'DIESEL', 'HYBRID', 'ELECTRIC'];
 const transOptions = ['AUTOMATIC', 'MANUAL'];
@@ -115,13 +116,18 @@ const condOptions = ['NEW', 'USED', 'LIKE_NEW'];
 const bodyOptions = [...BODY_OPTIONS];
 const driveOptions = [...DRIVE_OPTIONS];
 
-const fuelLabels = FUEL_LABELS;
-const transLabels = TRANSMISSION_LABELS;
-const condLabels = CONDITION_LABELS;
 const cancelOptions = [...CANCEL_OPTIONS];
-const cancelLabels = CANCEL_LABELS;
 
 export function ListingForm({ initialData, initialImages, onSubmit, isLoading, errorMessages, onClearErrors, submitLabel }: ListingFormProps) {
+  const tp = useTranslations('pages');
+  const tm = useTranslations('mappings');
+  const locale = useLocale();
+  const fuelLabels = fuelLabelsT(tm);
+  const transLabels = transLabelsT(tm);
+  const condLabels = condLabelsT(tm);
+  const cancelLabels_ = cancelLabelsT(tm);
+  const extColors = exteriorColorsT(tm);
+  const intColors = interiorColorsT(tm);
   const [form, setForm] = useState<ListingFormData>({ ...defaultData, ...initialData });
   const [images, setImages] = useState<UploadedImage[]>(initialImages ?? []);
   const [selectedBrandId, setSelectedBrandId] = useState('');
@@ -133,8 +139,8 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
 
   const [selectedCountry, setSelectedCountry] = useState('OM');
   const [selectedGov, setSelectedGov] = useState('');
-  const governorateOptions = getGovernorates(selectedCountry);
-  const cityOptions = getCities(selectedCountry, selectedGov);
+  const governorateOptions = getGovernorates(selectedCountry, locale);
+  const cityOptions = getCities(selectedCountry, selectedGov, locale);
 
   useEffect(() => {
     if (initialData) setForm((prev) => ({ ...prev, ...initialData }));
@@ -203,9 +209,9 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
   const labelCls = 'text-xs font-bold text-on-surface-variant uppercase tracking-widest block mb-2';
 
   const steps = [
-    { label: 'البيانات الأساسية' },
-    { label: 'تفاصيل السيارة والملكية' },
-    { label: 'تفاصيل الإعلان وبيانات الاتصال' },
+    { label: tp('lfStep1') },
+    { label: tp('lfStep2') },
+    { label: tp('lfStep3') },
   ];
 
   const canProceedStep0 = !!form.make && !!form.model && !!form.year;
@@ -223,7 +229,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
       isLoading={isLoading}
       submitLabel={submitLabel}
       canProceed={canProceed}
-      title={form.listingType === 'RENTAL' ? 'تأجير سيارتك' : form.listingType === 'WANTED' ? 'مطلوب سيارة' : 'بيع سيارتك'}
+      title={form.listingType === 'RENTAL' ? tp('lfTitleRental') : form.listingType === 'WANTED' ? tp('lfTitleWanted') : tp('lfTitleSale')}
     >
       {/* ═══ Step 1: البيانات الأساسية ═══ */}
       {step === 0 && (
@@ -231,19 +237,19 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           {/* Listing Type Toggle */}
           <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
             <div className="flex items-center gap-2 mb-4">
-              <h2 className="text-lg font-extrabold">القسم</h2>
+              <h2 className="text-lg font-extrabold">{tp('lfSectionLabel')}</h2>
             </div>
             <div className="flex items-center gap-3 bg-surface-container-low rounded-xl px-4 py-3">
               <span className="text-primary text-lg">🚗</span>
-              <span className="text-sm text-on-surface-variant">سيارات وقطع غيار</span>
+              <span className="text-sm text-on-surface-variant">{tp('lfCategoryName')}</span>
               <span className="text-on-surface-variant/40 mx-1">›</span>
-              <span className="text-sm font-bold text-on-surface">{form.listingType === 'RENTAL' ? 'سيارات للإيجار' : form.listingType === 'WANTED' ? 'مطلوب سيارة' : 'سيارات للبيع'}</span>
+              <span className="text-sm font-bold text-on-surface">{form.listingType === 'RENTAL' ? tp('lfCatRental') : form.listingType === 'WANTED' ? tp('lfCatWanted') : tp('lfCatSale')}</span>
             </div>
             <div className="flex gap-2 mt-4">
               {[
-                { value: 'SALE' as const, label: 'بيع', icon: 'sell' },
-                { value: 'RENTAL' as const, label: 'إيجار', icon: 'car_rental' },
-                { value: 'WANTED' as const, label: 'مطلوب', icon: 'search' },
+                { value: 'SALE' as const, label: tp('lfTypeSale'), icon: 'sell' },
+                { value: 'RENTAL' as const, label: tp('lfTypeRental'), icon: 'car_rental' },
+                { value: 'WANTED' as const, label: tp('lfTypeWanted'), icon: 'search' },
               ].map((opt) => (
                 <button
                   key={opt.value}
@@ -265,21 +271,21 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           {/* Images */}
           <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
             <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">تحميل الصور</h2>
+              <h2 className="text-lg font-extrabold">{tp('lfUploadTitle')}</h2>
             </div>
             <ImageUploader images={images} onChange={setImages} disabled={isLoading} />
-            <p className="text-xs text-on-surface-variant mt-3">استخدم الوضع الأفقي في الكاميرا للحصول على صور غلاف أفضل</p>
+            <p className="text-xs text-on-surface-variant mt-3">{tp('lfUploadHint')}</p>
           </section>
 
           {/* Basic Info */}
           <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
             <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">البيانات الأساسية للسيارة</h2>
+              <h2 className="text-lg font-extrabold">{tp('lfBasicInfoTitle')}</h2>
             </div>
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className={labelCls}>الماركة *</label>
+                  <label className={labelCls}>{tp('lfBrand')}</label>
                   <select required value={selectedBrandId} onChange={(e) => {
                     const brand = brands.find(b => b.id === e.target.value);
                     setSelectedBrandId(e.target.value);
@@ -288,26 +294,26 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
                     set('model', '');
                     set('year', 0);
                   }} className={inputCls}>
-                    <option value="">اختر الماركة</option>
+                    <option value="">{tp('lfSelectBrand')}</option>
                     {brands.map((b) => <option key={b.id} value={b.id}>{b.nameAr || b.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className={labelCls}>الموديل *</label>
+                  <label className={labelCls}>{tp('lfModel')}</label>
                   <select required value={selectedModelId} onChange={(e) => {
                     const model = models.find(m => m.id === e.target.value);
                     setSelectedModelId(e.target.value);
                     set('model', model?.name ?? '');
                     set('year', 0);
                   }} className={inputCls} disabled={!selectedBrandId}>
-                    <option value="">{selectedBrandId ? 'اختر الموديل' : 'اختر الماركة أولاً'}</option>
+                    <option value="">{selectedBrandId ? tp('lfSelectModel') : tp('lfSelectBrandFirst')}</option>
                     {models.map((m) => <option key={m.id} value={m.id}>{m.nameAr || m.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className={labelCls}>سنة الصنع *</label>
+                  <label className={labelCls}>{tp('lfYear')}</label>
                   <select required value={form.year || ''} onChange={(e) => set('year', parseInt(e.target.value))} className={inputCls} disabled={!selectedModelId}>
-                    <option value="">{selectedModelId ? 'اختر السنة' : 'اختر الموديل أولاً'}</option>
+                    <option value="">{selectedModelId ? tp('lfSelectYear') : tp('lfSelectModelFirst')}</option>
                     {years.map((y) => <option key={y.id} value={y.year}>{y.year}</option>)}
                   </select>
                 </div>
@@ -315,7 +321,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelCls}>الحالة *</label>
+                  <label className={labelCls}>{tp('lfCondition')}</label>
                   <div className="flex gap-3">
                     {condOptions.map((c) => (
                       <button key={c} type="button" onClick={() => set('condition', c)}
@@ -326,8 +332,8 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
                   </div>
                 </div>
                 <div>
-                  <label className={labelCls}>الكيلومترات</label>
-                  <input type="number" value={form.mileage} onChange={(e) => set('mileage', e.target.value)} placeholder="أدخل كيلومترات، على سبيل المثال 42,500" className={inputCls} />
+                  <label className={labelCls}>{tp('lfMileage')}</label>
+                  <input type="number" value={form.mileage} onChange={(e) => set('mileage', e.target.value)} placeholder={tp('lfMileagePlaceholder')} className={inputCls} />
                 </div>
               </div>
             </div>
@@ -340,21 +346,21 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
         <div className="space-y-8">
           <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
             <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">تفاصيل السيارة</h2>
+              <h2 className="text-lg font-extrabold">{tp('lfCarDetailsTitle')}</h2>
             </div>
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelCls}>نوع الوقود</label>
+                  <label className={labelCls}>{tp('lfFuelType')}</label>
                   <select value={form.fuelType} onChange={(e) => set('fuelType', e.target.value)} className={inputCls}>
-                    <option value="">اختر</option>
+                    <option value="">{tp('lfSelect')}</option>
                     {fuelOptions.map((f) => <option key={f} value={f}>{fuelLabels[f]}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className={labelCls}>ناقل الحركة</label>
+                  <label className={labelCls}>{tp('lfTransmission')}</label>
                   <select value={form.transmission} onChange={(e) => set('transmission', e.target.value)} className={inputCls}>
-                    <option value="">اختر</option>
+                    <option value="">{tp('lfSelect')}</option>
                     {transOptions.map((t) => <option key={t} value={t}>{transLabels[t]}</option>)}
                   </select>
                 </div>
@@ -362,28 +368,28 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className={labelCls}>نوع الهيكل</label>
+                  <label className={labelCls}>{tp('lfBodyType')}</label>
                   <select value={form.bodyType} onChange={(e) => set('bodyType', e.target.value)} className={inputCls}>
-                    <option value="">اختر</option>
+                    <option value="">{tp('lfSelect')}</option>
                     {bodyOptions.map((b) => <option key={b} value={b}>{b}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className={labelCls}>نوع الدفع</label>
+                  <label className={labelCls}>{tp('lfDriveType')}</label>
                   <select value={form.driveType} onChange={(e) => set('driveType', e.target.value)} className={inputCls}>
-                    <option value="">اختر</option>
+                    <option value="">{tp('lfSelect')}</option>
                     {driveOptions.map((d) => <option key={d} value={d}>{d}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className={labelCls}>اللون الخارجي</label>
+                  <label className={labelCls}>{tp('lfExteriorColor')}</label>
                   <div className="relative">
-                    <select value={form.exteriorColor} onChange={(e) => set('exteriorColor', e.target.value)} className={inputCls} style={{ paddingRight: '2.5rem' }}>
-                      <option value="">اختر اللون</option>
-                      {EXTERIOR_COLORS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    <select value={form.exteriorColor} onChange={(e) => set('exteriorColor', e.target.value)} className={inputCls} style={{ paddingInlineEnd: '2.5rem' }}>
+                      <option value="">{tp('lfSelectColor')}</option>
+                      {extColors.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
                     {form.exteriorColor && (
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-outline-variant/30 shadow-sm" style={{ backgroundColor: EXTERIOR_COLORS.find(c => c.value === form.exteriorColor)?.hex || '#ccc' }} />
+                      <span className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-outline-variant/30 shadow-sm" style={{ backgroundColor: extColors.find(c => c.value === form.exteriorColor)?.hex || '#ccc' }} />
                     )}
                   </div>
                 </div>
@@ -391,14 +397,14 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className={labelCls}>اللون الداخلي</label>
+                  <label className={labelCls}>{tp('lfInteriorColor')}</label>
                   <div className="relative">
-                    <select value={form.interiorColor} onChange={(e) => set('interiorColor', e.target.value)} className={inputCls} style={{ paddingRight: '2.5rem' }}>
-                      <option value="">اختر اللون</option>
-                      {INTERIOR_COLORS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    <select value={form.interiorColor} onChange={(e) => set('interiorColor', e.target.value)} className={inputCls} style={{ paddingInlineEnd: '2.5rem' }}>
+                      <option value="">{tp('lfSelectColor')}</option>
+                      {intColors.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
                     {form.interiorColor && (
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-outline-variant/30 shadow-sm" style={{ backgroundColor: INTERIOR_COLORS.find(c => c.value === form.interiorColor)?.hex || '#ccc' }} />
+                      <span className="absolute start-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-outline-variant/30 shadow-sm" style={{ backgroundColor: intColors.find(c => c.value === form.interiorColor)?.hex || '#ccc' }} />
                     )}
                   </div>
                 </div>
@@ -406,15 +412,15 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className={labelCls}>حجم المحرك</label>
+                  <label className={labelCls}>{tp('lfEngineSize')}</label>
                   <input type="text" value={form.engineSize} onChange={(e) => set('engineSize', e.target.value)} placeholder="2.5L" className={inputCls} />
                 </div>
                 <div>
-                  <label className={labelCls}>القوة (حصان)</label>
+                  <label className={labelCls}>{tp('lfHorsepower')}</label>
                   <input type="number" value={form.horsepower} onChange={(e) => set('horsepower', e.target.value)} placeholder="200" className={inputCls} />
                 </div>
                 <div>
-                  <label className={labelCls}>الأبواب</label>
+                  <label className={labelCls}>{tp('lfDoors')}</label>
                   <input type="number" value={form.doors} onChange={(e) => set('doors', e.target.value)} placeholder="4" className={inputCls} />
                 </div>
               </div>
@@ -424,22 +430,23 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           {/* Features / Amenities */}
           <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
             <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">كماليات السيارة</h2>
-              <span className="text-xs text-on-surface-variant">({form.features.length} مختارة)</span>
+              <h2 className="text-lg font-extrabold">{tp('lfFeaturesTitle')}</h2>
+              <span className="text-xs text-on-surface-variant">({tp('lfFeaturesCount', { count: form.features.length })})</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {CAR_FEATURES.map((feat) => {
-                const selected = form.features.includes(feat);
+              {CAR_FEATURE_KEYS.map((key) => {
+                const label = tp(key);
+                const selected = form.features.includes(label);
                 return (
                   <button
-                    key={feat}
+                    key={key}
                     type="button"
                     onClick={() => {
                       setForm((prev) => ({
                         ...prev,
                         features: selected
-                          ? prev.features.filter((f) => f !== feat)
-                          : [...prev.features, feat],
+                          ? prev.features.filter((f) => f !== label)
+                          : [...prev.features, label],
                       }));
                     }}
                     className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
@@ -448,7 +455,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
                         : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
                     }`}
                   >
-                    {selected && <span className="ml-1">✓</span>} {feat}
+                    {selected && <span className="ms-1">✓</span>} {label}
                   </button>
                 );
               })}
@@ -459,38 +466,38 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           {form.listingType === 'RENTAL' && (
             <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
-                <h2 className="text-lg font-extrabold">تفاصيل الإيجار</h2>
+                <h2 className="text-lg font-extrabold">{tp('lfRentalDetailsTitle')}</h2>
               </div>
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className={labelCls}>أقل مدة إيجار (أيام)</label>
+                    <label className={labelCls}>{tp('lfMinRentalDays')}</label>
                     <input type="number" min="1" value={form.minRentalDays} onChange={(e) => set('minRentalDays', e.target.value)} placeholder="1" className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>حد الكيلومترات / يوم</label>
+                    <label className={labelCls}>{tp('lfKmLimitPerDay')}</label>
                     <input type="number" value={form.kmLimitPerDay} onChange={(e) => set('kmLimitPerDay', e.target.value)} placeholder="250" className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>سياسة الإلغاء</label>
+                    <label className={labelCls}>{tp('lfCancelPolicy')}</label>
                     <select value={form.cancellationPolicy} onChange={(e) => set('cancellationPolicy', e.target.value)} className={inputCls}>
-                      <option value="">اختر</option>
-                      {cancelOptions.map((c) => <option key={c} value={c}>{cancelLabels[c]}</option>)}
+                      <option value="">{tp('lfSelect')}</option>
+                      {cancelOptions.map((c) => <option key={c} value={c}>{cancelLabels_[c]}</option>)}
                     </select>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <label className="flex items-center gap-3 cursor-pointer bg-surface-container-low rounded-xl p-3">
                     <input type="checkbox" checked={form.withDriver} onChange={(e) => set('withDriver', e.target.checked)} className="w-5 h-5 accent-primary" />
-                    <span className="text-sm font-medium text-on-surface">مع سائق</span>
+                    <span className="text-sm font-medium text-on-surface">{tp('lfWithDriver')}</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer bg-surface-container-low rounded-xl p-3">
                     <input type="checkbox" checked={form.deliveryAvailable} onChange={(e) => set('deliveryAvailable', e.target.checked)} className="w-5 h-5 accent-primary" />
-                    <span className="text-sm font-medium text-on-surface">توصيل متاح</span>
+                    <span className="text-sm font-medium text-on-surface">{tp('lfDeliveryAvailable')}</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer bg-surface-container-low rounded-xl p-3">
                     <input type="checkbox" checked={form.insuranceIncluded} onChange={(e) => set('insuranceIncluded', e.target.checked)} className="w-5 h-5 accent-primary" />
-                    <span className="text-sm font-medium text-on-surface">تأمين شامل</span>
+                    <span className="text-sm font-medium text-on-surface">{tp('lfInsuranceIncluded')}</span>
                   </label>
                 </div>
               </div>
@@ -504,16 +511,16 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
         <div className="space-y-8">
           <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
             <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">تفاصيل الإعلان</h2>
+              <h2 className="text-lg font-extrabold">{tp('lfAdDetailsTitle')}</h2>
             </div>
             <div className="space-y-5">
               <div>
-                <label className={labelCls}>عنوان الإعلان *</label>
-                <input type="text" required value={form.title} onChange={(e) => set('title', e.target.value)} placeholder="مثال: تويوتا كامري 2023 فل كامل" className={inputCls} />
+                <label className={labelCls}>{tp('lfAdTitle')}</label>
+                <input type="text" required value={form.title} onChange={(e) => set('title', e.target.value)} placeholder={tp('lfAdTitlePlaceholder')} className={inputCls} />
               </div>
               <div>
-                <label className={labelCls}>الوصف</label>
-                <textarea rows={4} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="صف سيارتك بالتفصيل..." className={inputCls + ' resize-none'} />
+                <label className={labelCls}>{tp('lfDescription')}</label>
+                <textarea rows={4} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder={tp('lfDescriptionPlaceholder')} className={inputCls + ' resize-none'} />
               </div>
             </div>
           </section>
@@ -521,49 +528,49 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           {/* Pricing */}
           <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
             <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">{form.listingType === 'RENTAL' ? 'أسعار الإيجار' : form.listingType === 'WANTED' ? 'الميزانية المتوقعة' : 'السعر'}</h2>
+              <h2 className="text-lg font-extrabold">{form.listingType === 'RENTAL' ? tp('lfPricingRental') : form.listingType === 'WANTED' ? tp('lfPricingWanted') : tp('lfPricingSale')}</h2>
             </div>
             {form.listingType === 'WANTED' ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>الميزانية المتوقعة (ر.ع.) (اختياري)</label>
-                    <input type="number" step="0.01" value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="مثلاً: 5000" className={inputCls} />
+                    <label className={labelCls}>{tp('lfBudgetLabel')}</label>
+                    <input type="number" step="0.01" value={form.price} onChange={(e) => set('price', e.target.value)} placeholder={tp('lfBudgetPlaceholder')} className={inputCls} />
                   </div>
                 </div>
-                <p className="text-xs text-on-surface-variant">حدد ميزانيتك المتوقعة لمساعدة البائعين في التواصل معك</p>
+                <p className="text-xs text-on-surface-variant">{tp('lfBudgetHint')}</p>
               </div>
             ) : form.listingType === 'SALE' ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>السعر المطلوب (ر.ع.) *</label>
+                    <label className={labelCls}>{tp('lfSalePrice')}</label>
                     <input type="number" required step="0.01" value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="0.000" className={inputCls} />
                   </div>
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" checked={form.isPriceNegotiable} onChange={(e) => set('isPriceNegotiable', e.target.checked)} className="w-5 h-5 accent-primary" />
-                  <span className="text-sm font-medium text-on-surface">السعر قابل للتفاوض</span>
+                  <span className="text-sm font-medium text-on-surface">{tp('lfNegotiable')}</span>
                 </label>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className={labelCls}>السعر اليومي (ر.ع.) *</label>
+                    <label className={labelCls}>{tp('lfDailyPrice')}</label>
                     <input type="number" required step="0.001" value={form.dailyPrice} onChange={(e) => set('dailyPrice', e.target.value)} placeholder="15.000" className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>السعر الأسبوعي (ر.ع.)</label>
+                    <label className={labelCls}>{tp('lfWeeklyPrice')}</label>
                     <input type="number" step="0.001" value={form.weeklyPrice} onChange={(e) => set('weeklyPrice', e.target.value)} placeholder="90.000" className={inputCls} />
                   </div>
                   <div>
-                    <label className={labelCls}>السعر الشهري (ر.ع.)</label>
+                    <label className={labelCls}>{tp('lfMonthlyPrice')}</label>
                     <input type="number" step="0.001" value={form.monthlyPrice} onChange={(e) => set('monthlyPrice', e.target.value)} placeholder="300.000" className={inputCls} />
                   </div>
                 </div>
                 <div>
-                  <label className={labelCls}>مبلغ التأمين (ر.ع.)</label>
+                  <label className={labelCls}>{tp('lfDepositAmount')}</label>
                   <input type="number" step="0.001" value={form.depositAmount} onChange={(e) => set('depositAmount', e.target.value)} placeholder="50.000" className={inputCls} />
                 </div>
               </div>
@@ -573,43 +580,43 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           {/* Location */}
           <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
             <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">الموقع</h2>
+              <h2 className="text-lg font-extrabold">{tp('lfLocationTitle')}</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className={labelCls}>الدولة</label>
+                <label className={labelCls}>{tp('lfCountry')}</label>
                 <select value={selectedCountry} onChange={(e) => {
                   setSelectedCountry(e.target.value);
                   setSelectedGov('');
                   set('governorate', '');
                   set('city', '');
                 }} className={inputCls}>
-                  <option value="">اختر الدولة</option>
-                  {getCountries().map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                  <option value="">{tp('lfSelectCountry')}</option>
+                  {getCountries(locale).map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
               <div>
-                <label className={labelCls}>المحافظة</label>
+                <label className={labelCls}>{tp('lfGovernorate')}</label>
                 <select value={selectedGov} onChange={(e) => {
                   setSelectedGov(e.target.value);
                   const gov = governorateOptions.find(g => g.value === e.target.value);
                   set('governorate', gov?.label ?? '');
                   set('city', '');
                 }} className={inputCls} disabled={!selectedCountry}>
-                  <option value="">{selectedCountry ? 'اختر المحافظة' : 'اختر الدولة أولاً'}</option>
+                  <option value="">{selectedCountry ? tp('lfSelectGovernorate') : tp('lfSelectCountryFirst')}</option>
                   {governorateOptions.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
                 </select>
               </div>
               <div>
-                <label className={labelCls}>المدينة</label>
+                <label className={labelCls}>{tp('lfCity')}</label>
                 <select value={form.city} onChange={(e) => set('city', e.target.value)} className={inputCls} disabled={!selectedGov}>
-                  <option value="">{selectedGov ? 'اختر المدينة' : 'اختر المحافظة أولاً'}</option>
+                  <option value="">{selectedGov ? tp('lfSelectCity') : tp('lfSelectGovernorateFirst')}</option>
                   {cityOptions.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
             </div>
             <div className="mt-6">
-              <label className={labelCls}>حدد الموقع على الخريطة (اختياري)</label>
+              <label className={labelCls}>{tp('lfMapLabel')}</label>
               <LocationPicker
                 latitude={form.latitude}
                 longitude={form.longitude}

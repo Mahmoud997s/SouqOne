@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { apiRequest } from '@/lib/auth';
 import { useAuth } from '@/providers/auth-provider';
 import { useAuthModal } from '@/providers/auth-modal-provider';
@@ -10,6 +11,8 @@ import { GoogleSignInButton } from '@/components/google-sign-in';
 export function LoginModal() {
   const { isOpen, message, close, executePending } = useAuthModal();
   const { login: authLogin } = useAuth();
+  const t = useTranslations('auth');
+  const tc = useTranslations('common');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -51,7 +54,7 @@ export function LoginModal() {
       executePending();
       close();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : t('unexpectedError'));
     } finally {
       setLoading(false);
     }
@@ -82,15 +85,15 @@ export function LoginModal() {
         <div className="relative bg-primary px-6 py-5">
           <button
             onClick={close}
-            className="absolute top-4 left-4 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-on-primary hover:bg-white/20 transition-colors"
-            aria-label="إغلاق"
+            className="absolute top-4 start-4 w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-on-primary hover:bg-white/20 transition-colors"
+            aria-label={tc('close')}
           >
             <span className="material-symbols-outlined text-lg">close</span>
           </button>
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-on-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
             <div>
-              <h2 className="text-on-primary font-black text-lg">تسجيل الدخول</h2>
+              <h2 className="text-on-primary font-black text-lg">{t('loginTitle')}</h2>
               {message && (
                 <p className="text-on-primary/80 text-sm mt-0.5">{message}</p>
               )}
@@ -103,16 +106,16 @@ export function LoginModal() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Email */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-on-surface-variant">البريد الإلكتروني</label>
+              <label className="text-xs font-bold text-on-surface-variant">{t('emailLabel')}</label>
               <div className="relative">
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-lg">mail</span>
+                <span className="absolute end-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-lg">mail</span>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="البريد الإلكتروني"
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-3 pr-10 pl-4 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm"
+                  placeholder={t('emailPlaceholder')}
+                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-3 pe-10 ps-4 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm"
                  
                   autoFocus
                 />
@@ -122,26 +125,26 @@ export function LoginModal() {
             {/* Password */}
             <div className="flex flex-col gap-1.5">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-on-surface-variant">كلمة المرور</label>
+                <label className="text-xs font-bold text-on-surface-variant">{t('passwordLabel')}</label>
                 <Link href="/forgot-password" onClick={close} className="text-xs text-primary hover:underline font-medium">
-                  نسيت كلمة المرور؟
+                  {t('forgotPassword')}
                 </Link>
               </div>
               <div className="relative">
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-lg">lock</span>
+                <span className="absolute end-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-lg">lock</span>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-3 pr-10 pl-10 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm"
+                  className="w-full bg-surface-container-low border border-outline-variant/20 rounded-lg py-3 pe-10 ps-10 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm"
                  
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-lg cursor-pointer hover:text-primary transition-colors"
+                  className="absolute start-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-lg cursor-pointer hover:text-primary transition-colors"
                 >
                   {showPassword ? 'visibility_off' : 'visibility'}
                 </button>
@@ -167,11 +170,11 @@ export function LoginModal() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  جارٍ الدخول...
+                  {t('loggingIn')}
                 </>
               ) : (
                 <>
-                  تسجيل الدخول
+                  {t('loginBtn')}
                   <span className="material-symbols-outlined text-base">login</span>
                 </>
               )}
@@ -181,7 +184,7 @@ export function LoginModal() {
           {/* Divider */}
           <div className="flex items-center gap-4 my-5">
             <div className="h-px flex-1 bg-outline-variant/20" />
-            <span className="text-xs text-on-surface-variant/60 font-medium">أو</span>
+            <span className="text-xs text-on-surface-variant/60 font-medium">{t('or')}</span>
             <div className="h-px flex-1 bg-outline-variant/20" />
           </div>
 
@@ -190,9 +193,9 @@ export function LoginModal() {
 
           {/* Register link */}
           <p className="text-center text-on-surface-variant text-sm mt-5">
-            ليس لديك حساب؟{' '}
+            {t('noAccount')}{' '}
             <Link href="/register" onClick={close} className="text-primary font-bold hover:underline">
-              إنشاء حساب جديد
+              {t('createNewAccount')}
             </Link>
           </p>
         </div>

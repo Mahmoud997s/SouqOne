@@ -2,28 +2,14 @@
 
 import { Link } from '@/i18n/navigation';
 import type { JobItem } from '@/lib/api';
-import { employmentLabels } from '@/lib/constants/jobs';
-import { relativeTime } from '@/lib/time-utils';
+import { employmentLabelsT } from '@/lib/constants/jobs';
+import { relativeTimeT } from '@/lib/time-utils';
+import { useTranslations, useLocale } from 'next-intl';
 
-const TYPE_STYLES = {
-  OFFERING: { label: 'يبحث عن عمل', posterLabel: 'فرد', bg: '#EAF3DE', color: '#27500A' },
-  HIRING:   { label: 'يبحث عن سائق', posterLabel: 'شركة', bg: '#E6F1FB', color: '#0C447C' },
+const TYPE_STYLE_CONFIG = {
+  OFFERING: { labelKey: 'lookingForWork' as const, posterLabelKey: 'individual' as const, bg: '#EAF3DE', color: '#27500A' },
+  HIRING:   { labelKey: 'lookingForDriver' as const, posterLabelKey: 'company' as const, bg: '#E6F1FB', color: '#0C447C' },
 } as const;
-
-const salaryPeriodLabels: Record<string, string> = {
-  DAILY: '/يوم',
-  MONTHLY: '/شهر',
-  YEARLY: '/سنة',
-  NEGOTIABLE: 'قابل للتفاوض',
-};
-
-const licenseLabels: Record<string, string> = {
-  LIGHT: 'خفيفة',
-  HEAVY: 'ثقيلة',
-  TRANSPORT: 'نقل',
-  BUS: 'حافلات',
-  MOTORCYCLE: 'دراجة',
-};
 
 function isNew(date: string) {
   return Date.now() - new Date(date).getTime() < 7 * 24 * 60 * 60 * 1000;
@@ -36,21 +22,33 @@ function getInitials(name: string) {
 }
 
 export function JobCard({ job }: { job: JobItem }) {
-  const style = TYPE_STYLES[job.jobType] ?? TYPE_STYLES.OFFERING;
-  const posterName = job.user?.displayName || job.user?.username || 'مستخدم';
+  const t = useTranslations('jobs');
+  const tl = useTranslations('listings');
+  const tt = useTranslations('time');
+  const locale = useLocale();
+  const config = TYPE_STYLE_CONFIG[job.jobType] ?? TYPE_STYLE_CONFIG.OFFERING;
+  const style = { label: t(config.labelKey), posterLabel: t(config.posterLabelKey), bg: config.bg, color: config.color };
+  const empLabels = employmentLabelsT(t);
+  const salaryPeriodLabels: Record<string, string> = {
+    DAILY: t('perDay'), MONTHLY: t('perMonth'), YEARLY: t('perYear'), NEGOTIABLE: t('salaryNegotiable'),
+  };
+  const licenseLabels: Record<string, string> = {
+    LIGHT: t('licenseLight'), HEAVY: t('licenseHeavy'), TRANSPORT: t('licenseTransport'), BUS: t('licenseBus'), MOTORCYCLE: t('licenseMotorcycle'),
+  };
+  const posterName = job.user?.displayName || job.user?.username || t('user');
   const city = job.city || job.governorate || '';
 
   const tags: { icon: React.ReactNode; text: string }[] = [];
 
   tags.push({
     icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>,
-    text: employmentLabels[job.employmentType] ?? job.employmentType,
+    text: empLabels[job.employmentType] ?? job.employmentType,
   });
 
   if (job.experienceYears != null) {
     tags.push({
       icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-      text: `${job.experienceYears} سنة خبرة`,
+      text: t('yearsExperience', { count: job.experienceYears }),
     });
   }
 
@@ -119,11 +117,11 @@ export function JobCard({ job }: { job: JobItem }) {
                 {Number(job.salary).toLocaleString('en-US')}
               </span>
               <span className="text-xs text-on-surface-variant">
-                ر.ع{job.salaryPeriod ? salaryPeriodLabels[job.salaryPeriod] : ''}
+                {tl('currency')}{job.salaryPeriod ? salaryPeriodLabels[job.salaryPeriod] : ''}
               </span>
             </>
           ) : (
-            <span className="text-xs text-on-surface-variant font-medium">قابل للتفاوض</span>
+            <span className="text-xs text-on-surface-variant font-medium">{t('salaryNegotiable')}</span>
           )}
         </div>
 
@@ -146,13 +144,13 @@ export function JobCard({ job }: { job: JobItem }) {
           {/* Time — right side in RTL */}
           <span className="inline-flex items-center gap-1 text-[11px] text-on-surface-variant">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            {relativeTime(job.createdAt)}
+            {relativeTimeT(job.createdAt, tt, locale)}
           </span>
 
           {/* NEW badge — left side in RTL */}
           {isNew(job.createdAt) && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#EAF3DE', color: '#27500A' }}>
-              جديد
+              {tl('new')}
             </span>
           )}
         </div>

@@ -5,7 +5,24 @@ export interface CountryCode {
   name: string;
 }
 
-export const countryCodes: CountryCode[] = [
+const EN_NAMES: Record<string, string> = {
+  OM: 'Oman', SA: 'Saudi Arabia', AE: 'UAE', KW: 'Kuwait', BH: 'Bahrain', QA: 'Qatar',
+  IQ: 'Iraq', EG: 'Egypt', JO: 'Jordan', LB: 'Lebanon', SY: 'Syria', PS: 'Palestine',
+  YE: 'Yemen', LY: 'Libya', TN: 'Tunisia', DZ: 'Algeria', MA: 'Morocco', SD: 'Sudan',
+  SO: 'Somalia', MR: 'Mauritania', DJ: 'Djibouti', KM: 'Comoros',
+  TR: 'Turkey', IR: 'Iran', PK: 'Pakistan', IN: 'India', BD: 'Bangladesh',
+  ID: 'Indonesia', MY: 'Malaysia', US: 'USA', CA: 'Canada', GB: 'UK',
+  DE: 'Germany', FR: 'France', IT: 'Italy', ES: 'Spain', NL: 'Netherlands',
+  BE: 'Belgium', SE: 'Sweden', NO: 'Norway', DK: 'Denmark', CH: 'Switzerland',
+  AT: 'Austria', AU: 'Australia', NZ: 'New Zealand', JP: 'Japan', KR: 'South Korea',
+  CN: 'China', SG: 'Singapore', TH: 'Thailand', PH: 'Philippines', ZA: 'South Africa',
+  NG: 'Nigeria', KE: 'Kenya', GH: 'Ghana', BR: 'Brazil', MX: 'Mexico',
+  AR: 'Argentina', CL: 'Chile', CO: 'Colombia', RU: 'Russia', UA: 'Ukraine',
+  PL: 'Poland', CZ: 'Czechia', RO: 'Romania', GR: 'Greece', PT: 'Portugal',
+  IE: 'Ireland', FI: 'Finland', HU: 'Hungary',
+};
+
+const _countryCodes: CountryCode[] = [
   { code: 'OM', dial: '+968', flag: '🇴🇲', name: 'عُمان' },
   { code: 'SA', dial: '+966', flag: '🇸🇦', name: 'السعودية' },
   { code: 'AE', dial: '+971', flag: '🇦🇪', name: 'الإمارات' },
@@ -77,3 +94,10 @@ export const countryCodes: CountryCode[] = [
   { code: 'FI', dial: '+358', flag: '🇫🇮', name: 'فنلندا' },
   { code: 'HU', dial: '+36', flag: '🇭🇺', name: 'المجر' },
 ];
+
+export const countryCodes = _countryCodes;
+
+export function getCountryCodes(locale?: string): CountryCode[] {
+  if (locale !== 'en') return _countryCodes;
+  return _countryCodes.map(c => ({ ...c, name: EN_NAMES[c.code] ?? c.name }));
+}

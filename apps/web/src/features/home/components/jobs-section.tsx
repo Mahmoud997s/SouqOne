@@ -1,6 +1,7 @@
 'use client';
 
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { JobCard } from '@/features/jobs/components/job-card';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import type { JobItem } from '@/lib/api';
@@ -11,6 +12,7 @@ interface JobsSectionProps {
 }
 
 export function JobsSection({ items, isLoading }: JobsSectionProps) {
+  const t = useTranslations('home');
   return (
     <section className="py-10">
       <div className="max-w-7xl mx-auto px-6">
@@ -18,12 +20,12 @@ export function JobsSection({ items, isLoading }: JobsSectionProps) {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 bg-primary" />
-              <h2 className="text-xl md:text-3xl font-black">وظائف السائقين</h2>
+              <h2 className="text-xl md:text-3xl font-black">{t('driverJobs')}</h2>
             </div>
-            <p className="text-on-surface-variant text-sm">ابحث عن سائق محترف أو اعرض خدماتك</p>
+            <p className="text-on-surface-variant text-sm">{t('driverJobsDesc')}</p>
           </div>
           <Link href="/jobs" className="text-primary font-bold text-sm hover:underline transition-colors shrink-0">
-            عرض الكل ←
+            {t('viewAll')}
           </Link>
         </div>
 
@@ -40,9 +42,9 @@ export function JobsSection({ items, isLoading }: JobsSectionProps) {
         ) : (
           <div className="text-center py-16 bg-surface-container-lowest">
             <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3 block">work_off</span>
-            <p className="text-on-surface-variant font-medium mb-4">لا توجد وظائف حالياً</p>
+            <p className="text-on-surface-variant font-medium mb-4">{t('noJobsNow')}</p>
             <Link href="/jobs/new" className="btn-warning px-6 py-2.5 text-sm font-black inline-block hover:brightness-110 transition-colors">
-              أضف إعلان وظيفة
+              {t('addJobListing')}
             </Link>
           </div>
         )}

@@ -1,12 +1,16 @@
+'use client';
+
 import { Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 import AuthPage from '@/components/auth/auth-page';
 import LoginForm from './login-form';
 
 export default function LoginPage() {
+  const t = useTranslations('auth');
   return (
     <AuthPage
-      title="تسجيل الدخول"
-      subtitle="أهلاً بك، سجّل دخولك للمتابعة"
+      title={t('loginTitle')}
+      subtitle={t('loginSubtitle')}
     >
       <Suspense>
         <LoginForm />

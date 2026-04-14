@@ -514,7 +514,7 @@
 .auth-input {
   height: 38px; background: #fafafa; border: 0.5px solid #e0e0e0;
   border-radius: 10px; padding: 0 12px; font-size: 13px;
-  direction: rtl; width: 100%; outline: none;
+  width: 100%; outline: none;
   font-family: inherit; color: #111;
   transition: border-color 0.2s, background 0.2s;
 }
@@ -523,7 +523,7 @@
 .auth-select {
   height: 38px; background: #fafafa; border: 0.5px solid #e0e0e0;
   border-radius: 10px; padding: 0 12px; font-size: 13px;
-  direction: rtl; width: 100%; outline: none;
+  width: 100%; outline: none;
   font-family: inherit; color: #111; cursor: pointer;
   appearance: none; -webkit-appearance: none;
   transition: border-color 0.2s, background 0.2s;
@@ -539,6 +539,11 @@
 }
 .section-divider::after {
   content: ''; flex: 1; height: 0.5px; background: #ebebeb;
+}
+
+/* ── Directional icon flip — RTL-first: flip arrows/chevrons in LTR ── */
+[dir="ltr"] .icon-flip {
+  --tw-scale-x: -1;
 }
 
 /* ── Safe areas ── */

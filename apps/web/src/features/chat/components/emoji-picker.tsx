@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
-const EMOJI_CATEGORIES = [
-  { label: 'شائعة', emojis: ['😀','😂','🥹','😍','🥰','😎','🤩','😊','🙂','😅','😢','😭','😤','😡','🥺','😱','🤔','🤗','😴','🤮'] },
-  { label: 'إيماءات', emojis: ['👍','👎','👏','🙌','🤝','✌️','🤞','👋','🫡','💪','🙏','❤️','🔥','⭐','💯','✅','❌','🎉','💰','🚗'] },
-];
+const EMOJI_DATA = [
+  { key: 'chatEmojiCommon', emojis: ['😀','😂','🥹','😍','🥰','😎','🤩','😊','🙂','😅','😢','😭','😤','😡','🥺','😱','🤔','🤗','😴','🤮'] },
+  { key: 'chatEmojiGestures', emojis: ['👍','👎','👏','🙌','🤝','✌️','🤞','👋','🫡','💪','🙏','❤️','🔥','⭐','💯','✅','❌','🎉','💰','🚗'] },
+] as const;
 
 interface EmojiPickerProps {
   onSelect: (emoji: string) => void;
@@ -13,7 +14,9 @@ interface EmojiPickerProps {
 }
 
 export default function EmojiPicker({ onSelect, onClose }: EmojiPickerProps) {
+  const tp = useTranslations('pages');
   const [activeTab, setActiveTab] = useState(0);
+  const EMOJI_CATEGORIES = EMOJI_DATA.map(d => ({ label: tp(d.key), emojis: d.emojis }));
 
   return (
     <div className="absolute bottom-full mb-2 right-0 w-72 bg-surface-container-lowest rounded-2xl shadow-2xl ring-1 ring-outline-variant/10 overflow-hidden z-50 backdrop-blur-xl">

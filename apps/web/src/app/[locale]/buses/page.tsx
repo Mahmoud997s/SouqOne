@@ -7,29 +7,8 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { useBusListings, type BusListingItem } from '@/lib/api/buses';
 import { getGovernorates } from '@/lib/location-data';
-
-const TABS = [
-  { value: '', label: 'الكل', icon: 'grid_view' },
-  { value: 'BUS_SALE', label: 'للبيع', icon: 'sell' },
-  { value: 'BUS_SALE_WITH_CONTRACT', label: 'بيع مع عقد', icon: 'assignment' },
-  { value: 'BUS_RENT', label: 'للإيجار', icon: 'car_rental' },
-  { value: 'BUS_CONTRACT', label: 'طلبات نقل', icon: 'request_quote' },
-];
-
-const BUS_TYPE_LABELS: Record<string, string> = {
-  MINI_BUS: 'ميني باص',
-  MEDIUM_BUS: 'باص متوسط',
-  LARGE_BUS: 'باص كبير',
-  COASTER: 'كوستر',
-  SCHOOL_BUS: 'باص مدرسة',
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  BUS_SALE: 'للبيع',
-  BUS_SALE_WITH_CONTRACT: 'بيع مع عقد',
-  BUS_RENT: 'للإيجار',
-  BUS_CONTRACT: 'طلب نقل',
-};
+import { relativeTimeT } from '@/lib/time-utils';
+import { useTranslations, useLocale } from 'next-intl';
 
 const TYPE_COLORS: Record<string, string> = {
   BUS_SALE: 'bg-blue-600 text-white',
@@ -38,18 +17,17 @@ const TYPE_COLORS: Record<string, string> = {
   BUS_CONTRACT: 'bg-orange-600 text-white',
 };
 
-function relativeTime(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `منذ ${mins} دقيقة`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `منذ ${hrs} ساعة`;
-  const days = Math.floor(hrs / 24);
-  if (days < 30) return `منذ ${days} يوم`;
-  return `منذ ${Math.floor(days / 30)} شهر`;
-}
-
 export default function BusesPage() {
+  const t = useTranslations('pages');
+  const locale = useLocale();
+
+  const TABS = [
+    { value: '', label: t('all'), icon: 'grid_view' },
+    { value: 'BUS_SALE', label: t('busesTabSale'), icon: 'sell' },
+    { value: 'BUS_SALE_WITH_CONTRACT', label: t('busesTabSaleContract'), icon: 'assignment' },
+    { value: 'BUS_RENT', label: t('busesTabRent'), icon: 'car_rental' },
+    { value: 'BUS_CONTRACT', label: t('busesTabContract'), icon: 'request_quote' },
+  ];
   const [activeTab, setActiveTab] = useState('');
   const [governorate, setGovernorate] = useState('');
   const [page, setPage] = useState(1);
@@ -74,13 +52,13 @@ export default function BusesPage() {
               <div>
                 <h1 className="text-2xl md:text-3xl font-black text-on-surface flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary text-3xl">directions_bus</span>
-                  سوق الحافلات
+                  {t('busesTitle')}
                 </h1>
-                <p className="text-on-surface-variant text-sm mt-1">بيع · شراء · تأجير · عقود نقل</p>
+                <p className="text-on-surface-variant text-sm mt-1">{t('busesSubtitle')}</p>
               </div>
               <Link href="/add-listing/bus" className="bg-primary text-on-primary px-5 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all flex items-center gap-1.5 shadow-lg">
                 <span className="material-symbols-outlined text-base">add</span>
-                أضف إعلان
+                {t('addListing')}
               </Link>
             </div>
 
@@ -99,8 +77,8 @@ export default function BusesPage() {
             <div className="flex gap-3 mt-4">
               <select value={governorate} onChange={e => { setGovernorate(e.target.value); setPage(1); }}
                 className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-primary/40">
-                <option value="">كل المحافظات</option>
-                {getGovernorates('OM').map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                <option value="">{t('allGovernorates')}</option>
+                {getGovernorates('OM', locale).map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
               </select>
             </div>
           </div>
@@ -117,10 +95,10 @@ export default function BusesPage() {
           ) : items.length === 0 ? (
             <div className="text-center py-20">
               <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4 block">directions_bus</span>
-              <p className="text-on-surface-variant text-lg font-bold">لا توجد إعلانات حالياً</p>
-              <p className="text-on-surface-variant/60 text-sm mt-1">كن أول من ينشر إعلان حافلة</p>
+              <p className="text-on-surface-variant text-lg font-bold">{t('busesNoListings')}</p>
+              <p className="text-on-surface-variant/60 text-sm mt-1">{t('busesBeFirst')}</p>
               <Link href="/add-listing/bus" className="inline-flex items-center gap-1.5 bg-primary text-on-primary px-6 py-3 rounded-xl text-sm font-black mt-6 hover:brightness-110 transition-all">
-                <span className="material-symbols-outlined text-base">add</span>أضف إعلان
+                <span className="material-symbols-outlined text-base">add</span>{t('addListing')}
               </Link>
             </div>
           ) : (
@@ -150,6 +128,20 @@ export default function BusesPage() {
 }
 
 function BusCard({ bus }: { bus: BusListingItem }) {
+  const t = useTranslations('pages');
+  const tl = useTranslations('listings');
+  const tt = useTranslations('time');
+  const locale = useLocale();
+
+  const BUS_TYPE_LABELS: Record<string, string> = {
+    MINI_BUS: t('busesMini'), MEDIUM_BUS: t('busesMedium'), LARGE_BUS: t('busesLarge'),
+    COASTER: t('busesCoaster'), SCHOOL_BUS: t('busesSchool'),
+  };
+  const TYPE_LABELS: Record<string, string> = {
+    BUS_SALE: t('busesTypeSale'), BUS_SALE_WITH_CONTRACT: t('busesTypeSaleContract'),
+    BUS_RENT: t('busesTypeRent'), BUS_CONTRACT: t('busesTypeContract'),
+  };
+
   const img = bus.images?.[0]?.url;
   const isContract = bus.busListingType === 'BUS_CONTRACT';
   const hasContract = bus.busListingType === 'BUS_SALE_WITH_CONTRACT';
@@ -172,7 +164,7 @@ function BusCard({ bus }: { bus: BusListingItem }) {
         {/* Capacity */}
         {!isContract && (
           <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5">
-            <span className="material-symbols-outlined text-[10px]">groups</span>{bus.capacity} راكب
+            <span className="material-symbols-outlined text-[10px]">groups</span>{t('busesPassenger', { count: bus.capacity })}
           </span>
         )}
       </div>
@@ -190,28 +182,28 @@ function BusCard({ bus }: { bus: BusListingItem }) {
 
         {/* Price / Contract info */}
         {bus.busListingType === 'BUS_SALE' && bus.price && (
-          <p className="text-base font-black text-primary">{Number(bus.price).toLocaleString('en-US')} <span className="text-[10px] text-on-surface-variant font-bold">ر.ع.</span></p>
+          <p className="text-base font-black text-primary">{Number(bus.price).toLocaleString('en-US')} <span className="text-[10px] text-on-surface-variant font-bold">{tl('currency')}</span></p>
         )}
         {hasContract && (
           <div>
-            {bus.price && <p className="text-base font-black text-primary">{Number(bus.price).toLocaleString('en-US')} <span className="text-[10px] text-on-surface-variant font-bold">ر.ع.</span></p>}
+            {bus.price && <p className="text-base font-black text-primary">{Number(bus.price).toLocaleString('en-US')} <span className="text-[10px] text-on-surface-variant font-bold">{tl('currency')}</span></p>}
             {bus.contractMonthly && (
               <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-0.5">
                 <span className="material-symbols-outlined text-[11px]">assignment</span>
-                عقد {bus.contractMonthly} ر.ع./شهر
+                {t('busesContract', { price: bus.contractMonthly })}
               </p>
             )}
           </div>
         )}
         {bus.busListingType === 'BUS_RENT' && (
           <div className="flex items-baseline gap-1.5">
-            {bus.dailyPrice && <p className="text-base font-black text-violet-700 dark:text-violet-400">{Number(bus.dailyPrice).toLocaleString('en-US')} <span className="text-[10px] font-bold">ر.ع./يوم</span></p>}
+            {bus.dailyPrice && <p className="text-base font-black text-violet-700 dark:text-violet-400">{Number(bus.dailyPrice).toLocaleString('en-US')} <span className="text-[10px] font-bold">{t('busesPerDay')}</span></p>}
           </div>
         )}
         {isContract && (
           <div className="flex items-center gap-1 text-[11px] text-orange-700 dark:text-orange-400 font-bold">
             <span className="material-symbols-outlined text-[11px]">groups</span>
-            {bus.requestPassengers} راكب · {bus.requestSchedule || 'غير محدد'}
+            {t('busesPassenger', { count: bus.requestPassengers ?? 0 })} · {bus.requestSchedule || t('busesNotSpecified')}
           </div>
         )}
 
@@ -219,7 +211,7 @@ function BusCard({ bus }: { bus: BusListingItem }) {
         <div className="flex items-center justify-between mt-2 pt-2 border-t border-outline-variant/5">
           <span className="text-[10px] text-on-surface-variant flex items-center gap-0.5">
             <span className="material-symbols-outlined text-[10px]">schedule</span>
-            {relativeTime(bus.createdAt)}
+            {relativeTimeT(bus.createdAt, tt, locale)}
           </span>
           {bus.governorate && (
             <span className="text-[10px] text-on-surface-variant flex items-center gap-0.5">

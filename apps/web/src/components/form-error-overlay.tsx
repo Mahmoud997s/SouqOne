@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface FormErrorOverlayProps {
   messages: string[];
@@ -8,6 +9,7 @@ interface FormErrorOverlayProps {
 }
 
 export function FormErrorOverlay({ messages, onClose }: FormErrorOverlayProps) {
+  const tp = useTranslations('pages');
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
@@ -40,10 +42,10 @@ export function FormErrorOverlay({ messages, onClose }: FormErrorOverlayProps) {
               </span>
             </div>
             <h3 className="text-lg font-black text-on-surface">
-              يرجى تصحيح البيانات التالية
+              {tp('formErrorTitle')}
             </h3>
             <p className="text-xs text-on-surface-variant mt-1">
-              لإتمام نشر الإعلان، يرجى مراجعة الحقول أدناه
+              {tp('formErrorDesc')}
             </p>
           </div>
 
@@ -64,7 +66,7 @@ export function FormErrorOverlay({ messages, onClose }: FormErrorOverlayProps) {
             onClick={onClose}
             className="w-full py-3 bg-primary text-on-primary rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-ambient"
           >
-            فهمت، سأصحح البيانات
+            {tp('formErrorClose')}
           </button>
         </div>
       </div>

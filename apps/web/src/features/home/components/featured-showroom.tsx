@@ -1,6 +1,7 @@
 'use client';
 
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
 import { VehicleCard } from '@/features/ads/components/vehicle-card';
@@ -39,6 +40,7 @@ function getImg(item: ListingItem) {
 }
 
 export function FeaturedShowroom({ items, isLoading }: FeaturedShowroomProps) {
+  const t = useTranslations('home');
   return (
     <section className="bg-surface-container-low dark:bg-surface-dim py-10">
       <div className="max-w-7xl mx-auto px-6">
@@ -46,15 +48,15 @@ export function FeaturedShowroom({ items, isLoading }: FeaturedShowroomProps) {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 bg-primary" />
-              <h2 className="text-xl md:text-3xl font-black">أحدث السيارات</h2>
+              <h2 className="text-xl md:text-3xl font-black">{t('latestCars')}</h2>
             </div>
-            <p className="text-on-surface-variant text-sm">سيارات جديدة ومستعملة للبيع والإيجار في سلطنة عمان</p>
+            <p className="text-on-surface-variant text-sm">{t('latestCarsDesc')}</p>
           </div>
           <Link
             href="/listings"
             className="text-primary font-bold text-sm hover:underline transition-colors"
           >
-            عرض الكل ←
+            {t('viewAll')}
           </Link>
         </div>
 
@@ -93,7 +95,7 @@ export function FeaturedShowroom({ items, isLoading }: FeaturedShowroomProps) {
         ) : (
           <div className="text-center py-16 text-on-surface-variant">
             <span className="material-symbols-outlined text-5xl mb-3 block">directions_car</span>
-            <p className="font-medium">لا توجد إعلانات حالياً</p>
+            <p className="font-medium">{t('noListingsNow')}</p>
           </div>
         )}
       </div>

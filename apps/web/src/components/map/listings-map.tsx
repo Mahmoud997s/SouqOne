@@ -6,6 +6,7 @@ import L from 'leaflet';
 import { Link } from '@/i18n/navigation';
 import { useLeafletCSS } from '@/hooks/use-leaflet-css';
 import { getImageUrl } from '@/lib/image-utils';
+import { useTranslations } from 'next-intl';
 
 // Fix Leaflet default marker icon
 const DefaultIcon = L.icon({
@@ -80,6 +81,7 @@ function FitBounds({ listings }: { listings: ListingMarker[] }) {
 
 export default function ListingsMap({ listings, height = 'h-[500px]', userLocation }: ListingsMapProps) {
   useLeafletCSS();
+  const tp = useTranslations('pages');
   const markersWithLocation = listings.filter(l => l.latitude && l.longitude);
 
   // Default center: Muscat or user location
@@ -92,7 +94,7 @@ export default function ListingsMap({ listings, height = 'h-[500px]', userLocati
       <div className={`${height} rounded-2xl bg-surface-container-low flex items-center justify-center`}>
         <div className="text-center">
           <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3 block">map</span>
-          <p className="text-on-surface-variant font-medium">لا توجد إعلانات بمواقع محددة</p>
+          <p className="text-on-surface-variant font-medium">{tp('listingsMapNoListings')}</p>
         </div>
       </div>
     );
@@ -121,7 +123,7 @@ export default function ListingsMap({ listings, height = 'h-[500px]', userLocati
               iconAnchor: [9, 9],
             })}
           >
-            <Popup><span className="font-bold text-sm">موقعك الحالي</span></Popup>
+            <Popup><span className="font-bold text-sm">{tp('listingsMapYourLocation')}</span></Popup>
           </Marker>
         )}
 
@@ -158,7 +160,7 @@ export default function ListingsMap({ listings, height = 'h-[500px]', userLocati
                       href={`/cars/${listing.id}`}
                       className="bg-primary text-white px-3 py-1.5 rounded-lg text-[11px] font-bold hover:bg-primary/90 transition-all"
                     >
-                      عرض
+                      {tp('listingsMapView')}
                     </Link>
                   </div>
                   {listing.governorate && (
@@ -178,16 +180,16 @@ export default function ListingsMap({ listings, height = 'h-[500px]', userLocati
       <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md rounded-xl px-3 py-2 shadow-lg z-[1000] flex items-center gap-4 text-[11px] font-bold">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-primary border-2 border-white shadow" />
-          بيع
+          {tp('listingsMapSale')}
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-primary border-2 border-white shadow" />
-          إيجار
+          {tp('listingsMapRental')}
         </div>
         {userLocation && (
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow" />
-            أنت
+            {tp('listingsMapYou')}
           </div>
         )}
       </div>

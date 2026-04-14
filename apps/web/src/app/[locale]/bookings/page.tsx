@@ -9,15 +9,10 @@ import { useMyBookings, useReceivedBookings, useUpdateBookingStatus } from '@/li
 import type { BookingItem } from '@/lib/api';
 import { useToast } from '@/components/toast';
 import { getImageUrl } from '@/lib/image-utils';
-import { BOOKING_STATUS_LABELS, BOOKING_STATUS_COLORS } from '@/lib/constants/mappings';
+import { bookingStatusLabels, BOOKING_STATUS_COLORS } from '@/lib/constants/mappings';
+import { useTranslations, useLocale } from 'next-intl';
 
-const statusLabels = BOOKING_STATUS_LABELS;
 const statusColors = BOOKING_STATUS_COLORS;
-
-const tabs = [
-  { key: 'my', label: 'حجوزاتي', icon: 'car_rental' },
-  { key: 'received', label: 'الطلبات الواردة', icon: 'inbox' },
-] as const;
 
 const statusFilters = ['', 'PENDING', 'CONFIRMED', 'ACTIVE', 'COMPLETED', 'CANCELLED'];
 
@@ -34,6 +29,14 @@ function BookingsContent() {
   const [statusFilter, setStatusFilter] = useState('');
   const { addToast } = useToast();
   const updateStatus = useUpdateBookingStatus();
+  const tp = useTranslations('pages');
+  const tm = useTranslations('mappings');
+  const statusLabels = bookingStatusLabels(tm);
+
+  const tabs = [
+    { key: 'my' as const, label: tp('bookingsTabMy'), icon: 'car_rental' },
+    { key: 'received' as const, label: tp('bookingsTabReceived'), icon: 'inbox' },
+  ];
 
   const myParams = statusFilter ? { status: statusFilter } : undefined;
   const { data: myData, isLoading: myLoading } = useMyBookings(activeTab === 'my' ? myParams : undefined);
@@ -46,9 +49,9 @@ function BookingsContent() {
   async function handleStatusChange(bookingId: string, status: string) {
     try {
       await updateStatus.mutateAsync({ id: bookingId, status });
-      addToast('success', `تم تحديث حالة الحجز بنجاح`);
+      addToast('success', tp('bookingsStatusUpdated'));
     } catch (err) {
-      addToast('error', err instanceof Error ? err.message : 'حدث خطأ');
+      addToast('error', err instanceof Error ? err.message : tp('bookingsError'));
     }
   }
 
@@ -57,8 +60,8 @@ function BookingsContent() {
       <Navbar />
       <main className="pt-28 pb-16 max-w-7xl mx-auto px-6">
         <h1 className="text-3xl font-black mb-6">
-          <span className="material-symbols-outlined text-primary align-middle text-3xl ml-2">event</span>
-          إدارة الحجوزات
+          <span className="material-symbols-outlined text-primary align-middle text-3xl ms-2">event</span>
+          {tp('bookingsPageTitle')}
         </h1>
 
         {/* Tabs */}
@@ -91,7 +94,7 @@ function BookingsContent() {
                   : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
               }`}
             >
-              {s ? statusLabels[s] : 'الكل'}
+              {s ? statusLabels[s] : tp('bookingsFilterAll')}
             </button>
           ))}
         </div>
@@ -106,13 +109,13 @@ function BookingsContent() {
         ) : items.length === 0 ? (
           <div className="text-center py-20">
             <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4 block">event_busy</span>
-            <p className="text-xl font-bold text-on-surface mb-2">لا توجد حجوزات</p>
+            <p className="text-xl font-bold text-on-surface mb-2">{tp('bookingsEmptyTitle')}</p>
             <p className="text-on-surface-variant mb-6">
-              {activeTab === 'my' ? 'لم تقم بأي حجز بعد' : 'لم تستقبل أي طلبات حجز'}
+              {activeTab === 'my' ? tp('bookingsEmptyMy') : tp('bookingsEmptyReceived')}
             </p>
             {activeTab === 'my' && (
               <Link href="/rentals" className="bg-primary text-on-primary px-6 py-3 text-sm font-black hover:brightness-110 transition-colors">
-                تصفح السيارات للإيجار
+                {tp('bookingsBrowseRentals')}
               </Link>
             )}
           </div>
@@ -146,6 +149,10 @@ function BookingRow({
   onStatusChange: (id: string, status: string) => void;
   isUpdating: boolean;
 }) {
+  const tp = useTranslations('pages');
+  const tm = useTranslations('mappings');
+  const locale = useLocale();
+  const statusLabels = bookingStatusLabels(tm);
   const img = booking.listing?.images?.find((i: any) => i.isPrimary) ?? booking.listing?.images?.[0];
   const otherUser = type === 'my' ? booking.owner : booking.renter;
 
@@ -167,14 +174,14 @@ function BookingRow({
       {/* Details */}
       <div className="flex-1 min-w-0">
         <Link href={`/bookings/${booking.id}`} className="hover:text-primary transition-colors">
-          <h3 className="font-bold text-on-surface text-sm line-clamp-1">{booking.listing?.title ?? 'حجز'}</h3>
+          <h3 className="font-bold text-on-surface text-sm line-clamp-1">{booking.listing?.title ?? tp('bookingsBooking')}</h3>
         </Link>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-on-surface-variant">
           <span className="flex items-center gap-1">
             <span className="material-symbols-outlined text-sm">calendar_today</span>
-            {new Date(booking.startDate).toLocaleDateString('ar-OM')} — {new Date(booking.endDate).toLocaleDateString('ar-OM')}
+            {new Date(booking.startDate).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')} — {new Date(booking.endDate).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')}
           </span>
-          <span>{booking.totalDays} يوم</span>
+          <span>{tp('bookingsDays', { count: booking.totalDays })}</span>
           {otherUser && (
             <span className="flex items-center gap-1">
               <span className="material-symbols-outlined text-sm">person</span>
@@ -187,7 +194,7 @@ function BookingRow({
       {/* Price + Status */}
       <div className="flex flex-col items-end gap-2 shrink-0">
         <span className="font-black text-primary text-lg">
-          {Number(booking.totalPrice).toLocaleString('en-US')} <small className="text-xs font-medium text-on-surface-variant">ر.ع.</small>
+          {Number(booking.totalPrice).toLocaleString('en-US')} <small className="text-xs font-medium text-on-surface-variant">{tp('bookingsCurrencyOMR')}</small>
         </span>
         <span className={`px-3 py-1 text-xs font-black ${statusColors[booking.status] ?? 'bg-surface-container text-on-surface-variant'}`}>
           {statusLabels[booking.status] ?? booking.status}
@@ -202,14 +209,14 @@ function BookingRow({
             disabled={isUpdating}
             className="bg-green-500 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-green-600 transition-colors disabled:opacity-60"
           >
-            قبول
+            {tp('bookingsAccept')}
           </button>
           <button
             onClick={() => onStatusChange(booking.id, 'REJECTED')}
             disabled={isUpdating}
             className="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-600 transition-colors disabled:opacity-60"
           >
-            رفض
+            {tp('bookingsReject')}
           </button>
         </div>
       )}
@@ -219,7 +226,7 @@ function BookingRow({
           disabled={isUpdating}
           className="bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-primary/90 transition-colors disabled:opacity-60 shrink-0"
         >
-          تفعيل
+          {tp('bookingsActivate')}
         </button>
       )}
       {type === 'received' && booking.status === 'ACTIVE' && (
@@ -228,7 +235,7 @@ function BookingRow({
           disabled={isUpdating}
           className="bg-primary text-on-primary px-4 py-2 rounded-xl text-xs font-bold hover:brightness-110 transition-colors disabled:opacity-60 shrink-0"
         >
-          إكمال
+          {tp('bookingsComplete')}
         </button>
       )}
       {type === 'my' && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
@@ -237,7 +244,7 @@ function BookingRow({
           disabled={isUpdating}
           className="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-100 transition-colors disabled:opacity-60 shrink-0"
         >
-          إلغاء
+          {tp('bookingsCancel')}
         </button>
       )}
     </div>

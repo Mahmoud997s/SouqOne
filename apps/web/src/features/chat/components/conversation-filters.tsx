@@ -1,17 +1,19 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface ConversationFiltersProps {
   active: string;
   onChange: (filter: string) => void;
 }
 
-const FILTERS = [
-  { key: 'all', label: 'الكل' },
-  { key: 'buying', label: 'شراء' },
-  { key: 'selling', label: 'بيع' },
-];
-
 export function ConversationFilters({ active, onChange }: ConversationFiltersProps) {
+  const tp = useTranslations('pages');
+  const FILTERS = [
+    { key: 'all', label: tp('chatFilterAll') },
+    { key: 'buying', label: tp('chatFilterBuying') },
+    { key: 'selling', label: tp('chatFilterSelling') },
+  ];
   return (
     <div className="flex gap-2 overflow-x-auto no-scrollbar">
       {FILTERS.map(f => (

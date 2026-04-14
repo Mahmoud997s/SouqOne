@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { API_BASE } from '@/lib/config';
 import { getImageUrl } from '@/lib/image-utils';
+import { getTranslations } from 'next-intl/server';
 
 interface CarDetailLayoutProps {
   children: React.ReactNode;
@@ -20,31 +21,44 @@ async function fetchCarData(id: string) {
 }
 
 export async function generateMetadata({ params }: CarDetailLayoutProps): Promise<Metadata> {
-  const { id } = await params;
+  const { id, locale } = await params;
   const car = await fetchCarData(id);
+  const tp = await getTranslations({ locale, namespace: 'pages' });
 
   if (!car) {
     return {
-      title: 'إعلان غير موجود | سوق وان',
+      title: tp('carLayoutNotFound'),
     };
   }
 
-  const title = `${car.title} | سوق وان`;
-  const price = car.price ? `${Number(car.price).toLocaleString('en-US')} ر.ع.` : '';
-  const description = `${car.title} ${car.year ? `- ${car.year}` : ''} ${price} - ${car.mileage ? `${car.mileage.toLocaleString('en-US')} كم` : ''} - سوق وان عمان`;
+  const siteName = tp('layoutSiteName');
+  const currency = tp('carLayoutCurrency');
+  const kmLabel = tp('carLayoutKm');
+  const title = `${car.title} | ${siteName}`;
+  const price = car.price ? `${Number(car.price).toLocaleString('en-US')} ${currency}` : '';
+  const description = `${car.title} ${car.year ? `- ${car.year}` : ''} ${price} - ${car.mileage ? `${car.mileage.toLocaleString('en-US')} ${kmLabel}` : ''} - ${siteName}`;
 
   const primaryImage = car.images?.find((i: { isPrimary?: boolean }) => i.isPrimary) ?? car.images?.[0];
   const imageUrl = primaryImage ? getImageUrl(primaryImage.url) : undefined;
 
+  const altLocale = locale === 'ar' ? 'en' : 'ar';
+
   return {
     title,
     description,
+    alternates: {
+      canonical: `/${locale}/cars/${id}`,
+      languages: {
+        [locale]: `/${locale}/cars/${id}`,
+        [altLocale]: `/${altLocale}/cars/${id}`,
+      },
+    },
     openGraph: {
       title,
       description,
       type: 'website',
-      locale: 'ar_OM',
-      siteName: 'سوق وان',
+      locale: locale === 'ar' ? 'ar_OM' : 'en_OM',
+      siteName,
       ...(imageUrl && {
         images: [
           {

@@ -151,7 +151,7 @@ export function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 shrink-0">
               <img src="/logo.png" alt="SouqOne" className="h-[36px] sm:h-[42px] w-auto object-contain" />
-              <img src="/name.png" alt="سوق وان" className="h-[20px] sm:h-[28px] w-auto object-contain" />
+              <img src="/name.png" alt={t('siteName')} className="h-[20px] sm:h-[28px] w-auto object-contain" />
             </Link>
 
             {/* Desktop nav links — center */}

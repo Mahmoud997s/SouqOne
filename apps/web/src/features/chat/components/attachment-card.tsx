@@ -34,7 +34,7 @@ export function AttachmentCard({ fileName, fileSize, fileType, url, isMine }: At
         <div className={`w-10 h-10 ${style.bg} ${style.text} rounded-lg flex items-center justify-center shrink-0`}>
           <span className="material-symbols-outlined">{style.icon}</span>
         </div>
-        <div className="flex-1 min-w-0 pl-4">
+        <div className="flex-1 min-w-0 ps-4">
           <p className="text-xs font-bold truncate">{fileName}</p>
           <p className="text-[11px] text-outline">{fileSize}</p>
         </div>

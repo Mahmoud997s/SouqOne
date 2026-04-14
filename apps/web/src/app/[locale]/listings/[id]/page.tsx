@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 /**
  * Legacy route — redirects to /cars/[id] which is the canonical detail page.
@@ -10,6 +11,7 @@ import { useRouter } from '@/i18n/navigation';
 export default function ListingDetailRedirect() {
   const params = useParams();
   const router = useRouter();
+  const tp = useTranslations('pages');
 
   useEffect(() => {
     router.replace(`/cars/${params.id}`);
@@ -17,7 +19,7 @@ export default function ListingDetailRedirect() {
 
   return (
     <div className="flex items-center justify-center min-h-screen text-on-surface-variant">
-      <p className="text-sm font-medium">جارٍ التحويل...</p>
+      <p className="text-sm font-medium">{tp('redirecting')}</p>
     </div>
   );
 }

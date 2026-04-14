@@ -1,11 +1,15 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import AuthPage from '@/components/auth/auth-page';
 import ResetForm from './reset-form';
 
 export default function ResetPasswordPage() {
+  const t = useTranslations('auth');
   return (
     <AuthPage
-      title="إعادة تعيين كلمة المرور"
-      subtitle="أدخل الرمز وكلمة المرور الجديدة"
+      title={t('resetPasswordTitle')}
+      subtitle={t('resetPasswordSubtitle')}
     >
       <ResetForm />
     </AuthPage>

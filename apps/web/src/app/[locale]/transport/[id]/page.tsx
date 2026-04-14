@@ -13,14 +13,9 @@ import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
 import { SellerCard } from '@/components/seller-card';
 import dynamic from 'next/dynamic';
+import { useTranslations, useLocale } from 'next-intl';
 
 const MapView = dynamic(() => import('@/components/map/map-view'), { ssr: false });
-
-const TYPE_LABELS: Record<string, string> = {
-  CARGO: 'نقل بضائع', FURNITURE: 'نقل أثاث', DELIVERY: 'توصيل طرود',
-  HEAVY_TRANSPORT: 'نقل ثقيل', TRUCK_RENTAL: 'تأجير شاحنات', OTHER_TRANSPORT: 'أخرى',
-};
-const PRICING_LABELS: Record<string, string> = { FIXED: 'سعر ثابت', PER_KM: 'لكل كم', PER_TRIP: 'لكل رحلة', HOURLY: 'بالساعة', NEGOTIABLE_PRICE: 'قابل للتفاوض' };
 
 export default function TransportDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -31,6 +26,14 @@ export default function TransportDetailPage({ params }: { params: Promise<{ id: 
   const requireAuth = useRequireAuth();
   const createConv = useCreateConversation();
   const { addToast } = useToast();
+  const tp = useTranslations('pages');
+  const locale = useLocale();
+
+  const TYPE_LABELS: Record<string, string> = {
+    CARGO: tp('transportDetailTypeCargo'), FURNITURE: tp('transportDetailTypeFurniture'), DELIVERY: tp('transportDetailTypeDelivery'),
+    HEAVY_TRANSPORT: tp('transportDetailTypeHeavy'), TRUCK_RENTAL: tp('transportDetailTypeTruckRental'), OTHER_TRANSPORT: tp('transportDetailTypeOther'),
+  };
+  const PRICING_LABELS: Record<string, string> = { FIXED: tp('transportDetailPricingFixed'), PER_KM: tp('transportDetailPricingPerKm'), PER_TRIP: tp('transportDetailPricingPerTrip'), HOURLY: tp('transportDetailPricingHourly'), NEGOTIABLE_PRICE: tp('transportDetailPricingNegotiable') };
 
   function handleMessage() {
     requireAuth(async () => {
@@ -39,13 +42,13 @@ export default function TransportDetailPage({ params }: { params: Promise<{ id: 
         const conv = await createConv.mutateAsync({ entityType: 'TRANSPORT', entityId: item.id });
         router.push(`/messages/${conv.id}`);
       } catch (err) {
-        addToast('error', err instanceof Error ? err.message : 'حدث خطأ أثناء إنشاء المحادثة');
+        addToast('error', err instanceof Error ? err.message : tp('transportDetailErrorConversation'));
       }
-    }, 'سجّل الدخول لإرسال رسالة');
+    }, tp('transportDetailLoginToMessage'));
   }
 
   if (isLoading) return <><Navbar /><main className="pt-28 pb-16 max-w-[1200px] mx-auto px-4"><ListingSkeleton count={1} /></main></>;
-  if (error || !item) return <><Navbar /><main className="pt-28 pb-16 max-w-[1200px] mx-auto px-4"><ErrorState message="خدمة النقل غير موجودة" /></main><Footer /></>;
+  if (error || !item) return <><Navbar /><main className="pt-28 pb-16 max-w-[1200px] mx-auto px-4"><ErrorState message={tp('transportDetailNotFound')} /></main><Footer /></>;
 
   const images = item.images || [];
 
@@ -60,9 +63,9 @@ export default function TransportDetailPage({ params }: { params: Promise<{ id: 
         <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 md:-mt-24 relative z-10 pb-16">
           <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
             <Link href="/transport" className="hover:text-white transition-colors flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">local_shipping</span> خدمات النقل
+              <span className="material-symbols-outlined text-sm">local_shipping</span> {tp('transportDetailBreadcrumb')}
             </Link>
-            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <span className="material-symbols-outlined icon-flip text-xs">chevron_left</span>
             <span className="text-white font-bold">{TYPE_LABELS[item.transportType] || item.transportType}</span>
           </nav>
 
@@ -95,7 +98,7 @@ export default function TransportDetailPage({ params }: { params: Promise<{ id: 
                 <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm mt-6">
                   <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">description</span>
-                    <h2 className="font-black text-on-surface">الوصف</h2>
+                    <h2 className="font-black text-on-surface">{tp('transportDetailDescription')}</h2>
                   </div>
                   <div className="p-6">
                     <p className="text-sm text-on-surface-variant whitespace-pre-line leading-relaxed">{item.description}</p>
@@ -111,8 +114,8 @@ export default function TransportDetailPage({ params }: { params: Promise<{ id: 
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-3 flex-wrap">
                     <span className="px-2.5 py-1 text-[11px] font-black bg-primary/10 dark:bg-primary/20 text-primary">{TYPE_LABELS[item.transportType]}</span>
-                    {item.hasInsurance && <span className="px-2.5 py-1 text-[11px] font-black bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 flex items-center gap-1"><span className="material-symbols-outlined text-xs">shield</span> تأمين</span>}
-                    {item.hasTracking && <span className="px-2.5 py-1 text-[11px] font-black bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 flex items-center gap-1"><span className="material-symbols-outlined text-xs">my_location</span> تتبع</span>}
+                    {item.hasInsurance && <span className="px-2.5 py-1 text-[11px] font-black bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 flex items-center gap-1"><span className="material-symbols-outlined text-xs">shield</span> {tp('transportDetailInsurance')}</span>}
+                    {item.hasTracking && <span className="px-2.5 py-1 text-[11px] font-black bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 flex items-center gap-1"><span className="material-symbols-outlined text-xs">my_location</span> {tp('transportDetailTracking')}</span>}
                   </div>
                   <h1 className="text-xl font-black text-on-surface mb-1">{item.title}</h1>
                   <p className="text-sm text-on-surface-variant mb-4">{item.providerName}</p>
@@ -120,24 +123,24 @@ export default function TransportDetailPage({ params }: { params: Promise<{ id: 
                   <div className="space-y-2.5 text-sm mb-4">
                     {item.basePrice && (
                       <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20">
-                        <span className="text-on-surface-variant">السعر الأساسي</span><span className="font-black text-primary">{parseFloat(item.basePrice).toFixed(3)} ر.ع.</span>
+                        <span className="text-on-surface-variant">{tp('transportDetailBasePrice')}</span><span className="font-black text-primary">{parseFloat(item.basePrice).toFixed(3)} {tp('transportDetailCurrencyOMR')}</span>
                       </div>
                     )}
                     {item.pricePerKm && (
                       <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20">
-                        <span className="text-on-surface-variant">سعر الكيلومتر</span><span className="font-black text-on-surface">{parseFloat(item.pricePerKm).toFixed(3)} ر.ع.</span>
+                        <span className="text-on-surface-variant">{tp('transportDetailPricePerKm')}</span><span className="font-black text-on-surface">{parseFloat(item.pricePerKm).toFixed(3)} {tp('transportDetailCurrencyOMR')}</span>
                       </div>
                     )}
                     <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20">
-                      <span className="text-on-surface-variant">نوع التسعير</span><span className="font-black text-on-surface">{PRICING_LABELS[item.pricingType] || item.pricingType}</span>
+                      <span className="text-on-surface-variant">{tp('transportDetailPricingType')}</span><span className="font-black text-on-surface">{PRICING_LABELS[item.pricingType] || item.pricingType}</span>
                     </div>
-                    {item.vehicleType && <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20"><span className="text-on-surface-variant">نوع المركبة</span><span className="font-black text-on-surface">{item.vehicleType}</span></div>}
-                    {item.vehicleCapacity && <div className="flex justify-between items-center py-2"><span className="text-on-surface-variant">سعة الحمولة</span><span className="font-black text-on-surface">{item.vehicleCapacity}</span></div>}
+                    {item.vehicleType && <div className="flex justify-between items-center py-2 border-b border-outline-variant/10 dark:border-outline-variant/20"><span className="text-on-surface-variant">{tp('transportDetailVehicleType')}</span><span className="font-black text-on-surface">{item.vehicleType}</span></div>}
+                    {item.vehicleCapacity && <div className="flex justify-between items-center py-2"><span className="text-on-surface-variant">{tp('transportDetailVehicleCapacity')}</span><span className="font-black text-on-surface">{item.vehicleCapacity}</span></div>}
                   </div>
 
                   <div className="flex items-center gap-4 text-xs text-on-surface-variant pt-4 border-t border-outline-variant/10 dark:border-outline-variant/20">
                     <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {item.viewCount}</span>
-                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(item.createdAt).toLocaleDateString('ar-OM')}</span>
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(item.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')}</span>
                   </div>
                 </div>
 
@@ -145,18 +148,18 @@ export default function TransportDetailPage({ params }: { params: Promise<{ id: 
                   {user?.id !== item.user?.id && (
                     <button onClick={handleMessage} disabled={createConv.isPending}
                       className="flex items-center justify-center gap-2 w-full py-3.5 bg-on-surface text-surface font-black text-sm hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-60">
-                      <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? 'جاري...' : 'تواصل عبر الشات'}
+                      <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? tp('transportDetailChatPending') : tp('transportDetailChat')}
                     </button>
                   )}
                   {item.contactPhone && (
                     <a href={`tel:${item.contactPhone}`} className="flex items-center justify-center gap-2 w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all">
-                      <span className="material-symbols-outlined text-lg">call</span> اتصل
+                      <span className="material-symbols-outlined text-lg">call</span> {tp('transportDetailCall')}
                     </a>
                   )}
                   {item.whatsapp && (
                     <a href={`https://wa.me/${item.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full py-3.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-black text-sm hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
-                      <span className="material-symbols-outlined text-lg">chat</span> واتساب
+                      <span className="material-symbols-outlined text-lg">chat</span> {tp('transportDetailWhatsapp')}
                     </a>
                   )}
                 </div>
@@ -166,7 +169,7 @@ export default function TransportDetailPage({ params }: { params: Promise<{ id: 
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">location_on</span>
-                  <h3 className="font-black text-on-surface text-sm">الموقع</h3>
+                  <h3 className="font-black text-on-surface text-sm">{tp('transportDetailLocation')}</h3>
                 </div>
                 <div className="p-6">
                   <p className="text-sm font-bold text-on-surface flex items-center gap-2">
@@ -183,7 +186,7 @@ export default function TransportDetailPage({ params }: { params: Promise<{ id: 
 
               {/* User */}
               <SellerCard
-                title="مقدم الخدمة"
+                title={tp('transportDetailServiceProvider')}
                 name={item.user.displayName || item.user.username}
                 avatarUrl={item.user.avatarUrl}
                 isVerified={item.user.isVerified}

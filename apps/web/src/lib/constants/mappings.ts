@@ -2,42 +2,18 @@
 type T = (key: string) => string;
 
 // ─── Fuel ───
-export const FUEL_LABELS: Record<string, string> = {
-  PETROL: 'بنزين',
-  DIESEL: 'ديزل',
-  HYBRID: 'هايبرد',
-  ELECTRIC: 'كهربائي',
-};
-export const FUEL_OPTIONS = Object.entries(FUEL_LABELS).map(([value, label]) => ({ value, label }));
-
 export function fuelLabels(t: T): Record<string, string> {
   return { PETROL: t('fuelPetrol'), DIESEL: t('fuelDiesel'), HYBRID: t('fuelHybrid'), ELECTRIC: t('fuelElectric') };
 }
 export function fuelOptions(t: T) { return Object.entries(fuelLabels(t)).map(([value, label]) => ({ value, label })); }
 
 // ─── Transmission ───
-export const TRANSMISSION_LABELS: Record<string, string> = {
-  AUTOMATIC: 'أوتوماتيك',
-  MANUAL: 'عادي',
-};
-export const TRANSMISSION_OPTIONS = Object.entries(TRANSMISSION_LABELS).map(([value, label]) => ({ value, label }));
-
 export function transmissionLabels(t: T): Record<string, string> {
   return { AUTOMATIC: t('transmissionAutomatic'), MANUAL: t('transmissionManual') };
 }
 export function transmissionOptions(t: T) { return Object.entries(transmissionLabels(t)).map(([value, label]) => ({ value, label })); }
 
 // ─── Condition ───
-export const CONDITION_LABELS: Record<string, string> = {
-  NEW: 'جديد',
-  USED: 'مستعمل',
-  LIKE_NEW: 'شبه جديد',
-  GOOD: 'جيد',
-  FAIR: 'مقبول',
-  POOR: 'ضعيف',
-};
-export const CONDITION_OPTIONS = Object.entries(CONDITION_LABELS).map(([value, label]) => ({ value, label }));
-
 export function conditionLabels(t: T): Record<string, string> {
   return { NEW: t('conditionNew'), USED: t('conditionUsed'), LIKE_NEW: t('conditionLikeNew'), GOOD: t('conditionGood'), FAIR: t('conditionFair'), POOR: t('conditionPoor') };
 }
@@ -56,15 +32,6 @@ const CONDITION_BADGE_CLS: Record<string, string> = {
   POOR:     'bg-rose-600 text-white text-[10px] font-black',
 };
 
-export const CONDITION_BADGE: Record<string, { label: string; cls: string }> = {
-  NEW:      { label: 'جديد',      cls: CONDITION_BADGE_CLS.NEW },
-  LIKE_NEW: { label: 'شبه جديد',  cls: CONDITION_BADGE_CLS.LIKE_NEW },
-  USED:     { label: 'مستعمل',    cls: CONDITION_BADGE_CLS.USED },
-  GOOD:     { label: 'جيد',       cls: CONDITION_BADGE_CLS.GOOD },
-  FAIR:     { label: 'مقبول',     cls: CONDITION_BADGE_CLS.FAIR },
-  POOR:     { label: 'ضعيف',      cls: CONDITION_BADGE_CLS.POOR },
-};
-
 export function conditionBadge(t: T): Record<string, { label: string; cls: string }> {
   return {
     NEW:      { label: t('conditionNew'),    cls: CONDITION_BADGE_CLS.NEW },
@@ -80,12 +47,6 @@ const PART_CONDITION_BADGE_CLS: Record<string, string> = {
   NEW:         'bg-emerald-600 text-white',
   USED:        'bg-slate-500 text-white',
   REFURBISHED: 'bg-sky-600 text-white',
-};
-
-export const PART_CONDITION_BADGE: Record<string, { label: string; cls: string }> = {
-  NEW:         { label: 'جديد',  cls: PART_CONDITION_BADGE_CLS.NEW },
-  USED:        { label: 'مستعمل', cls: PART_CONDITION_BADGE_CLS.USED },
-  REFURBISHED: { label: 'مجدد',  cls: PART_CONDITION_BADGE_CLS.REFURBISHED },
 };
 
 export function partConditionBadge(t: T): Record<string, { label: string; cls: string }> {
@@ -110,12 +71,6 @@ export const BADGE_COLORS = {
 } as const;
 
 // ─── Listing Type ───
-export const LISTING_TYPE_LABELS: Record<string, string> = {
-  SALE: 'للبيع',
-  RENTAL: 'للإيجار',
-  WANTED: 'مطلوب',
-};
-
 export function listingTypeLabels(t: T): Record<string, string> {
   return { SALE: t('typeSale'), RENTAL: t('typeRental'), WANTED: t('typeWanted') };
 }
@@ -129,24 +84,11 @@ export const PILL_COLORS = {
 } as const;
 
 // ─── Drive Type ───
-export const DRIVE_LABELS: Record<string, string> = {
-  FWD: 'أمامي',
-  RWD: 'خلفي',
-  AWD: 'رباعي',
-  '4WD': 'رباعي',
-};
-
 export function driveLabels(t: T): Record<string, string> {
   return { FWD: t('driveFWD'), RWD: t('driveRWD'), AWD: t('driveAWD'), '4WD': t('drive4WD') };
 }
 
 // ─── Cancellation Policy ───
-export const CANCEL_LABELS: Record<string, string> = {
-  FREE: 'إلغاء مجاني',
-  FLEXIBLE: 'مرن',
-  MODERATE: 'متوسط',
-  STRICT: 'صارم',
-};
 export const CANCEL_OPTIONS = ['FREE', 'FLEXIBLE', 'MODERATE', 'STRICT'] as const;
 
 export function cancelLabels(t: T): Record<string, string> {
@@ -154,15 +96,6 @@ export function cancelLabels(t: T): Record<string, string> {
 }
 
 // ─── Booking Status ───
-export const BOOKING_STATUS_LABELS: Record<string, string> = {
-  PENDING: 'قيد الانتظار',
-  CONFIRMED: 'مؤكد',
-  ACTIVE: 'نشط',
-  COMPLETED: 'مكتمل',
-  CANCELLED: 'ملغي',
-  REJECTED: 'مرفوض',
-};
-
 export function bookingStatusLabels(t: T): Record<string, string> {
   return { PENDING: t('bookingPending'), CONFIRMED: t('bookingConfirmed'), ACTIVE: t('bookingActive'), COMPLETED: t('bookingCompleted'), CANCELLED: t('bookingCancelled'), REJECTED: t('bookingRejected') };
 }
@@ -215,33 +148,6 @@ const EXTERIOR_COLOR_DATA: { key: string; hex: string }[] = [
   { key: 'purple', hex: '#7C3AED' },
 ];
 
-export const EXTERIOR_COLORS: { value: string; label: string; hex: string }[] = [
-  { value: 'أبيض', label: 'أبيض', hex: '#FFFFFF' },
-  { value: 'أبيض لؤلؤي', label: 'أبيض لؤلؤي', hex: '#F5F5F0' },
-  { value: 'فضي', label: 'فضي', hex: '#C0C0C0' },
-  { value: 'رمادي', label: 'رمادي', hex: '#808080' },
-  { value: 'رمادي داكن', label: 'رمادي داكن', hex: '#505050' },
-  { value: 'رمادي منيرال', label: 'رمادي منيرال', hex: '#6B6B6B' },
-  { value: 'أسود', label: 'أسود', hex: '#1A1A1A' },
-  { value: 'أسود أوبسيديان', label: 'أسود أوبسيديان', hex: '#0B0B0B' },
-  { value: 'أحمر', label: 'أحمر', hex: '#CC0000' },
-  { value: 'أحمر كارمين', label: 'أحمر كارمين', hex: '#960018' },
-  { value: 'خمري', label: 'خمري', hex: '#722F37' },
-  { value: 'أزرق', label: 'أزرق', hex: '#1E3A8A' },
-  { value: 'أزرق فاتح', label: 'أزرق فاتح', hex: '#60A5FA' },
-  { value: 'كحلي', label: 'كحلي', hex: '#1B1F3B' },
-  { value: 'أخضر', label: 'أخضر', hex: '#166534' },
-  { value: 'أخضر بريطاني', label: 'أخضر بريطاني', hex: '#1B4D3E' },
-  { value: 'أخضر زيتي', label: 'أخضر زيتي', hex: '#556B2F' },
-  { value: 'بيج', label: 'بيج', hex: '#D4C5A9' },
-  { value: 'ذهبي', label: 'ذهبي', hex: '#C9A84C' },
-  { value: 'برونزي', label: 'برونزي', hex: '#8C6E46' },
-  { value: 'بني', label: 'بني', hex: '#6B3A2A' },
-  { value: 'برتقالي', label: 'برتقالي', hex: '#EA580C' },
-  { value: 'أصفر', label: 'أصفر', hex: '#EAB308' },
-  { value: 'بنفسجي', label: 'بنفسجي', hex: '#7C3AED' },
-];
-
 export function exteriorColors(t: T): { value: string; label: string; hex: string }[] {
   return EXTERIOR_COLOR_DATA.map(c => ({ value: c.key, label: t(c.key), hex: c.hex }));
 }
@@ -261,20 +167,6 @@ const INTERIOR_COLOR_DATA: { key: string; hex: string }[] = [
   { key: 'beigeFabric', hex: '#C8B896' },
 ];
 
-export const INTERIOR_COLORS: { value: string; label: string; hex: string }[] = [
-  { value: 'جلد أسود', label: 'جلد أسود', hex: '#1A1A1A' },
-  { value: 'جلد بيج', label: 'جلد بيج', hex: '#D4C5A9' },
-  { value: 'جلد بني', label: 'جلد بني', hex: '#6B3A2A' },
-  { value: 'جلد أبيض', label: 'جلد أبيض', hex: '#F5F5F0' },
-  { value: 'جلد أحمر', label: 'جلد أحمر', hex: '#CC0000' },
-  { value: 'جلد كوجناك', label: 'جلد كوجناك', hex: '#9A4E28' },
-  { value: 'جلد نابا أسود', label: 'جلد نابا أسود', hex: '#0B0B0B' },
-  { value: 'جلد رمادي', label: 'جلد رمادي', hex: '#808080' },
-  { value: 'قماش أسود', label: 'قماش أسود', hex: '#2A2A2A' },
-  { value: 'قماش رمادي', label: 'قماش رمادي', hex: '#909090' },
-  { value: 'قماش بيج', label: 'قماش بيج', hex: '#C8B896' },
-];
-
 export function interiorColors(t: T): { value: string; label: string; hex: string }[] {
   return INTERIOR_COLOR_DATA.map(c => ({ value: c.key, label: t(c.key), hex: c.hex }));
 }
@@ -286,14 +178,6 @@ export const BODY_OPTIONS = ['SEDAN', 'SUV', 'HATCHBACK', 'COUPE', 'TRUCK', 'VAN
 export const DRIVE_OPTIONS = ['FWD', 'RWD', 'AWD', '4WD'] as const;
 
 // ─── Sort ───
-export const SORT_OPTIONS = [
-  { value: 'createdAt_desc', label: 'الأحدث' },
-  { value: 'createdAt_asc', label: 'الأقدم' },
-  { value: 'price_asc', label: 'السعر: الأقل' },
-  { value: 'price_desc', label: 'السعر: الأعلى' },
-  { value: 'year_desc', label: 'السنة: الأحدث' },
-];
-
 export function sortOptions(t: T) {
   return [
     { value: 'createdAt_desc', label: t('sortNewest') },

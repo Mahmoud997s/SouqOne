@@ -810,28 +810,272 @@ const cities: CityDataMap = {
   },
 };
 
+// ─── English Labels ───
+const EN: Record<string, string> = {
+  // Countries
+  OM: 'Oman', SA: 'Saudi Arabia', AE: 'UAE', QA: 'Qatar', KW: 'Kuwait', BH: 'Bahrain',
+  YE: 'Yemen', IQ: 'Iraq', JO: 'Jordan', LB: 'Lebanon', SY: 'Syria', PS: 'Palestine',
+  EG: 'Egypt', SD: 'Sudan', LY: 'Libya', TN: 'Tunisia', DZ: 'Algeria', MA: 'Morocco',
+  MR: 'Mauritania', SO: 'Somalia', DJ: 'Djibouti', KM: 'Comoros',
+
+  // ── Oman Governorates
+  OM_MUS: 'Muscat', OM_DHO: 'Dhofar', OM_DAK: 'Ad Dakhiliyah', OM_BAN: 'North Al Batinah',
+  OM_BAS: 'South Al Batinah', OM_SHN: 'North Ash Sharqiyah', OM_SHS: 'South Ash Sharqiyah',
+  OM_DHA: 'Ad Dhahirah', OM_BUR: 'Al Buraimi', OM_MSN: 'Musandam', OM_WUS: 'Al Wusta',
+
+  // ── Saudi Governorates
+  SA_RIY: 'Riyadh', SA_MAK: 'Makkah', SA_MAD: 'Madinah', SA_QAS: 'Al Qassim',
+  SA_ESH: 'Eastern Province', SA_ASI: 'Asir', SA_TAB: 'Tabuk', SA_HAI: 'Hail',
+  SA_SHA: 'Northern Borders', SA_JAZ: 'Jazan', SA_NAJ: 'Najran', SA_BAH: 'Al Bahah',
+  SA_JOF: 'Al Jawf',
+
+  // ── UAE Governorates
+  AE_AUH: 'Abu Dhabi', AE_DXB: 'Dubai', AE_SHJ: 'Sharjah', AE_AJM: 'Ajman',
+  AE_UAQ: 'Umm Al Quwain', AE_RAK: 'Ras Al Khaimah', AE_FUJ: 'Fujairah',
+
+  // ── Qatar Governorates
+  QA_DOH: 'Doha', QA_WAK: 'Al Wakrah', QA_KHO: 'Al Khor', QA_SHA: 'Al Shamal',
+  QA_RAY: 'Al Rayyan', QA_DAA: 'Al Daayen', QA_UMS: 'Umm Salal',
+
+  // ── Kuwait Governorates
+  KW_KUW: 'Capital', KW_HAW: 'Hawalli', KW_FAR: 'Al Farwaniyah',
+  KW_JAH: 'Al Jahra', KW_AHM: 'Al Ahmadi', KW_MUB: 'Mubarak Al Kabeer',
+
+  // ── Bahrain Governorates
+  BH_CAP: 'Capital', BH_MUH: 'Muharraq', BH_NOR: 'Northern', BH_SOU: 'Southern',
+
+  // ── Yemen Governorates
+  YE_SAN: "Sana'a", YE_ADE: 'Aden', YE_TAI: 'Taiz', YE_HOD: 'Hodeidah', YE_IBB: 'Ibb',
+  YE_DHM: 'Dhamar', YE_HAD: 'Hadhramaut', YE_MAR: 'Marib', YE_SAA: 'Saada',
+  YE_AMR: 'Amran', YE_HAJ: 'Hajjah', YE_BAY: 'Al Bayda', YE_LAH: 'Lahij',
+  YE_ABY: 'Abyan', YE_SHB: 'Shabwah', YE_MAH: 'Al Mahrah', YE_DAL: 'Al Dhale',
+  YE_RAY: 'Raymah', YE_SOC: 'Socotra', YE_JOF: 'Al Jawf', YE_MHW: 'Al Mahwit',
+
+  // ── Iraq Governorates
+  IQ_BAG: 'Baghdad', IQ_BAS: 'Basra', IQ_NIN: 'Nineveh', IQ_ERB: 'Erbil',
+  IQ_SUL: 'Sulaymaniyah', IQ_NAJ: 'Najaf', IQ_KAR: 'Karbala', IQ_BAB: 'Babylon',
+  IQ_KIR: 'Kirkuk', IQ_DIY: 'Diyala', IQ_ANB: 'Anbar', IQ_WAS: 'Wasit',
+  IQ_SAL: 'Saladin', IQ_DHI: 'Dhi Qar', IQ_MIS: 'Maysan', IQ_MUT: 'Muthanna',
+  IQ_QAD: 'Al Qadisiyyah', IQ_DAH: 'Duhok',
+
+  // ── Jordan Governorates
+  JO_AMM: 'Amman', JO_IRB: 'Irbid', JO_ZAR: 'Zarqa', JO_BAL: 'Balqa',
+  JO_MAD: 'Madaba', JO_KAR: 'Karak', JO_TAF: 'Tafilah', JO_MAA: "Ma'an",
+  JO_AQA: 'Aqaba', JO_JAR: 'Jerash', JO_AJL: 'Ajloun', JO_MAF: 'Mafraq',
+
+  // ── Lebanon Governorates
+  LB_BEI: 'Beirut', LB_JBL: 'Mount Lebanon', LB_NOR: 'North', LB_SOU: 'South',
+  LB_BEK: 'Beqaa', LB_NAB: 'Nabatieh', LB_AKK: 'Akkar', LB_BAA: 'Baalbek-Hermel',
+
+  // ── Syria Governorates
+  SY_DAM: 'Damascus', SY_RDA: 'Rif Dimashq', SY_ALE: 'Aleppo', SY_HOM: 'Homs',
+  SY_HAM: 'Hama', SY_LAT: 'Latakia', SY_TAR: 'Tartus', SY_IDL: 'Idlib',
+  SY_RAQ: 'Raqqa', SY_DEZ: 'Deir ez-Zor', SY_HAS: 'Hasakah', SY_DRA: 'Daraa',
+  SY_SWE: 'Suwayda', SY_QUN: 'Quneitra',
+
+  // ── Palestine Governorates
+  PS_JER: 'Jerusalem', PS_RAM: 'Ramallah & Al-Bireh', PS_NAB: 'Nablus', PS_HEB: 'Hebron',
+  PS_BET: 'Bethlehem', PS_JEN: 'Jenin', PS_TUL: 'Tulkarm', PS_QAL: 'Qalqilya',
+  PS_SAL: 'Salfit', PS_TUB: 'Tubas', PS_JER2: 'Jericho & Al Aghwar', PS_GAZ: 'Gaza',
+  PS_KHY: 'Khan Yunis', PS_RAF: 'Rafah', PS_DEI: 'Deir Al-Balah', PS_NOR: 'North Gaza',
+
+  // ── Egypt Governorates
+  EG_CAI: 'Cairo', EG_GIZ: 'Giza', EG_ALX: 'Alexandria', EG_QAL: 'Qalyubia',
+  EG_DAK: 'Dakahlia', EG_GHR: 'Gharbia', EG_MNF: 'Menoufia', EG_SHR: 'Sharqia',
+  EG_BHR: 'Beheira', EG_KFS: 'Kafr El Sheikh', EG_DMT: 'Damietta', EG_PTS: 'Port Said',
+  EG_ISM: 'Ismailia', EG_SUZ: 'Suez', EG_FAY: 'Faiyum', EG_BNS: 'Beni Suef',
+  EG_MNY: 'Minya', EG_ASY: 'Asyut', EG_SOH: 'Sohag', EG_QEN: 'Qena',
+  EG_LUX: 'Luxor', EG_ASW: 'Aswan', EG_RSS: 'Red Sea', EG_NVL: 'New Valley',
+  EG_MAT: 'Matrouh', EG_NSN: 'North Sinai', EG_SSN: 'South Sinai',
+
+  // ── Sudan Governorates
+  SD_KHA: 'Khartoum', SD_GEZ: 'Gezira', SD_WNI: 'White Nile', SD_BNI: 'Blue Nile',
+  SD_SEN: 'Sennar', SD_NOR: 'Northern', SD_RNI: 'River Nile', SD_KAS: 'Kassala',
+  SD_GAD: 'Gedaref', SD_RED: 'Red Sea', SD_NKO: 'North Kordofan', SD_SKO: 'South Kordofan',
+  SD_WKO: 'West Kordofan', SD_NDA: 'North Darfur', SD_SDA: 'South Darfur',
+  SD_WDA: 'West Darfur', SD_EDA: 'East Darfur', SD_CDA: 'Central Darfur',
+
+  // ── Libya Governorates
+  LY_TRI: 'Tripoli', LY_BEN: 'Benghazi', LY_MIS: 'Misrata', LY_ZAW: 'Zawiya',
+  LY_ZLI: 'Zliten', LY_KHO: 'Khoms', LY_SIR: 'Sirte', LY_SAB: 'Sabha',
+  LY_DER: 'Derna', LY_TOB: 'Tobruk',
+
+  // ── Tunisia Governorates
+  TN_TUN: 'Tunis', TN_ARI: 'Ariana', TN_BNA: 'Ben Arous', TN_MAN: 'Manouba',
+  TN_NAB: 'Nabeul', TN_ZAG: 'Zaghouan', TN_BIZ: 'Bizerte', TN_BAJ: 'Beja',
+  TN_JEN: 'Jendouba', TN_KEF: 'El Kef', TN_SIL: 'Siliana', TN_SOU: 'Sousse',
+  TN_MON: 'Monastir', TN_MAH: 'Mahdia', TN_SFA: 'Sfax', TN_KAI: 'Kairouan',
+  TN_KAS: 'Kasserine', TN_SBZ: 'Sidi Bouzid', TN_GAF: 'Gafsa', TN_TOZ: 'Tozeur',
+  TN_KEB: 'Kebili', TN_GAB: 'Gabes', TN_MED: 'Medenine', TN_TAT: 'Tataouine',
+
+  // ── Algeria Governorates
+  DZ_ALG: 'Algiers', DZ_ORA: 'Oran', DZ_CON: 'Constantine', DZ_ANN: 'Annaba',
+  DZ_BLI: 'Blida', DZ_BAT: 'Batna', DZ_SET: 'Setif', DZ_SBA: 'Sidi Bel Abbes',
+  DZ_BEJ: 'Bejaia', DZ_TLE: 'Tlemcen', DZ_BIS: 'Biskra', DZ_TIA: 'Tiaret',
+  DZ_TIZ: 'Tizi Ouzou', DZ_MED: 'Medea', DZ_MSI: "M'sila", DZ_MOS: 'Mostaganem',
+  DZ_SKI: 'Skikda', DZ_CHL: 'Chlef', DZ_JIJ: 'Jijel', DZ_BOU: 'Boumerdes',
+  DZ_TIP: 'Tipaza', DZ_ADE: 'Ain Defla', DZ_GHA: 'Ghardaia', DZ_OUG: 'Ouargla',
+  DZ_BEC: 'Bechar', DZ_TAM: 'Tamanrasset', DZ_ADR: 'Adrar', DZ_ELO: 'El Oued',
+
+  // ── Morocco Governorates
+  MA_RBA: 'Rabat-Sale-Kenitra', MA_CAS: 'Casablanca-Settat', MA_FES: 'Fez-Meknes',
+  MA_MAR: 'Marrakech-Safi', MA_TNG: 'Tangier-Tetouan-Al Hoceima', MA_ORI: 'Oriental',
+  MA_BEN: 'Beni Mellal-Khenifra', MA_DRA: 'Draa-Tafilalet', MA_SOU: 'Souss-Massa',
+  MA_GUE: 'Guelmim-Oued Noun', MA_LAA: 'Laayoune-Sakia El Hamra', MA_DAK: 'Dakhla-Oued Ed Dahab',
+
+  // ── Mauritania Governorates
+  MR_NKC: 'Nouakchott West', MR_NKN: 'Nouakchott North', MR_NKS: 'Nouakchott South',
+  MR_NDB: 'Nouadhibou', MR_TRA: 'Trarza', MR_BRA: 'Brakna', MR_GOR: 'Gorgol',
+  MR_ASS: 'Assaba', MR_HOD: 'Hodh Ech Chargui', MR_HOG: 'Hodh El Gharbi',
+  MR_ADR: 'Adrar', MR_TAG: 'Tagant', MR_GUI: 'Guidimaka', MR_TIR: 'Tiris Zemmour',
+  MR_INS: 'Inchiri',
+
+  // ── Somalia Governorates
+  SO_MOG: 'Banaadir (Mogadishu)', SO_HAR: 'Hargeisa', SO_GAR: 'Garowe',
+  SO_KIS: 'Kismayo', SO_BAI: 'Baidoa', SO_BOS: 'Bosaso', SO_GAL: 'Galkayo',
+  SO_BER: 'Berbera',
+
+  // ── Djibouti Governorates
+  DJ_DJI: 'Djibouti', DJ_ALI: 'Ali Sabieh', DJ_DIC: 'Dikhil', DJ_TAD: 'Tadjoura',
+  DJ_OBO: 'Obock', DJ_ART: 'Arta',
+
+  // ── Comoros Governorates
+  KM_NGZ: 'Grande Comore (Ngazidja)', KM_MWL: 'Moheli (Mwali)', KM_ANJ: 'Anjouan (Nzwani)',
+
+  // ═══ Cities ═══
+
+  // ── Oman Cities
+  'السيب': 'Seeb', 'بوشر': 'Bousher', 'مطرح': 'Muttrah', 'العامرات': 'Al Amerat',
+  'قريات': 'Quriyat', 'مسقط': 'Muscat',
+  'صلالة': 'Salalah', 'طاقة': 'Taqah', 'مرباط': 'Mirbat', 'ثمريت': 'Thumrait',
+  'رخيوت': 'Rakhyut', 'ضلكوت': 'Dalkut', 'سدح': 'Sadah',
+  'شليم وجزر الحلانيات': 'Shalim & Hallaniyat Islands', 'المزيونة': 'Al Mazyunah', 'مقشن': 'Muqshin',
+  'نزوى': 'Nizwa', 'بهلاء': 'Bahla', 'سمائل': 'Samail', 'أدم': 'Adam',
+  'الحمراء': 'Al Hamra', 'منح': 'Manah', 'إزكي': 'Izki', 'بدبد': 'Bidbid',
+  'صحار': 'Sohar', 'شناص': 'Shinas', 'لوى': 'Liwa', 'صحم': 'Saham',
+  'الخابورة': 'Al Khaburah', 'السويق': 'As Suwaiq',
+  'الرستاق': 'Rustaq', 'العوابي': 'Al Awabi', 'نخل': 'Nakhal',
+  'وادي المعاول': 'Wadi Al Maawil', 'بركاء': 'Barka', 'المصنعة': 'Al Musannah',
+  'إبراء': 'Ibra', 'المضيبي': 'Al Mudhaibi', 'بدية': 'Bidiyah', 'القابل': 'Al Qabil',
+  'وادي بني خالد': 'Wadi Bani Khalid', 'دماء والطائيين': 'Dima Wa At Taiyyin',
+  'صور': 'Sur', 'جعلان بني بو حسن': 'Jalan Bani Bu Hassan',
+  'جعلان بني بو علي': 'Jalan Bani Bu Ali', 'الكامل والوافي': 'Al Kamil Wal Wafi',
+  'مصيرة': 'Masirah', 'عبري': 'Ibri', 'ينقل': 'Yanqul', 'ضنك': 'Dhank',
+  'البريمي': 'Al Buraimi', 'محضة': 'Mahdha', 'السنينة': 'As Sunaynah',
+  'خصب': 'Khasab', 'بخاء': 'Bukha', 'دبا': 'Dibba', 'مدحاء': 'Madha',
+  'هيماء': 'Haima', 'محوت': 'Mahout', 'الدقم': 'Duqm', 'الجازر': 'Al Jazer',
+
+  // ── Saudi Cities
+  'الرياض': 'Riyadh', 'الخرج': 'Al Kharj', 'الدرعية': 'Diriyah', 'المجمعة': 'Al Majmaah',
+  'الدوادمي': 'Ad Dawadimi', 'وادي الدواسر': 'Wadi ad-Dawasir', 'الأفلاج': 'Al Aflaj',
+  'حوطة بني تميم': 'Howtat Bani Tamim', 'الزلفي': 'Az Zulfi', 'شقراء': 'Shaqra',
+  'مكة المكرمة': 'Makkah', 'جدة': 'Jeddah', 'الطائف': 'Taif', 'رابغ': 'Rabigh',
+  'القنفذة': 'Al Qunfudhah', 'الليث': 'Al Lith', 'تربة': 'Turbah',
+  'الكامل': 'Al Kamil', 'خليص': 'Khulays',
+  'المدينة المنورة': 'Madinah', 'ينبع': 'Yanbu', 'العلا': 'Al Ula',
+  'بدر': 'Badr', 'خيبر': 'Khaybar', 'المهد': 'Al Mahd',
+  'بريدة': 'Buraydah', 'عنيزة': 'Unayzah', 'الرس': 'Ar Rass',
+  'البكيرية': 'Al Bukayriyah', 'المذنب': 'Al Mithnab',
+  'الدمام': 'Dammam', 'الأحساء': 'Al Ahsa', 'الجبيل': 'Jubail',
+  'الظهران': 'Dhahran', 'الخبر': 'Khobar', 'القطيف': 'Qatif',
+  'حفر الباطن': 'Hafar Al Batin', 'رأس تنورة': 'Ras Tanura',
+  'أبها': 'Abha', 'خميس مشيط': 'Khamis Mushait', 'بيشة': 'Bisha',
+  'النماص': 'Al Namas', 'محايل عسير': 'Muhayil Asir', 'أحد رفيدة': 'Ahad Rufaydah',
+  'تبوك': 'Tabuk', 'الوجه': 'Al Wajh', 'ضبا': 'Duba', 'تيماء': 'Tayma', 'أملج': 'Umluj',
+  'حائل': 'Hail', 'بقعاء': "Baqa'a", 'الغزالة': 'Al Ghazalah', 'الشملي': 'Ash Shamli',
+  'عرعر': 'Arar', 'رفحاء': 'Rafha', 'طريف': 'Turaif',
+  'جازان': 'Jazan', 'صبيا': 'Sabya', 'أبو عريش': 'Abu Arish', 'صامطة': 'Samtah',
+  'نجران': 'Najran', 'شرورة': 'Sharurah', 'حبونا': 'Habuna',
+  'الباحة': 'Al Bahah', 'بلجرشي': 'Baljurashi', 'المندق': 'Al Mandaq',
+  'سكاكا': 'Sakaka', 'دومة الجندل': 'Dumat Al Jandal',
+  'القريات': 'Al Qurayyat', 'طبرجل': 'Tabarjal',
+
+  // ── UAE Cities
+  'أبوظبي': 'Abu Dhabi', 'العين': 'Al Ain', 'مدينة زايد': 'Zayed City',
+  'الرويس': 'Al Ruwais', 'المرفأ': 'Al Marfa',
+  'دبي': 'Dubai', 'جبل علي': 'Jebel Ali', 'حتا': 'Hatta',
+  'الشارقة': 'Sharjah', 'خورفكان': 'Khorfakkan', 'كلباء': 'Kalba', 'دبا الحصن': 'Dibba Al Hisn',
+  'عجمان': 'Ajman', 'المنامة': 'Al Manama', 'مصفوت': 'Masfout',
+  'أم القيوين': 'Umm Al Quwain', 'فلج المعلا': 'Falaj Al Mualla',
+  'رأس الخيمة': 'Ras Al Khaimah', 'الجزيرة الحمراء': 'Al Jazirah Al Hamra',
+  'خت': 'Khatt', 'الرمس': 'Al Rams',
+  'الفجيرة': 'Fujairah', 'دبا الفجيرة': 'Dibba Al Fujairah', 'مربح': 'Murbah',
+
+  // ── Qatar Cities
+  'الدوحة': 'Doha', 'لوسيل': 'Lusail', 'الدفنة': 'Al Dafna', 'السد': 'Al Sadd',
+  'الوكرة': 'Al Wakrah', 'مسيعيد': 'Mesaieed', 'الخور': 'Al Khor', 'الذخيرة': 'Al Dhakhira',
+  'مدينة الشمال': 'Al Shamal City', 'الريان': 'Al Rayyan', 'المعيذر': 'Al Muaither',
+  'الضعاين': 'Al Daayen', 'أم صلال': 'Umm Salal',
+  'أم صلال محمد': 'Umm Salal Mohammed', 'أم صلال علي': 'Umm Salal Ali',
+
+  // ── Kuwait Cities
+  'الكويت': 'Kuwait City', 'الشرق': 'Sharq', 'المرقاب': 'Al Murqab', 'دسمان': 'Dasman',
+  'حولي': 'Hawalli', 'السالمية': 'Salmiya', 'الجابرية': 'Jabriya', 'مشرف': 'Mishref',
+  'الفروانية': 'Farwaniya', 'خيطان': 'Khaitan', 'جليب الشيوخ': 'Jleeb Al Shuyoukh',
+  'الجهراء': 'Jahra', 'الصليبية': 'Sulaibiya',
+  'الأحمدي': 'Ahmadi', 'الفحيحيل': 'Fahaheel', 'المنقف': 'Mangaf', 'الفنطاس': 'Fintas',
+  'مبارك الكبير': 'Mubarak Al Kabeer', 'صباح السالم': 'Sabah Al Salem', 'القرين': 'Al Qurain',
+
+  // ── Egypt Cities
+  'مدينة نصر': 'Nasr City', 'مصر الجديدة': 'Heliopolis', 'المعادي': 'Maadi',
+  'الزمالك': 'Zamalek', 'وسط البلد': 'Downtown', 'المقطم': 'Mokattam',
+  'التجمع الخامس': 'Fifth Settlement', 'القاهرة الجديدة': 'New Cairo',
+  'العباسية': 'Abbassia', 'شبرا': 'Shubra',
+  'الجيزة': 'Giza', 'السادس من أكتوبر': '6th of October', 'الشيخ زايد': 'Sheikh Zayed',
+  'الهرم': 'Haram', 'فيصل': 'Faisal', 'الدقي': 'Dokki', 'المهندسين': 'Mohandessin',
+  'العجوزة': 'Agouza',
+  'الإسكندرية': 'Downtown Alexandria', 'العجمي': 'Agami', 'المنتزه': 'Montaza',
+  'سيدي بشر': 'Sidi Bishr', 'سموحة': 'Smouha', 'ستانلي': 'Stanley', 'برج العرب': 'Borg El Arab',
+  'بنها': 'Banha', 'شبرا الخيمة': 'Shubra Al Kheima',
+  'القناطر الخيرية': 'Al Qanater Al Khayriyah', 'العبور': 'Obour',
+  'المنصورة': 'Mansoura', 'طلخا': 'Talkha', 'ميت غمر': 'Mit Ghamr', 'دكرنس': 'Dekernes',
+  'طنطا': 'Tanta', 'المحلة الكبرى': 'El Mahalla El Kubra', 'كفر الزيات': 'Kafr El Zayat',
+  'شبين الكوم': 'Shebin El Kom', 'منوف': 'Menouf', 'أشمون': 'Ashmoun',
+  'الزقازيق': 'Zagazig', 'العاشر من رمضان': '10th of Ramadan', 'بلبيس': 'Bilbeis',
+  'دمنهور': 'Damanhour', 'كفر الدوار': 'Kafr El Dawar', 'رشيد': 'Rosetta',
+  'كفر الشيخ': 'Kafr El Sheikh', 'دسوق': 'Desouq',
+  'دمياط': 'Damietta', 'دمياط الجديدة': 'New Damietta',
+  'بورسعيد': 'Port Said', 'الإسماعيلية': 'Ismailia', 'السويس': 'Suez',
+  'الفيوم': 'Faiyum', 'إطسا': 'Itsa', 'بني سويف': 'Beni Suef',
+  'المنيا': 'Minya', 'ملوي': 'Mallawi', 'سمالوط': 'Samalut',
+  'أسيوط': 'Asyut', 'سوهاج': 'Sohag', 'أخميم': 'Akhmim',
+  'قنا': 'Qena', 'نجع حمادي': 'Nag Hammadi',
+  'الأقصر': 'Luxor', 'أسوان': 'Aswan', 'كوم أمبو': 'Kom Ombo',
+  'الغردقة': 'Hurghada', 'سفاجا': 'Safaga', 'مرسى علم': 'Marsa Alam',
+  'الخارجة': 'Al Kharga', 'مرسى مطروح': 'Marsa Matrouh', 'سيوة': 'Siwa',
+  'العريش': 'Arish', 'شرم الشيخ': 'Sharm El Sheikh', 'دهب': 'Dahab', 'طابا': 'Taba',
+};
+
+function localize(options: LocationOption[], locale?: string): LocationOption[] {
+  if (locale !== 'en') return options;
+  return options.map(o => ({ value: o.value, label: EN[o.value] ?? o.label }));
+}
+
 // ─── Helper Functions ───
 
-export function getCountries(): LocationOption[] {
-  return countries;
+export function getCountries(locale?: string): LocationOption[] {
+  return localize(countries, locale);
 }
 
-export function getGovernorates(countryCode: string): LocationOption[] {
-  return governorates[countryCode] ?? [];
+export function getGovernorates(countryCode: string, locale?: string): LocationOption[] {
+  return localize(governorates[countryCode] ?? [], locale);
 }
 
-export function getCities(countryCode: string, governorateCode: string): LocationOption[] {
-  return cities[countryCode]?.[governorateCode] ?? [];
+export function getCities(countryCode: string, governorateCode: string, locale?: string): LocationOption[] {
+  return localize(cities[countryCode]?.[governorateCode] ?? [], locale);
 }
 
-export function getCountryLabel(code: string): string {
+export function getCountryLabel(code: string, locale?: string): string {
+  if (locale === 'en' && EN[code]) return EN[code];
   return countries.find(c => c.value === code)?.label ?? code;
 }
 
-export function getGovernorateLabel(countryCode: string, govCode: string): string {
+export function getGovernorateLabel(countryCode: string, govCode: string, locale?: string): string {
+  if (locale === 'en' && EN[govCode]) return EN[govCode];
   return governorates[countryCode]?.find(g => g.value === govCode)?.label ?? govCode;
 }
 
-export function getCityLabel(countryCode: string, govCode: string, cityValue: string): string {
+export function getCityLabel(countryCode: string, govCode: string, cityValue: string, locale?: string): string {
+  if (locale === 'en' && EN[cityValue]) return EN[cityValue];
   return cities[countryCode]?.[govCode]?.find(c => c.value === cityValue)?.label ?? cityValue;
 }

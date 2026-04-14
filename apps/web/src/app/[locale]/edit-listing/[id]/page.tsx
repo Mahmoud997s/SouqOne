@@ -15,6 +15,7 @@ import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
 import { getImageUrl } from '@/lib/image-utils';
+import { useTranslations } from 'next-intl';
 
 export default function EditListingPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +23,7 @@ export default function EditListingPage() {
   const { data: car, isLoading, isError, refetch } = useListing(id);
   const updateListing = useUpdateListing(id);
   const { addToast } = useToast();
+  const tp = useTranslations('pages');
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
 
@@ -52,11 +54,11 @@ export default function EditListingPage() {
         setUploading(false);
       }
 
-      addToast('success', 'تم حفظ التعديلات بنجاح!');
+      addToast('success', tp('editListingSaved'));
       router.push(`/cars/${id}`);
     } catch (err) {
       setUploading(false);
-      const msg = err instanceof Error ? err.message : 'حدث خطأ أثناء تحديث الإعلان';
+      const msg = err instanceof Error ? err.message : tp('editListingError');
       setErrorMessages(msg.split('\n').filter(Boolean));
     }
   }
@@ -109,8 +111,8 @@ export default function EditListingPage() {
       <Navbar />
       <main className="pt-28 pb-16 max-w-[900px] mx-auto px-4 md:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-extrabold mb-2">تعديل الإعلان</h1>
-          <p className="text-on-surface-variant">عدّل تفاصيل إعلانك وأعد نشره.</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold mb-2">{tp('editListingTitle')}</h1>
+          <p className="text-on-surface-variant">{tp('editListingDesc')}</p>
         </div>
 
         <ListingForm
@@ -120,7 +122,7 @@ export default function EditListingPage() {
           isLoading={isBusy}
           errorMessages={errorMessages}
           onClearErrors={() => setErrorMessages([])}
-          submitLabel={uploading ? 'جارٍ رفع الصور...' : 'حفظ التعديلات'}
+          submitLabel={uploading ? tp('editListingUploading') : tp('editListingSave')}
         />
       </main>
       <Footer />

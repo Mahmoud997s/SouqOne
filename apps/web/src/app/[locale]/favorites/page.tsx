@@ -10,17 +10,21 @@ import { VehicleCard } from '@/features/ads/components/vehicle-card';
 import { ErrorState } from '@/components/error-state';
 import { useFavorites, useToggleFavorite, type EntityType } from '@/lib/api';
 import { getImageUrl } from '@/lib/image-utils';
+import { useTranslations } from 'next-intl';
 
-const TABS: { value: EntityType | 'ALL'; label: string; icon: string }[] = [
-  { value: 'ALL', label: 'الكل', icon: 'apps' },
-  { value: 'LISTING', label: 'سيارات', icon: 'directions_car' },
-  { value: 'JOB', label: 'وظائف', icon: 'work' },
-  { value: 'SPARE_PART', label: 'قطع غيار', icon: 'settings' },
-  { value: 'CAR_SERVICE', label: 'خدمات', icon: 'build' },
-  { value: 'TRANSPORT', label: 'نقل', icon: 'local_shipping' },
-  { value: 'TRIP', label: 'رحلات', icon: 'route' },
-  { value: 'INSURANCE', label: 'تأمين', icon: 'shield' },
-];
+function useFavTabs() {
+  const tp = useTranslations('pages');
+  return [
+    { value: 'ALL' as const, label: tp('favTabAll'), icon: 'apps' },
+    { value: 'LISTING' as const, label: tp('favTabCars'), icon: 'directions_car' },
+    { value: 'JOB' as const, label: tp('favTabJobs'), icon: 'work' },
+    { value: 'SPARE_PART' as const, label: tp('favTabParts'), icon: 'settings' },
+    { value: 'CAR_SERVICE' as const, label: tp('favTabServices'), icon: 'build' },
+    { value: 'TRANSPORT' as const, label: tp('favTabTransport'), icon: 'local_shipping' },
+    { value: 'TRIP' as const, label: tp('favTabTrips'), icon: 'route' },
+    { value: 'INSURANCE' as const, label: tp('favTabInsurance'), icon: 'shield' },
+  ];
+}
 
 const ENTITY_ROUTES: Record<string, string> = {
   LISTING: '/cars',
@@ -32,15 +36,17 @@ const ENTITY_ROUTES: Record<string, string> = {
   INSURANCE: '/insurance',
 };
 
-function GenericFavCard({ entityType, entityId, entity, tabIcon }: {
+function GenericFavCard({ entityType, entityId, entity, tabIcon, tabs }: {
   entityType: string;
   entityId: string;
   entity?: { title: string; image: string | null } | null;
   tabIcon: string;
+  tabs: { value: string; label: string; icon: string }[];
 }) {
   const route = ENTITY_ROUTES[entityType] || '/';
   const toggleFav = useToggleFavorite();
-  const tabLabel = TABS.find(t => t.value === entityType)?.label;
+  const tp = useTranslations('pages');
+  const tabLabel = tabs.find(t => t.value === entityType)?.label;
 
   function handleRemove(e: React.MouseEvent) {
     e.preventDefault();
@@ -70,7 +76,7 @@ function GenericFavCard({ entityType, entityId, entity, tabIcon }: {
         <button
           onClick={handleRemove}
           className="absolute top-2 left-2 z-10 w-8 h-8 flex items-center justify-center"
-          aria-label="إزالة من المفضلة"
+          aria-label={tp('favRemoveAria')}
         >
           <span
             className="material-symbols-outlined text-[22px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] text-red-500 transition-all duration-200 hover:scale-110"
@@ -85,7 +91,7 @@ function GenericFavCard({ entityType, entityId, entity, tabIcon }: {
         </span>
       </div>
       <div className="p-3.5">
-        <h3 className="font-bold text-sm text-on-surface line-clamp-2 leading-snug">{entity?.title || 'عنصر محذوف'}</h3>
+        <h3 className="font-bold text-sm text-on-surface line-clamp-2 leading-snug">{entity?.title || tp('favDeletedItem')}</h3>
       </div>
     </Link>
   );
@@ -97,6 +103,8 @@ export default function FavoritesPage() {
   const { data, isLoading, isError, refetch } = useFavorites(filterType);
   const items = data?.items ?? [];
   const totalCount = data?.meta?.total ?? 0;
+  const tp = useTranslations('pages');
+  const TABS = useFavTabs();
 
   return (
     <AuthGuard>
@@ -108,10 +116,10 @@ export default function FavoritesPage() {
           <div className="relative max-w-7xl mx-auto px-4 md:px-8">
             <div className="flex items-center gap-3 mb-2">
               <span className="material-symbols-outlined text-white/80 text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
-              <h1 className="text-3xl md:text-4xl font-black text-white">المفضلة</h1>
+              <h1 className="text-3xl md:text-4xl font-black text-white">{tp('favTitle')}</h1>
             </div>
             <p className="text-white/60 text-sm md:text-base">
-              {totalCount > 0 ? `${totalCount} عنصر محفوظ` : 'العناصر التي حفظتها لتعود إليها لاحقاً'}
+              {totalCount > 0 ? tp('favCountSaved', { count: totalCount }) : tp('favSubtitle')}
             </p>
           </div>
         </div>
@@ -192,6 +200,7 @@ export default function FavoritesPage() {
                     entityId={fav.entityId}
                     entity={fav.entity}
                     tabIcon={TABS.find(t => t.value === fav.entityType)?.icon || 'bookmark'}
+                    tabs={TABS}
                   />
                 );
               })}
@@ -201,11 +210,11 @@ export default function FavoritesPage() {
               <div className="w-20 h-20 rounded-full bg-surface-container-low flex items-center justify-center mb-6">
                 <span className="material-symbols-outlined text-4xl text-on-surface-variant/30" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
               </div>
-              <h3 className="text-xl font-black text-on-surface mb-2">لا توجد مفضلات</h3>
-              <p className="text-on-surface-variant text-sm mb-6 text-center max-w-xs">احفظ العناصر التي تعجبك بالضغط على القلب لتعود إليها لاحقاً</p>
+              <h3 className="text-xl font-black text-on-surface mb-2">{tp('favEmptyTitle')}</h3>
+              <p className="text-on-surface-variant text-sm mb-6 text-center max-w-xs">{tp('favEmptyDesc')}</p>
               <Link href="/listings" className="bg-primary text-on-primary px-6 py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg flex items-center gap-2">
                 <span className="material-symbols-outlined text-base">search</span>
-                تصفح الإعلانات
+                {tp('favBrowse')}
               </Link>
             </div>
           )}

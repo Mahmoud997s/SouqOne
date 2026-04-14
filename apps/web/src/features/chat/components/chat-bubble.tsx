@@ -5,6 +5,7 @@ import { Check, CheckCheck, Loader2, Trash2, Ban } from 'lucide-react';
 import { QuickReactions } from './emoji-picker';
 import { AudioPlayer } from './voice-recorder';
 import type { Message } from '@/lib/api';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface ChatBubbleProps {
   message: Message;
@@ -14,9 +15,11 @@ interface ChatBubbleProps {
 }
 
 export function ChatBubble({ message, isMine, onDelete, onReact }: ChatBubbleProps) {
+  const tp = useTranslations('pages');
+  const locale = useLocale();
   const [showReactions, setShowReactions] = useState(false);
 
-  const time = new Date(message.createdAt).toLocaleTimeString('ar-OM', {
+  const time = new Date(message.createdAt).toLocaleTimeString(locale === 'ar' ? 'ar-OM' : 'en-US', {
     hour: '2-digit',
     minute: '2-digit',
   });
@@ -55,13 +58,13 @@ export function ChatBubble({ message, isMine, onDelete, onReact }: ChatBubblePro
         >
           {message.isDeleted ? (
             <p className="text-[12px] text-on-surface-variant/40 flex items-center gap-1.5 italic">
-              <Ban size={12} className="shrink-0" /> تم حذف هذه الرسالة
+              <Ban size={12} className="shrink-0" /> {tp('chatDeletedMsg')}
             </p>
           ) : message.type === 'IMAGE' && message.mediaUrl ? (
             <div className="-mx-1 -mt-0.5">
               <img
                 src={message.mediaUrl}
-                alt="صورة"
+                alt={tp('chatImageAlt')}
                 className="rounded-xl max-w-full max-h-72 object-cover cursor-pointer hover:brightness-[0.97] transition-all"
                 onClick={() => window.open(message.mediaUrl!, '_blank')}
               />

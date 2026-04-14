@@ -25,7 +25,7 @@ export function AuthLayout({ children, formTitle, formSubtitle }: AuthLayoutProp
         type="button"
         onClick={() => router.back()}
         className="absolute top-4 left-4 z-30 w-10 h-10 flex items-center justify-center rounded-xl bg-white/80 backdrop-blur-sm border border-outline/15 text-on-surface-variant active:scale-95 transition-all shadow-sm sm:hidden safe-area-top"
-        aria-label="رجوع"
+        aria-label="Back"
       >
         <span className="material-symbols-outlined text-xl">arrow_forward</span>
       </button>
@@ -34,7 +34,7 @@ export function AuthLayout({ children, formTitle, formSubtitle }: AuthLayoutProp
       <div className="relative z-20 sm:hidden pt-9 pb-5 flex flex-col items-center gap-1 safe-area-top animate-auth-logo">
         <Link href="/" className="flex flex-col items-center gap-1">
           <img src="/logo.png" alt="SouqOne" className="h-14 w-auto object-contain" />
-          <img src="/name.png" alt="سوق وان" className="h-4 w-auto object-contain" />
+          <img src="/name.png" alt="SouqOne" className="h-4 w-auto object-contain" />
         </Link>
       </div>
 
@@ -43,7 +43,7 @@ export function AuthLayout({ children, formTitle, formSubtitle }: AuthLayoutProp
         {/* Logo + Name — desktop only */}
         <Link href="/" className="hidden sm:flex flex-col items-center gap-2 mb-6 animate-auth-logo">
           <img src="/logo.png" alt="SouqOne" className="h-10 sm:h-12 w-auto object-contain" />
-          <img src="/name.png" alt="سوق وان" className="h-7 sm:h-8 w-auto object-contain" />
+          <img src="/name.png" alt="SouqOne" className="h-7 sm:h-8 w-auto object-contain" />
         </Link>
 
         {/* Card container — rounded top on mobile for layered feel */}

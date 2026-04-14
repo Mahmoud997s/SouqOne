@@ -12,39 +12,41 @@ import { useToast } from '@/components/toast';
 import { getGovernorates, type LocationOption } from '@/lib/location-data';
 import { getAuthToken } from '@/lib/auth';
 import { API_BASE } from '@/lib/config';
+import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 
 const LocationPicker = dynamic(() => import('@/components/map/location-picker'), { ssr: false });
 
-const EQUIP_TYPES = [
-  { value: 'EXCAVATOR', label: 'حفار', icon: 'precision_manufacturing' },
-  { value: 'CRANE', label: 'رافعة', icon: 'crane' },
-  { value: 'LOADER', label: 'لودر', icon: 'front_loader' },
-  { value: 'BULLDOZER', label: 'بلدوزر', icon: 'agriculture' },
-  { value: 'FORKLIFT', label: 'رافعة شوكية', icon: 'forklift' },
-  { value: 'CONCRETE_MIXER', label: 'خلاطة خرسانة', icon: 'concrete' },
-  { value: 'GENERATOR', label: 'مولد كهربائي', icon: 'bolt' },
-  { value: 'COMPRESSOR', label: 'ضاغط هواء', icon: 'air' },
-  { value: 'SCAFFOLDING', label: 'سقالات', icon: 'construction' },
-  { value: 'WELDING_MACHINE', label: 'ماكينة لحام', icon: 'hardware' },
-  { value: 'TRUCK', label: 'شاحنة', icon: 'local_shipping' },
-  { value: 'DUMP_TRUCK', label: 'قلاب', icon: 'local_shipping' },
-  { value: 'WATER_TANKER', label: 'صهريج مياه', icon: 'water_drop' },
-  { value: 'LIGHT_EQUIPMENT', label: 'معدات خفيفة', icon: 'build' },
-  { value: 'OTHER_EQUIPMENT', label: 'أخرى', icon: 'category' },
-];
+const EQUIP_TYPE_KEYS = [
+  { value: 'EXCAVATOR', labelKey: 'eqExcavator', icon: 'precision_manufacturing' },
+  { value: 'CRANE', labelKey: 'eqCrane', icon: 'crane' },
+  { value: 'LOADER', labelKey: 'eqLoader', icon: 'front_loader' },
+  { value: 'BULLDOZER', labelKey: 'eqBulldozer', icon: 'agriculture' },
+  { value: 'FORKLIFT', labelKey: 'eqForklift', icon: 'forklift' },
+  { value: 'CONCRETE_MIXER', labelKey: 'eqConcreteMixer', icon: 'concrete' },
+  { value: 'GENERATOR', labelKey: 'eqGenerator', icon: 'bolt' },
+  { value: 'COMPRESSOR', labelKey: 'eqCompressor', icon: 'air' },
+  { value: 'SCAFFOLDING', labelKey: 'eqScaffolding', icon: 'construction' },
+  { value: 'WELDING_MACHINE', labelKey: 'eqWelding', icon: 'hardware' },
+  { value: 'TRUCK', labelKey: 'eqTruck', icon: 'local_shipping' },
+  { value: 'DUMP_TRUCK', labelKey: 'eqDumpTruck', icon: 'local_shipping' },
+  { value: 'WATER_TANKER', labelKey: 'eqWaterTanker', icon: 'water_drop' },
+  { value: 'LIGHT_EQUIPMENT', labelKey: 'eqLightEquip', icon: 'build' },
+  { value: 'OTHER_EQUIPMENT', labelKey: 'eqOther', icon: 'category' },
+] as const;
 
-const CONDITIONS = [
-  { value: 'NEW', label: 'جديد' }, { value: 'LIKE_NEW', label: 'كالجديد' },
-  { value: 'GOOD', label: 'جيد' }, { value: 'USED', label: 'مستعمل' },
-  { value: 'FAIR', label: 'مقبول' },
-];
+const CONDITION_KEYS = [
+  { value: 'NEW', labelKey: 'eqCondNew' }, { value: 'LIKE_NEW', labelKey: 'eqCondLikeNew' },
+  { value: 'GOOD', labelKey: 'eqCondGood' }, { value: 'USED', labelKey: 'eqCondUsed' },
+  { value: 'FAIR', labelKey: 'eqCondFair' },
+] as const;
 
 const sectionCls = 'bg-surface-container-lowest dark:bg-surface-container rounded-2xl p-5 border border-outline-variant/10';
 const labelCls = 'block text-sm font-bold text-on-surface mb-1.5';
 const inputCls = 'w-full bg-surface-container-low dark:bg-surface-container-highest border border-outline-variant/20 rounded-xl px-4 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all';
 
 export default function AddEquipmentPage() {
+  const tp = useTranslations('pages');
   const router = useRouter();
   const { addToast } = useToast();
   const createEquip = useCreateEquipmentListing();
@@ -81,13 +83,14 @@ export default function AddEquipmentPage() {
   const [contactPhone, setContactPhone] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
 
-  const governorateOptions = getGovernorates('OM');
+  const locale = useLocale();
+  const governorateOptions = getGovernorates('OM', locale);
 
   const steps = [
-    { label: 'نوع الإعلان', icon: 'category' },
-    { label: 'المواصفات', icon: 'settings' },
-    { label: 'السعر والموقع', icon: 'payments' },
-    { label: 'الصور', icon: 'photo_camera' },
+    { label: tp('eqStepType'), icon: 'category' },
+    { label: tp('eqStepSpecs'), icon: 'settings' },
+    { label: tp('eqStepPrice'), icon: 'payments' },
+    { label: tp('eqStepPhotos'), icon: 'photo_camera' },
   ];
   const maxStep = steps.length - 1;
 
@@ -99,8 +102,8 @@ export default function AddEquipmentPage() {
 
   async function handleSubmit() {
     const errs: string[] = [];
-    if (!title) errs.push('العنوان مطلوب');
-    if (!description) errs.push('الوصف مطلوب');
+    if (!title) errs.push(tp('eqErrTitle'));
+    if (!description) errs.push(tp('eqErrDesc'));
     if (errs.length) { setErrors(errs); return; }
 
     try {
@@ -136,10 +139,10 @@ export default function AddEquipmentPage() {
         }
       }
 
-      addToast('success', 'تم نشر إعلان المعدة بنجاح');
+      addToast('success', tp('eqSuccess'));
       router.push(`/equipment/${result.id}`);
     } catch (e: any) {
-      addToast('error', e?.message || 'حدث خطأ');
+      addToast('error', e?.message || tp('eqError'));
     }
   }
 
@@ -156,34 +159,34 @@ export default function AddEquipmentPage() {
           onBack={() => { setStep(s => Math.max(s - 1, 0)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
           onSubmit={handleSubmit}
           isLoading={isLoading}
-          submitLabel="نشر الإعلان"
+          submitLabel={tp('eqSubmit')}
           canProceed={canProceed}
-          title="إضافة إعلان معدة"
+          title={tp('eqTitle')}
         >
           {/* ── Step 0: Type ── */}
           {step === 0 && (
             <div className="space-y-8">
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">نوع الإعلان</h3>
+                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelAdType')}</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {[{ v: 'EQUIPMENT_SALE', l: 'بيع معدة', i: 'sell', d: 'عرض معدة للبيع' }, { v: 'EQUIPMENT_RENT', l: 'تأجير معدة', i: 'car_rental', d: 'عرض معدة للإيجار' }].map(opt => (
+                  {[{ v: 'EQUIPMENT_SALE', lKey: 'eqTypeSale' as const, i: 'sell', dKey: 'eqTypeSaleDesc' as const }, { v: 'EQUIPMENT_RENT', lKey: 'eqTypeRent' as const, i: 'car_rental', dKey: 'eqTypeRentDesc' as const }].map(opt => (
                     <button key={opt.v} type="button" onClick={() => setListingType(opt.v)}
-                      className={`p-4 rounded-2xl border-2 text-right transition-all ${listingType === opt.v ? 'border-primary bg-primary/5' : 'border-outline-variant/10 hover:border-primary/30'}`}>
+                      className={`p-4 rounded-2xl border-2 text-start transition-all ${listingType === opt.v ? 'border-primary bg-primary/5' : 'border-outline-variant/10 hover:border-primary/30'}`}>
                       <span className="material-symbols-outlined text-2xl text-primary mb-2 block">{opt.i}</span>
-                      <p className="font-bold text-sm">{opt.l}</p>
-                      <p className="text-[11px] text-on-surface-variant mt-0.5">{opt.d}</p>
+                      <p className="font-bold text-sm">{tp(opt.lKey)}</p>
+                      <p className="text-[11px] text-on-surface-variant mt-0.5">{tp(opt.dKey)}</p>
                     </button>
                   ))}
                 </div>
               </section>
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">نوع المعدة</h3>
+                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelEquipType')}</h3>
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                  {EQUIP_TYPES.map(t => (
+                  {EQUIP_TYPE_KEYS.map(t => (
                     <button key={t.value} type="button" onClick={() => setEquipmentType(t.value)}
                       className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all text-center ${equipmentType === t.value ? 'border-primary bg-primary/5' : 'border-outline-variant/10 hover:border-primary/30'}`}>
                       <span className="material-symbols-outlined text-xl text-primary">{t.icon}</span>
-                      <span className="text-[10px] font-bold">{t.label}</span>
+                      <span className="text-[10px] font-bold">{tp(t.labelKey)}</span>
                     </button>
                   ))}
                 </div>
@@ -195,28 +198,28 @@ export default function AddEquipmentPage() {
           {step === 1 && (
             <div className="space-y-6">
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">المعلومات الأساسية</h3>
+                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelBasicInfo')}</h3>
                 <div className="space-y-4">
-                  <div><label className={labelCls}>العنوان *</label><input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} placeholder="مثال: حفار كاتربيلر 20 طن" /></div>
-                  <div><label className={labelCls}>الوصف *</label><textarea className={`${inputCls} min-h-[100px]`} value={description} onChange={e => setDescription(e.target.value)} placeholder="وصف تفصيلي للمعدة..." /></div>
+                  <div><label className={labelCls}>{tp('eqLabelTitle')}</label><input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} placeholder={tp('eqPlaceholderTitle')} /></div>
+                  <div><label className={labelCls}>{tp('eqLabelDesc')}</label><textarea className={`${inputCls} min-h-[100px]`} value={description} onChange={e => setDescription(e.target.value)} placeholder={tp('eqPlaceholderDesc')} /></div>
                 </div>
               </section>
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">المواصفات الفنية</h3>
+                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelTechSpecs')}</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label className={labelCls}>الماركة</label><input className={inputCls} value={make} onChange={e => setMake(e.target.value)} placeholder="Caterpillar" /></div>
-                  <div><label className={labelCls}>الموديل</label><input className={inputCls} value={model} onChange={e => setModel(e.target.value)} placeholder="320D" /></div>
-                  <div><label className={labelCls}>سنة الصنع</label><input type="number" className={inputCls} value={year} onChange={e => setYear(e.target.value)} placeholder="2020" /></div>
+                  <div><label className={labelCls}>{tp('eqLabelBrand')}</label><input className={inputCls} value={make} onChange={e => setMake(e.target.value)} placeholder="Caterpillar" /></div>
+                  <div><label className={labelCls}>{tp('eqLabelModel')}</label><input className={inputCls} value={model} onChange={e => setModel(e.target.value)} placeholder="320D" /></div>
+                  <div><label className={labelCls}>{tp('eqLabelYear')}</label><input type="number" className={inputCls} value={year} onChange={e => setYear(e.target.value)} placeholder="2020" /></div>
                   <div>
-                    <label className={labelCls}>الحالة</label>
+                    <label className={labelCls}>{tp('eqLabelCondition')}</label>
                     <select className={inputCls} value={condition} onChange={e => setCondition(e.target.value)}>
-                      {CONDITIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                      {CONDITION_KEYS.map(c => <option key={c.value} value={c.value}>{tp(c.labelKey)}</option>)}
                     </select>
                   </div>
-                  <div><label className={labelCls}>السعة/الحمولة</label><input className={inputCls} value={capacity} onChange={e => setCapacity(e.target.value)} placeholder="20 طن" /></div>
-                  <div><label className={labelCls}>القدرة</label><input className={inputCls} value={power} onChange={e => setPower(e.target.value)} placeholder="150 حصان" /></div>
-                  <div><label className={labelCls}>الوزن</label><input className={inputCls} value={weight} onChange={e => setWeight(e.target.value)} placeholder="22,000 كجم" /></div>
-                  <div><label className={labelCls}>ساعات التشغيل</label><input type="number" className={inputCls} value={hoursUsed} onChange={e => setHoursUsed(e.target.value)} placeholder="5000" /></div>
+                  <div><label className={labelCls}>{tp('eqLabelCapacity')}</label><input className={inputCls} value={capacity} onChange={e => setCapacity(e.target.value)} placeholder="20 ton" /></div>
+                  <div><label className={labelCls}>{tp('eqLabelPower')}</label><input className={inputCls} value={power} onChange={e => setPower(e.target.value)} placeholder="150 HP" /></div>
+                  <div><label className={labelCls}>{tp('eqLabelWeight')}</label><input className={inputCls} value={weight} onChange={e => setWeight(e.target.value)} placeholder="22,000 kg" /></div>
+                  <div><label className={labelCls}>{tp('eqLabelHours')}</label><input type="number" className={inputCls} value={hoursUsed} onChange={e => setHoursUsed(e.target.value)} placeholder="5000" /></div>
                 </div>
               </section>
             </div>
@@ -226,40 +229,40 @@ export default function AddEquipmentPage() {
           {step === 2 && (
             <div className="space-y-6">
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">السعر</h3>
+                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelPrice')}</h3>
                 <div className="space-y-4">
                   {listingType === 'EQUIPMENT_SALE' ? (
-                    <div><label className={labelCls}>سعر البيع (ر.ع) *</label><input type="number" className={inputCls} value={price} onChange={e => setPrice(e.target.value)} placeholder="0.000" /></div>
+                    <div><label className={labelCls}>{tp('eqLabelSalePrice')}</label><input type="number" className={inputCls} value={price} onChange={e => setPrice(e.target.value)} placeholder="0.000" /></div>
                   ) : (
                     <div className="grid grid-cols-3 gap-3">
-                      <div><label className={labelCls}>يومي (ر.ع)</label><input type="number" className={inputCls} value={dailyPrice} onChange={e => setDailyPrice(e.target.value)} /></div>
-                      <div><label className={labelCls}>أسبوعي (ر.ع)</label><input type="number" className={inputCls} value={weeklyPrice} onChange={e => setWeeklyPrice(e.target.value)} /></div>
-                      <div><label className={labelCls}>شهري (ر.ع)</label><input type="number" className={inputCls} value={monthlyPrice} onChange={e => setMonthlyPrice(e.target.value)} /></div>
+                      <div><label className={labelCls}>{tp('eqLabelDaily')}</label><input type="number" className={inputCls} value={dailyPrice} onChange={e => setDailyPrice(e.target.value)} /></div>
+                      <div><label className={labelCls}>{tp('eqLabelWeekly')}</label><input type="number" className={inputCls} value={weeklyPrice} onChange={e => setWeeklyPrice(e.target.value)} /></div>
+                      <div><label className={labelCls}>{tp('eqLabelMonthly')}</label><input type="number" className={inputCls} value={monthlyPrice} onChange={e => setMonthlyPrice(e.target.value)} /></div>
                     </div>
                   )}
                   <div className="flex flex-wrap gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={isPriceNegotiable} onChange={e => setIsPriceNegotiable(e.target.checked)} className="w-4 h-4 rounded" /><span className="text-sm font-bold">قابل للتفاوض</span></label>
-                    <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={withOperator} onChange={e => setWithOperator(e.target.checked)} className="w-4 h-4 rounded" /><span className="text-sm font-bold">مع مشغل</span></label>
-                    <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={deliveryAvailable} onChange={e => setDeliveryAvailable(e.target.checked)} className="w-4 h-4 rounded" /><span className="text-sm font-bold">توصيل متوفر</span></label>
+                    <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={isPriceNegotiable} onChange={e => setIsPriceNegotiable(e.target.checked)} className="w-4 h-4 rounded" /><span className="text-sm font-bold">{tp('eqLabelNegotiable')}</span></label>
+                    <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={withOperator} onChange={e => setWithOperator(e.target.checked)} className="w-4 h-4 rounded" /><span className="text-sm font-bold">{tp('eqLabelWithOperator')}</span></label>
+                    <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={deliveryAvailable} onChange={e => setDeliveryAvailable(e.target.checked)} className="w-4 h-4 rounded" /><span className="text-sm font-bold">{tp('eqLabelDelivery')}</span></label>
                   </div>
                   {listingType === 'EQUIPMENT_RENT' && (
-                    <div><label className={labelCls}>أقل مدة إيجار (أيام)</label><input type="number" className={inputCls} value={minRentalDays} onChange={e => setMinRentalDays(e.target.value)} /></div>
+                    <div><label className={labelCls}>{tp('eqLabelMinRental')}</label><input type="number" className={inputCls} value={minRentalDays} onChange={e => setMinRentalDays(e.target.value)} /></div>
                   )}
                 </div>
               </section>
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">الموقع والتواصل</h3>
+                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelLocationContact')}</h3>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className={labelCls}>المحافظة</label>
+                    <label className={labelCls}>{tp('eqLabelGovernorate')}</label>
                     <select className={inputCls} value={governorate} onChange={e => setGovernorate(e.target.value)}>
-                      <option value="">اختر المحافظة</option>
+                      <option value="">{tp('eqSelectGovernorate')}</option>
                       {governorateOptions.map((g: LocationOption) => <option key={g.value} value={g.label}>{g.label}</option>)}
                     </select>
                   </div>
-                  <div><label className={labelCls}>المدينة</label><input className={inputCls} value={city} onChange={e => setCity(e.target.value)} placeholder="المدينة" /></div>
-                  <div><label className={labelCls}>رقم الهاتف</label><input className={inputCls} value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="+968" /></div>
-                  <div><label className={labelCls}>واتساب</label><input className={inputCls} value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+968" /></div>
+                  <div><label className={labelCls}>{tp('eqLabelCity')}</label><input className={inputCls} value={city} onChange={e => setCity(e.target.value)} placeholder={tp('eqPlaceholderCity')} /></div>
+                  <div><label className={labelCls}>{tp('eqLabelPhone')}</label><input className={inputCls} value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="+968" /></div>
+                  <div><label className={labelCls}>{tp('eqLabelWhatsapp')}</label><input className={inputCls} value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+968" /></div>
                 </div>
                 <LocationPicker latitude={latitude} longitude={longitude} onChange={(lat, lng) => { setLatitude(lat); setLongitude(lng); }} />
               </section>
@@ -269,7 +272,7 @@ export default function AddEquipmentPage() {
           {/* ── Step 3: Images ── */}
           {step === 3 && (
             <section className={sectionCls}>
-              <h3 className="font-black text-base text-on-surface mb-4">صور المعدة</h3>
+              <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelPhotos')}</h3>
               <ImageUploader images={images} onChange={setImages} />
             </section>
           )}

@@ -12,13 +12,9 @@ import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
 import { SellerCard } from '@/components/seller-card';
 import dynamic from 'next/dynamic';
+import { useTranslations, useLocale } from 'next-intl';
 
 const MapView = dynamic(() => import('@/components/map/map-view'), { ssr: false });
-
-const TYPE_LABELS: Record<string, string> = {
-  CAR_COMPREHENSIVE: 'تأمين شامل', CAR_THIRD_PARTY: 'ضد الغير', MARINE: 'تأمين بحري',
-  HEAVY_EQUIPMENT: 'تأمين معدات', FINANCING: 'تمويل سيارات', LEASING: 'تأجير تمويلي',
-};
 
 export default function InsuranceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -28,6 +24,13 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
   const requireAuth = useRequireAuth();
   const createConv = useCreateConversation();
   const { addToast } = useToast();
+  const tp = useTranslations('pages');
+  const locale = useLocale();
+
+  const TYPE_LABELS: Record<string, string> = {
+    CAR_COMPREHENSIVE: tp('insDetailComprehensive'), CAR_THIRD_PARTY: tp('insDetailThirdParty'), MARINE: tp('insDetailMarine'),
+    HEAVY_EQUIPMENT: tp('insDetailHeavyEquipment'), FINANCING: tp('insDetailFinancing'), LEASING: tp('insDetailLeasing'),
+  };
 
   function handleMessage() {
     requireAuth(async () => {
@@ -36,13 +39,13 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
         const conv = await createConv.mutateAsync({ entityType: 'INSURANCE', entityId: offer.id });
         router.push(`/messages/${conv.id}`);
       } catch (err) {
-        addToast('error', err instanceof Error ? err.message : 'حدث خطأ أثناء إنشاء المحادثة');
+        addToast('error', err instanceof Error ? err.message : tp('insDetailErrorConversation'));
       }
-    }, 'سجّل الدخول لإرسال رسالة');
+    }, tp('insDetailLoginToMessage'));
   }
 
   if (isLoading) return <><Navbar /><main className="pt-28 pb-16 max-w-[1200px] mx-auto px-4"><ListingSkeleton count={1} /></main></>;
-  if (error || !offer) return <><Navbar /><main className="pt-28 pb-16 max-w-[1200px] mx-auto px-4"><ErrorState message="العرض غير موجود" /></main><Footer /></>;
+  if (error || !offer) return <><Navbar /><main className="pt-28 pb-16 max-w-[1200px] mx-auto px-4"><ErrorState message={tp('insDetailNotFound')} /></main><Footer /></>;
 
   return (
     <>
@@ -55,9 +58,9 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
         <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 md:-mt-24 relative z-10 pb-16">
           <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
             <Link href="/insurance" className="hover:text-white transition-colors flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">shield</span> تأمين وتمويل
+              <span className="material-symbols-outlined text-sm">shield</span> {tp('insDetailBreadcrumb')}
             </Link>
-            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <span className="material-symbols-outlined icon-flip text-xs">chevron_left</span>
             <span className="text-white font-bold">{TYPE_LABELS[offer.offerType] || offer.offerType}</span>
           </nav>
 
@@ -80,17 +83,17 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
 
                   {offer.priceFrom && (
                     <div className="bg-surface-container-low/50 dark:bg-surface-container-high/30 p-4 rounded-lg mb-4">
-                      <p className="text-xs text-on-surface-variant mb-1">يبدأ من</p>
+                      <p className="text-xs text-on-surface-variant mb-1">{tp('insDetailStartsFrom')}</p>
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-black text-primary">{parseFloat(offer.priceFrom).toFixed(3)}</span>
-                        <span className="text-sm text-on-surface-variant">ر.ع.</span>
+                        <span className="text-sm text-on-surface-variant">{tp('insDetailCurrencyOMR')}</span>
                       </div>
                     </div>
                   )}
 
                   {offer.coverageType && (
                     <div className="bg-surface-container-low/50 dark:bg-surface-container-high/30 p-4 rounded-lg">
-                      <p className="text-xs text-on-surface-variant mb-1">نوع التغطية</p>
+                      <p className="text-xs text-on-surface-variant mb-1">{tp('insDetailCoverageType')}</p>
                       <p className="font-black text-sm text-on-surface">{offer.coverageType}</p>
                     </div>
                   )}
@@ -102,7 +105,7 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
                 <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                   <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">description</span>
-                    <h2 className="font-black text-on-surface">تفاصيل العرض</h2>
+                    <h2 className="font-black text-on-surface">{tp('insDetailOfferDetails')}</h2>
                   </div>
                   <div className="p-6">
                     <p className="text-sm text-on-surface-variant whitespace-pre-line leading-relaxed">{offer.description}</p>
@@ -115,7 +118,7 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
                 <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                   <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">verified</span>
-                    <h2 className="font-black text-on-surface">المميزات</h2>
+                    <h2 className="font-black text-on-surface">{tp('insDetailFeatures')}</h2>
                   </div>
                   <div className="p-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -137,36 +140,36 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">contact_phone</span>
-                  <h3 className="font-black text-on-surface text-sm">تواصل مع المزود</h3>
+                  <h3 className="font-black text-on-surface text-sm">{tp('insDetailContactProvider')}</h3>
                 </div>
                 <div className="p-6 space-y-2.5">
                   {user?.id !== offer.user?.id && (
                     <button onClick={handleMessage} disabled={createConv.isPending}
                       className="flex items-center justify-center gap-2 w-full py-3.5 bg-on-surface text-surface font-black text-sm hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-60">
-                      <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? 'جاري...' : 'تواصل عبر الشات'}
+                      <span className="material-symbols-outlined text-lg">chat</span> {createConv.isPending ? tp('insDetailChatPending') : tp('insDetailChat')}
                     </button>
                   )}
                   {offer.contactPhone && (
                     <a href={`tel:${offer.contactPhone}`} className="flex items-center justify-center gap-2 w-full py-3.5 bg-primary text-on-primary font-black text-sm hover:brightness-110 transition-all">
-                      <span className="material-symbols-outlined text-lg">call</span> اتصل
+                      <span className="material-symbols-outlined text-lg">call</span> {tp('insDetailCall')}
                     </a>
                   )}
                   {offer.whatsapp && (
                     <a href={`https://wa.me/${offer.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full py-3.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-black text-sm hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
-                      <span className="material-symbols-outlined text-lg">chat</span> واتساب
+                      <span className="material-symbols-outlined text-lg">chat</span> {tp('insDetailWhatsapp')}
                     </a>
                   )}
                   {offer.website && (
                     <a href={offer.website} target="_blank" rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full py-3.5 bg-surface-container-low dark:bg-surface-container-high text-on-surface font-black text-sm hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors">
-                      <span className="material-symbols-outlined text-lg">language</span> زيارة الموقع
+                      <span className="material-symbols-outlined text-lg">language</span> {tp('insDetailWebsite')}
                     </a>
                   )}
                   {offer.termsUrl && (
                     <a href={offer.termsUrl} target="_blank" rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 w-full py-2.5 text-on-surface-variant text-xs font-bold hover:text-primary transition-colors">
-                      <span className="material-symbols-outlined text-sm">open_in_new</span> الشروط والأحكام
+                      <span className="material-symbols-outlined text-sm">open_in_new</span> {tp('insDetailTerms')}
                     </a>
                   )}
                 </div>
@@ -176,12 +179,12 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">info</span>
-                  <h3 className="font-black text-on-surface text-sm">معلومات</h3>
+                  <h3 className="font-black text-on-surface text-sm">{tp('insDetailInfo')}</h3>
                 </div>
                 <div className="p-6">
                   <div className="flex items-center gap-4 text-xs text-on-surface-variant">
-                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {offer.viewCount} مشاهدة</span>
-                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(offer.createdAt).toLocaleDateString('ar-OM')}</span>
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span> {offer.viewCount}</span>
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(offer.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')}</span>
                   </div>
                   {offer.governorate && (
                     <p className="text-sm font-bold text-on-surface flex items-center gap-2 mt-4 pt-4 border-t border-outline-variant/10 dark:border-outline-variant/20">
@@ -198,7 +201,7 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
 
               {/* User */}
               <SellerCard
-                title="المزود"
+                title={tp('insDetailContactProvider')}
                 name={offer.user.displayName || offer.user.username}
                 avatarUrl={offer.user.avatarUrl}
                 isVerified={offer.user.isVerified}

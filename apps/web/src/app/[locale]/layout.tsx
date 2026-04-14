@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Tajawal } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, setRequestLocale } from 'next-intl/server';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { QueryProvider } from '@/providers/query-provider';
@@ -21,28 +21,41 @@ const tajawal = Tajawal({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: 'سوق وان | سوق السيارات في سلطنة عمان',
-    template: '%s | سوق وان',
-  },
-  description:
-    'سوق وان — المعرض الرقمي الأول لبيع وشراء السيارات في سلطنة عمان. اكتشف سيارات فاخرة ومستعملة بأفضل الأسعار.',
-  keywords: ['سيارات', 'عمان', 'بيع', 'شراء', 'مستعملة', 'سوق وان', 'SouqOne', 'car marketplace oman'],
-  robots: { index: true, follow: true },
-  openGraph: {
-    type: 'website',
-    locale: 'ar_OM',
-    siteName: 'سوق وان',
-    title: 'سوق وان | سوق السيارات في سلطنة عمان',
-    description: 'المعرض الرقمي الأول لبيع وشراء السيارات في سلطنة عمان',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'سوق وان | سوق السيارات في سلطنة عمان',
-    description: 'المعرض الرقمي الأول لبيع وشراء السيارات في سلطنة عمان',
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const tp = await getTranslations({ locale, namespace: 'pages' });
+
+  const altLocale = locale === 'ar' ? 'en' : 'ar';
+
+  return {
+    title: {
+      default: tp('layoutTitle'),
+      template: tp('layoutTitleTemplate'),
+    },
+    description: tp('layoutDescription'),
+    keywords: tp('layoutKeywords').split(',').map((k: string) => k.trim()),
+    robots: { index: true, follow: true },
+    alternates: {
+      canonical: `/${locale}`,
+      languages: {
+        [locale]: `/${locale}`,
+        [altLocale]: `/${altLocale}`,
+      },
+    },
+    openGraph: {
+      type: 'website',
+      locale: locale === 'ar' ? 'ar_OM' : 'en_OM',
+      siteName: tp('layoutSiteName'),
+      title: tp('layoutOgTitle'),
+      description: tp('layoutOgDescription'),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: tp('layoutOgTitle'),
+      description: tp('layoutOgDescription'),
+    },
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

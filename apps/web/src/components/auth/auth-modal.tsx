@@ -67,7 +67,7 @@ export default function AuthModal({ children, title, subtitle }: AuthModalProps)
         {/* Logo + Name — above the card */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, marginBottom: 14 }}>
           <img src="/logo.png" alt="SouqOne" style={{ height: 52, width: 'auto', objectFit: 'contain' }} />
-          <img src="/name.png" alt="سوق وان" style={{ height: 22, width: 'auto', objectFit: 'contain' }} />
+          <img src="/name.png" alt="SouqOne" style={{ height: 22, width: 'auto', objectFit: 'contain' }} />
         </div>
 
         {/* Card */}

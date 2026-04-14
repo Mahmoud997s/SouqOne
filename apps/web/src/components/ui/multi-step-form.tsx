@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 
 export interface StepConfig {
   label: string;
@@ -27,11 +28,12 @@ export function MultiStepForm({
   onBack,
   onSubmit,
   isLoading = false,
-  submitLabel = 'نشر الإعلان',
+  submitLabel,
   canProceed = true,
   children,
   title,
 }: MultiStepFormProps) {
+  const tp = useTranslations('pages');
   const isLast = currentStep === steps.length - 1;
   const isFirst = currentStep === 0;
   const progress = ((currentStep + 1) / steps.length) * 100;
@@ -115,8 +117,8 @@ export function MultiStepForm({
             disabled={isLoading}
             className="flex items-center gap-1.5 px-3 sm:px-5 py-2.5 text-xs sm:text-sm font-bold text-on-surface-variant hover:text-on-surface bg-surface-container-low dark:bg-surface-container-high hover:bg-surface-container rounded-xl transition-all disabled:opacity-50"
           >
-            <span className="material-symbols-outlined text-sm">chevron_right</span>
-            السابق
+            <span className="material-symbols-outlined icon-flip text-sm">chevron_right</span>
+            {tp('multiStepPrev')}
           </button>
         ) : (
           <div />
@@ -124,7 +126,7 @@ export function MultiStepForm({
 
         <div className="flex items-center gap-2 sm:gap-3">
           <span className="text-xs text-on-surface-variant font-medium hidden sm:inline">
-            الخطوة {currentStep + 1} من {steps.length}
+            {tp('multiStepOf', { current: currentStep + 1, total: steps.length })}
           </span>
           {isLast ? (
             <button
@@ -134,7 +136,7 @@ export function MultiStepForm({
               className="flex items-center gap-1.5 px-4 sm:px-7 py-2.5 text-xs sm:text-sm font-black bg-primary text-on-primary rounded-xl hover:brightness-110 active:scale-[0.97] transition-all shadow-lg disabled:opacity-50 disabled:shadow-none"
             >
               {isLoading && <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>}
-              {isLoading ? 'جارٍ الحفظ...' : submitLabel}
+              {isLoading ? tp('multiStepSaving') : (submitLabel || tp('multiStepSubmit'))}
             </button>
           ) : (
             <button
@@ -143,8 +145,8 @@ export function MultiStepForm({
               disabled={!canProceed}
               className="flex items-center gap-1.5 px-4 sm:px-7 py-2.5 text-xs sm:text-sm font-black bg-primary text-on-primary rounded-xl hover:brightness-110 active:scale-[0.97] transition-all shadow-lg disabled:opacity-50 disabled:shadow-none"
             >
-              التالي
-              <span className="material-symbols-outlined text-sm">chevron_left</span>
+              {tp('multiStepNext')}
+              <span className="material-symbols-outlined icon-flip text-sm">chevron_left</span>
             </button>
           )}
         </div>

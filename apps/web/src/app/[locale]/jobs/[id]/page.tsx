@@ -10,28 +10,8 @@ import { useAuth } from '@/providers/auth-provider';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
 import { SellerCard } from '@/components/seller-card';
-import { employmentLabels } from '@/lib/constants/jobs';
-
-const jobTypeLabels: Record<string, { label: string; color: string }> = {
-  OFFERING: { label: 'يبحث عن عمل', color: 'bg-brand-green/10 text-brand-green' },
-  HIRING: { label: 'يبحث عن سائق', color: 'bg-primary/10 text-primary' },
-};
-
-
-const salaryPeriodLabels: Record<string, string> = {
-  DAILY: '/يوم',
-  MONTHLY: '/شهر',
-  YEARLY: '/سنة',
-  NEGOTIABLE: 'قابل للتفاوض',
-};
-
-const licenseLabels: Record<string, string> = {
-  LIGHT: 'خفيفة',
-  HEAVY: 'ثقيلة',
-  TRANSPORT: 'نقل',
-  BUS: 'حافلات',
-  MOTORCYCLE: 'دراجة نارية',
-};
+import { employmentLabelsT } from '@/lib/constants/jobs';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -39,6 +19,20 @@ export default function JobDetailPage() {
   const { user } = useAuth();
   const requireAuth = useRequireAuth();
   const { addToast } = useToast();
+  const tp = useTranslations('pages');
+  const tj = useTranslations('jobs');
+  const locale = useLocale();
+
+  const jobTypeLabels: Record<string, { label: string; color: string }> = {
+    OFFERING: { label: tp('jobDetailOffering'), color: 'bg-brand-green/10 text-brand-green' },
+    HIRING: { label: tp('jobDetailHiring'), color: 'bg-primary/10 text-primary' },
+  };
+  const salaryPeriodLabels: Record<string, string> = {
+    DAILY: tp('jobDetailPerDay'), MONTHLY: tp('jobDetailPerMonth'), YEARLY: tp('jobDetailPerYear'), NEGOTIABLE: tp('jobDetailNegotiable'),
+  };
+  const licenseLabels: Record<string, string> = {
+    LIGHT: tp('jobDetailLicLight'), HEAVY: tp('jobDetailLicHeavy'), TRANSPORT: tp('jobDetailLicTransport'), BUS: tp('jobDetailLicBus'), MOTORCYCLE: tp('jobDetailLicMotorcycle'),
+  };
 
   const { data: job, isLoading, isError } = useJob(id);
   const applyMutation = useApplyToJob();
@@ -57,32 +51,32 @@ export default function JobDetailPage() {
         const conv = await createConv.mutateAsync({ entityType: 'JOB', entityId: job.id });
         router.push(`/messages/${conv.id}`);
       } catch (err) {
-        addToast('error', err instanceof Error ? err.message : 'حدث خطأ أثناء إنشاء المحادثة');
+        addToast('error', err instanceof Error ? err.message : tp('jobDetailErrorConversation'));
       }
-    }, 'سجّل الدخول لإرسال رسالة');
+    }, tp('jobDetailLoginToMessage'));
   }
 
   function handleApply() {
     requireAuth(async () => {
       try {
         await applyMutation.mutateAsync({ jobId: id, message: applyMessage || undefined });
-        addToast('success', 'تم تقديم طلبك بنجاح!');
+        addToast('success', tp('jobDetailApplySuccess'));
         setShowApplyModal(false);
         setApplyMessage('');
       } catch (err: any) {
-        addToast('error', err?.message || 'فشل في تقديم الطلب');
+        addToast('error', err?.message || tp('jobDetailApplyFail'));
       }
-    }, 'سجّل الدخول لتقديم طلب');
+    }, tp('jobDetailLoginToApply'));
   }
 
   async function handleDelete() {
-    if (!confirm('هل أنت متأكد من حذف هذا الإعلان؟')) return;
+    if (!confirm(tp('jobDetailDeleteConfirm'))) return;
     try {
       await deleteMutation.mutateAsync(id);
-      addToast('success', 'تم حذف الإعلان');
+      addToast('success', tp('jobDetailDeleted'));
       router.push('/jobs/my');
     } catch (err: any) {
-      addToast('error', err?.message || 'فشل في الحذف');
+      addToast('error', err?.message || tp('jobDetailDeleteFail'));
     }
   }
 
@@ -111,8 +105,8 @@ export default function JobDetailPage() {
         <div className="min-h-screen bg-background pt-28">
           <main className="max-w-5xl mx-auto px-4 md:px-8 text-center">
             <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4 block">error</span>
-            <p className="text-xl font-bold mb-4">الوظيفة غير موجودة</p>
-            <Link href="/jobs" className="bg-primary text-on-primary px-6 py-3 text-sm font-black hover:brightness-110 transition-colors">العودة للوظائف</Link>
+            <p className="text-xl font-bold mb-4">{tp('jobDetailNotFound')}</p>
+            <Link href="/jobs" className="bg-primary text-on-primary px-6 py-3 text-sm font-black hover:brightness-110 transition-colors">{tp('jobDetailBackToJobs')}</Link>
           </main>
         </div>
       </>
@@ -131,12 +125,12 @@ export default function JobDetailPage() {
 
         <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 md:-mt-24 relative z-10 pb-16">
           <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
-            <Link href="/" className="hover:text-white transition-colors">الرئيسية</Link>
-            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <Link href="/" className="hover:text-white transition-colors">{tp('jobDetailHome')}</Link>
+            <span className="material-symbols-outlined icon-flip text-xs">chevron_left</span>
             <Link href="/jobs" className="hover:text-white transition-colors flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">work</span> وظائف السائقين
+              <span className="material-symbols-outlined text-sm">work</span> {tp('jobDetailBreadcrumb')}
             </Link>
-            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <span className="material-symbols-outlined icon-flip text-xs">chevron_left</span>
             <span className="text-white font-bold truncate max-w-xs">{job.title}</span>
           </nav>
 
@@ -151,10 +145,10 @@ export default function JobDetailPage() {
                       {typeInfo.label}
                     </span>
                     <span className="bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant text-xs font-black px-3 py-1">
-                      {employmentLabels[job.employmentType] ?? job.employmentType}
+                      {employmentLabelsT(tj)[job.employmentType] ?? job.employmentType}
                     </span>
                     {job.status === 'CLOSED' && (
-                      <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-black px-3 py-1">مغلق</span>
+                      <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-black px-3 py-1">{tp('jobDetailClosed')}</span>
                     )}
                   </div>
                   <h1 className="text-2xl md:text-3xl font-black text-on-surface mb-3">{job.title}</h1>
@@ -165,11 +159,11 @@ export default function JobDetailPage() {
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="material-symbols-outlined text-lg">visibility</span>
-                      {job.viewCount} مشاهدة
+                      {job.viewCount} {tp('jobDetailViews')}
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="material-symbols-outlined text-lg">schedule</span>
-                      {new Date(job.createdAt).toLocaleDateString('ar-OM')}
+                      {new Date(job.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')}
                     </span>
                   </div>
                 </div>
@@ -179,10 +173,10 @@ export default function JobDetailPage() {
               {job.salary && (
                 <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                   <div className="p-6">
-                    <p className="text-sm text-on-surface-variant mb-1">الراتب</p>
+                    <p className="text-sm text-on-surface-variant mb-1">{tp('jobDetailSalary')}</p>
                     <p className="text-3xl font-black text-primary">
                       {Number(job.salary).toLocaleString('en-US')}{' '}
-                      <span className="text-base font-bold text-on-surface-variant">ر.ع.{job.salaryPeriod ? salaryPeriodLabels[job.salaryPeriod] : ''}</span>
+                      <span className="text-base font-bold text-on-surface-variant">{tp('jobDetailCurrencyOMR')}{job.salaryPeriod ? salaryPeriodLabels[job.salaryPeriod] : ''}</span>
                     </p>
                   </div>
                 </div>
@@ -192,7 +186,7 @@ export default function JobDetailPage() {
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">description</span>
-                  <h2 className="font-black text-on-surface">الوصف</h2>
+                  <h2 className="font-black text-on-surface">{tp('jobDetailDescription')}</h2>
                 </div>
                 <div className="p-6">
                   <p className="text-on-surface-variant leading-relaxed whitespace-pre-wrap">{job.description}</p>
@@ -203,7 +197,7 @@ export default function JobDetailPage() {
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">checklist</span>
-                  <h2 className="font-black text-on-surface">المتطلبات والتفاصيل</h2>
+                  <h2 className="font-black text-on-surface">{tp('jobDetailRequirements')}</h2>
                 </div>
                 <div className="p-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -211,7 +205,7 @@ export default function JobDetailPage() {
                       <div className="flex items-start gap-3">
                         <span className="material-symbols-outlined text-primary mt-0.5">badge</span>
                         <div>
-                          <p className="text-xs text-on-surface-variant">نوع الرخصة</p>
+                          <p className="text-xs text-on-surface-variant">{tp('jobDetailLicenseType')}</p>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {job.licenseTypes.map((lt) => (
                               <span key={lt} className="bg-primary/10 dark:bg-primary/20 text-primary text-xs font-black px-2.5 py-0.5">
@@ -226,8 +220,8 @@ export default function JobDetailPage() {
                       <div className="flex items-start gap-3">
                         <span className="material-symbols-outlined text-primary mt-0.5">history</span>
                         <div>
-                          <p className="text-xs text-on-surface-variant">سنوات الخبرة</p>
-                          <p className="font-black text-on-surface">{job.experienceYears} سنة</p>
+                          <p className="text-xs text-on-surface-variant">{tp('jobDetailExperience')}</p>
+                          <p className="font-black text-on-surface">{tp('jobDetailExperienceYears', { years: job.experienceYears })}</p>
                         </div>
                       </div>
                     )}
@@ -235,9 +229,9 @@ export default function JobDetailPage() {
                       <div className="flex items-start gap-3">
                         <span className="material-symbols-outlined text-primary mt-0.5">cake</span>
                         <div>
-                          <p className="text-xs text-on-surface-variant">العمر المطلوب</p>
+                          <p className="text-xs text-on-surface-variant">{tp('jobDetailAge')}</p>
                           <p className="font-black text-on-surface">
-                            {job.minAge && job.maxAge ? `${job.minAge} - ${job.maxAge} سنة` : job.minAge ? `${job.minAge}+ سنة` : `حتى ${job.maxAge} سنة`}
+                            {job.minAge && job.maxAge ? tp('jobDetailAgeRange', { min: job.minAge, max: job.maxAge }) : job.minAge ? tp('jobDetailAgeMin', { min: job.minAge }) : tp('jobDetailAgeMax', { max: job.maxAge ?? 0 })}
                           </p>
                         </div>
                       </div>
@@ -246,8 +240,8 @@ export default function JobDetailPage() {
                       <div className="flex items-start gap-3">
                         <span className="material-symbols-outlined text-primary mt-0.5">translate</span>
                         <div>
-                          <p className="text-xs text-on-surface-variant">اللغات</p>
-                          <p className="font-black text-on-surface">{job.languages.join('، ')}</p>
+                          <p className="text-xs text-on-surface-variant">{tp('jobDetailLanguages')}</p>
+                          <p className="font-black text-on-surface">{job.languages.join(locale === 'ar' ? '، ' : ', ')}</p>
                         </div>
                       </div>
                     )}
@@ -255,7 +249,7 @@ export default function JobDetailPage() {
                       <div className="flex items-start gap-3">
                         <span className="material-symbols-outlined text-primary mt-0.5">flag</span>
                         <div>
-                          <p className="text-xs text-on-surface-variant">الجنسية</p>
+                          <p className="text-xs text-on-surface-variant">{tp('jobDetailNationality')}</p>
                           <p className="font-black text-on-surface">{job.nationality}</p>
                         </div>
                       </div>
@@ -264,16 +258,16 @@ export default function JobDetailPage() {
                       <div className="flex items-start gap-3">
                         <span className="material-symbols-outlined text-primary mt-0.5">directions_car</span>
                         <div>
-                          <p className="text-xs text-on-surface-variant">أنواع المركبات</p>
-                          <p className="font-black text-on-surface">{job.vehicleTypes.join('، ')}</p>
+                          <p className="text-xs text-on-surface-variant">{tp('jobDetailVehicleTypes')}</p>
+                          <p className="font-black text-on-surface">{job.vehicleTypes.join(locale === 'ar' ? '، ' : ', ')}</p>
                         </div>
                       </div>
                     )}
                     <div className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-primary mt-0.5">garage</span>
                       <div>
-                        <p className="text-xs text-on-surface-variant">لديه سيارة خاصة</p>
-                        <p className="font-black text-on-surface">{job.hasOwnVehicle ? 'نعم' : 'لا'}</p>
+                        <p className="text-xs text-on-surface-variant">{tp('jobDetailHasOwnVehicle')}</p>
+                        <p className="font-black text-on-surface">{job.hasOwnVehicle ? tp('jobDetailYes') : tp('jobDetailNo')}</p>
                       </div>
                     </div>
                   </div>
@@ -285,7 +279,7 @@ export default function JobDetailPage() {
             <div className="space-y-6">
               {/* User Card */}
               <SellerCard
-                title="المعلن"
+                title={tp('jobDetailSeller')}
                 name={job.user.displayName || job.user.username}
                 avatarUrl={job.user.avatarUrl}
                 location={job.user.governorate}
@@ -303,7 +297,7 @@ export default function JobDetailPage() {
                 <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                   <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">contact_phone</span>
-                    <h3 className="font-black text-on-surface text-sm">معلومات التواصل</h3>
+                    <h3 className="font-black text-on-surface text-sm">{tp('jobDetailContactInfo')}</h3>
                   </div>
                   <div className="p-6 space-y-3">
                     {job.contactPhone && (
@@ -320,7 +314,7 @@ export default function JobDetailPage() {
                         className="flex items-center gap-2 w-full py-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-black text-sm justify-center hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
                       >
                         <span className="material-symbols-outlined text-lg">chat</span>
-                        واتساب
+                        {tp('jobDetailWhatsapp')}
                       </a>
                     )}
                     {job.contactEmail && (
@@ -339,31 +333,31 @@ export default function JobDetailPage() {
                   <>
                     <Link href={`/jobs/my`} className="bg-primary text-on-primary w-full py-3.5 text-sm text-center block font-black hover:brightness-110 transition-colors flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-lg">edit</span>
-                      إدارة إعلاناتي
+                      {tp('jobDetailManageListings')}
                     </Link>
                     <button onClick={handleDelete} className="w-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 py-3.5 text-sm font-black hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-lg">delete</span>
-                      حذف الإعلان
+                      {tp('jobDetailDelete')}
                     </button>
                   </>
                 ) : job.status === 'ACTIVE' ? (
                   <>
                     <button
-                      onClick={() => requireAuth(() => setShowApplyModal(true), 'سجّل الدخول لتقديم طلب')}
+                      onClick={() => requireAuth(() => setShowApplyModal(true), tp('jobDetailLoginToApply'))}
                       className="bg-primary text-on-primary w-full py-3.5 text-sm font-black hover:brightness-110 transition-colors flex items-center justify-center gap-2"
                     >
                       <span className="material-symbols-outlined text-lg">send</span>
-                      تقديم طلب
+                      {tp('jobDetailApply')}
                     </button>
                     <button onClick={handleMessage} disabled={createConv.isPending}
                       className="bg-on-surface text-surface w-full py-3.5 text-sm font-black hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-lg">chat</span>
-                      {createConv.isPending ? 'جاري...' : 'تواصل عبر الشات'}
+                      {createConv.isPending ? tp('jobDetailChatPending') : tp('jobDetailChat')}
                     </button>
                   </>
                 ) : (
                   <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-center py-3.5 text-sm font-black">
-                    هذا الإعلان مغلق
+                    {tp('jobDetailClosedAd')}
                   </div>
                 )}
               </div>
@@ -376,11 +370,11 @@ export default function JobDetailPage() {
       {showApplyModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/20 p-6 w-full max-w-md shadow-xl">
-            <h3 className="text-lg font-black mb-4 text-on-surface">تقديم طلب</h3>
+            <h3 className="text-lg font-black mb-4 text-on-surface">{tp('jobDetailApplyModalTitle')}</h3>
             <textarea
               value={applyMessage}
               onChange={(e) => setApplyMessage(e.target.value)}
-              placeholder="اكتب رسالة قصيرة (اختياري)..."
+              placeholder={tp('jobDetailApplyPlaceholder')}
               className="w-full bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/30 dark:border-outline-variant/40 p-4 focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none text-sm min-h-[120px] resize-none"
             />
             <div className="flex gap-3 mt-4">
@@ -389,13 +383,13 @@ export default function JobDetailPage() {
                 disabled={applyMutation.isPending}
                 className="bg-primary text-on-primary hover:brightness-110 flex-1 py-3 text-sm font-black disabled:opacity-50 transition-all"
               >
-                {applyMutation.isPending ? 'جاري الإرسال...' : 'إرسال الطلب'}
+                {applyMutation.isPending ? tp('jobDetailApplySending') : tp('jobDetailApplySend')}
               </button>
               <button
                 onClick={() => setShowApplyModal(false)}
                 className="bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant px-6 py-3 text-sm font-black hover:text-primary transition-colors"
               >
-                إلغاء
+                {tp('jobDetailApplyCancel')}
               </button>
             </div>
           </div>

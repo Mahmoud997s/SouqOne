@@ -21,7 +21,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
         disabled={currentPage <= 1}
         className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-primary hover:text-on-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
       >
-        <span className="material-symbols-outlined text-lg">chevron_right</span>
+        <span className="material-symbols-outlined icon-flip text-lg">chevron_right</span>
       </button>
 
       {pages.map((page, i) =>
@@ -48,7 +48,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
         disabled={currentPage >= totalPages}
         className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-primary hover:text-on-primary transition-all disabled:opacity-30 disabled:pointer-events-none"
       >
-        <span className="material-symbols-outlined text-lg">chevron_left</span>
+        <span className="material-symbols-outlined icon-flip text-lg">chevron_left</span>
       </button>
     </div>
   );

@@ -12,6 +12,7 @@ import { useCreateListing } from '@/lib/api';
 import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
+import { useTranslations } from 'next-intl';
 
 export default function AddCarListingPage() {
   return (
@@ -27,6 +28,7 @@ function AddCarContent() {
   const listingType = (searchParams.get('type') as 'SALE' | 'RENTAL') || 'SALE';
   const createListing = useCreateListing();
   const { addToast } = useToast();
+  const tp = useTranslations('pages');
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
 
@@ -55,11 +57,11 @@ function AddCarContent() {
         setUploading(false);
       }
 
-      addToast('success', 'تم نشر الإعلان بنجاح!');
+      addToast('success', tp('addCarSuccess'));
       router.push(`/cars/${listing.id}`);
     } catch (err) {
       setUploading(false);
-      const msg = err instanceof Error ? err.message : 'حدث خطأ أثناء إنشاء الإعلان';
+      const msg = err instanceof Error ? err.message : tp('addCarError');
       setErrorMessages(msg.split('\n').filter(Boolean));
     }
   }
@@ -76,7 +78,7 @@ function AddCarContent() {
           isLoading={isLoading}
           errorMessages={errorMessages}
           onClearErrors={() => setErrorMessages([])}
-          submitLabel={uploading ? 'جارٍ رفع الصور...' : 'نشر الإعلان'}
+          submitLabel={uploading ? tp('addCarUploading') : tp('addCarSubmit')}
         />
       </main>
       <Footer />

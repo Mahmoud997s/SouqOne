@@ -4,39 +4,43 @@ import { Link } from '@/i18n/navigation';
 import { useInsuranceOffers } from '@/lib/api';
 import { BADGE_COLORS } from '@/lib/constants/mappings';
 import { ListingPageShell } from '@/components/listing-page-shell';
-
-const INS_CATS = [
-  { value: '', label: 'الكل' },
-  { value: 'CAR_COMPREHENSIVE', label: 'تأمين شامل' },
-  { value: 'CAR_THIRD_PARTY', label: 'ضد الغير' },
-  { value: 'MARINE', label: 'تأمين بحري' },
-  { value: 'HEAVY_EQUIPMENT', label: 'تأمين معدات' },
-  { value: 'FINANCING', label: 'تمويل سيارات' },
-  { value: 'LEASING', label: 'تأجير تمويلي' },
-];
-
-const TYPE_LABELS: Record<string, string> = {
-  CAR_COMPREHENSIVE: 'تأمين شامل', CAR_THIRD_PARTY: 'ضد الغير', MARINE: 'تأمين بحري',
-  HEAVY_EQUIPMENT: 'تأمين معدات', FINANCING: 'تمويل سيارات', LEASING: 'تأجير تمويلي',
-};
+import { useTranslations } from 'next-intl';
 
 export default function InsurancePage() {
+  const t = useTranslations('pages');
+  const tl = useTranslations('listings');
+
+  const INS_CATS = [
+    { value: '', label: t('all') },
+    { value: 'CAR_COMPREHENSIVE', label: t('insuranceCatComprehensive') },
+    { value: 'CAR_THIRD_PARTY', label: t('insuranceCatThirdParty') },
+    { value: 'MARINE', label: t('insuranceCatMarine') },
+    { value: 'HEAVY_EQUIPMENT', label: t('insuranceCatEquipment') },
+    { value: 'FINANCING', label: t('insuranceCatFinancing') },
+    { value: 'LEASING', label: t('insuranceCatLeasing') },
+  ];
+
+  const TYPE_LABELS: Record<string, string> = {
+    CAR_COMPREHENSIVE: t('insuranceCatComprehensive'), CAR_THIRD_PARTY: t('insuranceCatThirdParty'), MARINE: t('insuranceCatMarine'),
+    HEAVY_EQUIPMENT: t('insuranceCatEquipment'), FINANCING: t('insuranceCatFinancing'), LEASING: t('insuranceCatLeasing'),
+  };
+
   return (
     <ListingPageShell
-      title="تأمين وتمويل"
-      countLabel="عرض"
-      searchPlaceholder="ابحث عن تأمين أو تمويل..."
+      title={t('insuranceTitle')}
+      countLabel={t('insuranceCount')}
+      searchPlaceholder={t('insuranceSearch')}
       addHref="/add-listing/insurance"
-      addLabel="+ أضف عرض"
+      addLabel={t('insuranceAdd')}
       addBtnClass="btn-success"
       heroIcon="shield"
-      heroSubtitle="قارن عروض التأمين والتمويل واحصل على أفضل الأسعار"
+      heroSubtitle={t('insuranceSubtitle')}
       basePath="/insurance"
       categories={INS_CATS}
       filterParamKey="offerType"
       useDataHook={useInsuranceOffers}
-      emptyTitle="لا توجد عروض"
-      emptyDescription="جرب البحث بكلمات مختلفة"
+      emptyTitle={t('insuranceEmpty')}
+      emptyDescription={tl('tryDifferentSearch')}
       renderCard={(offer) => (
         <Link key={offer.id} href={`/insurance/${offer.id}`} className="glass-card rounded-xl overflow-hidden p-5 relative">
           <div className="flex items-center gap-3 mb-4">
@@ -60,7 +64,7 @@ export default function InsurancePage() {
                 </p>
               ))}
               {offer.features.length > 3 && (
-                <p className="text-[11px] text-on-surface-variant">+{offer.features.length - 3} مميزات أخرى</p>
+                <p className="text-[11px] text-on-surface-variant">{t('insuranceMoreFeatures', { count: offer.features.length - 3 })}</p>
               )}
             </div>
           )}
@@ -68,10 +72,10 @@ export default function InsurancePage() {
           <div className="flex items-center justify-between pt-3 border-t border-outline-variant/10">
             {offer.priceFrom ? (
               <span className="text-sm font-black text-primary">
-                يبدأ من {parseFloat(offer.priceFrom).toFixed(3)} <span className="text-[11px] font-medium text-on-surface-variant">ر.ع.</span>
+                {t('insuranceStartsFrom', { price: parseFloat(offer.priceFrom).toFixed(3) })} <span className="text-[11px] font-medium text-on-surface-variant">{tl('currency')}</span>
               </span>
             ) : (
-              <span className="text-xs text-on-surface-variant">اتصل للسعر</span>
+              <span className="text-xs text-on-surface-variant">{t('callForPrice')}</span>
             )}
             {offer.governorate && (
               <span className="flex items-center gap-1 text-[11px] text-on-surface-variant"><span className="material-symbols-outlined text-xs">location_on</span> {offer.governorate}</span>

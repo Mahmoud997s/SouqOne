@@ -4,40 +4,44 @@ import { Link } from '@/i18n/navigation';
 import { useTrips } from '@/lib/api';
 import { BADGE_COLORS } from '@/lib/constants/mappings';
 import { ListingPageShell } from '@/components/listing-page-shell';
-
-const TRIP_CATS = [
-  { value: '', label: 'الكل' },
-  { value: 'BUS_SUBSCRIPTION', label: 'اشتراكات باصات' },
-  { value: 'SCHOOL_TRANSPORT', label: 'توصيل مدارس' },
-  { value: 'TOURISM', label: 'رحلات سياحية' },
-  { value: 'CORPORATE', label: 'توصيل موظفين' },
-  { value: 'CARPOOLING', label: 'مشاركة رحلات' },
-];
-
-const TYPE_LABELS: Record<string, string> = {
-  BUS_SUBSCRIPTION: 'اشتراك باص', SCHOOL_TRANSPORT: 'توصيل مدارس', TOURISM: 'رحلة سياحية',
-  CORPORATE: 'توصيل موظفين', CARPOOLING: 'مشاركة رحلة', OTHER_TRIP: 'أخرى',
-};
-
-const SCHEDULE_LABELS: Record<string, string> = { DAILY: 'يومي', WEEKLY: 'أسبوعي', MONTHLY: 'شهري', ONE_TIME: 'مرة واحدة', ON_DEMAND: 'عند الطلب' };
+import { useTranslations } from 'next-intl';
 
 export default function TripsPage() {
+  const t = useTranslations('pages');
+  const tl = useTranslations('listings');
+
+  const TRIP_CATS = [
+    { value: '', label: t('all') },
+    { value: 'BUS_SUBSCRIPTION', label: t('tripsCatBus') },
+    { value: 'SCHOOL_TRANSPORT', label: t('tripsCatSchool') },
+    { value: 'TOURISM', label: t('tripsCatTourism') },
+    { value: 'CORPORATE', label: t('tripsCatCorporate') },
+    { value: 'CARPOOLING', label: t('tripsCatCarpooling') },
+  ];
+
+  const TYPE_LABELS: Record<string, string> = {
+    BUS_SUBSCRIPTION: t('tripsTypeBus'), SCHOOL_TRANSPORT: t('tripsTypeSchool'), TOURISM: t('tripsTypeTourism'),
+    CORPORATE: t('tripsTypeCorporate'), CARPOOLING: t('tripsTypeCarpooling'), OTHER_TRIP: t('tripsTypeOther'),
+  };
+
+  const SCHEDULE_LABELS: Record<string, string> = { DAILY: t('tripsScheduleDaily'), WEEKLY: t('tripsScheduleWeekly'), MONTHLY: t('tripsScheduleMonthly'), ONE_TIME: t('tripsScheduleOneTime'), ON_DEMAND: t('tripsScheduleOnDemand') };
+
   return (
     <ListingPageShell
-      title="رحلات واشتراكات"
-      countLabel="رحلة"
-      searchPlaceholder="ابحث عن رحلة أو وجهة..."
+      title={t('tripsTitle')}
+      countLabel={t('tripsCount')}
+      searchPlaceholder={t('tripsSearch')}
       addHref="/add-listing/trip"
-      addLabel="+ أضف رحلة"
+      addLabel={t('tripsAdd')}
       addBtnClass="btn-success"
       heroIcon="directions_bus"
-      heroSubtitle="اشتراكات باصات ورحلات يومية وتوصيل مدارس"
+      heroSubtitle={t('tripsSubtitle')}
       basePath="/trips"
       categories={TRIP_CATS}
       filterParamKey="tripType"
       useDataHook={useTrips}
-      emptyTitle="لا توجد رحلات"
-      emptyDescription="جرب البحث بكلمات مختلفة"
+      emptyTitle={t('tripsEmpty')}
+      emptyDescription={tl('tryDifferentSearch')}
       renderCard={(trip) => (
         <Link key={trip.id} href={`/trips/${trip.id}`} className="glass-card rounded-xl overflow-hidden p-5 relative">
           <div className="flex items-center gap-2 mb-3">
@@ -48,27 +52,27 @@ export default function TripsPage() {
 
           <div className="flex items-center gap-3 bg-surface-container-lowest rounded-lg p-3 mb-3 border border-outline-variant/10">
             <div className="text-center">
-              <p className="text-xs text-on-surface-variant">من</p>
+              <p className="text-xs text-on-surface-variant">{t('tripsFrom')}</p>
               <p className="font-bold text-sm">{trip.routeFrom}</p>
             </div>
             <span className="material-symbols-outlined text-primary shrink-0">swap_horiz</span>
             <div className="text-center">
-              <p className="text-xs text-on-surface-variant">إلى</p>
+              <p className="text-xs text-on-surface-variant">{t('tripsTo')}</p>
               <p className="font-bold text-sm">{trip.routeTo}</p>
             </div>
           </div>
 
           {trip.routeStops.length > 0 && (
-            <p className="text-[11px] text-on-surface-variant mb-2">محطات: {trip.routeStops.join(' → ')}</p>
+            <p className="text-[11px] text-on-surface-variant mb-2">{t('tripsStops')} {trip.routeStops.join(' → ')}</p>
           )}
 
           <div className="flex items-center justify-between mt-3">
             <div>
-              {trip.pricePerTrip && <span className="text-sm font-black text-primary">{parseFloat(trip.pricePerTrip).toFixed(3)} <span className="text-[11px] font-medium text-on-surface-variant">ر.ع./رحلة</span></span>}
-              {trip.priceMonthly && <span className="text-xs text-on-surface-variant mr-2">أو {parseFloat(trip.priceMonthly).toFixed(3)} شهري</span>}
+              {trip.pricePerTrip && <span className="text-sm font-black text-primary">{parseFloat(trip.pricePerTrip).toFixed(3)} <span className="text-[11px] font-medium text-on-surface-variant">{t('tripsPerTrip')}</span></span>}
+              {trip.priceMonthly && <span className="text-xs text-on-surface-variant me-2">{t('tripsOrMonthly', { price: parseFloat(trip.priceMonthly).toFixed(3) })}</span>}
             </div>
             <div className="flex items-center gap-2 text-[11px] text-on-surface-variant">
-              {trip.availableSeats && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-xs">group</span> {trip.availableSeats} مقعد</span>}
+              {trip.availableSeats && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-xs">group</span> {t('tripsSeats', { count: trip.availableSeats })}</span>}
               {trip.governorate && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-xs">location_on</span> {trip.governorate}</span>}
             </div>
           </div>

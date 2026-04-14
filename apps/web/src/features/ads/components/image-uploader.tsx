@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 
 // ─── Types ───
 
@@ -27,6 +28,7 @@ export function ImageUploader({
   maxImages = 10,
   disabled = false,
 }: ImageUploaderProps) {
+  const tp = useTranslations('pages');
   const [dragOver, setDragOver] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -181,10 +183,10 @@ export function ImageUploader({
           </div>
           <div className="text-center">
             <p className="font-bold text-on-surface text-sm">
-              اسحب الصور هنا أو اضغط للاختيار
+              {tp('imgUploadDrag')}
             </p>
             <p className="text-on-surface-variant text-xs mt-1">
-              JPEG, PNG, WebP — حد أقصى 10MB لكل صورة — {images.length}/{maxImages}
+              {tp('imgUploadHint', { current: images.length, max: maxImages })}
             </p>
           </div>
           <input
@@ -218,7 +220,7 @@ export function ImageUploader({
               {/* Image */}
               <img
                 src={img.url}
-                alt={`صورة ${index + 1}`}
+                alt={tp('imgUploadAlt', { index: index + 1 })}
                 className="w-full h-full object-cover"
                 draggable={false}
               />
@@ -231,7 +233,7 @@ export function ImageUploader({
                     type="button"
                     onClick={(e) => { e.stopPropagation(); setPrimary(index); }}
                     className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center text-primary hover:bg-white transition-colors"
-                    title="تعيين كصورة رئيسية"
+                    title={tp('imgUploadSetPrimary')}
                   >
                     <span className="material-symbols-outlined text-lg">star</span>
                   </button>
@@ -243,7 +245,7 @@ export function ImageUploader({
                     type="button"
                     onClick={(e) => { e.stopPropagation(); removeImage(index); }}
                     className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center text-error hover:bg-white transition-colors"
-                    title="حذف الصورة"
+                    title={tp('imgUploadDelete')}
                   >
                     <span className="material-symbols-outlined text-lg">delete</span>
                   </button>
@@ -253,7 +255,7 @@ export function ImageUploader({
               {/* Primary Badge */}
               {img.isPrimary && (
                 <div className="absolute top-2 right-2 bg-primary text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
-                  رئيسية
+                  {tp('imgUploadPrimary')}
                 </div>
               )}
 
@@ -275,8 +277,8 @@ export function ImageUploader({
 
       {images.length > 1 && (
         <p className="text-xs text-on-surface-variant">
-          <span className="material-symbols-outlined text-sm align-text-bottom ml-1">drag_indicator</span>
-          اسحب الصور لإعادة ترتيبها. الصورة الأولى تُعرض كصورة رئيسية.
+          <span className="material-symbols-outlined text-sm align-text-bottom ms-1">drag_indicator</span>
+          {tp('imgUploadReorder')}
         </p>
       )}
     </div>

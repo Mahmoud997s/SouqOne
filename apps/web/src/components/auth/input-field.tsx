@@ -39,7 +39,7 @@ export function InputField({
       )}
       <div className="relative">
         {icon && (
-          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-lg pointer-events-none">
+          <span className="absolute end-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-lg pointer-events-none">
             {icon}
           </span>
         )}
@@ -47,9 +47,9 @@ export function InputField({
           {...rest}
           type={inputType}
           dir={rest.dir}
-          className={`w-full text-right placeholder:text-right bg-white border rounded-xl py-3 sm:py-3.5 focus:ring-2 focus:ring-primary/30 focus:border-primary focus:outline-none text-sm transition-all text-on-surface placeholder:text-outline ${
-            icon ? 'pr-11' : 'pr-4'
-          } ${isPassword ? 'pl-11' : 'pl-4'} ${
+          className={`w-full bg-white border rounded-xl py-3 sm:py-3.5 focus:ring-2 focus:ring-primary/30 focus:border-primary focus:outline-none text-sm transition-all text-on-surface placeholder:text-outline ${
+            icon ? 'pe-11' : 'pe-4'
+          } ${isPassword ? 'ps-11' : 'ps-4'} ${
             error ? 'border-red-400 ring-1 ring-red-400/20' : 'border-outline/40'
           }`}
         />
@@ -57,7 +57,7 @@ export function InputField({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-lg cursor-pointer hover:text-primary transition-colors"
+            className="absolute start-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-lg cursor-pointer hover:text-primary transition-colors"
             tabIndex={-1}
           >
             {showPassword ? 'visibility_off' : 'visibility'}

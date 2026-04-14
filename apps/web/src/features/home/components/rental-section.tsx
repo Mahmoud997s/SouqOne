@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { RentalCard } from '@/features/rentals/components/rental-card';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
+import { useTranslations } from 'next-intl';
 
 interface RentalItem {
   id: string;
@@ -31,6 +32,7 @@ interface RentalSectionProps {
 }
 
 export function RentalSection({ items, isLoading }: RentalSectionProps) {
+  const tp = useTranslations('pages');
   return (
     <section className="py-20 bg-surface-container-low dark:bg-surface-dim">
       <div className="max-w-7xl mx-auto px-6">
@@ -38,12 +40,12 @@ export function RentalSection({ items, isLoading }: RentalSectionProps) {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 bg-primary" />
-              <h2 className="text-xl md:text-3xl font-black">سيارات للإيجار</h2>
+              <h2 className="text-xl md:text-3xl font-black">{tp('rentalTitle')}</h2>
             </div>
-            <p className="text-on-surface-variant text-sm">استأجر سيارتك المفضلة بأفضل الأسعار في سلطنة عمان</p>
+            <p className="text-on-surface-variant text-sm">{tp('rentalSubtitle')}</p>
           </div>
           <Link href="/rentals" className="text-primary font-bold text-sm hover:underline transition-colors shrink-0">
-            عرض الكل ←
+            {tp('rentalViewAll')}
           </Link>
         </div>
 
@@ -82,9 +84,9 @@ export function RentalSection({ items, isLoading }: RentalSectionProps) {
         ) : (
           <div className="text-center py-16 bg-surface-container-lowest">
             <span className="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-3 block">car_rental</span>
-            <p className="text-on-surface-variant font-medium mb-4">لا توجد سيارات للإيجار حالياً</p>
+            <p className="text-on-surface-variant font-medium mb-4">{tp('rentalEmpty')}</p>
             <Link href="/add-listing" className="btn-success px-6 py-2.5 text-sm font-black inline-block hover:brightness-110 transition-colors">
-              أضف سيارة للإيجار
+              {tp('rentalAddCar')}
             </Link>
           </div>
         )}

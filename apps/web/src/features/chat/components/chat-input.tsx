@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { Send, Smile, Paperclip, Mic, X } from 'lucide-react';
 import EmojiPicker from './emoji-picker';
 import VoiceRecorder from './voice-recorder';
+import { useTranslations } from 'next-intl';
 
 interface ChatInputProps {
   onSend: (text: string) => void;
@@ -13,6 +14,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ onSend, onImageUpload, onVoiceSend, onTyping }: ChatInputProps) {
+  const tp = useTranslations('pages');
   const [input, setInput] = useState('');
   const [showEmoji, setShowEmoji] = useState(false);
   const [showVoice, setShowVoice] = useState(false);
@@ -77,14 +79,14 @@ export function ChatInput({ onSend, onImageUpload, onVoiceSend, onTyping }: Chat
         <div className="mb-3 flex items-center gap-3 bg-surface-container rounded-2xl p-3">
           <img src={imagePreview} alt="preview" className="w-16 h-16 rounded-xl object-cover ring-1 ring-outline-variant/10" />
           <div className="flex-1">
-            <p className="text-xs font-semibold text-on-surface mb-0.5">صورة جاهزة للإرسال</p>
-            <p className="text-[10px] text-on-surface-variant/40">اضغط إرسال للمتابعة</p>
+            <p className="text-xs font-semibold text-on-surface mb-0.5">{tp('chatImageReady')}</p>
+            <p className="text-[10px] text-on-surface-variant/40">{tp('chatImageHint')}</p>
           </div>
           <button onClick={cancelImage} className="w-8 h-8 rounded-xl hover:bg-surface-container-high flex items-center justify-center transition-colors">
             <X size={16} className="text-on-surface-variant/50" />
           </button>
           <button onClick={confirmImage} className="bg-primary text-on-primary px-4 py-2 rounded-xl text-[11px] font-bold hover:brightness-110 active:scale-95 transition-all shadow-sm">
-            إرسال
+            {tp('chatSendImage')}
           </button>
         </div>
       )}
@@ -128,7 +130,7 @@ export function ChatInput({ onSend, onImageUpload, onVoiceSend, onTyping }: Chat
             value={input}
             onChange={(e) => { setInput(e.target.value); onTyping(); }}
             onKeyDown={handleKeyDown}
-            placeholder="اكتب رسالة..."
+            placeholder={tp('chatPlaceholder')}
             rows={1}
             className="flex-1 bg-transparent border-none focus:ring-0 text-[13.5px] resize-none max-h-28 py-1 focus:outline-none placeholder:text-on-surface-variant/30 leading-relaxed"
           />

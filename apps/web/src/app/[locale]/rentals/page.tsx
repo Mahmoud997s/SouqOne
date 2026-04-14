@@ -11,7 +11,8 @@ import { EmptyState } from '@/components/empty-state';
 import { ErrorState } from '@/components/error-state';
 import { useListings } from '@/lib/api';
 import { getImageUrl } from '@/lib/image-utils';
-import { FUEL_OPTIONS, SORT_OPTIONS } from '@/lib/constants/mappings';
+import { fuelOptions, sortOptions } from '@/lib/constants/mappings';
+import { useTranslations } from 'next-intl';
 
 export default function RentalsPage() {
   return (
@@ -21,10 +22,11 @@ export default function RentalsPage() {
   );
 }
 
-const fuelOptions = FUEL_OPTIONS;
-const sortOptions = SORT_OPTIONS;
-
 function RentalsContent() {
+  const tp = useTranslations('pages');
+  const tm = useTranslations('mappings');
+  const fuelOpts = fuelOptions(tm);
+  const sortOpts = sortOptions(tm);
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -73,14 +75,14 @@ function RentalsContent() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-black mb-1">
-              <span className="material-symbols-outlined text-primary align-middle text-3xl ml-2">car_rental</span>
-              سيارات للإيجار
+              <span className="material-symbols-outlined text-primary align-middle text-3xl ms-2">car_rental</span>
+              {tp('rentalsTitle')}
             </h1>
-            <p className="text-on-surface-variant">استأجر سيارتك المفضلة بأفضل الأسعار في سلطنة عمان</p>
+            <p className="text-on-surface-variant">{tp('rentalsSubtitle')}</p>
           </div>
           <Link href="/add-listing" className="btn-success px-6 py-2.5 text-sm font-black shrink-0 hover:brightness-110 transition-colors">
-            <span className="material-symbols-outlined text-lg align-middle ml-1">add</span>
-            أضف سيارة للإيجار
+            <span className="material-symbols-outlined text-lg align-middle ms-1">add</span>
+            {tp('rentalsAddRental')}
           </Link>
         </div>
 
@@ -88,14 +90,14 @@ function RentalsContent() {
         <div className="bg-surface-container-lowest border border-outline-variant/10 p-4 md:p-6 mb-8 space-y-4">
           <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1 relative">
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-lg">search</span>
+              <span className="absolute end-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-lg">search</span>
               <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-                placeholder="ابحث بالماركة أو الموديل..."
-                className="w-full bg-surface-container-lowest border border-outline-variant/30 py-3 pr-10 pl-4 focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none text-sm"
+                placeholder={tp('rentalsSearch')}
+                className="w-full bg-surface-container-lowest border border-outline-variant/30 py-3 pe-10 ps-4 focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none text-sm"
                
               />
             </div>
@@ -108,17 +110,17 @@ function RentalsContent() {
               }}
               className="bg-surface-container border border-outline-variant/10 py-3 px-4 text-sm min-w-[160px]"
             >
-              <option value="">الترتيب</option>
-              {sortOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              <option value="">{tp('sortLabel')}</option>
+              {sortOpts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
             <button onClick={applyFilters} className="bg-emerald-500 text-white px-6 py-3 text-sm font-black rounded-lg hover:brightness-110 transition-colors">
-              بحث
+              {tp('rentalsSearchBtn')}
             </button>
           </div>
 
           {/* Fuel filter chips */}
           <div className="flex flex-wrap gap-2">
-            {fuelOptions.map((f) => (
+            {fuelOpts.map((f) => (
               <button
                 key={f.value}
                 onClick={() => { toggleFuel(f.value); }}
@@ -142,12 +144,12 @@ function RentalsContent() {
         ) : items.length === 0 ? (
           <EmptyState
             icon="car_rental"
-            title="لا توجد سيارات للإيجار"
-            description="لم نجد نتائج. جرب تغيير معايير البحث."
+            title={tp('rentalsEmpty')}
+            description={tp('rentalsEmptySub')}
           />
         ) : (
           <>
-            <p className="text-sm text-on-surface-variant mb-6">{meta?.total ?? 0} سيارة متاحة للإيجار</p>
+            <p className="text-sm text-on-surface-variant mb-6">{tp('rentalsAvailable', { count: meta?.total ?? 0 })}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {items.map((item) => {
                 const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];

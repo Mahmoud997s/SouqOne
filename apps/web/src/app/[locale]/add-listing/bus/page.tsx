@@ -15,52 +15,53 @@ import { API_BASE } from '@/lib/config';
 import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
 import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
+import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 
 const LocationPicker = dynamic(() => import('@/components/map/location-picker'), { ssr: false });
 
-const BUS_LISTING_TYPES = [
-  { value: 'BUS_SALE', label: 'بيع حافلة', icon: 'sell', desc: 'بيع بدون عقد' },
-  { value: 'BUS_SALE_WITH_CONTRACT', label: 'بيع مع عقد', icon: 'assignment', desc: 'حافلة مع عقد جاهز' },
-  { value: 'BUS_RENT', label: 'تأجير حافلة', icon: 'car_rental', desc: 'تأجير يومي أو شهري' },
-  { value: 'BUS_CONTRACT', label: 'طلب عقد نقل', icon: 'request_quote', desc: 'شركة تطلب خدمة نقل' },
-];
+const BUS_LISTING_TYPE_KEYS = [
+  { value: 'BUS_SALE', labelKey: 'busTypeSale', icon: 'sell', descKey: 'busTypeSaleDesc' },
+  { value: 'BUS_SALE_WITH_CONTRACT', labelKey: 'busTypeSaleContract', icon: 'assignment', descKey: 'busTypeSaleContractDesc' },
+  { value: 'BUS_RENT', labelKey: 'busTypeRent', icon: 'car_rental', descKey: 'busTypeRentDesc' },
+  { value: 'BUS_CONTRACT', labelKey: 'busTypeContract', icon: 'request_quote', descKey: 'busTypeContractDesc' },
+] as const;
 
-const BUS_TYPES = [
-  { value: 'MINI_BUS', label: 'ميني باص', desc: '7-15 راكب' },
-  { value: 'MEDIUM_BUS', label: 'باص متوسط', desc: '16-30 راكب' },
-  { value: 'LARGE_BUS', label: 'باص كبير', desc: '31-50+ راكب' },
-  { value: 'COASTER', label: 'كوستر', desc: '20-30 راكب' },
-  { value: 'SCHOOL_BUS', label: 'باص مدرسة', desc: 'نقل طلاب' },
-];
+const BUS_TYPE_KEYS = [
+  { value: 'MINI_BUS', labelKey: 'busSizeMini', descKey: 'busSizeMiniDesc' },
+  { value: 'MEDIUM_BUS', labelKey: 'busSizeMedium', descKey: 'busSizeMediumDesc' },
+  { value: 'LARGE_BUS', labelKey: 'busSizeLarge', descKey: 'busSizeLargeDesc' },
+  { value: 'COASTER', labelKey: 'busSizeCoaster', descKey: 'busSizeCoasterDesc' },
+  { value: 'SCHOOL_BUS', labelKey: 'busSizeSchool', descKey: 'busSizeSchoolDesc' },
+] as const;
 
-const CONTRACT_TYPES = [
-  { value: 'SCHOOL', label: 'مدرسة' },
-  { value: 'COMPANY', label: 'شركة' },
-  { value: 'GOVERNMENT', label: 'حكومي' },
-  { value: 'TOURISM', label: 'سياحة' },
-  { value: 'OTHER_CONTRACT', label: 'أخرى' },
-];
+const CONTRACT_TYPE_KEYS = [
+  { value: 'SCHOOL', labelKey: 'busContractSchool' },
+  { value: 'COMPANY', labelKey: 'busContractCompany' },
+  { value: 'GOVERNMENT', labelKey: 'busContractGov' },
+  { value: 'TOURISM', labelKey: 'busContractTourism' },
+  { value: 'OTHER_CONTRACT', labelKey: 'busContractOther' },
+] as const;
 
-const FUEL_TYPES = [
-  { value: 'DIESEL', label: 'ديزل' },
-  { value: 'PETROL', label: 'بنزين' },
-  { value: 'HYBRID', label: 'هايبرد' },
-  { value: 'ELECTRIC', label: 'كهربائي' },
-];
+const FUEL_TYPE_KEYS = [
+  { value: 'DIESEL', labelKey: 'busFuelDiesel' },
+  { value: 'PETROL', labelKey: 'busFuelPetrol' },
+  { value: 'HYBRID', labelKey: 'busFuelHybrid' },
+  { value: 'ELECTRIC', labelKey: 'busFuelElectric' },
+] as const;
 
-const CONDITIONS = [
-  { value: 'NEW', label: 'جديد' },
-  { value: 'LIKE_NEW', label: 'شبه جديد' },
-  { value: 'USED', label: 'مستعمل' },
-  { value: 'GOOD', label: 'جيد' },
-  { value: 'FAIR', label: 'مقبول' },
-];
+const CONDITION_KEYS = [
+  { value: 'NEW', labelKey: 'busCondNew' },
+  { value: 'LIKE_NEW', labelKey: 'busCondLikeNew' },
+  { value: 'USED', labelKey: 'busCondUsed' },
+  { value: 'GOOD', labelKey: 'busCondGood' },
+  { value: 'FAIR', labelKey: 'busCondFair' },
+] as const;
 
-const BUS_FEATURES = [
-  'تكييف', 'واي فاي', 'شاشات', 'USB شحن', 'مقاعد جلد', 'حزام أمان',
-  'كاميرا مراقبة', 'GPS', 'رف أمتعة', 'باب هيدروليك', 'ثلاجة', 'ميكروفون',
-];
+const BUS_FEATURE_KEYS = [
+  'busFeatAC', 'busFeatWifi', 'busFeatScreens', 'busFeatUSB', 'busFeatLeather', 'busFeatSeatbelt',
+  'busFeatCamera', 'busFeatGPS', 'busFeatLuggage', 'busFeatHydraulic', 'busFeatFridge', 'busFeatMic',
+] as const;
 
 export default function AddBusPage() {
   return (
@@ -71,6 +72,8 @@ export default function AddBusPage() {
 }
 
 function AddBusContent() {
+  const tp = useTranslations('pages');
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialType = searchParams.get('type') || '';
@@ -125,8 +128,8 @@ function AddBusContent() {
 
   const [selectedCountry, setSelectedCountry] = useState('OM');
   const [selectedGov, setSelectedGov] = useState('');
-  const governorateOptions = getGovernorates(selectedCountry);
-  const cityOptions = getCities(selectedCountry, selectedGov);
+  const governorateOptions = getGovernorates(selectedCountry, locale);
+  const cityOptions = getCities(selectedCountry, selectedGov, locale);
 
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -138,8 +141,8 @@ function AddBusContent() {
   const hasContract = form.busListingType === 'BUS_SALE_WITH_CONTRACT';
 
   const steps = isContract
-    ? [{ label: 'نوع الطلب' }, { label: 'تفاصيل الطلب' }, { label: 'الموقع والتواصل' }]
-    : [{ label: 'نوع الإعلان' }, { label: 'بيانات الحافلة' }, { label: 'السعر والتفاصيل' }, { label: 'الموقع والصور' }];
+    ? [{ label: tp('busStepContractType') }, { label: tp('busStepContractDetails') }, { label: tp('busStepContractLocation') }]
+    : [{ label: tp('busStepAdType') }, { label: tp('busStepBusInfo') }, { label: tp('busStepPriceDetails') }, { label: tp('busStepLocationPhotos') }];
 
   const maxStep = steps.length - 1;
 
@@ -157,8 +160,8 @@ function AddBusContent() {
         description: form.description || form.title,
         busListingType: form.busListingType,
         busType: form.busType || 'MEDIUM_BUS',
-        make: form.make || 'غير محدد',
-        model: form.model || 'غير محدد',
+        make: form.make || tp('busUnspecified'),
+        model: form.model || tp('busUnspecified'),
         year: parseInt(form.year) || new Date().getFullYear(),
         capacity: parseInt(form.capacity) || 30,
       };
@@ -220,10 +223,10 @@ function AddBusContent() {
         }
       }
 
-      addToast('success', 'تم نشر إعلان الحافلة بنجاح!');
+      addToast('success', tp('busSuccess'));
       router.push(`/buses/${bus.id}`);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'حدث خطأ';
+      const msg = err instanceof Error ? err.message : tp('busError');
       setErrorMessages(msg.split('\n').filter(Boolean));
     }
   }
@@ -241,23 +244,23 @@ function AddBusContent() {
           onBack={() => { setStep(s => Math.max(s - 1, 0)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
           onSubmit={handleSubmit}
           isLoading={isLoading}
-          submitLabel="نشر الإعلان"
+          submitLabel={tp('busSubmit')}
           canProceed={canProceed}
-          title="إضافة إعلان حافلة"
+          title={tp('busTitle')}
         >
           {/* ── Step 0: Listing Type ── */}
           {step === 0 && (
             <div className="space-y-8">
               <section className={sectionCls}>
-                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">category</span>نوع الإعلان *</h2>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">category</span>{tp('busLabelAdType')}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {BUS_LISTING_TYPES.map(t => (
+                  {BUS_LISTING_TYPE_KEYS.map(t => (
                     <button key={t.value} type="button" onClick={() => set('busListingType', t.value)}
-                      className={`flex items-start gap-3 p-4 rounded-xl border-2 transition-all text-right ${form.busListingType === t.value ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-outline-variant/20 hover:border-outline-variant/40'}`}>
+                      className={`flex items-start gap-3 p-4 rounded-xl border-2 transition-all text-start ${form.busListingType === t.value ? 'border-primary bg-primary/5 dark:bg-primary/10' : 'border-outline-variant/20 hover:border-outline-variant/40'}`}>
                       <span className={`material-symbols-outlined text-2xl mt-0.5 ${form.busListingType === t.value ? 'text-primary' : 'text-on-surface-variant'}`}>{t.icon}</span>
                       <div>
-                        <p className="font-black text-on-surface text-sm">{t.label}</p>
-                        <p className="text-xs text-on-surface-variant mt-0.5">{t.desc}</p>
+                        <p className="font-black text-on-surface text-sm">{tp(t.labelKey)}</p>
+                        <p className="text-xs text-on-surface-variant mt-0.5">{tp(t.descKey)}</p>
                       </div>
                     </button>
                   ))}
@@ -266,12 +269,12 @@ function AddBusContent() {
 
               {!isContract && form.busListingType && (
                 <section className={sectionCls}>
-                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">directions_bus</span>نوع الحافلة *</h2>
+                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">directions_bus</span>{tp('busLabelBusType')}</h2>
                   <div className="flex flex-wrap gap-2">
-                    {BUS_TYPES.map(b => (
+                    {BUS_TYPE_KEYS.map(b => (
                       <button key={b.value} type="button" onClick={() => set('busType', b.value)}
                         className={chipCls(form.busType === b.value)}>
-                        {b.label} <span className="text-[10px] opacity-60">({b.desc})</span>
+                        {tp(b.labelKey)} <span className="text-[10px] opacity-60">({tp(b.descKey)})</span>
                       </button>
                     ))}
                   </div>
@@ -284,115 +287,115 @@ function AddBusContent() {
           {step === 1 && (
             <div className="space-y-8">
               <section className={sectionCls}>
-                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">edit</span>البيانات الأساسية</h2>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">edit</span>{tp('busLabelBasicInfo')}</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className={labelCls}>عنوان الإعلان *</label>
-                    <input className={inputCls} value={form.title} onChange={e => set('title', e.target.value)} placeholder={isContract ? 'مثال: مطلوب نقل موظفين يومياً' : 'مثال: باص هينو 50 راكب 2020'} />
+                    <label className={labelCls}>{tp('busLabelAdTitle')}</label>
+                    <input className={inputCls} value={form.title} onChange={e => set('title', e.target.value)} placeholder={isContract ? tp('busPlaceholderContract') : tp('busPlaceholderBus')} />
                   </div>
                   <div>
-                    <label className={labelCls}>الوصف</label>
-                    <textarea className={inputCls + ' min-h-[100px]'} rows={4} value={form.description} onChange={e => set('description', e.target.value)} placeholder="وصف تفصيلي..." />
+                    <label className={labelCls}>{tp('busLabelDescription')}</label>
+                    <textarea className={inputCls + ' min-h-[100px]'} rows={4} value={form.description} onChange={e => set('description', e.target.value)} placeholder={tp('busPlaceholderDesc')} />
                   </div>
                 </div>
               </section>
 
               {isContract ? (
                 <section className={sectionCls}>
-                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">request_quote</span>تفاصيل الطلب</h2>
+                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">request_quote</span>{tp('busLabelContractDetails')}</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>عدد الركاب *</label>
+                      <label className={labelCls}>{tp('busLabelPassengers')}</label>
                       <input type="number" className={inputCls} value={form.requestPassengers} onChange={e => set('requestPassengers', e.target.value)} placeholder="30" />
                     </div>
                     <div>
-                      <label className={labelCls}>الجدول</label>
+                      <label className={labelCls}>{tp('busLabelSchedule')}</label>
                       <select className={inputCls} value={form.requestSchedule} onChange={e => set('requestSchedule', e.target.value)}>
-                        <option value="">اختر</option>
-                        <option value="يومي">يومي</option>
-                        <option value="أسبوعي">أسبوعي</option>
-                        <option value="شهري">شهري</option>
-                        <option value="رحلة واحدة">رحلة واحدة</option>
+                        <option value="">{tp('lfSelect')}</option>
+                        <option value="daily">{tp('busScheduleDaily')}</option>
+                        <option value="weekly">{tp('busScheduleWeekly')}</option>
+                        <option value="monthly">{tp('busScheduleMonthly')}</option>
+                        <option value="one_trip">{tp('busScheduleOneTrip')}</option>
                       </select>
                     </div>
                     <div className="sm:col-span-2">
-                      <label className={labelCls}>المسار</label>
-                      <input className={inputCls} value={form.requestRoute} onChange={e => set('requestRoute', e.target.value)} placeholder="مثال: مسقط - صحار يومياً" />
+                      <label className={labelCls}>{tp('busLabelRoute')}</label>
+                      <input className={inputCls} value={form.requestRoute} onChange={e => set('requestRoute', e.target.value)} placeholder={tp('busPlaceholderRoute')} />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className={labelCls}>نوع العقد</label>
+                      <label className={labelCls}>{tp('busLabelContractType')}</label>
                       <div className="flex flex-wrap gap-2">
-                        {CONTRACT_TYPES.map(c => (
+                        {CONTRACT_TYPE_KEYS.map(c => (
                           <button key={c.value} type="button" onClick={() => set('contractType', c.value)}
-                            className={chipCls(form.contractType === c.value)}>{c.label}</button>
+                            className={chipCls(form.contractType === c.value)}>{tp(c.labelKey)}</button>
                         ))}
                       </div>
                     </div>
                     <div>
-                      <label className={labelCls}>الميزانية الشهرية (ر.ع.)</label>
-                      <input type="number" className={inputCls} value={form.price} onChange={e => set('price', e.target.value)} placeholder="اختياري" />
+                      <label className={labelCls}>{tp('busLabelMonthlyBudget')}</label>
+                      <input type="number" className={inputCls} value={form.price} onChange={e => set('price', e.target.value)} placeholder={tp('busPlaceholderOptional')} />
                     </div>
                   </div>
                 </section>
               ) : (
                 <>
                   <section className={sectionCls}>
-                    <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">directions_bus</span>بيانات الحافلة</h2>
+                    <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">directions_bus</span>{tp('busLabelBusData')}</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className={labelCls}>الماركة *</label>
-                        <input className={inputCls} value={form.make} onChange={e => set('make', e.target.value)} placeholder="مثال: هينو، ميتسوبيشي، تويوتا" />
+                        <label className={labelCls}>{tp('busLabelBrand')}</label>
+                        <input className={inputCls} value={form.make} onChange={e => set('make', e.target.value)} placeholder={tp('busPlaceholderBrand')} />
                       </div>
                       <div>
-                        <label className={labelCls}>الموديل</label>
-                        <input className={inputCls} value={form.model} onChange={e => set('model', e.target.value)} placeholder="مثال: Rosa, Coaster" />
+                        <label className={labelCls}>{tp('busLabelModel')}</label>
+                        <input className={inputCls} value={form.model} onChange={e => set('model', e.target.value)} placeholder="Rosa, Coaster" />
                       </div>
                       <div>
-                        <label className={labelCls}>سنة الصنع *</label>
+                        <label className={labelCls}>{tp('busLabelYear')}</label>
                         <input type="number" className={inputCls} value={form.year} onChange={e => set('year', e.target.value)} placeholder="2020" />
                       </div>
                       <div>
-                        <label className={labelCls}>عدد الركاب *</label>
+                        <label className={labelCls}>{tp('busLabelCapacity')}</label>
                         <input type="number" className={inputCls} value={form.capacity} onChange={e => set('capacity', e.target.value)} placeholder="30" />
                       </div>
                       <div>
-                        <label className={labelCls}>المسافة المقطوعة (كم)</label>
+                        <label className={labelCls}>{tp('busLabelMileage')}</label>
                         <input type="number" className={inputCls} value={form.mileage} onChange={e => set('mileage', e.target.value)} placeholder="100000" />
                       </div>
                       <div>
-                        <label className={labelCls}>رقم اللوحة</label>
+                        <label className={labelCls}>{tp('busLabelPlate')}</label>
                         <input className={inputCls} value={form.plateNumber} onChange={e => set('plateNumber', e.target.value)} />
                       </div>
                     </div>
                   </section>
 
                   <section className={sectionCls}>
-                    <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">tune</span>المواصفات</h2>
+                    <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">tune</span>{tp('busLabelSpecs')}</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className={labelCls}>الوقود</label>
+                        <label className={labelCls}>{tp('busLabelFuel')}</label>
                         <div className="flex flex-wrap gap-2">
-                          {FUEL_TYPES.map(f => (
+                          {FUEL_TYPE_KEYS.map(f => (
                             <button key={f.value} type="button" onClick={() => set('fuelType', f.value)}
-                              className={chipCls(form.fuelType === f.value)}>{f.label}</button>
+                              className={chipCls(form.fuelType === f.value)}>{tp(f.labelKey)}</button>
                           ))}
                         </div>
                       </div>
                       <div>
-                        <label className={labelCls}>ناقل الحركة</label>
+                        <label className={labelCls}>{tp('busLabelTransmission')}</label>
                         <div className="flex gap-2">
-                          {[{ value: 'AUTOMATIC', label: 'أوتوماتيك' }, { value: 'MANUAL', label: 'عادي' }].map(t => (
+                          {[{ value: 'AUTOMATIC', labelKey: 'busTransAutomatic' as const }, { value: 'MANUAL', labelKey: 'busTransManual' as const }].map(t => (
                             <button key={t.value} type="button" onClick={() => set('transmission', t.value)}
-                              className={chipCls(form.transmission === t.value)}>{t.label}</button>
+                              className={chipCls(form.transmission === t.value)}>{tp(t.labelKey)}</button>
                           ))}
                         </div>
                       </div>
                       <div className="sm:col-span-2">
-                        <label className={labelCls}>الحالة</label>
+                        <label className={labelCls}>{tp('busLabelCondition')}</label>
                         <div className="flex flex-wrap gap-2">
-                          {CONDITIONS.map(c => (
+                          {CONDITION_KEYS.map(c => (
                             <button key={c.value} type="button" onClick={() => set('condition', c.value)}
-                              className={chipCls(form.condition === c.value)}>{c.label}</button>
+                              className={chipCls(form.condition === c.value)}>{tp(c.labelKey)}</button>
                           ))}
                         </div>
                       </div>
@@ -400,13 +403,16 @@ function AddBusContent() {
                   </section>
 
                   <section className={sectionCls}>
-                    <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">star</span>المميزات</h2>
+                    <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">star</span>{tp('busLabelFeatures')}</h2>
                     <div className="flex flex-wrap gap-2">
-                      {BUS_FEATURES.map(f => (
-                        <button key={f} type="button"
-                          onClick={() => set('features', form.features.includes(f) ? form.features.filter(x => x !== f) : [...form.features, f])}
-                          className={chipCls(form.features.includes(f))}>{f}</button>
-                      ))}
+                      {BUS_FEATURE_KEYS.map(key => {
+                        const label = tp(key);
+                        return (
+                          <button key={key} type="button"
+                            onClick={() => set('features', form.features.includes(label) ? form.features.filter(x => x !== label) : [...form.features, label])}
+                            className={chipCls(form.features.includes(label))}>{label}</button>
+                        );
+                      })}
                     </div>
                   </section>
                 </>
@@ -419,16 +425,16 @@ function AddBusContent() {
             <div className="space-y-8">
               {isSale && (
                 <section className={sectionCls}>
-                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">payments</span>السعر</h2>
+                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">payments</span>{tp('busLabelPrice')}</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>سعر البيع (ر.ع.) *</label>
+                      <label className={labelCls}>{tp('busLabelSalePrice')}</label>
                       <input type="number" className={inputCls} value={form.price} onChange={e => set('price', e.target.value)} placeholder="8000" />
                     </div>
                     <div className="flex items-end">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" checked={form.isPriceNegotiable} onChange={e => set('isPriceNegotiable', e.target.checked)} className="w-4 h-4 rounded accent-primary" />
-                        <span className="text-sm text-on-surface">قابل للتفاوض</span>
+                        <span className="text-sm text-on-surface">{tp('busLabelNegotiable')}</span>
                       </label>
                     </div>
                   </div>
@@ -437,31 +443,31 @@ function AddBusContent() {
 
               {hasContract && (
                 <section className={sectionCls}>
-                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">assignment</span>تفاصيل العقد المرفق</h2>
+                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">assignment</span>{tp('busLabelContractAttached')}</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="sm:col-span-2">
-                      <label className={labelCls}>نوع العقد</label>
+                      <label className={labelCls}>{tp('busLabelContractType')}</label>
                       <div className="flex flex-wrap gap-2">
-                        {CONTRACT_TYPES.map(c => (
+                        {CONTRACT_TYPE_KEYS.map(c => (
                           <button key={c.value} type="button" onClick={() => set('contractType', c.value)}
-                            className={chipCls(form.contractType === c.value)}>{c.label}</button>
+                            className={chipCls(form.contractType === c.value)}>{tp(c.labelKey)}</button>
                         ))}
                       </div>
                     </div>
                     <div>
-                      <label className={labelCls}>اسم العميل</label>
-                      <input className={inputCls} value={form.contractClient} onChange={e => set('contractClient', e.target.value)} placeholder="مثال: مدرسة النور" />
+                      <label className={labelCls}>{tp('busLabelClientName')}</label>
+                      <input className={inputCls} value={form.contractClient} onChange={e => set('contractClient', e.target.value)} placeholder={tp('busPlaceholderClient')} />
                     </div>
                     <div>
-                      <label className={labelCls}>الراتب الشهري (ر.ع.)</label>
+                      <label className={labelCls}>{tp('busLabelMonthlySalary')}</label>
                       <input type="number" className={inputCls} value={form.contractMonthly} onChange={e => set('contractMonthly', e.target.value)} placeholder="400" />
                     </div>
                     <div>
-                      <label className={labelCls}>مدة العقد (شهور)</label>
+                      <label className={labelCls}>{tp('busLabelContractDuration')}</label>
                       <input type="number" className={inputCls} value={form.contractDuration} onChange={e => set('contractDuration', e.target.value)} placeholder="12" />
                     </div>
                     <div>
-                      <label className={labelCls}>تاريخ انتهاء العقد</label>
+                      <label className={labelCls}>{tp('busLabelContractExpiry')}</label>
                       <input type="date" className={inputCls} value={form.contractExpiry} onChange={e => set('contractExpiry', e.target.value)} />
                     </div>
                   </div>
@@ -470,29 +476,29 @@ function AddBusContent() {
 
               {isRent && (
                 <section className={sectionCls}>
-                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">car_rental</span>أسعار الإيجار</h2>
+                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">car_rental</span>{tp('busLabelRentalPrices')}</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className={labelCls}>السعر اليومي (ر.ع.)</label>
+                      <label className={labelCls}>{tp('busLabelDailyPrice')}</label>
                       <input type="number" className={inputCls} value={form.dailyPrice} onChange={e => set('dailyPrice', e.target.value)} placeholder="70" />
                     </div>
                     <div>
-                      <label className={labelCls}>السعر الشهري (ر.ع.)</label>
+                      <label className={labelCls}>{tp('busLabelMonthlyPrice')}</label>
                       <input type="number" className={inputCls} value={form.monthlyPrice} onChange={e => set('monthlyPrice', e.target.value)} placeholder="1500" />
                     </div>
                     <div>
-                      <label className={labelCls}>أقل مدة إيجار (أيام)</label>
+                      <label className={labelCls}>{tp('busLabelMinRental')}</label>
                       <input type="number" className={inputCls} value={form.minRentalDays} onChange={e => set('minRentalDays', e.target.value)} placeholder="1" />
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-4 mt-4">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input type="checkbox" checked={form.withDriver} onChange={e => set('withDriver', e.target.checked)} className="w-4 h-4 rounded accent-primary" />
-                      <span className="text-sm text-on-surface">مع سائق</span>
+                      <span className="text-sm text-on-surface">{tp('busLabelWithDriver')}</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input type="checkbox" checked={form.deliveryAvailable} onChange={e => set('deliveryAvailable', e.target.checked)} className="w-4 h-4 rounded accent-primary" />
-                      <span className="text-sm text-on-surface">توصيل متاح</span>
+                      <span className="text-sm text-on-surface">{tp('busLabelDelivery')}</span>
                     </label>
                   </div>
                 </section>
@@ -504,25 +510,25 @@ function AddBusContent() {
           {step === maxStep && (
             <div className="space-y-8">
               <section className={sectionCls}>
-                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>الموقع</h2>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>{tp('busLabelLocation')}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className={labelCls}>الدولة</label>
+                    <label className={labelCls}>{tp('busLabelCountry')}</label>
                     <select className={inputCls} value={selectedCountry} onChange={e => { setSelectedCountry(e.target.value); setSelectedGov(''); set('governorate', ''); set('city', ''); }}>
-                      {getCountries().map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                      {getCountries(locale).map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className={labelCls}>المحافظة</label>
+                    <label className={labelCls}>{tp('busLabelGovernorate')}</label>
                     <select className={inputCls} value={selectedGov} onChange={e => { setSelectedGov(e.target.value); set('governorate', e.target.value); set('city', ''); }}>
-                      <option value="">اختر المحافظة</option>
+                      <option value="">{tp('busSelectGovernorate')}</option>
                       {governorateOptions.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className={labelCls}>المدينة</label>
+                    <label className={labelCls}>{tp('busLabelCity')}</label>
                     <select className={inputCls} value={form.city} onChange={e => set('city', e.target.value)}>
-                      <option value="">اختر المدينة</option>
+                      <option value="">{tp('busSelectCity')}</option>
                       {cityOptions.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
                   </div>
@@ -537,14 +543,14 @@ function AddBusContent() {
               </section>
 
               <section className={sectionCls}>
-                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">call</span>التواصل</h2>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">call</span>{tp('busLabelContact')}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>رقم الهاتف</label>
+                    <label className={labelCls}>{tp('busLabelPhone')}</label>
                     <input className={inputCls} value={form.contactPhone} onChange={e => set('contactPhone', e.target.value)} placeholder="+968" />
                   </div>
                   <div>
-                    <label className={labelCls}>واتساب</label>
+                    <label className={labelCls}>{tp('busLabelWhatsapp')}</label>
                     <input className={inputCls} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="+968" />
                   </div>
                 </div>
@@ -552,7 +558,7 @@ function AddBusContent() {
 
               {!isContract && (
                 <section className={sectionCls}>
-                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">photo_camera</span>الصور</h2>
+                  <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">photo_camera</span>{tp('busLabelPhotos')}</h2>
                   <ImageUploader images={images} onChange={setImages} maxImages={10} />
                 </section>
               )}

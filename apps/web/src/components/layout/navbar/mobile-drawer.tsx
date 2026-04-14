@@ -46,7 +46,7 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
         <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/20">
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="SouqOne" className="h-9 w-auto object-contain" />
-            <img src="/name.png" alt="سوق وان" className="h-[20px] w-auto object-contain" />
+            <img src="/name.png" alt={t('siteName')} className="h-[20px] w-auto object-contain" />
           </div>
           <button
             onClick={close}
@@ -95,7 +95,7 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
                       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${active ? 'bg-primary' : 'bg-outline/30'}`} />
                       {link.label}
                     </span>
-                    <span className={`material-symbols-outlined text-sm text-on-surface-variant transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>chevron_left</span>
+                    <span className={`material-symbols-outlined icon-flip text-sm text-on-surface-variant transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>chevron_left</span>
                   </button>
                 ) : (
                   <Link
@@ -113,7 +113,7 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
                       <Link
                         key={child.href}
                         href={child.href}
-                        className={`flex items-center gap-3 pr-12 pl-5 py-2.5 text-sm transition-colors
+                        className={`flex items-center gap-3 pe-12 ps-5 py-2.5 text-sm transition-colors
                           ${isActive(child.href) ? 'text-primary font-bold' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low'}`}
                       >
                         <span className="material-symbols-outlined text-base shrink-0">{child.icon}</span>

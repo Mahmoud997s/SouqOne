@@ -10,17 +10,9 @@ import { useEquipmentListing } from '@/lib/api/equipment';
 import { useCreateConversation } from '@/lib/api/chat';
 import { useAuth } from '@/providers/auth-provider';
 import { useToast } from '@/components/toast';
+import { useTranslations } from 'next-intl';
 
-const EQUIP_TYPE_LABELS: Record<string, string> = {
-  EXCAVATOR: 'حفار', CRANE: 'رافعة', LOADER: 'لودر', BULLDOZER: 'بلدوزر', FORKLIFT: 'رافعة شوكية',
-  CONCRETE_MIXER: 'خلاطة خرسانة', GENERATOR: 'مولد كهربائي', COMPRESSOR: 'ضاغط هواء',
-  SCAFFOLDING: 'سقالات', WELDING_MACHINE: 'ماكينة لحام', TRUCK: 'شاحنة', DUMP_TRUCK: 'قلاب',
-  WATER_TANKER: 'صهريج مياه', LIGHT_EQUIPMENT: 'معدات خفيفة', OTHER_EQUIPMENT: 'أخرى',
-};
-
-const LISTING_TYPE_LABELS: Record<string, string> = { EQUIPMENT_SALE: 'للبيع', EQUIPMENT_RENT: 'للإيجار' };
 const LISTING_TYPE_COLORS: Record<string, string> = { EQUIPMENT_SALE: 'bg-blue-600', EQUIPMENT_RENT: 'bg-violet-600' };
-const CONDITION_LABELS: Record<string, string> = { NEW: 'جديد', LIKE_NEW: 'كالجديد', GOOD: 'جيد', USED: 'مستعمل', FAIR: 'مقبول', POOR: 'ضعيف' };
 
 export default function EquipmentDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -30,9 +22,19 @@ export default function EquipmentDetailPage() {
   const { data: eq, isLoading, error } = useEquipmentListing(id);
   const createConv = useCreateConversation();
   const [currentImg, setCurrentImg] = useState(0);
+  const tp = useTranslations('pages');
+
+  const EQUIP_TYPE_LABELS: Record<string, string> = {
+    EXCAVATOR: tp('equipDetailExcavator'), CRANE: tp('equipDetailCrane'), LOADER: tp('equipDetailLoader'), BULLDOZER: tp('equipDetailBulldozer'), FORKLIFT: tp('equipDetailForklift'),
+    CONCRETE_MIXER: tp('equipDetailConcreteMixer'), GENERATOR: tp('equipDetailGenerator'), COMPRESSOR: tp('equipDetailCompressor'),
+    SCAFFOLDING: tp('equipDetailScaffolding'), WELDING_MACHINE: tp('equipDetailWeldingMachine'), TRUCK: tp('equipDetailTruck'), DUMP_TRUCK: tp('equipDetailDumpTruck'),
+    WATER_TANKER: tp('equipDetailWaterTanker'), LIGHT_EQUIPMENT: tp('equipDetailLightEquipment'), OTHER_EQUIPMENT: tp('equipDetailOther'),
+  };
+  const LISTING_TYPE_LABELS: Record<string, string> = { EQUIPMENT_SALE: tp('equipDetailSale'), EQUIPMENT_RENT: tp('equipDetailRent') };
+  const CONDITION_LABELS: Record<string, string> = { NEW: tp('equipDetailCondNew'), LIKE_NEW: tp('equipDetailCondLikeNew'), GOOD: tp('equipDetailCondGood'), USED: tp('equipDetailCondUsed'), FAIR: tp('equipDetailCondFair'), POOR: tp('equipDetailCondPoor') };
 
   if (isLoading) return <><Navbar /><div className="pt-28 flex justify-center"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div></>;
-  if (error || !eq) return <><Navbar /><div className="pt-28 text-center"><p className="text-on-surface-variant">الإعلان غير موجود</p><Link href="/equipment" className="text-primary font-bold mt-4 inline-block">العودة</Link></div></>;
+  if (error || !eq) return <><Navbar /><div className="pt-28 text-center"><p className="text-on-surface-variant">{tp('equipDetailNotFound')}</p><Link href="/equipment" className="text-primary font-bold mt-4 inline-block">{tp('equipDetailBack')}</Link></div></>;
 
   const images = eq.images ?? [];
   const mainImage = images[currentImg]?.url;
@@ -40,23 +42,23 @@ export default function EquipmentDetailPage() {
   const isSale = eq.listingType === 'EQUIPMENT_SALE';
 
   async function handleChat() {
-    if (!user) { addToast('error', 'سجل دخول أولاً'); return; }
+    if (!user) { addToast('error', tp('equipDetailLoginFirst')); return; }
     try {
       const conv = await createConv.mutateAsync({ entityType: 'EQUIPMENT_LISTING', entityId: eq!.id });
       router.push(`/chat/${conv.id}`);
-    } catch { addToast('error', 'حدث خطأ في بدء المحادثة'); }
+    } catch { addToast('error', tp('equipDetailErrorConversation')); }
   }
 
   const specs = [
-    { label: 'النوع', value: EQUIP_TYPE_LABELS[eq.equipmentType], icon: 'construction' },
-    eq.make && { label: 'الماركة', value: eq.make, icon: 'factory' },
-    eq.model && { label: 'الموديل', value: eq.model, icon: 'tag' },
-    eq.year && { label: 'سنة الصنع', value: String(eq.year), icon: 'calendar_today' },
-    { label: 'الحالة', value: CONDITION_LABELS[eq.condition] || eq.condition, icon: 'verified' },
-    eq.capacity && { label: 'السعة/الحمولة', value: eq.capacity, icon: 'weight' },
-    eq.power && { label: 'القدرة', value: eq.power, icon: 'bolt' },
-    eq.weight && { label: 'الوزن', value: eq.weight, icon: 'scale' },
-    eq.hoursUsed != null && { label: 'ساعات التشغيل', value: `${eq.hoursUsed.toLocaleString()} ساعة`, icon: 'schedule' },
+    { label: tp('equipDetailType'), value: EQUIP_TYPE_LABELS[eq.equipmentType], icon: 'construction' },
+    eq.make && { label: tp('equipDetailMake'), value: eq.make, icon: 'factory' },
+    eq.model && { label: tp('equipDetailModel'), value: eq.model, icon: 'tag' },
+    eq.year && { label: tp('equipDetailYear'), value: String(eq.year), icon: 'calendar_today' },
+    { label: tp('equipDetailCondition'), value: CONDITION_LABELS[eq.condition] || eq.condition, icon: 'verified' },
+    eq.capacity && { label: tp('equipDetailCapacity'), value: eq.capacity, icon: 'weight' },
+    eq.power && { label: tp('equipDetailPower'), value: eq.power, icon: 'bolt' },
+    eq.weight && { label: tp('equipDetailWeight'), value: eq.weight, icon: 'scale' },
+    eq.hoursUsed != null && { label: tp('equipDetailHours'), value: tp('equipDetailHoursValue', { hours: eq.hoursUsed.toLocaleString() }), icon: 'schedule' },
   ].filter(Boolean) as { label: string; value: string; icon: string }[];
 
   return (
@@ -67,10 +69,10 @@ export default function EquipmentDetailPage() {
         <main className="pt-24 pb-32 lg:pb-16 max-w-6xl mx-auto px-4 md:px-8">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-1.5 text-xs text-on-surface-variant mb-4">
-            <Link href="/" className="hover:text-primary transition-colors">الرئيسية</Link>
-            <span className="material-symbols-outlined text-xs">chevron_left</span>
-            <Link href="/equipment" className="hover:text-primary transition-colors">المعدات</Link>
-            <span className="material-symbols-outlined text-xs">chevron_left</span>
+            <Link href="/" className="hover:text-primary transition-colors">{tp('equipDetailHome')}</Link>
+            <span className="material-symbols-outlined icon-flip text-xs">chevron_left</span>
+            <Link href="/equipment" className="hover:text-primary transition-colors">{tp('equipDetailEquipment')}</Link>
+            <span className="material-symbols-outlined icon-flip text-xs">chevron_left</span>
             <span className="text-on-surface font-bold truncate max-w-[200px]">{eq.title}</span>
           </nav>
 
@@ -103,16 +105,16 @@ export default function EquipmentDetailPage() {
               <div className="bg-surface-container-lowest dark:bg-surface-container rounded-2xl p-5 border border-outline-variant/10">
                 <h1 className="text-xl md:text-2xl font-black text-on-surface mb-2">{eq.title}</h1>
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {eq.withOperator && <span className="text-[11px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2.5 py-1 rounded-lg flex items-center gap-1"><span className="material-symbols-outlined text-xs">person</span>مع مشغل</span>}
-                  {eq.deliveryAvailable && <span className="text-[11px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-1 rounded-lg flex items-center gap-1"><span className="material-symbols-outlined text-xs">local_shipping</span>توصيل</span>}
-                  {eq.isPriceNegotiable && <span className="text-[11px] font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2.5 py-1 rounded-lg flex items-center gap-1"><span className="material-symbols-outlined text-xs">handshake</span>قابل للتفاوض</span>}
+                  {eq.withOperator && <span className="text-[11px] font-bold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2.5 py-1 rounded-lg flex items-center gap-1"><span className="material-symbols-outlined text-xs">person</span>{tp('equipDetailWithOperator')}</span>}
+                  {eq.deliveryAvailable && <span className="text-[11px] font-bold bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-1 rounded-lg flex items-center gap-1"><span className="material-symbols-outlined text-xs">local_shipping</span>{tp('equipDetailDelivery')}</span>}
+                  {eq.isPriceNegotiable && <span className="text-[11px] font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2.5 py-1 rounded-lg flex items-center gap-1"><span className="material-symbols-outlined text-xs">handshake</span>{tp('equipDetailNegotiable')}</span>}
                 </div>
                 <p className="text-sm text-on-surface-variant whitespace-pre-line">{eq.description}</p>
               </div>
 
               {/* Specs */}
               <div className="bg-surface-container-lowest dark:bg-surface-container rounded-2xl p-5 border border-outline-variant/10">
-                <h2 className="font-black text-base text-on-surface mb-4 flex items-center gap-2"><span className="material-symbols-outlined text-primary">settings</span>المواصفات</h2>
+                <h2 className="font-black text-base text-on-surface mb-4 flex items-center gap-2"><span className="material-symbols-outlined text-primary">settings</span>{tp('equipDetailSpecs')}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {specs.map(s => (
                     <div key={s.label} className="bg-surface-container-low/50 dark:bg-surface-container-high/30 rounded-xl p-3">
@@ -126,7 +128,7 @@ export default function EquipmentDetailPage() {
               {/* Location */}
               {eq.governorate && (
                 <div className="bg-surface-container-lowest dark:bg-surface-container rounded-2xl p-5 border border-outline-variant/10">
-                  <h2 className="font-black text-base text-on-surface mb-3 flex items-center gap-2"><span className="material-symbols-outlined text-primary">location_on</span>الموقع</h2>
+                  <h2 className="font-black text-base text-on-surface mb-3 flex items-center gap-2"><span className="material-symbols-outlined text-primary">location_on</span>{tp('equipDetailLocation')}</h2>
                   <p className="text-sm text-on-surface-variant">{eq.governorate}{eq.city ? ` - ${eq.city}` : ''}</p>
                 </div>
               )}
@@ -136,15 +138,15 @@ export default function EquipmentDetailPage() {
             <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-28 lg:self-start">
               {/* Price card */}
               <div className="bg-surface-container-lowest dark:bg-surface-container rounded-2xl p-5 border border-outline-variant/10">
-                <h2 className="font-black text-base text-on-surface mb-3">السعر</h2>
+                <h2 className="font-black text-base text-on-surface mb-3">{tp('equipDetailPrice')}</h2>
                 {isSale ? (
-                  <p className="text-2xl font-black text-primary">{eq.price ? `${Number(eq.price).toLocaleString()} ${eq.currency}` : 'اتصل للسعر'}</p>
+                  <p className="text-2xl font-black text-primary">{eq.price ? `${Number(eq.price).toLocaleString()} ${eq.currency}` : tp('equipDetailCallForPrice')}</p>
                 ) : (
                   <div className="space-y-2">
-                    {eq.dailyPrice && <div className="flex justify-between"><span className="text-sm text-on-surface-variant">يومي</span><span className="font-black text-primary">{Number(eq.dailyPrice).toLocaleString()} {eq.currency}</span></div>}
-                    {eq.weeklyPrice && <div className="flex justify-between"><span className="text-sm text-on-surface-variant">أسبوعي</span><span className="font-black text-primary">{Number(eq.weeklyPrice).toLocaleString()} {eq.currency}</span></div>}
-                    {eq.monthlyPrice && <div className="flex justify-between"><span className="text-sm text-on-surface-variant">شهري</span><span className="font-black text-primary">{Number(eq.monthlyPrice).toLocaleString()} {eq.currency}</span></div>}
-                    {eq.minRentalDays && <p className="text-[11px] text-on-surface-variant mt-1">أقل مدة إيجار: {eq.minRentalDays} يوم</p>}
+                    {eq.dailyPrice && <div className="flex justify-between"><span className="text-sm text-on-surface-variant">{tp('equipDetailDaily')}</span><span className="font-black text-primary">{Number(eq.dailyPrice).toLocaleString()} {eq.currency}</span></div>}
+                    {eq.weeklyPrice && <div className="flex justify-between"><span className="text-sm text-on-surface-variant">{tp('equipDetailWeekly')}</span><span className="font-black text-primary">{Number(eq.weeklyPrice).toLocaleString()} {eq.currency}</span></div>}
+                    {eq.monthlyPrice && <div className="flex justify-between"><span className="text-sm text-on-surface-variant">{tp('equipDetailMonthly')}</span><span className="font-black text-primary">{Number(eq.monthlyPrice).toLocaleString()} {eq.currency}</span></div>}
+                    {eq.minRentalDays && <p className="text-[11px] text-on-surface-variant mt-1">{tp('equipDetailMinRental', { days: eq.minRentalDays })}</p>}
                   </div>
                 )}
               </div>
@@ -153,7 +155,7 @@ export default function EquipmentDetailPage() {
               {!isOwner && (
                 <div className="bg-surface-container-lowest dark:bg-surface-container rounded-2xl p-5 border border-outline-variant/10 space-y-3">
                   <button onClick={handleChat} className="w-full bg-primary text-on-primary py-3 rounded-xl font-black text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2">
-                    <span className="material-symbols-outlined text-base">chat</span>تواصل مع المعلن
+                    <span className="material-symbols-outlined text-base">chat</span>{tp('equipDetailContactSeller')}
                   </button>
                   {eq.contactPhone && (
                     <a href={`tel:${eq.contactPhone}`} className="w-full bg-primary text-on-primary py-3 rounded-xl font-black text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2">
@@ -163,7 +165,7 @@ export default function EquipmentDetailPage() {
                   {eq.whatsapp && (
                     <a href={`https://wa.me/${eq.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
                       className="w-full bg-green-600 text-white py-3 rounded-xl font-black text-sm hover:brightness-110 transition-all flex items-center justify-center gap-2">
-                      <span className="material-symbols-outlined text-base">chat_bubble</span>واتساب
+                      <span className="material-symbols-outlined text-base">chat_bubble</span>{tp('equipDetailWhatsapp')}
                     </a>
                   )}
                 </div>
@@ -171,7 +173,7 @@ export default function EquipmentDetailPage() {
 
               {/* Seller card */}
               <div className="bg-surface-container-lowest dark:bg-surface-container rounded-2xl p-5 border border-outline-variant/10">
-                <h2 className="font-black text-sm text-on-surface mb-3">المعلن</h2>
+                <h2 className="font-black text-sm text-on-surface mb-3">{tp('equipDetailSeller')}</h2>
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
                     {eq.user.avatarUrl ? <Image src={eq.user.avatarUrl} alt="" width={44} height={44} className="rounded-full object-cover" /> : <span className="material-symbols-outlined text-primary">person</span>}
@@ -180,13 +182,13 @@ export default function EquipmentDetailPage() {
                     <p className="font-bold text-sm text-on-surface">{eq.user.displayName || eq.user.username}</p>
                     {eq.user.governorate && <p className="text-[11px] text-on-surface-variant">{eq.user.governorate}</p>}
                   </div>
-                  {eq.user.isVerified && <span className="material-symbols-outlined text-primary text-base mr-auto">verified</span>}
+                  {eq.user.isVerified && <span className="material-symbols-outlined text-primary text-base me-auto">verified</span>}
                 </div>
               </div>
 
               {/* Stats */}
               <div className="flex items-center gap-4 text-xs text-on-surface-variant px-2">
-                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span>{eq.viewCount} مشاهدة</span>
+                <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">visibility</span>{eq.viewCount} {tp('equipDetailViews')}</span>
                 <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">schedule</span>{new Date(eq.createdAt).toLocaleDateString('ar-OM')}</span>
               </div>
             </div>
@@ -200,11 +202,11 @@ export default function EquipmentDetailPage() {
           <div className="flex items-center gap-3 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] max-w-lg mx-auto">
             <div className="flex-1 min-w-0">
               <p className="text-primary font-black text-base truncate">
-                {isSale ? (eq.price ? `${Number(eq.price).toLocaleString()} ${eq.currency}` : 'اتصل') : (eq.dailyPrice ? `${Number(eq.dailyPrice).toLocaleString()}/يوم` : 'اتصل')}
+                {isSale ? (eq.price ? `${Number(eq.price).toLocaleString()} ${eq.currency}` : tp('equipDetailCall')) : (eq.dailyPrice ? `${Number(eq.dailyPrice).toLocaleString()}${tp('equipDetailPerDay')}` : tp('equipDetailCall'))}
               </p>
             </div>
             <button onClick={handleChat} className="bg-primary text-on-primary px-5 py-2.5 rounded-xl font-black text-sm flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-base">chat</span>تواصل
+              <span className="material-symbols-outlined text-base">chat</span>{tp('equipDetailContact')}
             </button>
             {eq.contactPhone && (
               <a href={`tel:${eq.contactPhone}`} className="bg-primary/10 text-primary px-4 py-2.5 rounded-xl hover:bg-primary hover:text-on-primary transition-all">

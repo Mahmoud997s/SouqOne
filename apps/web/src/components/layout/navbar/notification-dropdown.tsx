@@ -54,7 +54,7 @@ export const NotificationDropdown = forwardRef<HTMLDivElement, NotificationDropd
                         router.push(`/messages/${n.data.conversationId}`);
                       }
                     }}
-                    className={`w-full text-right px-4 py-3 flex items-start gap-2.5 hover:bg-surface-container transition-colors ${
+                    className={`w-full text-start px-4 py-3 flex items-start gap-2.5 hover:bg-surface-container transition-colors ${
                       !n.isRead ? 'bg-primary/[0.03]' : ''
                     }`}
                   >

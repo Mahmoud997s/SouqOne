@@ -1,12 +1,16 @@
+'use client';
+
 import { Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 import AuthModal from '@/components/auth/auth-modal';
 import ResetForm from '../../reset-password/reset-form';
 
 export default function ResetPasswordModal() {
+  const t = useTranslations('auth');
   return (
     <AuthModal
-      title="إعادة تعيين كلمة المرور"
-      subtitle="أدخل الرمز وكلمة المرور الجديدة"
+      title={t('resetPasswordTitle')}
+      subtitle={t('resetPasswordSubtitle')}
     >
       <Suspense>
         <ResetForm />
