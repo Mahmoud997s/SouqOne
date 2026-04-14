@@ -1,6 +1,9 @@
 'use client';
 
 import { Suspense, useState } from 'react';
+import { ImageUploader, type UploadedImage } from '@/features/ads/components/image-uploader';
+import { getAuthToken } from '@/lib/auth';
+import { API_BASE } from '@/lib/config';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
@@ -61,6 +64,7 @@ function AddTripContent() {
   const { addToast } = useToast();
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [step, setStep] = useState(0);
+  const [images, setImages] = useState<UploadedImage[]>([]);
 
   const [form, setForm] = useState({
     title: '',
@@ -138,6 +142,23 @@ function AddTripContent() {
       if (form.endDate) payload.endDate = form.endDate;
 
       const item = await create.mutateAsync(payload);
+
+      if (images.length > 0) {
+        const token = getAuthToken();
+        for (const img of images) {
+          if (img.file) {
+            const fd = new FormData();
+            fd.append('file', img.file);
+            fd.append('isPrimary', String(img.isPrimary));
+            await fetch(`${API_BASE}/api/v1/uploads/trips/${item.id}/images`, {
+              method: 'POST',
+              headers: token ? { Authorization: `Bearer ${token}` } : {},
+              body: fd,
+            });
+          }
+        }
+      }
+
       addToast('success', tp('tripSuccess'));
       router.push(`/trips/${item.id}`);
     } catch (err) {
@@ -345,6 +366,11 @@ function AddTripContent() {
                     </div>
                   </div>
                 </div>
+              </section>
+
+              <section className="glass-card rounded-xl p-6 md:p-8">
+                <h2 className="text-lg font-extrabold mb-4"><span className="material-symbols-outlined text-primary text-lg">add_photo_alternate</span> {tp('tripLabelPhotos') || 'الصور'}</h2>
+                <ImageUploader images={images} onChange={setImages} disabled={isLoading} />
               </section>
 
               {errorMessages.length > 0 && <FormErrorOverlay messages={errorMessages} onClose={() => setErrorMessages([])} />}

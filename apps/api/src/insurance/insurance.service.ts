@@ -22,17 +22,6 @@ export class InsuranceService extends BaseListingService {
     super(prisma, searchService, redis, eventEmitter);
   }
 
-  // Insurance has no images relation — override includes
-  protected getListInclude() {
-    return { user: { select: { id: true, username: true, displayName: true, avatarUrl: true } } };
-  }
-  protected getDetailInclude() {
-    return { user: { select: { id: true, username: true, displayName: true, avatarUrl: true, phone: true, governorate: true, isVerified: true, createdAt: true } } };
-  }
-  protected getCreateInclude() {
-    return { user: { select: { id: true, username: true, displayName: true, avatarUrl: true } } };
-  }
-
   protected buildCreateData(dto: CreateInsuranceDto, slug: string, userId: string) {
     return {
       title: dto.title,
@@ -61,7 +50,9 @@ export class InsuranceService extends BaseListingService {
       id: item.id, title: item.title, slug: item.slug, description: item.description,
       offerType: item.offerType, providerName: item.providerName, coverageType: item.coverageType,
       priceFrom: item.priceFrom ? Number(item.priceFrom) : null, currency: item.currency,
-      governorate: item.governorate, status: item.status, imageUrl: null, createdAt: item.createdAt,
+      governorate: item.governorate, status: item.status,
+      imageUrl: item.images?.[0]?.url ?? null,
+      createdAt: item.createdAt,
     };
   }
 

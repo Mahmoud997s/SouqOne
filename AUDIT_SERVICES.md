@@ -220,7 +220,7 @@ erDiagram
 | SV5 | **No UpdateDto** | ✅ Fixed | Safe mapping via `decimalFields`/`dateFields` config in Base |
 | SV6 | **Manual field mapping in update()** | ✅ Fixed | BaseListingService handles Decimal/Date conversion safely |
 | SV7 | **No notifications** | ✅ Fixed | Event-driven: listing.created/updated/deleted/status_changed → in-app + Push |
-| SV8 | **Trips/Insurance without images** | ⏳ Deferred | يتطلب Prisma schema + Frontend — مؤجل |
+| SV8 | **Trips/Insurance without images** | ✅ Fixed | TripImage + InsuranceImage models, upload routes, gallery in detail pages |
 
 ## 🟢 Low / Code Smell
 
@@ -230,7 +230,7 @@ erDiagram
 | SV10 | **Search sync inconsistency** | ✅ Fixed | `buildMeiliDoc()` consistent, `imageUrl: null` for Trips/Insurance |
 | SV11 | **No status management** | ✅ Fixed | `PATCH /{module}/:id/status` — toggles ACTIVE ↔ INACTIVE |
 
-**Result: 10/11 Fixed ✅ · 1/11 Deferred ⏳ (SV8: images for Trips/Insurance — requires schema + frontend)**
+**Result: 11/11 Fixed ✅ · 0 Deferred**
 
 ---
 

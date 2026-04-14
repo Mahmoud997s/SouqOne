@@ -23,17 +23,6 @@ export class TripsService extends BaseListingService {
     super(prisma, searchService, redis, eventEmitter);
   }
 
-  // Trips have no images relation — override includes
-  protected getListInclude() {
-    return { user: { select: { id: true, username: true, displayName: true, avatarUrl: true } } };
-  }
-  protected getDetailInclude() {
-    return { user: { select: { id: true, username: true, displayName: true, avatarUrl: true, phone: true, governorate: true, isVerified: true, createdAt: true } } };
-  }
-  protected getCreateInclude() {
-    return { user: { select: { id: true, username: true, displayName: true, avatarUrl: true } } };
-  }
-
   protected buildCreateData(dto: CreateTripDto, slug: string, userId: string) {
     return {
       title: dto.title,
@@ -74,7 +63,9 @@ export class TripsService extends BaseListingService {
       pricePerTrip: item.pricePerTrip ? Number(item.pricePerTrip) : null,
       priceMonthly: item.priceMonthly ? Number(item.priceMonthly) : null,
       currency: item.currency, governorate: item.governorate, city: item.city,
-      status: item.status, imageUrl: null, createdAt: item.createdAt,
+      status: item.status,
+      imageUrl: item.images?.[0]?.url ?? null,
+      createdAt: item.createdAt,
     };
   }
 

@@ -1,6 +1,9 @@
 'use client';
 
 import { Suspense, useState } from 'react';
+import { ImageUploader, type UploadedImage } from '@/features/ads/components/image-uploader';
+import { getAuthToken } from '@/lib/auth';
+import { API_BASE } from '@/lib/config';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
@@ -44,6 +47,7 @@ function AddInsuranceContent() {
   const { addToast } = useToast();
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [step, setStep] = useState(0);
+  const [images, setImages] = useState<UploadedImage[]>([]);
 
   const [form, setForm] = useState({
     title: '',
@@ -100,6 +104,23 @@ function AddInsuranceContent() {
       if (form.longitude) payload.longitude = form.longitude;
 
       const item = await create.mutateAsync(payload);
+
+      if (images.length > 0) {
+        const token = getAuthToken();
+        for (const img of images) {
+          if (img.file) {
+            const fd = new FormData();
+            fd.append('file', img.file);
+            fd.append('isPrimary', String(img.isPrimary));
+            await fetch(`${API_BASE}/api/v1/uploads/insurance/${item.id}/images`, {
+              method: 'POST',
+              headers: token ? { Authorization: `Bearer ${token}` } : {},
+              body: fd,
+            });
+          }
+        }
+      }
+
       addToast('success', tp('insSuccess'));
       router.push(`/insurance/${item.id}`);
     } catch (err) {
@@ -246,6 +267,11 @@ function AddInsuranceContent() {
                     <input type="url" value={form.termsUrl} onChange={e => set('termsUrl', e.target.value)} placeholder="https://..." className={inputCls} />
                   </div>
                 </div>
+              </section>
+
+              <section className={sectionCls}>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">add_photo_alternate</span>{tp('insLabelPhotos') || 'الصور'}</h2>
+                <ImageUploader images={images} onChange={setImages} disabled={isLoading} />
               </section>
 
               {errorMessages.length > 0 && <FormErrorOverlay messages={errorMessages} onClose={() => setErrorMessages([])} />}

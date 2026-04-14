@@ -994,6 +994,7 @@ model TripService {
 
   userId          String
   user            User          @relation("UserTripServices", fields: [userId], references: [id], onDelete: Cascade)
+  images          TripImage[]
 
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -1004,6 +1005,19 @@ model TripService {
   @@index([status])
   @@index([slug])
   @@map("trip_services")
+}
+
+model TripImage {
+  id            String      @id @default(cuid())
+  url           String
+  isPrimary     Boolean     @default(false)
+  order         Int         @default(0)
+  tripServiceId String
+  tripService   TripService @relation(fields: [tripServiceId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+
+  @@index([tripServiceId])
+  @@map("trip_images")
 }
 
 // ──────────────────────────────────────
@@ -1033,6 +1047,7 @@ model InsuranceOffer {
 
   userId         String
   user           User          @relation("UserInsuranceOffers", fields: [userId], references: [id], onDelete: Cascade)
+  images         InsuranceImage[]
 
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
@@ -1042,6 +1057,19 @@ model InsuranceOffer {
   @@index([status])
   @@index([slug])
   @@map("insurance_offers")
+}
+
+model InsuranceImage {
+  id               String         @id @default(cuid())
+  url              String
+  isPrimary        Boolean        @default(false)
+  order            Int            @default(0)
+  insuranceOfferId String
+  insuranceOffer   InsuranceOffer @relation(fields: [insuranceOfferId], references: [id], onDelete: Cascade)
+  createdAt        DateTime       @default(now())
+
+  @@index([insuranceOfferId])
+  @@map("insurance_images")
 }
 
 // ══════════════════════════════════════════════════

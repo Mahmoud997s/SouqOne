@@ -1,10 +1,11 @@
 'use client';
 
-import { use } from 'react';
+import { use, useState } from 'react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { useTrip, useCreateConversation } from '@/lib/api';
+import { getImageUrl } from '@/lib/image-utils';
 import { ListingSkeleton } from '@/components/loading-skeleton';
 import { ErrorState } from '@/components/error-state';
 import { useAuth } from '@/providers/auth-provider';
@@ -19,6 +20,7 @@ const MapView = dynamic(() => import('@/components/map/map-view'), { ssr: false 
 export default function TripDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { data: trip, isLoading, error } = useTrip(id);
+  const [activeImg, setActiveImg] = useState(0);
   const router = useRouter();
   const { user } = useAuth();
   const requireAuth = useRequireAuth();
@@ -69,6 +71,31 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Main Content */}
             <div className="lg:col-span-3 space-y-6">
+              {/* Images */}
+              {trip.images && trip.images.length > 0 && (
+                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
+                  <div className="aspect-[16/9] bg-surface-container-low dark:bg-surface-container-high relative">
+                    {trip.images[activeImg]?.url ? (
+                      <img src={getImageUrl(trip.images[activeImg].url) || ''} alt={trip.title} className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-on-surface-variant/30">
+                        <span className="material-symbols-outlined text-7xl">directions_bus</span>
+                      </div>
+                    )}
+                  </div>
+                  {trip.images.length > 1 && (
+                    <div className="flex gap-2 p-3 overflow-x-auto">
+                      {trip.images.map((img: any, i: number) => (
+                        <button key={img.id} onClick={() => setActiveImg(i)}
+                          className={`w-16 h-16 overflow-hidden shrink-0 border-2 transition-all ${i === activeImg ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant/20 dark:border-outline-variant/30'}`}>
+                          <img src={getImageUrl(img.url) || ''} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Route Card */}
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="p-6">
