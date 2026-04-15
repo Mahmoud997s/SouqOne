@@ -8,7 +8,7 @@ import { AuthGuard } from '@/components/auth-guard';
 import { useCreateDriverProfile, useCreateEmployerProfile, useMyDriverProfile, useMyEmployerProfile } from '@/lib/api';
 import { useToast } from '@/components/toast';
 import { getGovernorates } from '@/lib/location-data';
-import { useTranslations, useLocale } from 'next-intl';
+import { useLocale } from 'next-intl';
 
 const LICENSE_OPTIONS = [
   { value: 'LIGHT', label: 'خفيفة' },
@@ -87,7 +87,7 @@ function OnboardingContent() {
     whatsapp: '',
   });
 
-  function toggleArray(form: 'driver', key: 'licenseTypes' | 'languages' | 'vehicleTypes', value: string) {
+  function toggleArray(_form: 'driver', key: 'licenseTypes' | 'languages' | 'vehicleTypes', value: string) {
     setDriverForm((prev) => ({
       ...prev,
       [key]: prev[key].includes(value) ? prev[key].filter((v) => v !== value) : [...prev[key], value],

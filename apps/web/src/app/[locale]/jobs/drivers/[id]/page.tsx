@@ -54,7 +54,7 @@ export default function DriverProfilePage() {
     requireAuth(async () => {
       if (!driver) return;
       try {
-        const conv = await createConv.mutateAsync({ participantId: driver.userId });
+        const conv = await createConv.mutateAsync({ entityType: 'JOB', entityId: driver.id });
         router.push(`/messages/${conv.id}`);
       } catch {
         addToast('error', 'تعذر بدء المحادثة');
@@ -121,7 +121,7 @@ export default function DriverProfilePage() {
             <div className="p-6 flex flex-col sm:flex-row items-start gap-6">
               <div className="relative w-24 h-24 rounded-full overflow-hidden bg-surface-container-low shrink-0">
                 {driver.user.avatarUrl ? (
-                  <Image src={getImageUrl(driver.user.avatarUrl)} alt="" fill className="object-cover" />
+                  <Image src={getImageUrl(driver.user.avatarUrl) ?? ''} alt="" fill className="object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">person</span>
