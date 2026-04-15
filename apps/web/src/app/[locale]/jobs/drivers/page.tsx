@@ -111,7 +111,7 @@ function DriverCard({ driver }: { driver: DriverProfileItem }) {
       <div className="flex items-start gap-4">
         <div className="relative w-14 h-14 rounded-full overflow-hidden bg-surface-container-low shrink-0">
           {driver.user.avatarUrl ? (
-            <Image src={getImageUrl(driver.user.avatarUrl)} alt="" fill className="object-cover" />
+            <Image src={getImageUrl(driver.user.avatarUrl) ?? ''} alt="" fill className="object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <span className="material-symbols-outlined text-2xl text-on-surface-variant/40">person</span>
