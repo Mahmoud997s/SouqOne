@@ -40,8 +40,7 @@ const mockRedis = {
   getTTL: jest.fn().mockResolvedValue(900),
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function hashToken(token: any) {
+function hashToken(token: string) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 

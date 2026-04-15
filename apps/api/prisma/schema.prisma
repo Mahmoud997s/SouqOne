@@ -68,6 +68,8 @@ model User {
   reviewCount        Int                 @default(0)
   pushSubscriptions  PushSubscription[]
   loginAudits        LoginAudit[]
+  driverProfile      DriverProfile?
+  employerProfile    EmployerProfile?
 
   @@index([email])
   @@index([username])
@@ -470,6 +472,7 @@ model DriverJob {
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   applications    JobApplication[]
+  invites         JobInvite[]
 
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
@@ -498,6 +501,8 @@ model JobApplication {
   applicantId String
   applicant   User                @relation(fields: [applicantId], references: [id], onDelete: Cascade)
 
+  escrow      JobEscrow?
+
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
 
@@ -505,6 +510,143 @@ model JobApplication {
   @@index([jobId])
   @@index([applicantId])
   @@map("job_applications")
+}
+
+// ──────────────────────────────────────
+// ضمان الدفع — JobEscrow
+// ──────────────────────────────────────
+model JobEscrow {
+  id              String          @id @default(cuid())
+  applicationId   String          @unique
+  application     JobApplication  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  amount          Int             // بالبيسة
+  status          EscrowStatus    @default(HELD)
+
+  paymentId       String?
+  releasedAt      DateTime?
+
+  createdAt       DateTime        @default(now())
+
+  @@index([status])
+  @@map("job_escrows")
+}
+
+// ──────────────────────────────────────
+// بروفايل السائق — DriverProfile
+// ──────────────────────────────────────
+model DriverProfile {
+  id              String        @id @default(cuid())
+  userId          String        @unique
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  licenseTypes    LicenseType[]
+  experienceYears Int?
+  languages       String[]
+  nationality     String?
+  vehicleTypes    String[]
+  hasOwnVehicle   Boolean       @default(false)
+  bio             String?
+
+  governorate     String
+  city            String?
+
+  contactPhone    String?
+  whatsapp        String?
+
+  isAvailable     Boolean       @default(true)
+  isVerified      Boolean       @default(false)
+
+  averageRating   Float?
+  reviewCount     Int           @default(0)
+
+  verifications   DriverVerification[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([governorate])
+  @@index([isAvailable])
+  @@index([isVerified])
+  @@map("driver_profiles")
+}
+
+// ──────────────────────────────────────
+// بروفايل صاحب العمل — EmployerProfile
+// ──────────────────────────────────────
+model EmployerProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  companyName   String?
+  companySize   String?  // SMALL, MEDIUM, LARGE
+  industry      String?
+  bio           String?
+
+  governorate   String
+  city          String?
+  contactPhone  String?
+  whatsapp      String?
+
+  isVerified    Boolean  @default(false)
+  averageRating Float?
+  reviewCount   Int      @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([governorate])
+  @@map("employer_profiles")
+}
+
+// ──────────────────────────────────────
+// دعوات الوظائف — JobInvite
+// ──────────────────────────────────────
+model JobInvite {
+  id          String        @id @default(cuid())
+  message     String?
+
+  jobId       String
+  job         DriverJob     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  inviterId   String
+  inviteeId   String
+
+  status      InviteStatus  @default(PENDING)
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([jobId, inviteeId])
+  @@index([inviteeId])
+  @@index([inviterId])
+  @@map("job_invites")
+}
+
+// ──────────────────────────────────────
+// توثيق السائق — DriverVerification
+// ──────────────────────────────────────
+model DriverVerification {
+  id              String               @id @default(cuid())
+  driverProfileId String
+  driverProfile   DriverProfile        @relation(fields: [driverProfileId], references: [id], onDelete: Cascade)
+
+  licenseImageUrl String
+  idImageUrl      String
+  notes           String?
+
+  status          VerificationStatus   @default(PENDING)
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  rejectionReason String?
+
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([driverProfileId])
+  @@index([status])
+  @@map("driver_verifications")
 }
 
 // ──────────────────────────────────────
@@ -664,6 +806,26 @@ enum ApplicationStatus {
   PENDING
   ACCEPTED
   REJECTED
+  WITHDRAWN
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+  DISPUTED
 }
 
 enum NotificationType {
@@ -689,6 +851,7 @@ enum NotificationType {
   LISTING_UPDATED
   LISTING_DELETED
   LISTING_STATUS_CHANGED
+  JOB_RECOMMENDATION
 }
 
 // ══════════════════════════════════════════════════
@@ -1436,6 +1599,8 @@ enum ReviewEntityType {
   EQUIPMENT_LISTING
   BOOKING
   OPERATOR_LISTING
+  DRIVER_PROFILE
+  EMPLOYER_PROFILE
 }
 
 model Review {

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
@@ -45,8 +46,8 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
         {/* Drawer header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/20">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="SouqOne" className="h-9 w-auto object-contain" />
-            <img src="/name.png" alt={t('siteName')} className="h-[20px] w-auto object-contain" />
+            <Image src="/logo.png" alt="SouqOne" width={36} height={36} className="h-9 w-auto object-contain" />
+            <Image src="/name.png" alt={t('siteName')} width={80} height={20} className="h-[20px] w-auto object-contain" />
           </div>
           <button
             onClick={close}
@@ -61,7 +62,7 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
           <div className="px-5 py-4 bg-surface-container-low border-b border-outline-variant/20">
             <div className="flex items-center gap-3">
               {user.avatarUrl ? (
-                <img src={getImageUrl(user.avatarUrl) || ''} alt={user.displayName || user.username} className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                <Image src={getImageUrl(user.avatarUrl) || ''} alt={user.displayName || user.username} width={40} height={40} className="w-10 h-10 rounded-xl object-cover shrink-0" />
               ) : (
                 <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary font-black text-sm shrink-0">
                   {user.username[0]?.toUpperCase()}

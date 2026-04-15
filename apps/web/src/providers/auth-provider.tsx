@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setHasToken(true);
       await queryClient.fetchQuery({
         queryKey: ['me'],
-        queryFn: () => apiRequest<UserProfile>('/auth/me'),
+        queryFn: () => apiRequest<UserProfile>('/users/me'),
         staleTime: 0,
       });
     },

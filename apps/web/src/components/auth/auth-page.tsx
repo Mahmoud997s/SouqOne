@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 interface AuthPageProps {
   children: React.ReactNode;
   title: string;
@@ -24,8 +26,8 @@ export default function AuthPage({ children, title, subtitle }: AuthPageProps) {
       >
         {/* Logo + Name */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, marginBottom: 14 }}>
-          <img src="/logo.png" alt="SouqOne" style={{ height: 52, width: 'auto', objectFit: 'contain' }} />
-          <img src="/name.png" alt="SouqOne" style={{ height: 22, width: 'auto', objectFit: 'contain' }} />
+          <Image src="/logo.png" alt="SouqOne" width={52} height={52} style={{ height: 52, width: 'auto', objectFit: 'contain' }} />
+          <Image src="/name.png" alt="SouqOne" width={88} height={22} style={{ height: 22, width: 'auto', objectFit: 'contain' }} />
         </div>
 
         {/* Card */}

@@ -21,6 +21,15 @@ const TABLES_TO_TRUNCATE = [
   'messages',
   'conversation_participants',
 
+  // Escrow, verifications & invites
+  'job_escrows',
+  'driver_verifications',
+  'job_invites',
+
+  // Job profiles
+  'driver_profiles',
+  'employer_profiles',
+
   // Job applications
   'job_applications',
 

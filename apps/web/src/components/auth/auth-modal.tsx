@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRouter } from '@/i18n/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -66,8 +67,8 @@ export default function AuthModal({ children, title, subtitle }: AuthModalProps)
       >
         {/* Logo + Name — above the card */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, marginBottom: 14 }}>
-          <img src="/logo.png" alt="SouqOne" style={{ height: 52, width: 'auto', objectFit: 'contain' }} />
-          <img src="/name.png" alt="SouqOne" style={{ height: 22, width: 'auto', objectFit: 'contain' }} />
+          <Image src="/logo.png" alt="SouqOne" width={52} height={52} style={{ height: 52, width: 'auto', objectFit: 'contain' }} />
+          <Image src="/name.png" alt="SouqOne" width={88} height={22} style={{ height: 22, width: 'auto', objectFit: 'contain' }} />
         </div>
 
         {/* Card */}

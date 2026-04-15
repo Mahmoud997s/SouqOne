@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { use, useState } from 'react';
 import { Link, useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
@@ -74,7 +75,7 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
                 <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                   <div className="aspect-[16/9] bg-surface-container-low dark:bg-surface-container-high relative">
                     {offer.images[activeImg]?.url ? (
-                      <img src={getImageUrl(offer.images[activeImg].url) || ''} alt={offer.title} className="w-full h-full object-contain" />
+                      <Image src={getImageUrl(offer.images[activeImg].url) || ''} alt={offer.title} fill className="object-contain" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-on-surface-variant/30">
                         <span className="material-symbols-outlined text-7xl">shield</span>
@@ -85,8 +86,8 @@ export default function InsuranceDetailPage({ params }: { params: Promise<{ id: 
                     <div className="flex gap-2 p-3 overflow-x-auto">
                       {offer.images.map((img: any, i: number) => (
                         <button key={img.id} onClick={() => setActiveImg(i)}
-                          className={`w-16 h-16 overflow-hidden shrink-0 border-2 transition-all ${i === activeImg ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant/20 dark:border-outline-variant/30'}`}>
-                          <img src={getImageUrl(img.url) || ''} alt="" className="w-full h-full object-cover" />
+                          className={`relative w-16 h-16 overflow-hidden shrink-0 border-2 transition-all ${i === activeImg ? 'border-primary ring-2 ring-primary/20' : 'border-outline-variant/20 dark:border-outline-variant/30'}`}>
+                          <Image src={getImageUrl(img.url) || ''} alt="" fill className="object-cover" />
                         </button>
                       ))}
                     </div>

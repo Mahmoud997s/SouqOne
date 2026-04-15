@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
@@ -160,9 +161,9 @@ function BookingRow({
     <div className="bg-surface-container-lowest border border-outline-variant/10 p-4 md:p-6 flex flex-col md:flex-row gap-4 items-start md:items-center shadow-sm hover:shadow-md transition-shadow">
       {/* Car image */}
       <Link href={`/bookings/${booking.id}`} className="shrink-0">
-        <div className="w-24 h-18 md:w-32 md:h-20 overflow-hidden bg-surface-container-low">
+        <div className="relative w-24 h-18 md:w-32 md:h-20 overflow-hidden bg-surface-container-low">
           {getImageUrl(img?.url) ? (
-            <img src={getImageUrl(img?.url)!} alt="" className="w-full h-full object-cover" />
+            <Image src={getImageUrl(img?.url)!} alt="" fill className="object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-on-surface-variant">
               <span className="material-symbols-outlined">car_rental</span>

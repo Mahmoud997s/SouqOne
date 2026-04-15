@@ -8,6 +8,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PrismaModule } from '../src/prisma/prisma.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { RedisModule } from '../src/redis/redis.module';
@@ -35,12 +36,14 @@ import { EquipmentModule } from '../src/equipment/equipment.module';
 import { AppController } from '../src/app.controller';
 import { AppService } from '../src/app.service';
 import { MailService } from '../src/mail/mail.service';
+import { MEILI_CLIENT } from '../src/search/meili.provider';
 import { cleanDatabase } from './cleanup';
 import request from 'supertest';
 
 /** Mock RedisService so tests don't need a running Redis instance */
 class MockRedisService {
   private store = new Map<string, string>();
+  private ttls = new Map<string, number>();
   async onModuleInit() {}
   async onModuleDestroy() {}
   getClient() { return null; }
@@ -51,13 +54,24 @@ class MockRedisService {
     const v = this.store.get(key);
     return v ? JSON.parse(v) : null;
   }
-  async set(key: string, value: any, _ttl?: number) {
+  async set(key: string, value: any, ttl?: number) {
     this.store.set(key, JSON.stringify(value));
+    if (ttl) this.ttls.set(key, ttl);
   }
-  async del(key: string) { this.store.delete(key); }
+  async del(key: string) { this.store.delete(key); this.ttls.delete(key); }
   async delPattern(_pattern: string) {}
   async exists(key: string) { return this.store.has(key); }
-  async expire(_key: string, _seconds: number) {}
+  async expire(key: string, seconds: number) { this.ttls.set(key, seconds); }
+  async incr(key: string, ttl?: number): Promise<number> {
+    const current = this.store.get(key);
+    const val = current ? parseInt(current, 10) + 1 : 1;
+    this.store.set(key, String(val));
+    if (ttl) this.ttls.set(key, ttl);
+    return val;
+  }
+  async getTTL(key: string): Promise<number> {
+    return this.ttls.get(key) ?? -1;
+  }
   async publish(_channel: string, _message: any) {}
   async subscribe(_channel: string, _callback: any) {}
   async unsubscribe(_channel: string) {}
@@ -82,6 +96,7 @@ let prisma: PrismaService;
 export async function createTestApp(): Promise<INestApplication> {
   const moduleFixture: TestingModule = await Test.createTestingModule({
     imports: [
+      EventEmitterModule.forRoot(),
       ThrottlerModule.forRoot([{ ttl: 60000, limit: 999999 }]),
       PrismaModule,
       RedisModule,
@@ -116,6 +131,8 @@ export async function createTestApp(): Promise<INestApplication> {
     .useClass(MockRedisService)
     .overrideProvider(MailService)
     .useClass(MockMailService)
+    .overrideProvider(MEILI_CLIENT)
+    .useValue(null)
     .compile();
 
   app = moduleFixture.createNestApplication();
@@ -154,8 +171,17 @@ export async function closeTestApp() {
     } catch {
       // Ignore cleanup errors during teardown
     }
+    try {
+      await prisma.$disconnect();
+    } catch {
+      // Ignore disconnect errors
+    }
   }
-  if (app) await app.close();
+  if (app) {
+    await app.close();
+    app = undefined as any;
+    prisma = undefined as any;
+  }
 }
 
 /** Unique suffix for test isolation */

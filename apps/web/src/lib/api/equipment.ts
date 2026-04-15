@@ -169,6 +169,32 @@ export function useMyEquipmentListings() {
   });
 }
 
+export function useEquipmentListingBySlug(slug: string) {
+  return useQuery<EquipmentListingItem>({
+    queryKey: ['equipment', 'slug', slug],
+    queryFn: () => apiRequest(`/equipment/slug/${slug}`),
+    enabled: !!slug,
+  });
+}
+
+export function useAddEquipmentImages() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, urls }: { id: string; urls: string[] }) =>
+      apiRequest(`/equipment/${id}/images`, { method: 'POST', body: JSON.stringify({ urls }) }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['equipment'] }); },
+  });
+}
+
+export function useRemoveEquipmentImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (imageId: string) =>
+      apiRequest(`/equipment/images/${imageId}`, { method: 'DELETE' }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['equipment'] }); },
+  });
+}
+
 export function useCreateEquipmentListing() {
   const qc = useQueryClient();
   return useMutation({

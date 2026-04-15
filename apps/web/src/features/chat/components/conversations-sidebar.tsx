@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useConversations, useArchiveConversation } from '@/lib/api';
@@ -170,7 +171,7 @@ export default function ConversationsSidebar() {
                 {/* Avatar + online dot */}
                 <div className="relative shrink-0">
                   {other?.avatarUrl ? (
-                    <img src={getImageUrl(other.avatarUrl) || ''} alt={name} className="w-[52px] h-[52px] rounded-2xl object-cover ring-2 ring-outline-variant/5" />
+                    <Image src={getImageUrl(other.avatarUrl) || ''} alt={name} width={52} height={52} className="w-[52px] h-[52px] rounded-2xl object-cover ring-2 ring-outline-variant/5" />
                   ) : (
                     <div className={`w-[52px] h-[52px] rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-primary font-black text-lg`}>
                       {initial}

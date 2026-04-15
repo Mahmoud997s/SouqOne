@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { useTransportServices } from '@/lib/api';
 import { getImageUrl } from '@/lib/image-utils';
@@ -45,7 +46,7 @@ export default function TransportPage() {
         <Link key={item.id} href={`/transport/${item.id}`} className="glass-card rounded-xl overflow-hidden group">
           <div className="aspect-[16/9] bg-surface-container-low relative overflow-hidden">
             {item.images?.[0] ? (
-              <img src={getImageUrl(item.images[0].url) || ''} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <Image src={getImageUrl(item.images[0].url) || ''} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-on-surface-variant/30"><span className="material-symbols-outlined text-5xl">local_shipping</span></div>
             )}

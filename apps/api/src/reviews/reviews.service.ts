@@ -23,6 +23,11 @@ export class ReviewsService {
       throw new BadRequestException('لا يمكنك تقييم نفسك');
     }
 
+    // Job-related review validation: require ACCEPTED application
+    if (dto.entityType === 'DRIVER_PROFILE' || dto.entityType === 'EMPLOYER_PROFILE') {
+      await this.validateJobReview(dto, reviewerId);
+    }
+
     const existing = await this.prisma.review.findUnique({
       where: {
         reviewerId_entityType_entityId: {
@@ -53,6 +58,13 @@ export class ReviewsService {
 
     // Recalculate average rating
     await this.recalculateUserRating(dto.revieweeId);
+
+    // Also recalculate profile-level ratings for job reviews
+    if (dto.entityType === 'DRIVER_PROFILE') {
+      await this.recalculateDriverProfileRating(dto.entityId);
+    } else if (dto.entityType === 'EMPLOYER_PROFILE') {
+      await this.recalculateEmployerProfileRating(dto.entityId);
+    }
 
     // Notify the reviewee
     try {
@@ -143,6 +155,25 @@ export class ReviewsService {
     });
   }
 
+  private async validateJobReview(dto: CreateReviewDto, reviewerId: string) {
+    // Check there is an ACCEPTED application between the reviewer and the profile owner
+    const application = await this.prisma.jobApplication.findFirst({
+      where: {
+        status: 'ACCEPTED',
+        OR: [
+          // Employer reviewing a driver: employer owns the job, driver applied
+          { job: { userId: reviewerId }, applicantId: dto.revieweeId },
+          // Driver reviewing an employer: driver applied, employer owns the job
+          { applicantId: reviewerId, job: { userId: dto.revieweeId } },
+        ],
+      },
+    });
+
+    if (!application) {
+      throw new BadRequestException('لا يمكنك تقييم إلا بعد قبول طلب التوظيف');
+    }
+  }
+
   private async recalculateUserRating(userId: string) {
     const result = await this.prisma.review.aggregate({
       where: { revieweeId: userId },
@@ -152,6 +183,38 @@ export class ReviewsService {
 
     await this.prisma.user.update({
       where: { id: userId },
+      data: {
+        averageRating: result._avg.rating ? Math.round(result._avg.rating * 10) / 10 : null,
+        reviewCount: result._count,
+      },
+    });
+  }
+
+  private async recalculateDriverProfileRating(profileId: string) {
+    const result = await this.prisma.review.aggregate({
+      where: { entityType: 'DRIVER_PROFILE', entityId: profileId },
+      _avg: { rating: true },
+      _count: true,
+    });
+
+    await this.prisma.driverProfile.update({
+      where: { id: profileId },
+      data: {
+        averageRating: result._avg.rating ? Math.round(result._avg.rating * 10) / 10 : null,
+        reviewCount: result._count,
+      },
+    });
+  }
+
+  private async recalculateEmployerProfileRating(profileId: string) {
+    const result = await this.prisma.review.aggregate({
+      where: { entityType: 'EMPLOYER_PROFILE', entityId: profileId },
+      _avg: { rating: true },
+      _count: true,
+    });
+
+    await this.prisma.employerProfile.update({
+      where: { id: profileId },
       data: {
         averageRating: result._avg.rating ? Math.round(result._avg.rating * 10) / 10 : null,
         reviewCount: result._count,

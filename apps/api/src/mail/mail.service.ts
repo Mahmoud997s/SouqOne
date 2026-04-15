@@ -9,9 +9,6 @@ export class MailService {
   constructor() {
     const token = process.env.MAILTRAP_API_TOKEN;
     if (!token) {
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error('MAILTRAP_API_TOKEN environment variable is required in production');
-      }
       this.logger.warn('MAILTRAP_API_TOKEN not set — emails will be logged but not sent');
     } else {
       this.client = new MailtrapClient({ token });

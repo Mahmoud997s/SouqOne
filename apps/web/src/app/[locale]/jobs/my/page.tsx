@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
@@ -21,7 +22,8 @@ export default function MyJobsPage() {
 
 function MyJobsContent() {
   const { addToast } = useToast();
-  const { data: jobs, isLoading, isError, refetch } = useMyJobs();
+  const { data, isLoading, isError, refetch } = useMyJobs();
+  const jobs = data?.items;
   const updateJob = useUpdateJob();
   const deleteJob = useDeleteJob();
   const [expandedJob, setExpandedJob] = useState<string | null>(null);
@@ -189,6 +191,7 @@ function ApplicationsList({ jobId }: { jobId: string }) {
     PENDING: { label: tp('myJobsAppStatusPending'), color: 'bg-yellow-100 text-yellow-700' },
     ACCEPTED: { label: tp('myJobsAppStatusAccepted'), color: 'bg-green-100 text-green-700' },
     REJECTED: { label: tp('myJobsAppStatusRejected'), color: 'bg-red-100 text-red-700' },
+    WITHDRAWN: { label: tp('myJobsAppStatusWithdrawn') || 'تم السحب', color: 'bg-gray-100 text-gray-600' },
   };
 
   async function handleStatus(applicationId: string, status: 'ACCEPTED' | 'REJECTED') {
@@ -229,7 +232,7 @@ function ApplicationsList({ jobId }: { jobId: string }) {
           <div key={app.id} className="bg-surface-container-low rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               {app.applicant.avatarUrl ? (
-                <img src={getImageUrl(app.applicant.avatarUrl) || ''} alt="" className="w-10 h-10 rounded-full object-cover" />
+                <Image src={getImageUrl(app.applicant.avatarUrl) || ''} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
               ) : (
                 <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                   <span className="material-symbols-outlined text-primary text-lg">person</span>

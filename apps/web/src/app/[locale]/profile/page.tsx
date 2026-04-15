@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useRef } from 'react';
 import { Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
@@ -176,7 +177,7 @@ export default function ProfilePage() {
                   className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full shrink-0 ring-4 ring-surface-container-lowest dark:ring-surface-container shadow-lg group overflow-hidden"
                 >
                   {user.avatarUrl ? (
-                    <img src={getImageUrl(user.avatarUrl) || ''} alt={user.displayName || user.username} className="w-full h-full object-cover" />
+                    <Image src={getImageUrl(user.avatarUrl) || ''} alt={user.displayName || user.username} fill className="object-cover" />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-2xl sm:text-3xl md:text-4xl">
                       {initial}

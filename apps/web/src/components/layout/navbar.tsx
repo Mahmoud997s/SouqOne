@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
@@ -150,8 +151,8 @@ export function Navbar() {
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between relative" style={{ height: TOP_H }}>
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 shrink-0">
-              <img src="/logo.png" alt="SouqOne" className="h-[36px] sm:h-[42px] w-auto object-contain" />
-              <img src="/name.png" alt={t('siteName')} className="h-[20px] sm:h-[28px] w-auto object-contain" />
+              <Image src="/logo.png" alt="SouqOne" width={42} height={42} className="h-[36px] sm:h-[42px] w-auto object-contain" />
+              <Image src="/name.png" alt={t('siteName')} width={120} height={28} className="h-[20px] sm:h-[28px] w-auto object-contain" />
             </Link>
 
             {/* Desktop nav links — center */}

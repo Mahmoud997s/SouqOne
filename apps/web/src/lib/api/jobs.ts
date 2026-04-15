@@ -11,6 +11,13 @@ interface JobUser {
   createdAt?: string;
 }
 
+export function useRecommendedJobs() {
+  return useQuery<JobItem[]>({
+    queryKey: ['jobs', 'recommended'],
+    queryFn: () => apiRequest<JobItem[]>('/jobs/recommended'),
+  });
+}
+
 export interface JobItem {
   id: string;
   title: string;
@@ -51,7 +58,7 @@ export interface JobApplicationItem {
   id: string;
   message?: string | null;
   resumeUrl?: string | null;
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN';
   jobId: string;
   applicantId: string;
   applicant: JobUser;
@@ -102,9 +109,21 @@ export function useDeleteJob() {
 }
 
 export function useMyJobs() {
-  return useQuery<JobItem[]>({
+  return useQuery<JobsResponse>({
     queryKey: ['jobs', 'my'],
-    queryFn: () => apiRequest<JobItem[]>('/jobs/my'),
+    queryFn: () => apiRequest<JobsResponse>('/jobs/my'),
+  });
+}
+
+export function useWithdrawApplication() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (applicationId: string) =>
+      apiRequest(`/jobs/applications/${applicationId}/withdraw`, { method: 'POST' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['jobs'] });
+      qc.invalidateQueries({ queryKey: ['job-applications'] });
+    },
   });
 }
 
@@ -113,7 +132,10 @@ export function useApplyToJob() {
   return useMutation({
     mutationFn: ({ jobId, ...data }: { jobId: string; message?: string; resumeUrl?: string }) =>
       apiRequest<JobApplicationItem>(`/jobs/${jobId}/apply`, { method: 'POST', body: JSON.stringify(data) }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['jobs'] }); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['jobs'] });
+      qc.invalidateQueries({ queryKey: ['job-applications'] });
+    },
   });
 }
 
@@ -131,5 +153,329 @@ export function useUpdateApplicationStatus() {
     mutationFn: ({ applicationId, status }: { applicationId: string; status: string }) =>
       apiRequest(`/jobs/applications/${applicationId}`, { method: 'PATCH', body: JSON.stringify({ status }) }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['job-applications'] }); },
+  });
+}
+
+// ─── Driver & Employer Profiles ───
+
+export interface DriverProfileItem {
+  id: string;
+  userId: string;
+  licenseTypes: string[];
+  experienceYears?: number | null;
+  languages: string[];
+  nationality?: string | null;
+  vehicleTypes: string[];
+  hasOwnVehicle: boolean;
+  bio?: string | null;
+  governorate: string;
+  city?: string | null;
+  contactPhone?: string | null;
+  whatsapp?: string | null;
+  isAvailable: boolean;
+  isVerified: boolean;
+  averageRating?: number | null;
+  reviewCount: number;
+  createdAt: string;
+  user: JobUser;
+}
+
+export interface EmployerProfileItem {
+  id: string;
+  userId: string;
+  companyName?: string | null;
+  companySize?: string | null;
+  industry?: string | null;
+  bio?: string | null;
+  governorate: string;
+  city?: string | null;
+  contactPhone?: string | null;
+  whatsapp?: string | null;
+  isVerified: boolean;
+  averageRating?: number | null;
+  reviewCount: number;
+  createdAt: string;
+  user: JobUser;
+}
+
+export interface DriversResponse {
+  items: DriverProfileItem[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+// ─── Driver Profile Hooks ───
+
+export function useMyDriverProfile() {
+  return useQuery<DriverProfileItem>({
+    queryKey: ['driver-profile', 'me'],
+    queryFn: () => apiRequest<DriverProfileItem>('/jobs/driver-profile/me'),
+    retry: false,
+  });
+}
+
+export function useCreateDriverProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, any>) =>
+      apiRequest<DriverProfileItem>('/jobs/driver-profile', { method: 'POST', body: JSON.stringify(data) }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['driver-profile'] }); },
+  });
+}
+
+export function useUpdateDriverProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, any>) =>
+      apiRequest<DriverProfileItem>('/jobs/driver-profile', { method: 'PATCH', body: JSON.stringify(data) }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['driver-profile'] }); },
+  });
+}
+
+export function useDrivers(params: Record<string, string> = {}) {
+  const searchParams = new URLSearchParams(params);
+  return useQuery<DriversResponse>({
+    queryKey: ['drivers', params],
+    queryFn: () => apiRequest<DriversResponse>(`/jobs/drivers?${searchParams.toString()}`),
+  });
+}
+
+export function useDriver(id: string) {
+  return useQuery<DriverProfileItem>({
+    queryKey: ['driver', id],
+    queryFn: () => apiRequest<DriverProfileItem>(`/jobs/drivers/${id}`),
+    enabled: !!id,
+  });
+}
+
+// ─── Employer Profile Hooks ───
+
+export function useMyEmployerProfile() {
+  return useQuery<EmployerProfileItem>({
+    queryKey: ['employer-profile', 'me'],
+    queryFn: () => apiRequest<EmployerProfileItem>('/jobs/employer-profile/me'),
+    retry: false,
+  });
+}
+
+export function useCreateEmployerProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, any>) =>
+      apiRequest<EmployerProfileItem>('/jobs/employer-profile', { method: 'POST', body: JSON.stringify(data) }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['employer-profile'] }); },
+  });
+}
+
+export function useUpdateEmployerProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, any>) =>
+      apiRequest<EmployerProfileItem>('/jobs/employer-profile', { method: 'PATCH', body: JSON.stringify(data) }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['employer-profile'] }); },
+  });
+}
+
+export function useEmployer(id: string) {
+  return useQuery<EmployerProfileItem>({
+    queryKey: ['employer', id],
+    queryFn: () => apiRequest<EmployerProfileItem>(`/jobs/employers/${id}`),
+    enabled: !!id,
+  });
+}
+
+// ─── Job Invites ───
+
+export interface JobInviteItem {
+  id: string;
+  message?: string | null;
+  jobId: string;
+  inviterId: string;
+  inviteeId: string;
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED';
+  createdAt: string;
+  job?: {
+    id: string;
+    title: string;
+    governorate: string;
+    salary?: string | null;
+    salaryPeriod?: string | null;
+    currency: string;
+    status: string;
+    user: JobUser;
+  };
+}
+
+export function useMyInvites() {
+  return useQuery<JobInviteItem[]>({
+    queryKey: ['job-invites', 'my'],
+    queryFn: () => apiRequest<JobInviteItem[]>('/jobs/invites/my'),
+  });
+}
+
+export function useInviteDriver() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ jobId, driverId, message }: { jobId: string; driverId: string; message?: string }) =>
+      apiRequest<JobInviteItem>(`/jobs/${jobId}/invite/${driverId}`, {
+        method: 'POST',
+        body: JSON.stringify({ message }),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['job-invites'] });
+    },
+  });
+}
+
+export function useRespondToInvite() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ inviteId, status }: { inviteId: string; status: 'ACCEPTED' | 'DECLINED' }) =>
+      apiRequest(`/jobs/invites/${inviteId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['job-invites'] });
+    },
+  });
+}
+
+// ─── Driver Verification ───
+
+export interface VerificationItem {
+  id: string;
+  driverProfileId: string;
+  licenseImageUrl: string;
+  idImageUrl: string;
+  notes?: string | null;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  rejectionReason?: string | null;
+  createdAt: string;
+  driverProfile?: {
+    id: string;
+    user: { id: string; username: string; displayName?: string | null; avatarUrl?: string | null; email: string };
+  };
+}
+
+export function useMyVerificationStatus() {
+  return useQuery<VerificationItem[]>({
+    queryKey: ['verification', 'my'],
+    queryFn: () => apiRequest<VerificationItem[]>('/jobs/verification/status'),
+  });
+}
+
+export function useSubmitVerification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { licenseImageUrl: string; idImageUrl: string; notes?: string }) =>
+      apiRequest<VerificationItem>('/jobs/verification/submit', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['verification'] });
+    },
+  });
+}
+
+export function useAdminVerifications(status?: string) {
+  const params = status ? `?status=${status}` : '';
+  return useQuery<VerificationItem[]>({
+    queryKey: ['admin', 'verifications', status],
+    queryFn: () => apiRequest<VerificationItem[]>(`/jobs/admin/verifications${params}`),
+  });
+}
+
+// ─── Driver Reviews ───
+
+export interface DriverReviewItem {
+  id: string;
+  rating: number;
+  comment?: string | null;
+  entityType: string;
+  entityId: string;
+  reviewer: { id: string; username: string; displayName?: string | null; avatarUrl?: string | null };
+  reply?: { id: string; body: string; createdAt: string } | null;
+  createdAt: string;
+}
+
+export interface DriverReviewsResponse {
+  items: DriverReviewItem[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+export function useDriverReviews(profileId: string, page = 1) {
+  return useQuery<DriverReviewsResponse>({
+    queryKey: ['driver-reviews', profileId, page],
+    queryFn: () => apiRequest<DriverReviewsResponse>(`/jobs/drivers/${profileId}/reviews?page=${page}`),
+    enabled: !!profileId,
+  });
+}
+
+export function useAdminReviewVerification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, decision, rejectionReason }: { id: string; decision: 'APPROVED' | 'REJECTED'; rejectionReason?: string }) =>
+      apiRequest(`/jobs/admin/verifications/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ decision, rejectionReason }),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'verifications'] });
+      qc.invalidateQueries({ queryKey: ['verification'] });
+    },
+  });
+}
+
+// ─── Job Escrow ───
+
+export interface EscrowItem {
+  id: string;
+  applicationId: string;
+  amount: number;
+  status: 'HELD' | 'RELEASED' | 'REFUNDED' | 'DISPUTED';
+  paymentId?: string | null;
+  releasedAt?: string | null;
+  createdAt: string;
+}
+
+export function usePayForApplication() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ applicationId, amount }: { applicationId: string; amount: number }) =>
+      apiRequest<EscrowItem>(`/jobs/applications/${applicationId}/pay`, {
+        method: 'POST',
+        body: JSON.stringify({ amount }),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['my-applications'] });
+    },
+  });
+}
+
+export function useReleaseEscrow() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (escrowId: string) =>
+      apiRequest(`/jobs/escrow/${escrowId}/release`, { method: 'POST' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['my-applications'] });
+    },
+  });
+}
+
+export function useDisputeEscrow() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ escrowId, reason }: { escrowId: string; reason?: string }) =>
+      apiRequest(`/jobs/escrow/${escrowId}/dispute`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['my-applications'] });
+    },
   });
 }
