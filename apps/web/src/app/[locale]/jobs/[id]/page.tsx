@@ -150,6 +150,9 @@ export default function JobDetailPage() {
                     {job.status === 'CLOSED' && (
                       <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-black px-3 py-1">{tp('jobDetailClosed')}</span>
                     )}
+                    {job.status === 'EXPIRED' && (
+                      <span className="bg-gray-100 dark:bg-gray-800/30 text-gray-600 dark:text-gray-400 text-xs font-black px-3 py-1">{tp('jobDetailExpired') || 'منتهية'}</span>
+                    )}
                   </div>
                   <h1 className="text-2xl md:text-3xl font-black text-on-surface mb-3">{job.title}</h1>
                   <div className="flex flex-wrap gap-4 text-sm text-on-surface-variant">

@@ -62,6 +62,25 @@ export function useMyTransport() {
   });
 }
 
+export function useTransportBySlug(slug: string) {
+  return useQuery<TransportItem>({
+    queryKey: ['transport', 'slug', slug],
+    queryFn: () => apiRequest(`/transport/slug/${slug}`),
+    enabled: !!slug,
+  });
+}
+
+export function useToggleTransportStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiRequest<TransportItem>(`/transport/${id}/status`, { method: 'PATCH' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['transport'] });
+    },
+  });
+}
+
 export function useCreateTransport() {
   const qc = useQueryClient();
   return useMutation({

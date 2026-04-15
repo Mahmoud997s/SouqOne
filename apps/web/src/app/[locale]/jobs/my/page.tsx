@@ -22,7 +22,8 @@ export default function MyJobsPage() {
 
 function MyJobsContent() {
   const { addToast } = useToast();
-  const { data: jobs, isLoading, isError, refetch } = useMyJobs();
+  const { data, isLoading, isError, refetch } = useMyJobs();
+  const jobs = data?.items;
   const updateJob = useUpdateJob();
   const deleteJob = useDeleteJob();
   const [expandedJob, setExpandedJob] = useState<string | null>(null);
@@ -190,6 +191,7 @@ function ApplicationsList({ jobId }: { jobId: string }) {
     PENDING: { label: tp('myJobsAppStatusPending'), color: 'bg-yellow-100 text-yellow-700' },
     ACCEPTED: { label: tp('myJobsAppStatusAccepted'), color: 'bg-green-100 text-green-700' },
     REJECTED: { label: tp('myJobsAppStatusRejected'), color: 'bg-red-100 text-red-700' },
+    WITHDRAWN: { label: tp('myJobsAppStatusWithdrawn') || 'تم السحب', color: 'bg-gray-100 text-gray-600' },
   };
 
   async function handleStatus(applicationId: string, status: 'ACCEPTED' | 'REJECTED') {

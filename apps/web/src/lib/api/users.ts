@@ -18,7 +18,7 @@ export interface UserProfile {
 export function useMe(enabled = true) {
   return useQuery<UserProfile>({
     queryKey: ['me'],
-    queryFn: () => apiRequest<UserProfile>('/auth/me'),
+    queryFn: () => apiRequest<UserProfile>('/users/me'),
     enabled,
     retry: false,
     staleTime: 30 * 1000, // 30s — fast enough after login, avoids excessive re-fetching

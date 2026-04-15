@@ -58,6 +58,25 @@ export function useMyInsuranceOffers() {
   });
 }
 
+export function useInsuranceBySlug(slug: string) {
+  return useQuery<InsuranceItem>({
+    queryKey: ['insurance', 'slug', slug],
+    queryFn: () => apiRequest(`/insurance/slug/${slug}`),
+    enabled: !!slug,
+  });
+}
+
+export function useToggleInsuranceStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiRequest<InsuranceItem>(`/insurance/${id}/status`, { method: 'PATCH' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['insurance'] });
+    },
+  });
+}
+
 export function useCreateInsurance() {
   const qc = useQueryClient();
   return useMutation({

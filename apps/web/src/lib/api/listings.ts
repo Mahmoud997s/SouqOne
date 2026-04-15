@@ -89,6 +89,14 @@ export function useListing(id: string) {
   });
 }
 
+export function useListingBySlug(slug: string) {
+  return useQuery<ListingItem>({
+    queryKey: ['listing', 'slug', slug],
+    queryFn: () => apiRequest<ListingItem>(`/listings/slug/${slug}`),
+    enabled: !!slug,
+  });
+}
+
 export function useCreateListing() {
   const qc = useQueryClient();
   return useMutation({

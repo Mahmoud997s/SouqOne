@@ -7,7 +7,8 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { JobCard } from '@/features/jobs/components/job-card';
 import { ListingSkeleton } from '@/components/loading-skeleton';
-import { useJobs } from '@/lib/api';
+import { useJobs, useRecommendedJobs } from '@/lib/api';
+import { useAuth } from '@/providers/auth-provider';
 import { getGovernorates } from '@/lib/location-data';
 import { employmentOptionsT } from '@/lib/constants/jobs';
 import { useTranslations, useLocale } from 'next-intl';
@@ -374,7 +375,46 @@ function JobsContent() {
           </>
         )}
       </main>
+
+      {/* Recommended Section */}
+      <RecommendedJobsSection />
+
       <Footer />
     </>
+  );
+}
+
+function RecommendedJobsSection() {
+  const { user } = useAuth();
+  const { data: jobs, isLoading } = useRecommendedJobs();
+
+  if (!user || isLoading || !jobs || jobs.length === 0) return null;
+
+  return (
+    <section className="max-w-7xl mx-auto px-4 md:px-8 pb-12">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="material-symbols-outlined text-primary">recommend</span>
+        <h2 className="text-xl font-extrabold">وظائف مقترحة لك</h2>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {jobs.slice(0, 6).map((job) => (
+          <Link key={job.id} href={`/jobs/${job.id}`}
+            className="block p-4 bg-surface-container-lowest border border-primary/10 rounded-xl hover:shadow-md transition">
+            <p className="font-bold text-sm mb-1">{job.title}</p>
+            <p className="text-xs text-on-surface-variant line-clamp-2 mb-2">{job.description}</p>
+            <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+              <span className="material-symbols-outlined text-xs">location_on</span>
+              {job.governorate}
+              {job.salary && (
+                <>
+                  <span>·</span>
+                  <span className="text-primary font-bold">{job.salary} ر.ع.</span>
+                </>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }

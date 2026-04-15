@@ -150,4 +150,271 @@ describe('Jobs API (e2e)', () => {
         .expect(401);
     });
   });
+
+  // ─── Status Toggle ───
+  describe('PATCH /api/jobs/:id (status toggle)', () => {
+    it('should toggle status to CLOSED', async () => {
+      const { accessToken } = await registerUser();
+      const created = await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      const res = await request(getApp().getHttpServer())
+        .patch(`/api/jobs/${created.body.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ status: 'CLOSED' })
+        .expect(200);
+
+      expect(res.body.status).toBe('CLOSED');
+    });
+
+    it('should toggle status back to ACTIVE', async () => {
+      const { accessToken } = await registerUser();
+      const created = await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      await request(getApp().getHttpServer())
+        .patch(`/api/jobs/${created.body.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ status: 'CLOSED' })
+        .expect(200);
+
+      const res = await request(getApp().getHttpServer())
+        .patch(`/api/jobs/${created.body.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ status: 'ACTIVE' })
+        .expect(200);
+
+      expect(res.body.status).toBe('ACTIVE');
+    });
+
+    it('should reject EXPIRED status via update', async () => {
+      const { accessToken } = await registerUser();
+      const created = await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      await request(getApp().getHttpServer())
+        .patch(`/api/jobs/${created.body.id}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ status: 'EXPIRED' })
+        .expect(400);
+    });
+  });
+
+  // ─── My Jobs ───
+  describe('GET /api/jobs/my', () => {
+    it('should return paginated response with items and meta', async () => {
+      const { accessToken } = await registerUser();
+      await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      const res = await request(getApp().getHttpServer())
+        .get('/api/jobs/my')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(res.body.items).toBeInstanceOf(Array);
+      expect(res.body.meta).toBeDefined();
+      expect(res.body.meta.total).toBeGreaterThanOrEqual(1);
+      expect(res.body.items[0].id).toBeDefined();
+    });
+
+    it('should reject without auth', async () => {
+      await request(getApp().getHttpServer())
+        .get('/api/jobs/my')
+        .expect(401);
+    });
+  });
+
+  // ─── Apply + Withdraw ───
+  describe('Application flow', () => {
+    it('should apply to a job', async () => {
+      const owner = await registerUser();
+      const applicant = await registerUser();
+
+      const job = await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      const res = await request(getApp().getHttpServer())
+        .post(`/api/jobs/${job.body.id}/apply`)
+        .set('Authorization', `Bearer ${applicant.accessToken}`)
+        .send({ message: 'I am interested' })
+        .expect(201);
+
+      expect(res.body.status).toBe('PENDING');
+      expect(res.body.applicantId).toBe(applicant.user.id);
+    });
+
+    it('should reject duplicate application', async () => {
+      const owner = await registerUser();
+      const applicant = await registerUser();
+
+      const job = await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      await request(getApp().getHttpServer())
+        .post(`/api/jobs/${job.body.id}/apply`)
+        .set('Authorization', `Bearer ${applicant.accessToken}`)
+        .send({ message: 'First apply' })
+        .expect(201);
+
+      await request(getApp().getHttpServer())
+        .post(`/api/jobs/${job.body.id}/apply`)
+        .set('Authorization', `Bearer ${applicant.accessToken}`)
+        .send({ message: 'Second apply' })
+        .expect(409);
+    });
+
+    it('should reject self-application', async () => {
+      const owner = await registerUser();
+
+      const job = await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      await request(getApp().getHttpServer())
+        .post(`/api/jobs/${job.body.id}/apply`)
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .send({ message: 'Self apply' })
+        .expect(403);
+    });
+
+    it('should withdraw own application', async () => {
+      const owner = await registerUser();
+      const applicant = await registerUser();
+
+      const job = await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      const application = await request(getApp().getHttpServer())
+        .post(`/api/jobs/${job.body.id}/apply`)
+        .set('Authorization', `Bearer ${applicant.accessToken}`)
+        .send({ message: 'I want to work' })
+        .expect(201);
+
+      const res = await request(getApp().getHttpServer())
+        .post(`/api/jobs/applications/${application.body.id}/withdraw`)
+        .set('Authorization', `Bearer ${applicant.accessToken}`)
+        .expect(201);
+
+      expect(res.body.status).toBe('WITHDRAWN');
+    });
+
+    it('should reject withdraw by non-applicant', async () => {
+      const owner = await registerUser();
+      const applicant = await registerUser();
+      const other = await registerUser();
+
+      const job = await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      const application = await request(getApp().getHttpServer())
+        .post(`/api/jobs/${job.body.id}/apply`)
+        .set('Authorization', `Bearer ${applicant.accessToken}`)
+        .send({ message: 'Hello' })
+        .expect(201);
+
+      await request(getApp().getHttpServer())
+        .post(`/api/jobs/applications/${application.body.id}/withdraw`)
+        .set('Authorization', `Bearer ${other.accessToken}`)
+        .expect(403);
+    });
+
+    it('should reject withdraw of non-PENDING application', async () => {
+      const owner = await registerUser();
+      const applicant = await registerUser();
+
+      const job = await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      const application = await request(getApp().getHttpServer())
+        .post(`/api/jobs/${job.body.id}/apply`)
+        .set('Authorization', `Bearer ${applicant.accessToken}`)
+        .send({ message: 'Test' })
+        .expect(201);
+
+      // Owner accepts first
+      await request(getApp().getHttpServer())
+        .patch(`/api/jobs/applications/${application.body.id}`)
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .send({ status: 'ACCEPTED' })
+        .expect(200);
+
+      // Now try to withdraw — should fail
+      await request(getApp().getHttpServer())
+        .post(`/api/jobs/applications/${application.body.id}/withdraw`)
+        .set('Authorization', `Bearer ${applicant.accessToken}`)
+        .expect(400);
+    });
+
+    it('should get applications for own job', async () => {
+      const owner = await registerUser();
+      const applicant = await registerUser();
+
+      const job = await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      await request(getApp().getHttpServer())
+        .post(`/api/jobs/${job.body.id}/apply`)
+        .set('Authorization', `Bearer ${applicant.accessToken}`)
+        .send({ message: 'Test app' })
+        .expect(201);
+
+      const res = await request(getApp().getHttpServer())
+        .get(`/api/jobs/${job.body.id}/applications`)
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .expect(200);
+
+      expect(res.body).toBeInstanceOf(Array);
+      expect(res.body.length).toBe(1);
+      expect(res.body[0].applicant).toBeDefined();
+    });
+
+    it('should reject getting applications by non-owner', async () => {
+      const owner = await registerUser();
+      const other = await registerUser();
+
+      const job = await request(getApp().getHttpServer())
+        .post('/api/jobs')
+        .set('Authorization', `Bearer ${owner.accessToken}`)
+        .send(validJob)
+        .expect(201);
+
+      await request(getApp().getHttpServer())
+        .get(`/api/jobs/${job.body.id}/applications`)
+        .set('Authorization', `Bearer ${other.accessToken}`)
+        .expect(403);
+    });
+  });
 });

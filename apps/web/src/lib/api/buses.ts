@@ -87,6 +87,32 @@ export function useMyBusListings() {
   });
 }
 
+export function useBusListingBySlug(slug: string) {
+  return useQuery<BusListingItem>({
+    queryKey: ['buses', 'slug', slug],
+    queryFn: () => apiRequest(`/buses/slug/${slug}`),
+    enabled: !!slug,
+  });
+}
+
+export function useAddBusImages() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, urls }: { id: string; urls: string[] }) =>
+      apiRequest(`/buses/${id}/images`, { method: 'POST', body: JSON.stringify({ urls }) }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['buses'] }); },
+  });
+}
+
+export function useRemoveBusImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (imageId: string) =>
+      apiRequest(`/buses/images/${imageId}`, { method: 'DELETE' }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['buses'] }); },
+  });
+}
+
 export function useCreateBusListing() {
   const qc = useQueryClient();
   return useMutation({

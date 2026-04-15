@@ -67,6 +67,25 @@ export function useMyTrips() {
   });
 }
 
+export function useTripBySlug(slug: string) {
+  return useQuery<TripItem>({
+    queryKey: ['trips', 'slug', slug],
+    queryFn: () => apiRequest(`/trips/slug/${slug}`),
+    enabled: !!slug,
+  });
+}
+
+export function useToggleTripStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiRequest<TripItem>(`/trips/${id}/status`, { method: 'PATCH' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['trips'] });
+    },
+  });
+}
+
 export function useCreateTrip() {
   const qc = useQueryClient();
   return useMutation({

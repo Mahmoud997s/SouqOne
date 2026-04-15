@@ -63,6 +63,25 @@ export function useMyCarServices() {
   });
 }
 
+export function useCarServiceBySlug(slug: string) {
+  return useQuery<CarServiceItem>({
+    queryKey: ['services', 'slug', slug],
+    queryFn: () => apiRequest(`/services/slug/${slug}`),
+    enabled: !!slug,
+  });
+}
+
+export function useToggleCarServiceStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiRequest<CarServiceItem>(`/services/${id}/status`, { method: 'PATCH' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['services'] });
+    },
+  });
+}
+
 export function useCreateCarService() {
   const qc = useQueryClient();
   return useMutation({
