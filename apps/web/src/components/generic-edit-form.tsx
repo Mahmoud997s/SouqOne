@@ -54,7 +54,7 @@ export function GenericEditForm({
   const router = useRouter();
   const { addToast } = useToast();
   const tp = useTranslations('pages');
-  const governorates = getGovernorates();
+  const governorates = getGovernorates('OM');
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [uploading, setUploading] = useState(false);
