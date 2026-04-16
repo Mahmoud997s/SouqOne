@@ -18,6 +18,8 @@ import { useParts } from '@/lib/api/parts';
 import { useCarServices } from '@/lib/api/services';
 import { useInsuranceOffers } from '@/lib/api/insurance';
 import { useJobs } from '@/lib/api/jobs';
+import { useTransportServices } from '@/lib/api/transport';
+import { useTrips } from '@/lib/api/trips';
 import { useReviews, useReviewSummary } from '@/lib/api/reviews';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
@@ -38,6 +40,8 @@ const SECTION_TABS = [
   { key: 'parts', icon: 'build', labelKey: 'sectionParts', entityType: 'SPARE_PART' },
   { key: 'services', icon: 'car_repair', labelKey: 'sectionServices', entityType: 'CAR_SERVICE' },
   { key: 'insurance', icon: 'shield', labelKey: 'sectionInsurance', entityType: 'INSURANCE' },
+  { key: 'transport', icon: 'local_shipping', labelKey: 'sectionTransport', entityType: 'TRANSPORT' },
+  { key: 'trips', icon: 'route', labelKey: 'sectionTrips', entityType: 'TRIP' },
   { key: 'jobs', icon: 'work', labelKey: 'sectionJobs', entityType: 'JOB' },
 ] as const;
 
@@ -58,6 +62,8 @@ export default function SellerPage() {
   const parts = useParts(sellerId ? { sellerId, limit: '50' } : undefined);
   const services = useCarServices(sellerId ? { userId: sellerId, limit: '50' } : undefined);
   const insurance = useInsuranceOffers(sellerId ? { userId: sellerId, limit: '50' } : undefined);
+  const transport = useTransportServices(sellerId ? { userId: sellerId, limit: '50' } : undefined);
+  const trips = useTrips(sellerId ? { userId: sellerId, limit: '50' } : undefined);
   const jobs = useJobs(sellerId ? { userId: sellerId, limit: '50' } : {});
 
   const createConv = useCreateConversation();
@@ -80,6 +86,8 @@ export default function SellerPage() {
       case 'services': return { items: services.data?.items ?? [], isLoading: services.isLoading };
       case 'insurance': return { items: insurance.data?.items ?? [], isLoading: insurance.isLoading };
       case 'jobs': return { items: jobs.data?.items ?? [], isLoading: jobs.isLoading };
+      case 'transport': return { items: transport.data?.items ?? [], isLoading: transport.isLoading };
+      case 'trips': return { items: trips.data?.items ?? [], isLoading: trips.isLoading };
       default: return { items: [], isLoading: false };
     }
   }

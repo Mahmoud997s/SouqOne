@@ -118,6 +118,10 @@
     "navBusesPlaceholder": "ابحث عن باص أو حافلة...",
     "navEquipmentPlaceholder": "ابحث عن معدة أو آلية...",
     "navInsurancePlaceholder": "ابحث عن تأمين سيارة...",
+    "transport": "نقل",
+    "trips": "رحلات",
+    "navTransportPlaceholder": "ابحث عن خدمة نقل...",
+    "navTripsPlaceholder": "ابحث عن رحلة...",
     "heroPlaceholder": "ابحث في سوق وان...",
     "heroCarsPlaceholder": "ماركة، موديل، سنة...",
     "heroPartsPlaceholder": "ابحث عن قطعة غيار...",
@@ -721,6 +725,14 @@
     "insuranceCatLeasing": "تأجير تمويلي",
     "insuranceMoreFeatures": "+{count} مميزات أخرى",
     "insuranceStartsFrom": "يبدأ من {price}",
+
+    "transportTitle": "خدمات النقل",
+    "transportSubtitle": "نقل بضائع · نقل ركاب · خدمات لوجستية",
+    "transportNoListings": "لا توجد خدمات نقل حالياً",
+
+    "tripsTitle": "الرحلات",
+    "tripsSubtitle": "رحلات يومية · رحلات مدرسية · رحلات موظفين",
+    "tripsNoListings": "لا توجد رحلات حالياً",
 
     "busesTitle": "سوق الحافلات",
     "busesSubtitle": "بيع · شراء · تأجير · عقود نقل",

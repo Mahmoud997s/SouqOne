@@ -14,6 +14,8 @@ import { useMyParts, useDeletePart } from '@/lib/api/parts';
 import { useMyCarServices, useDeleteCarService } from '@/lib/api/services';
 import { useMyInsuranceOffers, useDeleteInsurance } from '@/lib/api/insurance';
 import { useMyJobs, useDeleteJob } from '@/lib/api/jobs';
+import { useMyTransportServices, useDeleteTransportService } from '@/lib/api/transport';
+import { useMyTrips, useDeleteTrip } from '@/lib/api/trips';
 import { useCreateFeaturedPayment } from '@/lib/api/payments';
 import { getImageUrl } from '@/lib/image-utils';
 import { useToast } from '@/components/toast';
@@ -29,6 +31,8 @@ const SECTION_TABS = [
   { key: 'parts', icon: 'build', labelKey: 'sectionParts' },
   { key: 'services', icon: 'car_repair', labelKey: 'sectionServices' },
   { key: 'insurance', icon: 'shield', labelKey: 'sectionInsurance' },
+  { key: 'transport', icon: 'local_shipping', labelKey: 'sectionTransport' },
+  { key: 'trips', icon: 'route', labelKey: 'sectionTrips' },
   { key: 'jobs', icon: 'work', labelKey: 'sectionJobs' },
 ] as const;
 
@@ -62,6 +66,10 @@ export default function MyListingsPage() {
   const deleteIns = useDeleteInsurance();
   const jobs = useMyJobs();
   const deleteJob = useDeleteJob();
+  const transport = useMyTransportServices();
+  const deleteTransport = useDeleteTransportService();
+  const trips = useMyTrips();
+  const deleteTrip = useDeleteTrip();
   const featureMut = useCreateFeaturedPayment();
 
   const statusFilters: { key: StatusFilter; label: string; icon: string }[] = [
@@ -89,6 +97,8 @@ export default function MyListingsPage() {
       case 'services': return { items: services.data ?? [], isLoading: services.isLoading, refetch: services.refetch };
       case 'insurance': return { items: insurance.data ?? [], isLoading: insurance.isLoading, refetch: insurance.refetch };
       case 'jobs': return { items: jobs.data?.items ?? [], isLoading: jobs.isLoading, refetch: jobs.refetch };
+      case 'transport': return { items: transport.data?.items ?? [], isLoading: transport.isLoading, refetch: transport.refetch };
+      case 'trips': return { items: trips.data?.items ?? [], isLoading: trips.isLoading, refetch: trips.refetch };
       default: return { items: [], isLoading: false, refetch: () => {} };
     }
   }
@@ -103,6 +113,8 @@ export default function MyListingsPage() {
       case 'services': return (id, opts) => deleteService.mutate(id, opts);
       case 'insurance': return (id, opts) => deleteIns.mutate(id, opts);
       case 'jobs': return (id, opts) => deleteJob.mutate(id, opts);
+      case 'transport': return (id, opts) => deleteTransport.mutate(id, opts);
+      case 'trips': return (id, opts) => deleteTrip.mutate(id, opts);
       default: return null;
     }
   }
@@ -117,6 +129,8 @@ export default function MyListingsPage() {
       case 'services': return `/edit-listing/service/${id}`;
       case 'insurance': return `/edit-listing/insurance/${id}`;
       case 'jobs': return `/edit-listing/job/${id}`;
+      case 'transport': return `/edit-listing/transport/${id}`;
+      case 'trips': return `/edit-listing/trip/${id}`;
       default: return `/edit-listing/${id}`;
     }
   }
@@ -124,7 +138,7 @@ export default function MyListingsPage() {
   const ENTITY_TYPE_MAP: Record<SectionKey, string> = {
     cars: 'LISTING', buses: 'BUS_LISTING', equipment: 'EQUIPMENT_LISTING',
     operators: 'OPERATOR_LISTING', parts: 'SPARE_PART', services: 'CAR_SERVICE',
-    insurance: 'INSURANCE', jobs: 'JOB',
+    insurance: 'INSURANCE', transport: 'TRANSPORT', trips: 'TRIP', jobs: 'JOB',
   };
 
   const sectionData = getSectionData();

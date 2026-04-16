@@ -118,6 +118,10 @@
     "navBusesPlaceholder": "Search for a bus or coach...",
     "navEquipmentPlaceholder": "Search for equipment or machinery...",
     "navInsurancePlaceholder": "Search for car insurance...",
+    "transport": "Transport",
+    "trips": "Trips",
+    "navTransportPlaceholder": "Search for transport service...",
+    "navTripsPlaceholder": "Search for a trip...",
     "heroPlaceholder": "Search SouqOne...",
     "heroCarsPlaceholder": "Make, model, year...",
     "heroPartsPlaceholder": "Search for a spare part...",
@@ -722,7 +726,15 @@
     "insuranceMoreFeatures": "+{count} more features",
     "insuranceStartsFrom": "Starts from {price}",
 
-    "busesTitle": "Bus Marketplace",
+    "transportTitle": "Transport Services",
+    "transportSubtitle": "Freight · Passenger transport · Logistics",
+    "transportNoListings": "No transport services available",
+
+    "tripsTitle": "Trips",
+    "tripsSubtitle": "Daily trips · School trips · Employee commutes",
+    "tripsNoListings": "No trips available",
+
+    "busesTitle": "Bus Market",
     "busesSubtitle": "Buy · Sell · Rent · Transport Contracts",
     "busesTabSale": "For Sale",
     "busesTabSaleContract": "Sale with Contract",
