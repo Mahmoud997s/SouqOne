@@ -4,12 +4,13 @@ import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 
 const CAT_META = [
-  { labelKey: 'catCars',      descKey: 'catCarsDesc',      icon: 'directions_car',   href: '/listings',                      color: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' },
-  { labelKey: 'catParts',     descKey: 'catPartsDesc',     icon: 'settings',         href: '/parts',                         color: 'bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400' },
-  { labelKey: 'catServices',  descKey: 'catServicesDesc',  icon: 'build',            href: '/services',                      color: 'bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400' },
-  { labelKey: 'catTransport', descKey: 'catTransportDesc', icon: 'local_shipping',   href: '/coming-soon?section=transport', color: 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400' },
-  { labelKey: 'catTrips',     descKey: 'catTripsDesc',     icon: 'departure_board',  href: '/coming-soon?section=trips',     color: 'bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400' },
-  { labelKey: 'catJobs',      descKey: 'catJobsDesc',      icon: 'badge',            href: '/jobs',                          color: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' },
+  { labelKey: 'catCars',      descKey: 'catCarsDesc',      icon: 'directions_car',   href: '/listings',   color: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' },
+  { labelKey: 'catBuses',     descKey: 'catBusesDesc',     icon: 'directions_bus',   href: '/buses',      color: 'bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400' },
+  { labelKey: 'catParts',     descKey: 'catPartsDesc',     icon: 'settings',         href: '/parts',      color: 'bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400' },
+  { labelKey: 'catServices',  descKey: 'catServicesDesc',  icon: 'build',            href: '/services',   color: 'bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400' },
+  { labelKey: 'catEquipment', descKey: 'catEquipmentDesc', icon: 'construction',     href: '/equipment',  color: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' },
+  { labelKey: 'catInsurance', descKey: 'catInsuranceDesc', icon: 'shield',           href: '/insurance',  color: 'bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400' },
+  { labelKey: 'catJobs',      descKey: 'catJobsDesc',      icon: 'badge',            href: '/jobs',       color: 'bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400' },
 ] as const;
 
 export function CategoriesSection() {
@@ -21,7 +22,7 @@ export function CategoriesSection() {
         <h2 className="text-2xl font-black">{t('browseCategories')}</h2>
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
         {CAT_META.map((cat) => (
           <Link
             key={cat.labelKey}

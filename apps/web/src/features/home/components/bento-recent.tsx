@@ -7,9 +7,6 @@ const QL_META = [
   { icon: 'build',           titleKey: 'qlMaintenance',    descKey: 'qlMaintenanceDesc',    href: '/services',                      color: 'text-blue-500' },
   { icon: 'local_car_wash',  titleKey: 'qlCarWash',        descKey: 'qlCarWashDesc',        href: '/services',                      color: 'text-cyan-500' },
   { icon: 'settings',        titleKey: 'qlOriginalParts',  descKey: 'qlOriginalPartsDesc',  href: '/parts',                         color: 'text-orange-500' },
-  { icon: 'local_shipping',  titleKey: 'qlCargo',          descKey: 'qlCargoDesc',          href: '/coming-soon?section=transport', color: 'text-red-500' },
-  { icon: 'weekend',         titleKey: 'qlFurniture',      descKey: 'qlFurnitureDesc',      href: '/coming-soon?section=transport', color: 'text-amber-600' },
-  { icon: 'departure_board', titleKey: 'qlTrips',          descKey: 'qlTripsDesc',          href: '/coming-soon?section=trips',     color: 'text-teal-500' },
   { icon: 'shield',          titleKey: 'qlInsurance',      descKey: 'qlInsuranceDesc',      href: '/insurance',                     color: 'text-indigo-500' },
   { icon: 'car_crash',       titleKey: 'qlTowing',         descKey: 'qlTowingDesc',         href: '/services',                      color: 'text-rose-500' },
 ] as const;
@@ -23,14 +20,12 @@ export function QuickServicesGrid() {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-8 w-1 bg-primary" />
-              <h2 className="text-2xl font-black">{t('servicesAndTransport')}</h2>
+              <h2 className="text-2xl font-black">{t('quickServices')}</h2>
             </div>
-            <p className="text-on-surface-variant text-sm">{t('servicesAndTransportDesc')}</p>
+            <p className="text-on-surface-variant text-sm">{t('quickServicesDesc')}</p>
           </div>
           <div className="flex gap-2">
             <Link href="/services" className="text-primary font-bold text-xs hover:underline">{t('servicesLink')}</Link>
-            <span className="text-outline-variant">|</span>
-            <Link href="/coming-soon?section=transport" className="text-primary font-bold text-xs hover:underline">{t('transportLink')}</Link>
           </div>
         </div>
 

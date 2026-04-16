@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { AuthGuard } from '@/components/auth-guard';
+import { JobsPageGuard } from '@/components/jobs/jobs-page-guard';
 import { useCreateJob } from '@/lib/api';
 import { useToast } from '@/components/toast';
 import { getGovernorates } from '@/lib/location-data';
@@ -49,9 +49,9 @@ const LANGUAGE_OPTIONS = [
 
 export default function NewJobPage() {
   return (
-    <AuthGuard>
+    <JobsPageGuard role="employer">
       <NewJobContent />
-    </AuthGuard>
+    </JobsPageGuard>
   );
 }
 

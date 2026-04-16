@@ -23,14 +23,11 @@ export function LanguageSwitcher() {
     <button
       onClick={handleSwitch}
       disabled={isPending}
-      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-sm font-medium
-        bg-surface-container hover:bg-surface-container-high
-        text-on-surface transition-colors cursor-pointer
-        disabled:opacity-50"
+      className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all disabled:opacity-50 relative"
       title={locale === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
     >
-      <span className="material-symbols-outlined text-[18px]">language</span>
-      <span>{label}</span>
+      <span className="material-symbols-outlined text-[20px]">language</span>
+      <span className="absolute -bottom-0.5 -end-0.5 text-[9px] font-black text-on-surface-variant/70 leading-none">{label}</span>
     </button>
   );
 }

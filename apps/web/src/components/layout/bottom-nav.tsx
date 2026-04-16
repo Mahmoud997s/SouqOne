@@ -3,6 +3,7 @@
 import { Link, usePathname } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 import { useSearch } from '@/providers/search-provider';
 
 export function BottomNav() {
@@ -17,20 +18,19 @@ export function BottomNav() {
   ];
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
+  const { openAuth } = useAuthModal();
   const { searchOpen, toggleSearch } = useSearch();
   const unreadMessages = 0; // TODO: wire up unread messages count
 
-  // Hide on auth pages & chat detail pages (full-screen experience)
-  const authPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/signup'];
-  if (authPaths.some(p => pathname === p || pathname.startsWith(p + '/'))) return null;
+  // Hide on chat detail pages (full-screen experience)
   if (pathname.startsWith('/messages/') && pathname !== '/messages') return null;
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-surface-container-lowest/95 dark:bg-surface-container/95 backdrop-blur-xl border-t border-outline-variant/10 dark:border-outline-variant/20 safe-area-bottom">
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {NAV_ITEMS.map((item) => {
-          // Redirect to login if auth required and not authenticated
-          const href = item.authRequired && !isAuthenticated ? `/login?returnUrl=${encodeURIComponent(item.href)}` : item.href;
+          const needsAuth = item.authRequired && !isAuthenticated;
+          const href = needsAuth ? '#' : item.href;
           const isActive = (item as any).isSearch ? searchOpen : (item.href === '/' ? pathname === '/' : pathname.startsWith(item.href));
 
           if (item.accent) {
@@ -68,6 +68,19 @@ export function BottomNav() {
                 <span className={`text-[10px] ${isActive ? 'font-bold' : 'font-medium'}`}>
                   {item.label}
                 </span>
+              </button>
+            );
+          }
+
+          if (needsAuth) {
+            return (
+              <button
+                key={item.href}
+                onClick={() => openAuth('login')}
+                className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] py-1 transition-colors text-on-surface-variant/60 hover:text-on-surface-variant`}
+              >
+                <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
+                <span className="text-[10px] font-medium">{item.label}</span>
               </button>
             );
           }

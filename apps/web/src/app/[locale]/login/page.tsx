@@ -1,20 +1,17 @@
 'use client';
 
-import { Suspense } from 'react';
-import { useTranslations } from 'next-intl';
-import AuthPage from '@/components/auth/auth-page';
-import LoginForm from './login-form';
+import { useEffect } from 'react';
+import { useRouter } from '@/i18n/navigation';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 
 export default function LoginPage() {
-  const t = useTranslations('auth');
-  return (
-    <AuthPage
-      title={t('loginTitle')}
-      subtitle={t('loginSubtitle')}
-    >
-      <Suspense>
-        <LoginForm />
-      </Suspense>
-    </AuthPage>
-  );
+  const router = useRouter();
+  const { openAuth } = useAuthModal();
+
+  useEffect(() => {
+    router.replace('/');
+    openAuth('login');
+  }, [router, openAuth]);
+
+  return null;
 }

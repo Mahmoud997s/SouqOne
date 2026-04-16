@@ -205,11 +205,12 @@ export interface DriversResponse {
 
 // ─── Driver Profile Hooks ───
 
-export function useMyDriverProfile() {
+export function useMyDriverProfile(enabled = true) {
   return useQuery<DriverProfileItem>({
     queryKey: ['driver-profile', 'me'],
     queryFn: () => apiRequest<DriverProfileItem>('/jobs/driver-profile/me'),
     retry: false,
+    enabled,
   });
 }
 
@@ -249,11 +250,12 @@ export function useDriver(id: string) {
 
 // ─── Employer Profile Hooks ───
 
-export function useMyEmployerProfile() {
+export function useMyEmployerProfile(enabled = true) {
   return useQuery<EmployerProfileItem>({
     queryKey: ['employer-profile', 'me'],
     queryFn: () => apiRequest<EmployerProfileItem>('/jobs/employer-profile/me'),
     retry: false,
+    enabled,
   });
 }
 

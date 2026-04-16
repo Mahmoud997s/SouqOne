@@ -14,8 +14,6 @@ export * from './bookings';
 export * from './jobs';
 export * from './parts';
 export * from './services';
-export * from './transport';
-export * from './trips';
 export * from './insurance';
 export * from './search';
 export * from './reviews';

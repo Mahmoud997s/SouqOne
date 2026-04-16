@@ -15,8 +15,6 @@ const ENTITY_KEYS: Record<string, string> = {
   LISTING: 'entityListing',
   SPARE_PART: 'entitySparePart',
   CAR_SERVICE: 'entityCarService',
-  TRANSPORT: 'entityTransport',
-  TRIP: 'entityTrip',
   INSURANCE: 'entityInsurance',
   JOB: 'entityJob',
 };

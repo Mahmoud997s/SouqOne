@@ -8,6 +8,7 @@ import { Footer } from '@/components/layout/footer';
 import { JobCard } from '@/features/jobs/components/job-card';
 import { ListingSkeleton } from '@/components/loading-skeleton';
 import { useJobs, useRecommendedJobs } from '@/lib/api';
+import { useRequireJobProfile } from '@/hooks/use-require-job-profile';
 import { useAuth } from '@/providers/auth-provider';
 import { getGovernorates } from '@/lib/location-data';
 import { employmentOptionsT } from '@/lib/constants/jobs';
@@ -24,6 +25,7 @@ export default function JobsPage() {
 function JobsContent() {
   const tp = useTranslations('pages');
   const tm = useTranslations('mappings');
+  const { profile, requireProfile } = useRequireJobProfile();
 
   const licenseOpts = [
     { value: 'LIGHT', label: tp('jobsLicenseLight'), icon: 'directions_car' },
@@ -199,14 +201,57 @@ function JobsContent() {
                 <span className="text-xs">{tp('jobsCount')}</span>
               </div>
               <span className="w-px h-4 bg-white/20" />
-              <Link href="/jobs/new" className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors group">
+              <button onClick={() => requireProfile('employer', () => router.push('/jobs/new'))} className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors group">
                 <span className="material-symbols-outlined text-sm group-hover:scale-110 transition-transform">add_circle</span>
                 <span className="text-xs font-bold">{tp('jobsAddJob')}</span>
-              </Link>
+              </button>
             </div>
           </div>
         </div>
       </section>
+
+      {/* ═══════════ ONBOARDING CTA ═══════════ */}
+      {!profile.isLoading && !profile.hasAny && (
+        <div className="max-w-7xl mx-auto px-4 md:px-8 -mt-4 mb-4 relative z-10">
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 shadow-xl">
+            {/* Background */}
+            <div className="absolute inset-0 bg-gradient-to-l from-[#004ac6]/90 via-[#1a3a8f]/80 to-[#0B2447]/90" />
+            <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+            <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-white/[0.04] blur-3xl -translate-y-1/2 translate-x-1/3" />
+
+            <div className="relative z-10 flex flex-col sm:flex-row items-center gap-5 p-5 sm:p-7">
+              {/* Icons */}
+              <div className="flex gap-3 shrink-0">
+                <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10">
+                  <span className="material-symbols-outlined text-white text-2xl">local_shipping</span>
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10">
+                  <span className="material-symbols-outlined text-white text-2xl">business</span>
+                </div>
+              </div>
+
+              {/* Text */}
+              <div className="flex-1 text-center sm:text-start">
+                <h3 className="text-lg sm:text-xl font-black text-white mb-1">
+                  {tp('jobsOnboardingTitle')}
+                </h3>
+                <p className="text-white/60 text-xs sm:text-sm leading-relaxed">
+                  {tp('jobsOnboardingDesc')}
+                </p>
+              </div>
+
+              {/* Button */}
+              <Link
+                href="/jobs/onboarding"
+                className="shrink-0 bg-white text-[#004ac6] px-6 py-3 rounded-xl font-black text-sm shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-base">person_add</span>
+                {tp('jobsCreateProfile')}
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ═══════════ FILTERS PANEL (below hero) ═══════════ */}
       {showFilters && (
@@ -312,10 +357,10 @@ function JobsContent() {
             </div>
             <p className="text-xl font-black text-on-surface mb-2">{tp('jobsNoJobs')}</p>
             <p className="text-on-surface-variant text-sm mb-6">{tp('jobsNoJobsSub')}</p>
-            <Link href="/jobs/new" className="inline-flex items-center gap-1.5 btn-primary px-6 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg">
+            <button onClick={() => requireProfile('employer', () => router.push('/jobs/new'))} className="inline-flex items-center gap-1.5 btn-primary px-6 py-2.5 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg">
               <span className="material-symbols-outlined text-base">add</span>
               {tp('jobsAddJob')}
-            </Link>
+            </button>
           </div>
         ) : (
           <>

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter, usePathname } from '@/i18n/navigation';
 import { useAuth } from '@/providers/auth-provider';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 import { useTranslations } from 'next-intl';
 
 interface AuthGuardProps {
@@ -11,15 +11,14 @@ interface AuthGuardProps {
 
 export function AuthGuard({ children }: AuthGuardProps) {
   const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
+  const { openAuth } = useAuthModal();
   const tp = useTranslations('pages');
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace(`/login?returnUrl=${encodeURIComponent(pathname)}`);
+      openAuth('login');
     }
-  }, [isLoading, isAuthenticated, router, pathname]);
+  }, [isLoading, isAuthenticated, openAuth]);
 
   if (isLoading) {
     return (

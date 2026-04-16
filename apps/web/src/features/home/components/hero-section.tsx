@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { Link, useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 
@@ -9,14 +10,12 @@ const TAB_META = [
   { key: 'cars',      labelKey: 'cars',      icon: 'directions_car',      route: '/listings',  placeholderKey: 'heroCarsPlaceholder' },
   { key: 'parts',     labelKey: 'parts',     icon: 'settings',            route: '/parts',     placeholderKey: 'heroPartsPlaceholder' },
   { key: 'services',  labelKey: 'services',  icon: 'build',               route: '/services',  placeholderKey: 'heroServicesPlaceholder' },
-  { key: 'transport', labelKey: 'transport', icon: 'local_shipping',      route: '/transport', placeholderKey: 'heroTransportPlaceholder' },
   { key: 'jobs',      labelKey: 'jobs',      icon: 'work',                route: '/jobs',      placeholderKey: 'heroJobsPlaceholder' },
 ] as const;
 
 const STAT_META = [
   { icon: 'directions_car', labelKey: 'statCar', count: '500+' },
   { icon: 'build', labelKey: 'statServiceAndPart', count: '200+' },
-  { icon: 'local_shipping', labelKey: 'statTransportCompany', count: '80+' },
   { icon: 'work', labelKey: 'statDriverJob', count: '50+' },
 ] as const;
 
@@ -62,9 +61,12 @@ export function HeroSection() {
             <div className="absolute inset-0 bg-blue-500/[0.12] dark:bg-blue-500/[0.08] rounded-[50%] blur-[80px]" />
             <div className="absolute top-[10%] right-[-10%] w-[50%] h-[70%] bg-blue-400/[0.08] dark:bg-orange-400/[0.06] rounded-[50%] blur-[60px]" />
           </div>
-          <img
+          <Image
             src="/hero-banner.webp"
             alt={`SouqOne - ${tc('siteName')}`}
+            width={1200}
+            height={600}
+            priority
             className="relative w-full h-auto object-contain drop-shadow-[0_8px_24px_rgba(15,23,42,0.10)] dark:drop-shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
             style={{ animation: 'hero-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards, hero-glow 4s ease-in-out 1.2s infinite' }}
           />

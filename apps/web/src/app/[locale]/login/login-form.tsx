@@ -1,20 +1,17 @@
 'use client';
 
-import { Link, useRouter } from '@/i18n/navigation';
-import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { apiRequest } from '@/lib/auth';
 import { useAuth } from '@/providers/auth-provider';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 import { useTranslations } from 'next-intl';
 import { GoogleSignInButton } from '@/components/google-sign-in';
 import { InputField } from '@/components/auth/input-field';
 
 export default function LoginForm() {
-  const router = useRouter();
   const t = useTranslations('auth');
-  const searchParams = useSearchParams();
-  const returnUrl = searchParams.get('returnUrl');
   const { login: authLogin } = useAuth();
+  const { close, executePending, switchView } = useAuthModal();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,11 +19,8 @@ export default function LoginForm() {
   const [shake, setShake] = useState(false);
 
   function navigateAfterLogin() {
-    if (returnUrl) {
-      router.push(returnUrl);
-    } else {
-      router.back();
-    }
+    executePending();
+    close();
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -52,7 +46,9 @@ export default function LoginForm() {
 
   return (
     <div className={shake ? 'animate-shake' : ''}>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+        {/* Email */}
         <InputField
           label={t('emailLabel')}
           icon="mail"
@@ -64,35 +60,32 @@ export default function LoginForm() {
           placeholder={t('emailPlaceholder')}
         />
 
-        <div className="flex flex-col gap-1.5">
-          <div className="flex justify-between items-center">
-            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">{t('passwordLabel')}</label>
-            <Link href="/forgot-password" className="text-xs text-primary hover:text-primary/70 transition-colors font-medium">
-              {t('forgotPassword')}
-            </Link>
-          </div>
-          <InputField
-            label=""
-            icon="lock"
-            isPassword
-            required
-            value={password}
-            onChange={(e) => setPassword(e.currentTarget.value)}
-            placeholder="••••••••"
-          />
-        </div>
+        {/* Password */}
+        <InputField
+          label={t('passwordLabel')}
+          hint={t('forgotPassword')}
+          onHintClick={() => switchView('forgot')}
+          icon="lock"
+          isPassword
+          required
+          value={password}
+          onChange={(e) => setPassword(e.currentTarget.value)}
+          placeholder="••••••••"
+        />
 
+        {/* Error */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
-            <span className="material-symbols-outlined text-base">error</span>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400 px-3 py-2.5 rounded-lg text-[12px] font-medium flex items-center gap-2">
+            <span className="material-symbols-outlined text-sm">error</span>
             {error}
           </div>
         )}
 
+        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="btn-primary w-full py-3 flex items-center justify-center gap-2 font-black text-sm rounded-xl hover:brightness-110 hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-60"
+          className="btn-primary w-full h-[42px] flex items-center justify-center gap-2 font-bold text-sm rounded-xl hover:brightness-110 hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-60"
         >
           {loading ? (
             <>
@@ -109,20 +102,21 @@ export default function LoginForm() {
       </form>
 
       {/* Divider */}
-      <div className="flex items-center gap-4 my-6">
-        <div className="h-px flex-1 bg-outline/20" />
-        <span className="text-xs text-on-surface-variant/60 font-medium">{t('or')}</span>
-        <div className="h-px flex-1 bg-outline/20" />
+      <div className="flex items-center gap-4 my-4">
+        <div className="h-px flex-1 bg-outline-variant/20" />
+        <span className="text-[11px] text-on-surface-variant/50 font-medium">{t('or')}</span>
+        <div className="h-px flex-1 bg-outline-variant/20" />
       </div>
 
       {/* Google Sign-In */}
       <GoogleSignInButton onError={setError} onSuccess={navigateAfterLogin} />
 
-      <p className="text-center text-on-surface-variant text-sm mt-5 font-medium">
+      {/* Register link */}
+      <p className="text-center text-on-surface-variant text-[12px] mt-4 font-medium">
         {t('noAccount')}{' '}
-        <Link href="/register" className="text-primary font-bold hover:underline transition-all">
+        <button type="button" onClick={() => switchView('register')} className="text-primary font-bold hover:underline transition-all">
           {t('createNewAccount')}
-        </Link>
+        </button>
       </p>
     </div>
   );

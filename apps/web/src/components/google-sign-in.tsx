@@ -93,7 +93,7 @@ export function GoogleSignInButton({ onError, onSuccess }: GoogleSignInProps) {
       <button
         type="button"
         disabled
-        className="w-full flex items-center justify-center gap-3 py-3 border border-outline/30 rounded-xl bg-white text-on-surface text-sm font-medium opacity-90 cursor-default transition-all hover:bg-surface-container"
+        className="w-full flex items-center justify-center gap-3 py-3 border border-outline-variant/30 rounded-xl bg-surface-container-lowest dark:bg-surface-container text-on-surface text-sm font-medium opacity-90 cursor-default transition-all hover:bg-surface-container-low"
       >
         <svg width="20" height="20" viewBox="0 0 48 48">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>

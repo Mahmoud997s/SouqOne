@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 import { InputField } from '@/components/auth/input-field';
 import { apiRequest } from '@/lib/auth';
 
 export default function ForgotForm() {
   const t = useTranslations('auth');
+  const { switchView } = useAuthModal();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -66,7 +67,7 @@ export default function ForgotForm() {
         </form>
       ) : (
         <div className="flex flex-col items-center text-center py-4">
-          <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-5">
+          <div className="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center mb-5">
             <span className="material-symbols-outlined text-green-500 text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
               mark_email_read
             </span>
@@ -75,21 +76,22 @@ export default function ForgotForm() {
           <p className="text-sm text-on-surface-variant leading-relaxed max-w-xs">
             {t('sentDesc')} <strong className="text-on-surface">{email}</strong>{', '}{t('checkInbox')}
           </p>
-          <Link
-            href={`/reset-password?email=${encodeURIComponent(email)}`}
+          <button
+            type="button"
+            onClick={() => switchView('reset', { email })}
             className="btn-primary mt-6 w-full py-3 flex items-center justify-center gap-2 font-black text-sm rounded-xl hover:brightness-110 hover:shadow-lg transition-all"
           >
             {t('enterCode')}
             <span className="material-symbols-outlined icon-flip text-base">arrow_back</span>
-          </Link>
+          </button>
         </div>
       )}
 
       <p className="text-center text-on-surface-variant text-sm mt-5 font-medium">
         {t('rememberedPassword')}{' '}
-        <Link href="/login" className="text-primary font-bold hover:underline transition-all">
+        <button type="button" onClick={() => switchView('login')} className="text-primary font-bold hover:underline transition-all">
           {t('backToLogin')}
-        </Link>
+        </button>
       </p>
     </div>
   );

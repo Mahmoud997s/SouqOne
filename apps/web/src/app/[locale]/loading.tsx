@@ -1,12 +1,17 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function Loading() {
   const tp = useTranslations('pages');
+  const locale = useLocale();
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-5">
+        {locale === 'ar' && (
+          <Image src="/souq-one-ar.svg" alt="سوق وان" width={140} height={28} className="h-[28px] w-auto" />
+        )}
         <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center animate-pulse">
           <span className="material-symbols-outlined text-primary text-2xl">directions_car</span>
         </div>

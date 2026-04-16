@@ -1,17 +1,17 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import AuthPage from '@/components/auth/auth-page';
-import ForgotForm from './forgot-form';
+import { useEffect } from 'react';
+import { useRouter } from '@/i18n/navigation';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 
 export default function ForgotPasswordPage() {
-  const t = useTranslations('auth');
-  return (
-    <AuthPage
-      title={t('forgotPasswordTitle')}
-      subtitle={t('forgotPasswordSubtitle')}
-    >
-      <ForgotForm />
-    </AuthPage>
-  );
+  const router = useRouter();
+  const { openAuth } = useAuthModal();
+
+  useEffect(() => {
+    router.replace('/');
+    openAuth('forgot');
+  }, [router, openAuth]);
+
+  return null;
 }

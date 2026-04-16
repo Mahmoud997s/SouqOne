@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { haversineDistance } from '@/lib/geo-utils';
 import { useTranslations } from 'next-intl';
@@ -139,10 +140,12 @@ export default function NearbyListings({ listings, maxItems = 6 }: NearbyListing
           >
             <div className="aspect-video relative overflow-hidden">
               {item.imageUrl ? (
-                <img
+                <Image
                   src={item.imageUrl}
                   alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full bg-surface-container-low flex items-center justify-center">

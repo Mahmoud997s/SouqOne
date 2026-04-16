@@ -12,8 +12,8 @@ function ComingSoonContent() {
   const tp = useTranslations('pages');
   const section = params.get('section') || '';
   const SECTION_NAMES: Record<string, string> = {
-    services: tp('comingSoonServices'), insurance: tp('comingSoonInsurance'), transport: tp('comingSoonTransport'),
-    trips: tp('comingSoonTrips'), buses: tp('comingSoonBuses'), equipment: tp('comingSoonEquipment'),
+    services: tp('comingSoonServices'), insurance: tp('comingSoonInsurance'),
+    buses: tp('comingSoonBuses'), equipment: tp('comingSoonEquipment'),
   };
   const sectionName = SECTION_NAMES[section] || tp('comingSoonDefault');
 

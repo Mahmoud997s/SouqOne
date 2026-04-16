@@ -17,7 +17,6 @@ function useSearchCategories() {
     { value: 'cars', label: ts('cars'), placeholder: ts('navCarsPlaceholder'), route: '/listings' },
     { value: 'parts', label: ts('parts'), placeholder: ts('navPartsPlaceholder'), route: '/parts' },
     { value: 'services', label: ts('services'), placeholder: ts('navServicesPlaceholder'), route: '/services' },
-    { value: 'transport', label: ts('transport'), placeholder: ts('navTransportPlaceholder'), route: '/transport' },
     { value: 'jobs', label: ts('jobs'), placeholder: ts('navJobsPlaceholder'), route: '/jobs' },
   ];
 }
@@ -88,7 +87,7 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
   }, []);
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-center" style={{ height }}>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-center" style={{ height }}>
       <div className="flex items-center gap-2 sm:gap-3 w-full max-w-[800px]">
         <form onSubmit={handleSearch} className="flex flex-1 h-[36px] rounded-xl border border-outline-variant/15 dark:border-outline-variant/30 bg-surface-container-lowest dark:bg-surface-container shadow-sm dark:shadow-none focus-within:border-primary/40 dark:focus-within:border-primary/50 focus-within:shadow-[0_0_0_3px_rgba(0,74,198,0.08)] dark:focus-within:shadow-[0_0_0_3px_rgba(96,165,250,0.15)] transition-all">
           <div className="relative" ref={catRef}>

@@ -62,8 +62,6 @@ export const BADGE_COLORS = {
   rental:    'bg-emerald-600 text-white',
   wanted:    'bg-orange-500 text-white',
   service:   'bg-violet-600 text-white',
-  transport: 'bg-rose-600 text-white',
-  trip:      'bg-teal-600 text-white',
   schedule:  'bg-slate-500 text-white',
   insurance: 'bg-indigo-600 text-white',
   original:  'bg-primary text-on-primary',
