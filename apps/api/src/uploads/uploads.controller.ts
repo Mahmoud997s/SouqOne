@@ -128,6 +128,16 @@ export class UploadsController {
     return this.uploadsService.addImageToPart(partId, user.sub, url, isPrimary === 'true');
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Delete('parts/images/:imageId')
+  async removePartImage(
+    @Param('imageId') imageId: string,
+    @Req() req: Request,
+  ) {
+    const user = req.user as JwtPayload;
+    return this.uploadsService.removeImageFromPart(imageId, user.sub);
+  }
+
   // ─── Car Service Image Management ───
 
   @UseGuards(JwtAuthGuard)
@@ -142,6 +152,16 @@ export class UploadsController {
     const user = req.user as JwtPayload;
     const { url } = await this.uploadsService.uploadFile(file);
     return this.uploadsService.addImageToService(serviceId, user.sub, url, isPrimary === 'true');
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('services/images/:imageId')
+  async removeServiceImage(
+    @Param('imageId') imageId: string,
+    @Req() req: Request,
+  ) {
+    const user = req.user as JwtPayload;
+    return this.uploadsService.removeImageFromService(imageId, user.sub);
   }
 
   // ─── Bus Listing Image Management ───

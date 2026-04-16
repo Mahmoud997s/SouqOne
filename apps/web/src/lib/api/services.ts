@@ -100,6 +100,15 @@ export function useUpdateCarService() {
   });
 }
 
+export function useRemoveServiceImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (imageId: string) =>
+      apiRequest(`/uploads/services/images/${imageId}`, { method: 'DELETE' }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['services'] }); },
+  });
+}
+
 export function useDeleteCarService() {
   const qc = useQueryClient();
   return useMutation({
