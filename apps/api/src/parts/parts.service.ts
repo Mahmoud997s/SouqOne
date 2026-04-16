@@ -87,6 +87,7 @@ export class PartsService {
     if (query.condition) where.condition = query.condition;
     if (query.make) where.compatibleMakes = { has: query.make };
     if (query.governorate) where.governorate = query.governorate;
+    if (query.sellerId) where.sellerId = query.sellerId;
     if (query.minPrice || query.maxPrice) {
       where.price = {};
       if (query.minPrice) where.price.gte = new Prisma.Decimal(query.minPrice);

@@ -71,6 +71,7 @@ export class TransportService extends BaseListingService {
     if (query.transportType) where.transportType = query.transportType;
     if (query.providerType) where.providerType = query.providerType;
     if (query.governorate) where.governorate = query.governorate;
+    if (query.userId) where.userId = query.userId;
     return where;
   }
 }

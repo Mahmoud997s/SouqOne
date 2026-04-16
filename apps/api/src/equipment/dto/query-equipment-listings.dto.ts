@@ -22,4 +22,7 @@ export class QueryEquipmentListingsDto {
 
   @IsOptional() @Type(() => Number) @IsInt() @Min(1)
   limit?: number;
+
+  @IsOptional() @IsString()
+  userId?: string;
 }

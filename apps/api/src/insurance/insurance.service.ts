@@ -67,6 +67,7 @@ export class InsuranceService extends BaseListingService {
     }
     if (query.offerType) where.offerType = query.offerType;
     if (query.governorate) where.governorate = query.governorate;
+    if (query.userId) where.userId = query.userId;
     return where;
   }
 }

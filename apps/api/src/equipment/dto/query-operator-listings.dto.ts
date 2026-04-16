@@ -19,4 +19,7 @@ export class QueryOperatorListingsDto {
 
   @IsOptional() @Type(() => Number) @IsInt() @Min(1)
   limit?: number;
+
+  @IsOptional() @IsString()
+  userId?: string;
 }

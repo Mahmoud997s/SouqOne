@@ -183,6 +183,7 @@ export class BusesService {
     if (query.busType) where.busType = query.busType;
     if (query.make) where.make = { contains: query.make, mode: 'insensitive' };
     if (query.governorate) where.governorate = query.governorate;
+    if (query.userId) where.userId = query.userId;
 
     if (query.minPrice || query.maxPrice) {
       where.price = {};

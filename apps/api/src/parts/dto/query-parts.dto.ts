@@ -37,4 +37,8 @@ export class QueryPartsDto {
   @IsOptional()
   @IsNumberString()
   limit?: string;
+
+  @IsOptional()
+  @IsString()
+  sellerId?: string;
 }

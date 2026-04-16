@@ -13,6 +13,7 @@ export interface UserProfile {
   isVerified: boolean;
   role: string;
   createdAt: string;
+  totalListings?: number;
 }
 
 export function useMe(enabled = true) {

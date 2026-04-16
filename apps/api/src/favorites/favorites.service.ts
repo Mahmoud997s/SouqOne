@@ -37,24 +37,21 @@ export class FavoritesService {
       },
     });
 
-    // Notify owner for listings
-    if (entityType === 'LISTING') {
-      const listing = await this.prisma.listing.findUnique({
-        where: { id: entityId },
-        select: { sellerId: true, title: true },
-      });
-      if (listing && listing.sellerId !== userId) {
+    // Notify owner for any entity type
+    try {
+      const ownerInfo = await this.resolveEntityOwner(entityType, entityId);
+      if (ownerInfo && ownerInfo.ownerId !== userId) {
         await this.prisma.notification.create({
           data: {
             type: 'LISTING_FAVORITED',
             title: 'إعلانك أُعجب به',
-            body: `أحد المستخدمين أضاف "${listing.title}" للمفضلة`,
-            userId: listing.sellerId,
-            data: { listingId: entityId },
+            body: `أحد المستخدمين أضاف "${ownerInfo.title}" للمفضلة`,
+            userId: ownerInfo.ownerId,
+            data: { entityType, entityId },
           },
         });
       }
-    }
+    } catch { /* non-critical */ }
 
     return { favorited: true };
   }
@@ -151,6 +148,60 @@ export class FavoritesService {
       select: { entityType: true, entityId: true },
     });
     return favs.map((f) => `${f.entityType}:${f.entityId}`);
+  }
+
+  private async resolveEntityOwner(
+    entityType: string,
+    entityId: string,
+  ): Promise<{ ownerId: string; title: string } | null> {
+    try {
+      switch (entityType) {
+        case 'LISTING': {
+          const r = await this.prisma.listing.findUnique({ where: { id: entityId }, select: { sellerId: true, title: true } });
+          return r ? { ownerId: r.sellerId, title: r.title } : null;
+        }
+        case 'BUS_LISTING': {
+          const r = await this.prisma.busListing.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
+          return r ? { ownerId: r.userId, title: r.title } : null;
+        }
+        case 'EQUIPMENT_LISTING': {
+          const r = await this.prisma.equipmentListing.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
+          return r ? { ownerId: r.userId, title: r.title } : null;
+        }
+        case 'OPERATOR_LISTING': {
+          const r = await this.prisma.operatorListing.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
+          return r ? { ownerId: r.userId, title: r.title } : null;
+        }
+        case 'SPARE_PART': {
+          const r = await this.prisma.sparePart.findUnique({ where: { id: entityId }, select: { sellerId: true, title: true } });
+          return r ? { ownerId: r.sellerId, title: r.title } : null;
+        }
+        case 'CAR_SERVICE': {
+          const r = await this.prisma.carService.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
+          return r ? { ownerId: r.userId, title: r.title } : null;
+        }
+        case 'TRANSPORT': {
+          const r = await this.prisma.transportService.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
+          return r ? { ownerId: r.userId, title: r.title } : null;
+        }
+        case 'TRIP': {
+          const r = await this.prisma.tripService.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
+          return r ? { ownerId: r.userId, title: r.title } : null;
+        }
+        case 'INSURANCE': {
+          const r = await this.prisma.insuranceOffer.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
+          return r ? { ownerId: r.userId, title: r.title } : null;
+        }
+        case 'JOB': {
+          const r = await this.prisma.driverJob.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
+          return r ? { ownerId: r.userId, title: r.title } : null;
+        }
+        default:
+          return null;
+      }
+    } catch {
+      return null;
+    }
   }
 
   private async resolveEntityTitle(

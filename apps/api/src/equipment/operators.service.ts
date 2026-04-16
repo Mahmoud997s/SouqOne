@@ -47,6 +47,7 @@ export class OperatorsService {
     const where: Prisma.OperatorListingWhereInput = { status: 'ACTIVE' };
     if (q.operatorType) where.operatorType = q.operatorType as OperatorType;
     if (q.governorate) where.governorate = q.governorate;
+    if (q.userId) where.userId = q.userId;
     if (q.search) {
       where.OR = [
         { title: { contains: q.search, mode: 'insensitive' } },

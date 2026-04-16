@@ -13,11 +13,16 @@ function saveRecent(q: string) { const r = getRecent().filter(s => s !== q); r.u
 function useSearchCategories() {
   const ts = useTranslations('search');
   return [
-    { value: 'all', label: ts('all'), placeholder: ts('navPlaceholder'), route: '/listings' },
-    { value: 'cars', label: ts('cars'), placeholder: ts('navCarsPlaceholder'), route: '/listings' },
-    { value: 'parts', label: ts('parts'), placeholder: ts('navPartsPlaceholder'), route: '/parts' },
-    { value: 'services', label: ts('services'), placeholder: ts('navServicesPlaceholder'), route: '/services' },
-    { value: 'jobs', label: ts('jobs'), placeholder: ts('navJobsPlaceholder'), route: '/jobs' },
+    { value: 'all',       label: ts('all'),       placeholder: ts('navPlaceholder'),         route: '/listings' },
+    { value: 'cars',      label: ts('cars'),      placeholder: ts('navCarsPlaceholder'),      route: '/listings' },
+    { value: 'buses',     label: ts('buses'),     placeholder: ts('navBusesPlaceholder'),     route: '/buses' },
+    { value: 'equipment', label: ts('equipment'), placeholder: ts('navEquipmentPlaceholder'), route: '/equipment' },
+    { value: 'parts',     label: ts('parts'),     placeholder: ts('navPartsPlaceholder'),     route: '/parts' },
+    { value: 'services',  label: ts('services'),  placeholder: ts('navServicesPlaceholder'),  route: '/services' },
+    { value: 'insurance', label: ts('insurance'), placeholder: ts('navInsurancePlaceholder'), route: '/insurance' },
+    { value: 'transport', label: ts('transport'), placeholder: ts('navTransportPlaceholder'), route: '/transport' },
+    { value: 'trips',     label: ts('trips'),     placeholder: ts('navTripsPlaceholder'),     route: '/trips' },
+    { value: 'jobs',      label: ts('jobs'),      placeholder: ts('navJobsPlaceholder'),      route: '/jobs' },
   ];
 }
 
