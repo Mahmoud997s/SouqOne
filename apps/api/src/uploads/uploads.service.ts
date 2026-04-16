@@ -191,6 +191,37 @@ export class UploadsService {
     });
   }
 
+  async removeImageFromPart(imageId: string, userId: string) {
+    const image = await this.prisma.sparePartImage.findUnique({
+      where: { id: imageId },
+      include: { sparePart: { select: { sellerId: true, id: true } } },
+    });
+    if (!image) throw new NotFoundException('الصورة غير موجودة');
+    if (image.sparePart.sellerId !== userId) throw new ForbiddenException('لا يمكنك تعديل إعلان غيرك');
+
+    if (image.url.includes('cloudinary')) {
+      const match = image.url.match(/upload\/(?:v\d+\/)?(carone\/.+)\.[a-z]+$/i);
+      if (match) await this.deleteFile(match[1]);
+    } else {
+      const urlParts = image.url.split('/uploads/');
+      if (urlParts.length > 1) await this.deleteFile(urlParts[1]);
+    }
+
+    await this.prisma.sparePartImage.delete({ where: { id: imageId } });
+
+    if (image.isPrimary) {
+      const first = await this.prisma.sparePartImage.findFirst({
+        where: { sparePartId: image.sparePart.id },
+        orderBy: { order: 'asc' },
+      });
+      if (first) {
+        await this.prisma.sparePartImage.update({ where: { id: first.id }, data: { isPrimary: true } });
+      }
+    }
+
+    return { message: 'تم حذف الصورة بنجاح' };
+  }
+
   // ─── Car Service Images ───
 
   async addImageToService(serviceId: string, userId: string, url: string, isPrimary: boolean) {
@@ -210,6 +241,37 @@ export class UploadsService {
     return this.prisma.carServiceImage.create({
       data: { url, order: nextOrder, isPrimary: shouldBePrimary, carServiceId: serviceId },
     });
+  }
+
+  async removeImageFromService(imageId: string, userId: string) {
+    const image = await this.prisma.carServiceImage.findUnique({
+      where: { id: imageId },
+      include: { carService: { select: { userId: true, id: true } } },
+    });
+    if (!image) throw new NotFoundException('الصورة غير موجودة');
+    if (image.carService.userId !== userId) throw new ForbiddenException('لا يمكنك تعديل إعلان غيرك');
+
+    if (image.url.includes('cloudinary')) {
+      const match = image.url.match(/upload\/(?:v\d+\/)?(carone\/.+)\.[a-z]+$/i);
+      if (match) await this.deleteFile(match[1]);
+    } else {
+      const urlParts = image.url.split('/uploads/');
+      if (urlParts.length > 1) await this.deleteFile(urlParts[1]);
+    }
+
+    await this.prisma.carServiceImage.delete({ where: { id: imageId } });
+
+    if (image.isPrimary) {
+      const first = await this.prisma.carServiceImage.findFirst({
+        where: { carServiceId: image.carService.id },
+        orderBy: { order: 'asc' },
+      });
+      if (first) {
+        await this.prisma.carServiceImage.update({ where: { id: first.id }, data: { isPrimary: true } });
+      }
+    }
+
+    return { message: 'تم حذف الصورة بنجاح' };
   }
 
   // ─── Bus Listing Images ───

@@ -79,6 +79,15 @@ export function useUpdatePart() {
   });
 }
 
+export function useRemovePartImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (imageId: string) =>
+      apiRequest(`/uploads/parts/images/${imageId}`, { method: 'DELETE' }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['parts'] }); },
+  });
+}
+
 export function useDeletePart() {
   const qc = useQueryClient();
   return useMutation({

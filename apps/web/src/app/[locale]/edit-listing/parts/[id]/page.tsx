@@ -2,13 +2,14 @@
 
 import { useParams } from 'next/navigation';
 import { GenericEditForm } from '@/components/generic-edit-form';
-import { usePart, useUpdatePart } from '@/lib/api/parts';
+import { usePart, useUpdatePart, useRemovePartImage } from '@/lib/api/parts';
 import { useTranslations } from 'next-intl';
 
 export default function EditPartPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError, refetch } = usePart(id);
   const update = useUpdatePart();
+  const removePartImage = useRemovePartImage();
   const tp = useTranslations('pages');
 
   const fields = [
@@ -49,6 +50,7 @@ export default function EditPartPage() {
       isUpdating={update.isPending}
       redirectPath={`/parts/${id}`}
       uploadEndpoint={`/api/v1/uploads/parts/${id}/images`}
+      deleteImageFn={(imageId) => removePartImage.mutateAsync(imageId)}
     />
   );
 }

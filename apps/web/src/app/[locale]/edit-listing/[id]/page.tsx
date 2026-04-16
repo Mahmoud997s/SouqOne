@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
@@ -11,6 +11,7 @@ import type { UploadedImage } from '@/features/ads/components/image-uploader';
 import { DetailSkeleton } from '@/components/loading-skeleton';
 import { ErrorState } from '@/components/error-state';
 import { useListing, useUpdateListing } from '@/lib/api';
+import { useRemoveListingImage } from '@/lib/api/uploads';
 import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
@@ -24,13 +25,22 @@ export default function EditListingPage() {
   const updateListing = useUpdateListing(id);
   const { addToast } = useToast();
   const tp = useTranslations('pages');
+  const removeImage = useRemoveListingImage(id);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const initialImageIdsRef = useRef<string[]>([]);
 
   async function handleSubmit(data: Record<string, unknown>, images: UploadedImage[]) {
     setErrorMessages([]);
     try {
       await updateListing.mutateAsync(data);
+
+      // Delete removed images from backend
+      const currentIds = new Set(images.filter(img => img.id).map(img => img.id));
+      const removedIds = initialImageIdsRef.current.filter(imgId => !currentIds.has(imgId));
+      for (const imgId of removedIds) {
+        await removeImage.mutateAsync(imgId);
+      }
 
       // Upload new images (those with a File object)
       const newImages = images.filter((img) => img.file);
@@ -103,6 +113,11 @@ export default function EditListingPage() {
       isPrimary: img.isPrimary,
       order: i,
     }));
+
+  // Store initial image IDs on first render for diffing on submit
+  if (initialImageIdsRef.current.length === 0 && existingImages.length > 0) {
+    initialImageIdsRef.current = existingImages.map(img => img.id).filter(Boolean) as string[];
+  }
 
   const isBusy = updateListing.isPending || uploading;
 

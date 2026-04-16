@@ -2,13 +2,14 @@
 
 import { useParams } from 'next/navigation';
 import { GenericEditForm } from '@/components/generic-edit-form';
-import { useBusListing, useUpdateBusListing } from '@/lib/api/buses';
+import { useBusListing, useUpdateBusListing, useRemoveBusImage } from '@/lib/api/buses';
 import { useTranslations } from 'next-intl';
 
 export default function EditBusPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError, refetch } = useBusListing(id);
   const update = useUpdateBusListing();
+  const removeBusImage = useRemoveBusImage();
   const tp = useTranslations('pages');
 
   const fields = [
@@ -42,6 +43,7 @@ export default function EditBusPage() {
       isUpdating={update.isPending}
       redirectPath={`/buses/${id}`}
       uploadEndpoint={`/api/v1/uploads/buses/${id}/images`}
+      deleteImageFn={(imageId) => removeBusImage.mutateAsync(imageId)}
     />
   );
 }

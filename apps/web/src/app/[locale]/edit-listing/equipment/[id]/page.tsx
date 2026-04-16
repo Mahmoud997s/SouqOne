@@ -2,13 +2,14 @@
 
 import { useParams } from 'next/navigation';
 import { GenericEditForm } from '@/components/generic-edit-form';
-import { useEquipmentListing, useUpdateEquipmentListing } from '@/lib/api/equipment';
+import { useEquipmentListing, useUpdateEquipmentListing, useRemoveEquipmentImage } from '@/lib/api/equipment';
 import { useTranslations } from 'next-intl';
 
 export default function EditEquipmentPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError, refetch } = useEquipmentListing(id);
   const update = useUpdateEquipmentListing();
+  const removeEquipImage = useRemoveEquipmentImage();
   const tp = useTranslations('pages');
 
   const fields = [
@@ -51,6 +52,7 @@ export default function EditEquipmentPage() {
       isUpdating={update.isPending}
       redirectPath={`/equipment/${id}`}
       uploadEndpoint={`/api/v1/uploads/equipment/${id}/images`}
+      deleteImageFn={(imageId) => removeEquipImage.mutateAsync(imageId)}
     />
   );
 }

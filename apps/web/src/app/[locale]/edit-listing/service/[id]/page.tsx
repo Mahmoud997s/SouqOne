@@ -2,13 +2,14 @@
 
 import { useParams } from 'next/navigation';
 import { GenericEditForm } from '@/components/generic-edit-form';
-import { useCarService, useUpdateCarService } from '@/lib/api/services';
+import { useCarService, useUpdateCarService, useRemoveServiceImage } from '@/lib/api/services';
 import { useTranslations } from 'next-intl';
 
 export default function EditServicePage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError, refetch } = useCarService(id);
   const update = useUpdateCarService();
+  const removeServiceImage = useRemoveServiceImage();
   const tp = useTranslations('pages');
 
   const fields = [
@@ -42,6 +43,7 @@ export default function EditServicePage() {
       isUpdating={update.isPending}
       redirectPath={`/services/${id}`}
       uploadEndpoint={`/api/v1/uploads/services/${id}/images`}
+      deleteImageFn={(imageId) => removeServiceImage.mutateAsync(imageId)}
     />
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
@@ -36,6 +36,7 @@ interface GenericEditFormProps {
   isUpdating: boolean;
   redirectPath: string;
   uploadEndpoint?: string;
+  deleteImageFn?: (imageId: string) => Promise<any>;
 }
 
 export function GenericEditForm({
@@ -50,6 +51,7 @@ export function GenericEditForm({
   isUpdating,
   redirectPath,
   uploadEndpoint,
+  deleteImageFn,
 }: GenericEditFormProps) {
   const router = useRouter();
   const { addToast } = useToast();
@@ -59,6 +61,7 @@ export function GenericEditForm({
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [uploading, setUploading] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const initialImageIdsRef = useRef<string[]>([]);
 
   // Initialize form data from item
   if (item && !initialized) {
@@ -69,16 +72,16 @@ export function GenericEditForm({
     setFormData(initial);
     // Initialize images
     if (item.images?.length) {
-      setImages(
-        item.images
-          .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
-          .map((img: any, i: number) => ({
-            id: img.id,
-            url: getImageUrl(img.url) || img.url,
-            isPrimary: img.isPrimary ?? i === 0,
-            order: i,
-          }))
-      );
+      const sorted = item.images
+        .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+        .map((img: any, i: number) => ({
+          id: img.id,
+          url: getImageUrl(img.url) || img.url,
+          isPrimary: img.isPrimary ?? i === 0,
+          order: i,
+        }));
+      setImages(sorted);
+      initialImageIdsRef.current = sorted.map((img: any) => img.id).filter(Boolean);
     }
     setInitialized(true);
   }
@@ -100,6 +103,15 @@ export function GenericEditForm({
       });
 
       await updateFn(payload);
+
+      // Delete removed images from backend
+      if (deleteImageFn) {
+        const currentIds = new Set(images.filter(img => img.id).map(img => img.id));
+        const removedIds = initialImageIdsRef.current.filter(imgId => !currentIds.has(imgId));
+        for (const imgId of removedIds) {
+          await deleteImageFn(imgId);
+        }
+      }
 
       // Upload new images
       if (uploadEndpoint) {
