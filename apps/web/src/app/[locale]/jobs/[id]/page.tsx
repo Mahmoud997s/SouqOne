@@ -7,7 +7,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { useJob, useApplyToJob, useDeleteJob, useCreateConversation } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
-import { useRequireAuth } from '@/hooks/use-require-auth';
+import { useRequireJobProfile } from '@/hooks/use-require-job-profile';
 import { useToast } from '@/components/toast';
 import { SellerCard } from '@/components/seller-card';
 import { employmentLabelsT } from '@/lib/constants/jobs';
@@ -17,7 +17,7 @@ export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
-  const requireAuth = useRequireAuth();
+  const { requireProfile } = useRequireJobProfile();
   const { addToast } = useToast();
   const tp = useTranslations('pages');
   const tj = useTranslations('jobs');
@@ -45,7 +45,7 @@ export default function JobDetailPage() {
   const isOwner = user && job?.user.id === user.id;
 
   function handleMessage() {
-    requireAuth(async () => {
+    requireProfile('any', async () => {
       if (!job) return;
       try {
         const conv = await createConv.mutateAsync({ entityType: 'JOB', entityId: job.id });
@@ -53,11 +53,11 @@ export default function JobDetailPage() {
       } catch (err) {
         addToast('error', err instanceof Error ? err.message : tp('jobDetailErrorConversation'));
       }
-    }, tp('jobDetailLoginToMessage'));
+    });
   }
 
   function handleApply() {
-    requireAuth(async () => {
+    requireProfile('driver', async () => {
       try {
         await applyMutation.mutateAsync({ jobId: id, message: applyMessage || undefined });
         addToast('success', tp('jobDetailApplySuccess'));
@@ -66,7 +66,7 @@ export default function JobDetailPage() {
       } catch (err: any) {
         addToast('error', err?.message || tp('jobDetailApplyFail'));
       }
-    }, tp('jobDetailLoginToApply'));
+    });
   }
 
   async function handleDelete() {
@@ -346,7 +346,7 @@ export default function JobDetailPage() {
                 ) : job.status === 'ACTIVE' ? (
                   <>
                     <button
-                      onClick={() => requireAuth(() => setShowApplyModal(true), tp('jobDetailLoginToApply'))}
+                      onClick={() => requireProfile('driver', () => setShowApplyModal(true))}
                       className="bg-primary text-on-primary w-full py-3.5 text-sm font-black hover:brightness-110 transition-colors flex items-center justify-center gap-2"
                     >
                       <span className="material-symbols-outlined text-lg">send</span>

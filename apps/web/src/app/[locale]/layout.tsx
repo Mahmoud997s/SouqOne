@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Tajawal } from 'next/font/google';
+import { Almarai } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -10,15 +10,15 @@ import { AuthProvider } from '@/providers/auth-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { ToastProvider } from '@/components/toast';
 import { AuthModalProvider } from '@/providers/auth-modal-provider';
-import { LoginModal } from '@/components/auth/login-modal';
+import { AuthOverlay } from '@/components/auth/auth-overlay';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { SearchProvider } from '@/providers/search-provider';
 import { PageTransition } from '@/components/page-transition';
 
-const tajawal = Tajawal({
-  subsets: ['arabic', 'latin'],
-  weight: ['300', '400', '500', '700', '800'],
-  variable: '--font-tajawal',
+const almarai = Almarai({
+  subsets: ['arabic'],
+  weight: ['300', '400', '700', '800'],
+  variable: '--font-almarai',
   display: 'swap',
 });
 
@@ -64,11 +64,9 @@ export function generateStaticParams() {
 
 export default async function LocaleLayout({
   children,
-  modal,
   params,
 }: {
   children: React.ReactNode;
-  modal: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
@@ -87,9 +85,10 @@ export default async function LocaleLayout({
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={dir} className={tajawal.variable} suppressHydrationWarning>
+    <html lang={locale} dir={dir} className={almarai.variable} suppressHydrationWarning>
       <head>
-        {/* Non-render-blocking Material Symbols loading */}
+        {/* Non-render-blocking Material Symbols loading — no next/font alternative for icon fonts */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="preload"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
@@ -121,8 +120,7 @@ export default async function LocaleLayout({
                       <BottomNav />
                     </SearchProvider>
                   </ToastProvider>
-                  <LoginModal />
-                  {modal}
+                  <AuthOverlay />
                 </AuthModalProvider>
               </AuthProvider>
             </QueryProvider>

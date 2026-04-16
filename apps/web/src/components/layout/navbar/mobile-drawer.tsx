@@ -2,10 +2,11 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import type { NavLinkItem } from '../navbar';
 import { getImageUrl } from '@/lib/image-utils';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 
 interface MobileDrawerProps {
   open: boolean;
@@ -20,6 +21,8 @@ interface MobileDrawerProps {
 
 export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLinks, isActive, isAuthenticated, user, onLogout }: MobileDrawerProps) {
   const t = useTranslations('common');
+  const locale = useLocale();
+  const { openAuth } = useAuthModal();
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const accountLinks = [
@@ -45,9 +48,15 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
       >
         {/* Drawer header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/20">
-          <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="SouqOne" width={36} height={36} className="h-9 w-auto object-contain" />
-            <Image src="/name.png" alt={t('siteName')} width={80} height={20} className="h-[20px] w-auto object-contain" />
+          <div className="flex items-center">
+            {locale === 'ar' ? (
+              <Image src="/souq-one-ar.svg" alt={t('siteName')} width={140} height={28} className="h-[28px] w-auto" />
+            ) : (
+              <>
+                <Image src="/souq-one-en.svg" alt={t('siteName')} width={122} height={24} className="h-[24px] w-auto object-contain dark:hidden" />
+                <Image src="/souq-one-en-dark.svg" alt={t('siteName')} width={122} height={24} className="h-[24px] w-auto object-contain hidden dark:block" />
+              </>
+            )}
           </div>
           <button
             onClick={close}
@@ -157,15 +166,15 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
             </>
           ) : (
             <div className="px-5 mt-4 space-y-3">
-              <Link href="/register" className="bg-primary text-on-primary hover:brightness-110 w-full py-3 flex items-center justify-center text-sm font-bold rounded-lg shadow-ambient">
+              <button onClick={() => { close(); openAuth('register'); }} className="bg-primary text-on-primary hover:brightness-110 w-full py-3 flex items-center justify-center text-sm font-bold rounded-lg shadow-ambient">
                 {t('createFreeAccount')}
-              </Link>
-              <Link
-                href="/login"
+              </button>
+              <button
+                onClick={() => { close(); openAuth('login'); }}
                 className="w-full flex items-center justify-center py-3 text-sm font-bold text-primary border border-primary/25 rounded-lg hover:bg-primary/5 transition-colors"
               >
                 {t('login')}
-              </Link>
+              </button>
             </div>
           )}
         </div>

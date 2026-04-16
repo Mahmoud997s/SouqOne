@@ -1,17 +1,17 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import AuthPage from '@/components/auth/auth-page';
-import ResetForm from './reset-form';
+import { useEffect } from 'react';
+import { useRouter } from '@/i18n/navigation';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 
 export default function ResetPasswordPage() {
-  const t = useTranslations('auth');
-  return (
-    <AuthPage
-      title={t('resetPasswordTitle')}
-      subtitle={t('resetPasswordSubtitle')}
-    >
-      <ResetForm />
-    </AuthPage>
-  );
+  const router = useRouter();
+  const { openAuth } = useAuthModal();
+
+  useEffect(() => {
+    router.replace('/');
+    openAuth('reset');
+  }, [router, openAuth]);
+
+  return null;
 }

@@ -121,13 +121,14 @@ const cancelOptions = [...CANCEL_OPTIONS];
 export function ListingForm({ initialData, initialImages, onSubmit, isLoading, errorMessages, onClearErrors, submitLabel }: ListingFormProps) {
   const tp = useTranslations('pages');
   const tm = useTranslations('mappings');
+  const tc = useTranslations('colors');
   const locale = useLocale();
   const fuelLabels = fuelLabelsT(tm);
   const transLabels = transLabelsT(tm);
   const condLabels = condLabelsT(tm);
   const cancelLabels_ = cancelLabelsT(tm);
-  const extColors = exteriorColorsT(tm);
-  const intColors = interiorColorsT(tm);
+  const extColors = exteriorColorsT(tc);
+  const intColors = interiorColorsT(tc);
   const [form, setForm] = useState<ListingFormData>({ ...defaultData, ...initialData });
   const [images, setImages] = useState<UploadedImage[]>(initialImages ?? []);
   const [selectedBrandId, setSelectedBrandId] = useState('');

@@ -7,6 +7,9 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { JwtPayload } from '../auth/auth.types';
 import { BusesService } from './buses.service';
 import { CreateBusListingDto } from './dto/create-bus-listing.dto';
+import { UpdateBusListingDto } from './dto/update-bus-listing.dto';
+import { CreateBusOfferDto } from './dto/create-bus-offer.dto';
+import { UpdateBusOfferDto } from './dto/update-bus-offer.dto';
 import { QueryBusListingsDto } from './dto/query-bus-listings.dto';
 
 @Controller('buses')
@@ -27,24 +30,24 @@ export class BusesController {
 
   @UseGuards(JwtAuthGuard)
   @Get('my')
-  myListings(@Req() req: Request) {
+  myListings(@Req() req: Request, @Query('page') page?: string, @Query('limit') limit?: string) {
     const user = req.user as JwtPayload;
-    return this.busesService.myListings(user.sub);
+    return this.busesService.myListings(user.sub, parseInt(page || '1'), parseInt(limit || '20'));
   }
 
   @Get('slug/:slug')
-  findBySlug(@Param('slug') slug: string) {
-    return this.busesService.findBySlug(slug);
+  findBySlug(@Param('slug') slug: string, @Req() req: Request) {
+    return this.busesService.findBySlug(slug, req.ip);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.busesService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    return this.busesService.findOne(id, req.ip);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: Partial<CreateBusListingDto>, @Req() req: Request) {
+  update(@Param('id') id: string, @Body() dto: UpdateBusListingDto, @Req() req: Request) {
     const user = req.user as JwtPayload;
     return this.busesService.update(id, user.sub, dto);
   }
@@ -68,5 +71,44 @@ export class BusesController {
   removeImage(@Param('imageId') imageId: string, @Req() req: Request) {
     const user = req.user as JwtPayload;
     return this.busesService.removeImage(imageId, user.sub);
+  }
+
+  // ── Observability endpoints ──
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/status-history')
+  getStatusHistory(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.busesService.getStatusHistory(id, user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/stats')
+  getStats(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.busesService.getStats(id, user.sub);
+  }
+
+  // ── Offer endpoints ──
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/offers')
+  createOffer(@Param('id') id: string, @Body() dto: CreateBusOfferDto, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.busesService.createOffer(id, user.sub, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/offers')
+  getOffers(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.busesService.getOffers(id, user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('offers/:offerId')
+  updateOffer(@Param('offerId') offerId: string, @Body() dto: UpdateBusOfferDto, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.busesService.updateOffer(offerId, user.sub, dto);
   }
 }

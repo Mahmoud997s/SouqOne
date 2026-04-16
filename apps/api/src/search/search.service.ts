@@ -16,6 +16,7 @@ export const INDEXES = {
   INSURANCE: 'insurance',
   SERVICES: 'services',
   JOBS: 'jobs',
+  BUSES: 'buses',
 } as const;
 
 type IndexName = (typeof INDEXES)[keyof typeof INDEXES];
@@ -63,6 +64,11 @@ const INDEX_CONFIGS: Record<IndexName, IndexConfig> = {
     searchableAttributes: ['title', 'description', 'governorate', 'city'],
     filterableAttributes: ['jobType', 'employmentType', 'governorate', 'status', 'salary'],
     sortableAttributes: ['salary', 'createdAt', 'viewCount', 'experienceYears'],
+  },
+  buses: {
+    searchableAttributes: ['title', 'description', 'make', 'model', 'governorate'],
+    filterableAttributes: ['price', 'busListingType', 'busType', 'make', 'governorate', 'status', 'capacity', 'isPremium'],
+    sortableAttributes: ['price', 'createdAt', 'viewCount', 'capacity'],
   },
 };
 

@@ -20,8 +20,6 @@ function useFavTabs() {
     { value: 'JOB' as const, label: tp('favTabJobs'), icon: 'work' },
     { value: 'SPARE_PART' as const, label: tp('favTabParts'), icon: 'settings' },
     { value: 'CAR_SERVICE' as const, label: tp('favTabServices'), icon: 'build' },
-    { value: 'TRANSPORT' as const, label: tp('favTabTransport'), icon: 'local_shipping' },
-    { value: 'TRIP' as const, label: tp('favTabTrips'), icon: 'route' },
     { value: 'INSURANCE' as const, label: tp('favTabInsurance'), icon: 'shield' },
   ];
 }
@@ -31,8 +29,6 @@ const ENTITY_ROUTES: Record<string, string> = {
   JOB: '/jobs',
   SPARE_PART: '/parts',
   CAR_SERVICE: '/services',
-  TRANSPORT: '/transport',
-  TRIP: '/trips',
   INSURANCE: '/insurance',
 };
 

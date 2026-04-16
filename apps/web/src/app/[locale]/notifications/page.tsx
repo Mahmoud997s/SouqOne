@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead, useUnreadCount } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 import { Navbar } from '@/components/layout/navbar';
 import {
   Bell, MessageCircle, Heart, ShoppingBag, Briefcase, CheckCheck,
@@ -48,6 +49,7 @@ function useTimeAgo() {
 
 export default function NotificationsPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { openAuth } = useAuthModal();
   const router = useRouter();
   const [page, setPage] = useState(1);
   const { data, isLoading } = useNotifications(page);
@@ -58,8 +60,8 @@ export default function NotificationsPage() {
   const timeAgo = useTimeAgo();
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) router.push(`/login?returnUrl=${encodeURIComponent('/notifications')}`);
-  }, [authLoading, isAuthenticated, router]);
+    if (!authLoading && !isAuthenticated) openAuth('login');
+  }, [authLoading, isAuthenticated, openAuth]);
 
   if (authLoading || !isAuthenticated) {
     return (

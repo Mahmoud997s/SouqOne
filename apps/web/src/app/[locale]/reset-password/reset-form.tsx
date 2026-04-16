@@ -1,21 +1,19 @@
 'use client';
 
-import { useState, Suspense } from 'react';
-import { Link, useRouter } from '@/i18n/navigation';
-import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import { apiRequest } from '@/lib/auth';
 import { useTranslations } from 'next-intl';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 import { InputField } from '@/components/auth/input-field';
 import { OtpInput } from '@/components/auth/otp-input';
 import { PasswordStrength } from '@/components/auth/password-strength';
 
-function ResetFormInner() {
-  const router = useRouter();
+export default function ResetForm() {
   const t = useTranslations('auth');
-  const searchParams = useSearchParams();
-  const emailFromQuery = searchParams.get('email') || '';
+  const { data, switchView } = useAuthModal();
+  const emailFromData = data.email || '';
 
-  const [email, setEmail] = useState(emailFromQuery);
+  const [email, setEmail] = useState(emailFromData);
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -53,7 +51,7 @@ function ResetFormInner() {
     <div>
       {done ? (
         <div className="flex flex-col items-center text-center py-6">
-          <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-5">
+          <div className="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center mb-5">
             <span className="material-symbols-outlined text-green-500 text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
               check_circle
             </span>
@@ -63,7 +61,7 @@ function ResetFormInner() {
             {t('canLoginNow')}
           </p>
           <button
-            onClick={() => router.push('/login')}
+            onClick={() => switchView('login')}
             className="btn-primary w-full py-3 flex items-center justify-center gap-2 font-black text-sm rounded-xl hover:brightness-110 hover:shadow-lg transition-all"
           >
             {t('loginBtn')}
@@ -72,8 +70,8 @@ function ResetFormInner() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {/* Email (if not in query) */}
-          {!emailFromQuery && (
+          {/* Email (if not passed from forgot view) */}
+          {!emailFromData && (
             <InputField
               label={t('emailLabel')}
               icon="mail"
@@ -109,7 +107,7 @@ function ResetFormInner() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2">
               <span className="material-symbols-outlined text-base">error</span>
               {error}
             </div>
@@ -133,19 +131,12 @@ function ResetFormInner() {
       )}
 
       <p className="text-center text-on-surface-variant text-sm mt-5 font-medium">
-        <Link href="/login" className="inline-flex items-center gap-1.5 text-primary font-bold hover:underline transition-all group">
+        <button type="button" onClick={() => switchView('login')} className="inline-flex items-center gap-1.5 text-primary font-bold hover:underline transition-all group">
           <span className="material-symbols-outlined icon-flip text-base transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1">arrow_back</span>
           {t('backToLogin')}
-        </Link>
+        </button>
       </p>
     </div>
   );
 }
 
-export default function ResetForm() {
-  return (
-    <Suspense fallback={<div className="text-center py-8 text-sm text-on-surface-variant">...</div>}>
-      <ResetFormInner />
-    </Suspense>
-  );
-}

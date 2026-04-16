@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Check, CheckCheck, Loader2, Trash2, Ban } from 'lucide-react';
 import { QuickReactions } from './emoji-picker';
 import { AudioPlayer } from './voice-recorder';
@@ -62,11 +63,14 @@ export function ChatBubble({ message, isMine, onDelete, onReact }: ChatBubblePro
             </p>
           ) : message.type === 'IMAGE' && message.mediaUrl ? (
             <div className="-mx-1 -mt-0.5">
-              <img
+              <Image
                 src={message.mediaUrl}
                 alt={tp('chatImageAlt')}
+                width={300}
+                height={200}
                 className="rounded-xl max-w-full max-h-72 object-cover cursor-pointer hover:brightness-[0.97] transition-all"
                 onClick={() => window.open(message.mediaUrl!, '_blank')}
+                unoptimized
               />
             </div>
           ) : message.type === 'AUDIO' && message.mediaUrl ? (

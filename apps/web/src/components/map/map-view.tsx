@@ -57,7 +57,7 @@ export default function MapView({
         }
       })
       .catch(() => {});
-  }, [latitude, longitude]);
+  }, [latitude, longitude, locale]);
 
   const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
   const shareText = `📍 ${title || tp('mapViewListingLocation')}\n${googleMapsUrl}`;

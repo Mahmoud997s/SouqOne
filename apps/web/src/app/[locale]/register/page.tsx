@@ -1,17 +1,17 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import AuthPage from '@/components/auth/auth-page';
-import RegisterForm from './register-form';
+import { useEffect } from 'react';
+import { useRouter } from '@/i18n/navigation';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 
 export default function RegisterPage() {
-  const t = useTranslations('auth');
-  return (
-    <AuthPage
-      title={t('registerTitle')}
-      subtitle={t('registerSubtitle')}
-    >
-      <RegisterForm />
-    </AuthPage>
-  );
+  const router = useRouter();
+  const { openAuth } = useAuthModal();
+
+  useEffect(() => {
+    router.replace('/');
+    openAuth('register');
+  }, [router, openAuth]);
+
+  return null;
 }

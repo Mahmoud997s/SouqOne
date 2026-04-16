@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
 // ─── Types ───
@@ -218,11 +219,13 @@ export function ImageUploader({
               `}
             >
               {/* Image */}
-              <img
+              <Image
                 src={img.url}
                 alt={tp('imgUploadAlt', { index: index + 1 })}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
                 draggable={false}
+                unoptimized
               />
 
               {/* Overlay */}

@@ -64,7 +64,7 @@ export function OtpInput({ value, onChange, length = 6, disabled }: OtpInputProp
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           disabled={disabled}
-          className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold bg-white rounded-xl border-2 border-outline/40 text-on-surface focus:border-primary focus:ring-0 focus:outline-none transition-all disabled:opacity-50"
+          className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold bg-surface-container-lowest dark:bg-surface-container rounded-xl border-2 border-outline-variant/40 dark:border-outline-variant/30 text-on-surface focus:border-primary focus:ring-0 focus:outline-none transition-all disabled:opacity-50"
         />
       ))}
     </div>

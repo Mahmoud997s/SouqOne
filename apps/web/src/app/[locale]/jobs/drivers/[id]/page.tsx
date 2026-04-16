@@ -6,7 +6,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { useDriver, useCreateConversation, useInviteDriver, useMyJobs, useDriverReviews } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
-import { useRequireAuth } from '@/hooks/use-require-auth';
+import { useRequireJobProfile } from '@/hooks/use-require-job-profile';
 import { useToast } from '@/components/toast';
 import { getImageUrl } from '@/lib/image-utils';
 import Image from 'next/image';
@@ -27,7 +27,7 @@ export default function DriverProfilePage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
-  const requireAuth = useRequireAuth();
+  const { requireProfile } = useRequireJobProfile();
   const { addToast } = useToast();
   const { data: driver, isLoading, isError } = useDriver(id);
   const createConv = useCreateConversation();
@@ -36,7 +36,7 @@ export default function DriverProfilePage() {
   const myJobs = myJobsData?.items?.filter((j) => j.status === 'ACTIVE') ?? [];
 
   async function handleInvite() {
-    requireAuth(async () => {
+    requireProfile('employer', async () => {
       if (!driver || myJobs.length === 0) {
         addToast('error', 'يجب أن يكون لديك وظيفة نشطة لدعوة سائق');
         return;
@@ -51,7 +51,7 @@ export default function DriverProfilePage() {
   }
 
   function handleMessage() {
-    requireAuth(async () => {
+    requireProfile('any', async () => {
       if (!driver) return;
       try {
         const conv = await createConv.mutateAsync({ entityType: 'JOB', entityId: driver.id });

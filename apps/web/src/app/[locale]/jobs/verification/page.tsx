@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { AuthGuard } from '@/components/auth-guard';
+import { JobsPageGuard } from '@/components/jobs/jobs-page-guard';
 import { useMyVerificationStatus, useSubmitVerification, useMyDriverProfile } from '@/lib/api';
 import { useUploadImage } from '@/lib/api/uploads';
 import { useToast } from '@/components/toast';
@@ -11,9 +11,9 @@ import { Link } from '@/i18n/navigation';
 
 export default function VerificationPage() {
   return (
-    <AuthGuard>
+    <JobsPageGuard role="driver">
       <VerificationContent />
-    </AuthGuard>
+    </JobsPageGuard>
   );
 }
 

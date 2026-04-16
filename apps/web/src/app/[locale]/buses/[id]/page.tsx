@@ -8,6 +8,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { useBusListing, type BusListingItem } from '@/lib/api/buses';
 import { useAuth } from '@/providers/auth-provider';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 import { useCreateConversation } from '@/lib/api';
 import { useToast } from '@/components/toast';
 import { getImageUrl } from '@/lib/image-utils';
@@ -58,6 +59,7 @@ export default function BusDetailPage() {
 function BusDetailContent({ bus }: { bus: BusListingItem }) {
   const router = useRouter();
   const { user } = useAuth();
+  const { openAuth } = useAuthModal();
   const { addToast } = useToast();
   const createConv = useCreateConversation();
   const [currentImg, setCurrentImg] = useState(0);
@@ -87,7 +89,7 @@ function BusDetailContent({ bus }: { bus: BusListingItem }) {
   const isRent = bus.busListingType === 'BUS_RENT';
 
   async function handleMessage() {
-    if (!user) { router.push('/auth/login'); return; }
+    if (!user) { openAuth('login', { message: tp('busDetailLoginToMessage') }); return; }
     try {
       const conv = await createConv.mutateAsync({ entityType: 'BUS_LISTING', entityId: bus.id });
       router.push(`/chat/${conv.id}`);

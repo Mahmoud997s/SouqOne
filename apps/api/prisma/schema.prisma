@@ -56,6 +56,7 @@ model User {
   tripServices      TripService[]      @relation("UserTripServices")
   insuranceOffers   InsuranceOffer[]   @relation("UserInsuranceOffers")
   busListings       BusListing[]       @relation("UserBusListings")
+  busOffers         BusListingOffer[]  @relation("UserBusOffers")
   equipmentListings  EquipmentListing[]  @relation("UserEquipmentListings")
   equipmentRequests  EquipmentRequest[]  @relation("UserEquipmentRequests")
   equipmentBids      EquipmentBid[]      @relation("UserEquipmentBids")
@@ -1244,6 +1245,13 @@ enum BusListingType {
   BUS_SALE_WITH_CONTRACT
   BUS_RENT
   BUS_CONTRACT
+  BUS_REQUEST
+}
+
+enum BusOfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 enum BusType {
@@ -1318,9 +1326,13 @@ model BusListing {
   userId            String
   user              User            @relation("UserBusListings", fields: [userId], references: [id], onDelete: Cascade)
   images            BusListingImage[]
+  offers            BusListingOffer[] @relation("BusRequestOffers")
+  statusLogs        BusListingStatusLog[] @relation("BusStatusLogs")
+  priceHistory      BusListingPriceHistory[] @relation("BusPriceHistory")
 
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+  deletedAt         DateTime?
 
   @@index([userId])
   @@index([busListingType])
@@ -1329,6 +1341,7 @@ model BusListing {
   @@index([governorate])
   @@index([createdAt])
   @@index([slug])
+  @@index([deletedAt])
   @@map("bus_listings")
 }
 
@@ -1343,6 +1356,54 @@ model BusListingImage {
 
   @@index([busListingId])
   @@map("bus_listing_images")
+}
+
+model BusListingPriceHistory {
+  id             String     @id @default(cuid())
+  oldPrice       Decimal?   @db.Decimal(12, 2)
+  newPrice       Decimal?   @db.Decimal(12, 2)
+  changedBy      String
+  busListingId   String
+  busListing     BusListing @relation("BusPriceHistory", fields: [busListingId], references: [id], onDelete: Cascade)
+  createdAt      DateTime   @default(now())
+
+  @@index([busListingId])
+  @@map("bus_listing_price_history")
+}
+
+model BusListingStatusLog {
+  id             String        @id @default(cuid())
+  fromStatus     ListingStatus
+  toStatus       ListingStatus
+  changedBy      String
+  busListingId   String
+  busListing     BusListing    @relation("BusStatusLogs", fields: [busListingId], references: [id], onDelete: Cascade)
+  createdAt      DateTime      @default(now())
+
+  @@index([busListingId])
+  @@map("bus_listing_status_logs")
+}
+
+model BusListingOffer {
+  id                String          @id @default(cuid())
+  message           String?
+  proposedPrice     Decimal?        @db.Decimal(12, 2)
+
+  status            BusOfferStatus  @default(PENDING)
+
+  requestListingId  String
+  requestListing    BusListing      @relation("BusRequestOffers", fields: [requestListingId], references: [id], onDelete: Cascade)
+
+  sellerUserId      String
+  seller            User            @relation("UserBusOffers", fields: [sellerUserId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([requestListingId, sellerUserId])
+  @@index([requestListingId])
+  @@index([sellerUserId])
+  @@map("bus_listing_offers")
 }
 
 // ══════════════════════════════════════════════════

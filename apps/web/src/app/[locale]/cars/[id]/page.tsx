@@ -36,6 +36,7 @@ export default function CarDetailsPage() {
   const createBooking = useCreateBooking();
   const tp = useTranslations('pages');
   const tm = useTranslations('mappings');
+  const tc = useTranslations('colors');
   const tt = useTranslations('time');
   const locale = useLocale();
   const fuelMap = fuelLabels(tm);
@@ -43,8 +44,8 @@ export default function CarDetailsPage() {
   const condMap = conditionLabels(tm);
   const driveMap = driveLabels(tm);
   const cancelMap = cancelLabels(tm);
-  const extColors = exteriorColors(tm);
-  const intColors = interiorColors(tm);
+  const extColors = exteriorColors(tc);
+  const intColors = interiorColors(tc);
 
   // Rental state
   const [startDate, setStartDate] = useState('');

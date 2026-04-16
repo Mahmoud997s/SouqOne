@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { getImageUrl } from '@/lib/image-utils';
 import { fuelLabels, transmissionLabels, BADGE_COLORS, PILL_COLORS } from '@/lib/constants/mappings';
@@ -56,11 +57,12 @@ export function RentalCard(props: RentalCardProps) {
         {/* ── Image ── */}
         <div className="relative aspect-[16/10] overflow-hidden bg-surface-container-low">
           {imgSrc ? (
-            <img
+            <Image
               src={imgSrc}
               alt={props.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+              unoptimized
             />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-on-surface-variant/30">

@@ -37,7 +37,7 @@ export class AuthService {
   }
 
   private sanitizeUser(user: User) {
-    const { passwordHash, ...safeUser } = user;
+    const { passwordHash, emailVerificationCode, emailVerificationExpiry, passwordResetCode, passwordResetExpiry, ...safeUser } = user;
     return safeUser;
   }
 

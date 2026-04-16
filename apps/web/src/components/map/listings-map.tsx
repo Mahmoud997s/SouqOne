@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Link } from '@/i18n/navigation';
@@ -137,11 +138,13 @@ export default function ListingsMap({ listings, height = 'h-[500px]', userLocati
             <Popup maxWidth={260} minWidth={220}>
               <div className="p-0 -m-[1px]">
                 {getImageUrl(listing.imageUrl) && (
-                  <div className="w-full h-28 overflow-hidden rounded-t-lg">
-                    <img
+                  <div className="relative w-full h-28 overflow-hidden rounded-t-lg">
+                    <Image
                       src={getImageUrl(listing.imageUrl)!}
                       alt={listing.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      unoptimized
                     />
                   </div>
                 )}

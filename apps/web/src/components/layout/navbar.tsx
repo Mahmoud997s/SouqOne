@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
 import { useUnreadCount, useNotifications, useMarkNotificationRead } from '@/lib/api';
 import { NotificationDropdown } from './navbar/notification-dropdown';
@@ -13,6 +13,7 @@ import { NavSearchBar } from './navbar/search-bar';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { useSearch } from '@/providers/search-provider';
+import { useAuthModal } from '@/providers/auth-modal-provider';
 
 /* ─────────── Corify heights ─────────── */
 const TOP_H  = 56;
@@ -34,54 +35,46 @@ function useNavLinks() {
         { href: '/listings', label: t('carsForSale'), icon: 'directions_car', desc: tn('browseNewUsedCars') },
         { href: '/listings?listingType=RENTAL', label: t('carsForRent'), icon: 'car_rental', desc: tn('dailyMonthlyRental') },
         { href: '/parts', label: t('spareParts'), icon: 'settings', desc: tn('originalAlternativeParts') },
-      ],
-    },
-    {
-      href: '/services', label: t('services'),
-      children: [
         { href: '/services', label: t('carServices'), icon: 'build', desc: tn('maintenanceInspection') },
         { href: '/insurance', label: t('insuranceAndFinance'), icon: 'shield', desc: tn('comprehensiveInsurance') },
       ],
     },
     {
-      href: '/coming-soon?section=transport', label: t('transportAndTrips'),
+      href: '/buses', label: t('buses'),
       children: [
-        { href: '/coming-soon?section=transport', label: t('transportAndShipping'), icon: 'local_shipping', desc: tn('goodsFurnitureTrucks') },
-        { href: '/coming-soon?section=trips', label: t('tripsAndSubscriptions'), icon: 'departure_board', desc: tn('busesSchoolsTourism') },
+        { href: '/buses', label: t('allBuses'), icon: 'directions_bus', desc: tn('busesSaleRentalContracts') },
+        { href: '/buses?type=SALE', label: t('busesForSale'), icon: 'sell', desc: tn('busesForSaleDesc') },
+        { href: '/buses?type=RENTAL', label: t('busRental'), icon: 'car_rental', desc: tn('busRentalDesc') },
+        { href: '/buses?type=CONTRACT', label: t('transportRequests'), icon: 'request_quote', desc: tn('transportRequestsDesc') },
       ],
     },
     {
-      href: '/coming-soon?section=buses', label: t('buses'),
+      href: '/equipment', label: t('equipment'),
       children: [
-        { href: '/coming-soon?section=buses', label: t('allBuses'), icon: 'directions_bus', desc: tn('comingSoonSaleRentalContracts') },
-        { href: '/coming-soon?section=buses', label: t('busesForSale'), icon: 'sell', desc: tn('comingSoon') },
-        { href: '/coming-soon?section=buses', label: t('busRental'), icon: 'car_rental', desc: tn('comingSoon') },
-        { href: '/coming-soon?section=buses', label: t('transportRequests'), icon: 'request_quote', desc: tn('comingSoon') },
+        { href: '/equipment', label: t('allEquipment'), icon: 'construction', desc: tn('equipmentSaleRental') },
+        { href: '/equipment?listingType=SALE', label: t('sellEquipment'), icon: 'sell', desc: tn('equipmentForSaleDesc') },
+        { href: '/equipment?listingType=RENTAL', label: t('rentEquipment'), icon: 'car_rental', desc: tn('equipmentRentalDesc') },
+        { href: '/equipment/requests', label: t('requestEquipment'), icon: 'assignment_add', desc: tn('equipmentRequestsDesc') },
+        { href: '/equipment/operators', label: t('operators'), icon: 'engineering', desc: tn('equipmentOperatorsDesc') },
       ],
     },
     {
-      href: '/coming-soon?section=equipment', label: t('equipment'),
+      href: '/jobs', label: t('jobs'),
       children: [
-        { href: '/coming-soon?section=equipment', label: t('allEquipment'), icon: 'construction', desc: tn('comingSoonSaleRentalRequests') },
-        { href: '/coming-soon?section=equipment', label: t('sellEquipment'), icon: 'sell', desc: tn('comingSoon') },
-        { href: '/coming-soon?section=equipment', label: t('rentEquipment'), icon: 'car_rental', desc: tn('comingSoon') },
-        { href: '/coming-soon?section=equipment', label: t('requestEquipment'), icon: 'assignment_add', desc: tn('comingSoon') },
-        { href: '/coming-soon?section=equipment', label: t('operators'), icon: 'engineering', desc: tn('comingSoon') },
+        { href: '/jobs', label: t('jobs'), icon: 'work', desc: tn('browseAllJobs') },
+        { href: '/jobs/drivers', label: t('driverJobs'), icon: 'person_search', desc: tn('browseDriverProfiles') },
       ],
     },
-    { href: '/jobs', label: t('jobs') },
   ];
 
   const flatNavLinks = [
     { href: '/', label: t('home') },
     { href: '/listings', label: t('cars') },
     { href: '/parts', label: t('spareParts') },
-    { href: '/services', label: t('services') },
-    { href: '/coming-soon?section=transport', label: t('transportAndShipping') },
-    { href: '/coming-soon?section=trips', label: t('tripsAndSubscriptions') },
+    { href: '/services', label: t('carServices') },
     { href: '/insurance', label: t('insuranceAndFinance') },
-    { href: '/coming-soon?section=buses', label: t('buses') },
-    { href: '/coming-soon?section=equipment', label: t('equipment') },
+    { href: '/buses', label: t('buses') },
+    { href: '/equipment', label: t('equipment') },
     { href: '/jobs', label: t('jobs') },
   ];
 
@@ -95,8 +88,10 @@ export function NavbarSpacer() {
 
 export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { openAuth } = useAuthModal();
   const pathname = usePathname();
   const t = useTranslations('common');
+  const locale = useLocale();
   const { navLinks, flatNavLinks } = useNavLinks();
 
   const [profileOpen, setProfileOpen] = useState(false);
@@ -132,7 +127,7 @@ export function Navbar() {
   }, [mobileOpen]);
 
   /* close mobile + search on route */
-  useEffect(() => { setMobileOpen(false); setSearchOpen(false); }, [pathname]);
+  useEffect(() => { setMobileOpen(false); setSearchOpen(false); }, [pathname, setSearchOpen]);
 
   const isActive = useCallback(
     (href: string) => (href === '/' ? pathname === '/' : pathname === href.split('?')[0]),
@@ -148,36 +143,45 @@ export function Navbar() {
 
         {/* ━━━ TOP BAR: Logo + Links + Actions ━━━ */}
         <div className="glass-nav transition-all duration-300" style={{ height: TOP_H, opacity: 1 }}>
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between relative" style={{ height: TOP_H }}>
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 shrink-0">
-              <Image src="/logo.png" alt="SouqOne" width={42} height={42} className="h-[36px] sm:h-[42px] w-auto object-contain" />
-              <Image src="/name.png" alt={t('siteName')} width={120} height={28} className="h-[20px] sm:h-[28px] w-auto object-contain" />
-            </Link>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-[auto_1fr_auto] items-center gap-4" style={{ height: TOP_H }}>
+            {/* Brand + Language */}
+            <div className="flex items-center gap-2 shrink-0">
+              <Link href="/" className="flex items-center">
+                {locale === 'ar' ? (
+                  <Image src="/souq-one-ar.svg" alt={t('siteName')} width={190} height={38} className="h-[32px] sm:h-[38px] w-auto" />
+                ) : (
+                  <>
+                    <Image src="/souq-one-en.svg" alt={t('siteName')} width={158} height={31} className="h-[27px] sm:h-[31px] w-auto object-contain dark:hidden" />
+                    <Image src="/souq-one-en-dark.svg" alt={t('siteName')} width={158} height={31} className="h-[27px] sm:h-[31px] w-auto object-contain hidden dark:block" />
+                  </>
+                )}
+              </Link>
+              <LanguageSwitcher />
+              <ThemeToggle />
+            </div>
 
             {/* Desktop nav links — center */}
-            <div className="hidden lg:flex absolute inset-0 pointer-events-none items-center justify-center">
-              <nav className="flex items-center gap-0.5 pointer-events-auto">
+            <div className="hidden lg:flex items-center justify-center">
+              <nav className="flex items-center gap-1">
                 {navLinks.map(link => {
                   const active = isActive(link.href) || link.children?.some(c => isActive(c.href));
                   const hasChildren = link.children && link.children.length > 0;
                   return (
                     <div key={link.href} className="relative group/nav">
-                      <Link href={link.href} className={`relative flex items-center gap-1 px-3.5 py-1.5 text-sm font-semibold transition-colors duration-300 ${active ? 'text-primary' : 'text-on-surface-variant hover:text-primary'}`}>
+                      <Link href={link.href} className={`relative flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold rounded-lg transition-colors duration-300 ${active ? 'text-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low/50'}`}>
                         {link.label}
-                        {hasChildren && <span className="material-symbols-outlined text-[11px] opacity-50 transition-transform duration-200 group-hover/nav:rotate-180">expand_more</span>}
-                        <span className={`absolute bottom-0 inset-x-2 h-[2px] rounded-full transition-all duration-300 origin-center ${active ? 'bg-primary scale-x-100' : 'bg-primary/60 scale-x-0 group-hover/nav:scale-x-100'}`} />
+                        <span className={`absolute bottom-0.5 inset-x-3 h-[2px] rounded-full transition-all duration-300 origin-center ${active ? 'bg-primary scale-x-100' : 'bg-primary/60 scale-x-0 group-hover/nav:scale-x-100'}`} />
                       </Link>
                       {hasChildren && (
-                        <div className="absolute top-full right-0 pt-2 opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-200 z-50">
-                          <div className="bg-surface-container-lowest dark:bg-surface-container-high border border-outline-variant/15 dark:border-outline-variant/30 shadow-xl dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] min-w-[260px] py-2 overflow-hidden">
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-200 z-50">
+                          <div className="bg-surface-container-lowest dark:bg-surface-container-high border border-outline-variant/15 dark:border-outline-variant/30 shadow-xl dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] min-w-[260px] rounded-xl py-2 overflow-hidden">
                             {link.children!.map(child => (
                               <Link
-                                key={child.href}
+                                key={child.label}
                                 href={child.href}
-                                className="flex items-start gap-3 px-4 py-3 hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors"
+                                className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors"
                               >
-                                <span className="material-symbols-outlined text-lg text-primary mt-0.5 shrink-0">{child.icon}</span>
+                                <span className="material-symbols-outlined text-[20px] text-primary shrink-0">{child.icon}</span>
                                 <div>
                                   <p className="text-sm font-bold text-on-surface">{child.label}</p>
                                   <p className="text-[11px] text-on-surface-variant">{child.desc}</p>
@@ -192,29 +196,33 @@ export function Navbar() {
                 })}
               </nav>
             </div>
+            {/* Spacer for mobile (no nav links shown) */}
+            <div className="lg:hidden" />
 
             {/* Actions */}
-            <div className="flex items-center gap-1.5 lg:gap-2.5">
-              {/* Search toggle — desktop only (mobile uses bottom bar) */}
+            <div className="flex items-center gap-0.5">
+              {/* Icon buttons group */}
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
-                className={`hidden lg:flex w-8 h-8 rounded-lg items-center justify-center transition-all ${
+                className={`hidden lg:flex w-9 h-9 rounded-xl items-center justify-center transition-all ${
                   searchOpen ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary'
                 }`}
               >
-                <span className="material-symbols-outlined text-lg">{searchOpen ? 'close' : 'search'}</span>
+                <span className="material-symbols-outlined text-[20px]">{searchOpen ? 'close' : 'search'}</span>
               </button>
-
-              {/* Favorites */}
-              <Link href="/favorites" className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all">
-                <span className="material-symbols-outlined text-lg">favorite</span>
+              <Link href="/favorites" className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all">
+                <span className="material-symbols-outlined text-[20px]">favorite</span>
               </Link>
 
-              <LanguageSwitcher />
-              <ThemeToggle />
+              {/* Separator */}
+              <div className="hidden lg:block w-px h-5 bg-outline-variant/20 mx-1" />
 
+              {/* Auth / User */}
               {isAuthenticated && user ? (
                 <>
+                  <Link href="/messages" className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all relative">
+                    <span className="material-symbols-outlined text-[20px]">chat</span>
+                  </Link>
                   <NotificationDropdown
                     ref={notifRef}
                     open={notifOpen}
@@ -234,18 +242,18 @@ export function Navbar() {
                   />
                 </>
               ) : (
-                <div className="hidden lg:flex items-center gap-2">
-                  <Link href="/login" className="ghost-border text-primary hover:bg-primary hover:text-on-primary px-3 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">person</span> {t('login')}
-                  </Link>
-                  <Link href="/register" className="btn-primary px-3 py-1.5 text-xs font-bold hover:brightness-105 hover:shadow-ambient">
+                <div className="hidden lg:flex items-center gap-1.5">
+                  <button onClick={() => openAuth('login')} className="ghost-border text-primary hover:bg-primary hover:text-on-primary h-9 px-3.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px]">person</span> {t('login')}
+                  </button>
+                  <button onClick={() => openAuth('register')} className="btn-primary h-9 px-3.5 text-xs font-bold rounded-xl hover:brightness-105 hover:shadow-ambient flex items-center">
                     {t('register')}
-                  </Link>
+                  </button>
                 </div>
               )}
 
-              <button onClick={() => setMobileOpen(true)} className="lg:hidden w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low">
-                <span className="material-symbols-outlined text-lg">menu</span>
+              <button onClick={() => setMobileOpen(true)} className="lg:hidden w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low">
+                <span className="material-symbols-outlined text-[20px]">menu</span>
               </button>
             </div>
           </div>
