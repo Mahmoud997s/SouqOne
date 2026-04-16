@@ -60,6 +60,7 @@ export class EquipmentListingsService {
     if (q.equipmentType) where.equipmentType = q.equipmentType as EquipmentType;
     if (q.listingType) where.listingType = q.listingType as EquipmentListingType;
     if (q.governorate) where.governorate = q.governorate;
+    if (q.userId) where.userId = q.userId;
     if (q.search) {
       where.OR = [
         { title: { contains: q.search, mode: 'insensitive' } },

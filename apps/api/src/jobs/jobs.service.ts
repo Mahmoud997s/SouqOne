@@ -147,6 +147,7 @@ export class JobsService {
     if (query.jobType) where.jobType = query.jobType;
     if (query.employmentType) where.employmentType = query.employmentType;
     if (query.governorate) where.governorate = query.governorate;
+    if (query.userId) where.userId = query.userId;
 
     if (query.licenseType) {
       where.licenseTypes = { has: query.licenseType as any };

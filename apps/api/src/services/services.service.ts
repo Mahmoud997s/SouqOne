@@ -73,6 +73,7 @@ export class ServicesService extends BaseListingService {
     if (query.providerType) where.providerType = query.providerType;
     if (query.governorate) where.governorate = query.governorate;
     if (query.isHomeService !== undefined) where.isHomeService = query.isHomeService;
+    if (query.userId) where.userId = query.userId;
     return where;
   }
 }

@@ -31,4 +31,8 @@ export class QueryServicesDto {
   @IsOptional()
   @IsNumberString()
   limit?: string;
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
 }

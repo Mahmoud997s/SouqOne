@@ -49,4 +49,8 @@ export class QueryBusListingsDto {
   @IsOptional()
   @IsNumberString()
   limit?: string;
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
 }

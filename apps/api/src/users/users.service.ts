@@ -41,11 +41,25 @@ export class UsersService {
   }
 
   async getPublicProfile(userId: string) {
+    const activeWhere = { where: { status: 'ACTIVE' as const } };
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
         ...this.publicSelect,
-        _count: { select: { listings: { where: { status: 'ACTIVE' } } } },
+        _count: {
+          select: {
+            listings: activeWhere,
+            busListings: activeWhere,
+            equipmentListings: activeWhere,
+            operatorListings: activeWhere,
+            spareParts: activeWhere,
+            carServices: activeWhere,
+            transportServices: activeWhere,
+            tripServices: activeWhere,
+            insuranceOffers: activeWhere,
+            driverJobs: activeWhere,
+          },
+        },
       },
     });
 
@@ -53,7 +67,20 @@ export class UsersService {
       throw new NotFoundException('المستخدم غير موجود');
     }
 
-    return user;
+    const counts = user._count;
+    const totalListings =
+      counts.listings +
+      counts.busListings +
+      counts.equipmentListings +
+      counts.operatorListings +
+      counts.spareParts +
+      counts.carServices +
+      counts.transportServices +
+      counts.tripServices +
+      counts.insuranceOffers +
+      counts.driverJobs;
+
+    return { ...user, totalListings };
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {

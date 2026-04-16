@@ -21,4 +21,8 @@ export class QueryInsuranceDto {
   @IsOptional()
   @IsNumberString()
   limit?: string;
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
 }

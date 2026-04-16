@@ -82,6 +82,7 @@ export class TripsService extends BaseListingService {
     if (query.tripType) where.tripType = query.tripType;
     if (query.scheduleType) where.scheduleType = query.scheduleType;
     if (query.governorate) where.governorate = query.governorate;
+    if (query.userId) where.userId = query.userId;
     return where;
   }
 }

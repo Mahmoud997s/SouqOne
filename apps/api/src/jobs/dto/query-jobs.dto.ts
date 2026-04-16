@@ -41,4 +41,8 @@ export class QueryJobsDto {
   @IsOptional()
   @IsString()
   sortOrder?: string;
+
+  @IsOptional()
+  @IsString()
+  userId?: string;
 }

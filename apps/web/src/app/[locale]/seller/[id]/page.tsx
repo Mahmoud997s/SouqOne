@@ -1,15 +1,23 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { VehicleCard } from '@/features/ads/components/vehicle-card';
+import { GenericListingCard } from '@/components/generic-listing-card';
 import { ListingSkeleton } from '@/components/loading-skeleton';
 import { ErrorState } from '@/components/error-state';
 import { EmptyState } from '@/components/empty-state';
 import { usePublicProfile, useListings, useCreateConversation } from '@/lib/api';
+import { useBusListings } from '@/lib/api/buses';
+import { useEquipmentListings, useOperatorListings } from '@/lib/api/equipment';
+import { useParts } from '@/lib/api/parts';
+import { useCarServices } from '@/lib/api/services';
+import { useInsuranceOffers } from '@/lib/api/insurance';
+import { useJobs } from '@/lib/api/jobs';
 import { useReviews, useReviewSummary } from '@/lib/api/reviews';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
@@ -22,11 +30,36 @@ import { getImageUrl } from '@/lib/image-utils';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/providers/auth-provider';
 
+const SECTION_TABS = [
+  { key: 'cars', icon: 'directions_car', labelKey: 'sectionCars', entityType: 'LISTING' },
+  { key: 'buses', icon: 'directions_bus', labelKey: 'sectionBuses', entityType: 'BUS_LISTING' },
+  { key: 'equipment', icon: 'construction', labelKey: 'sectionEquipment', entityType: 'EQUIPMENT_LISTING' },
+  { key: 'operators', icon: 'engineering', labelKey: 'sectionOperators', entityType: 'OPERATOR_LISTING' },
+  { key: 'parts', icon: 'build', labelKey: 'sectionParts', entityType: 'SPARE_PART' },
+  { key: 'services', icon: 'car_repair', labelKey: 'sectionServices', entityType: 'CAR_SERVICE' },
+  { key: 'insurance', icon: 'shield', labelKey: 'sectionInsurance', entityType: 'INSURANCE' },
+  { key: 'jobs', icon: 'work', labelKey: 'sectionJobs', entityType: 'JOB' },
+] as const;
+
+type SectionKey = typeof SECTION_TABS[number]['key'];
+
 export default function SellerPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const [activeSection, setActiveSection] = useState<SectionKey>('cars');
   const { data: seller, isLoading: sellerLoading, isError: sellerError, refetch: refetchSeller } = usePublicProfile(id);
-  const { data: listings, isLoading: listingsLoading } = useListings(seller ? { sellerId: seller.id, limit: '50' } : {});
+  const sellerId = seller?.id;
+
+  // ─── Listings by section ───
+  const cars = useListings(sellerId ? { sellerId, limit: '50' } : {});
+  const buses = useBusListings(sellerId ? { userId: sellerId, limit: '50' } : undefined);
+  const equipment = useEquipmentListings(sellerId ? { userId: sellerId, limit: '50' } : undefined);
+  const operators = useOperatorListings(sellerId ? { userId: sellerId, limit: '50' } : undefined);
+  const parts = useParts(sellerId ? { sellerId, limit: '50' } : undefined);
+  const services = useCarServices(sellerId ? { userId: sellerId, limit: '50' } : undefined);
+  const insurance = useInsuranceOffers(sellerId ? { userId: sellerId, limit: '50' } : undefined);
+  const jobs = useJobs(sellerId ? { userId: sellerId, limit: '50' } : {});
+
   const createConv = useCreateConversation();
   const requireAuth = useRequireAuth();
   const { addToast } = useToast();
@@ -37,10 +70,24 @@ export default function SellerPage() {
   const { data: reviewSummary } = useReviewSummary(seller?.id);
   const { data: reviews } = useReviews(seller ? { userId: seller.id, limit: '10' } : undefined);
 
+  function getSectionData(): { items: any[]; isLoading: boolean } {
+    switch (activeSection) {
+      case 'cars': return { items: cars.data?.items ?? [], isLoading: cars.isLoading };
+      case 'buses': return { items: buses.data?.items ?? [], isLoading: buses.isLoading };
+      case 'equipment': return { items: equipment.data?.items ?? [], isLoading: equipment.isLoading };
+      case 'operators': return { items: operators.data?.items ?? [], isLoading: operators.isLoading };
+      case 'parts': return { items: parts.data?.items ?? [], isLoading: parts.isLoading };
+      case 'services': return { items: services.data?.items ?? [], isLoading: services.isLoading };
+      case 'insurance': return { items: insurance.data?.items ?? [], isLoading: insurance.isLoading };
+      case 'jobs': return { items: jobs.data?.items ?? [], isLoading: jobs.isLoading };
+      default: return { items: [], isLoading: false };
+    }
+  }
+
   function handleContact() {
     requireAuth(async () => {
       if (!seller) return;
-      const firstListing = listings?.items?.[0];
+      const firstListing = cars.data?.items?.[0];
       if (!firstListing) {
         addToast('info', tp('sellerNoListings'));
         return;
@@ -83,6 +130,9 @@ export default function SellerPage() {
     );
   }
 
+  const sectionData = getSectionData();
+  const currentTab = SECTION_TABS.find(t => t.key === activeSection)!;
+
   return (
     <>
       <Navbar />
@@ -114,9 +164,14 @@ export default function SellerPage() {
               </p>
             )}
             {seller.bio && <p className="text-on-surface-variant text-sm mt-2">{seller.bio}</p>}
-            <p className="text-xs text-on-surface-variant mt-2">
-              {tp('sellerMemberSince', { date: new Date(seller.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US') })}
-            </p>
+            <div className="flex items-center gap-3 mt-2">
+              <p className="text-xs text-on-surface-variant">
+                {tp('sellerMemberSince', { date: new Date(seller.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US') })}
+              </p>
+              {seller.totalListings !== undefined && (
+                <span className="text-xs font-bold text-primary">{seller.totalListings} {tp('sellerListingsCount')}</span>
+              )}
+            </div>
           </div>
           <button
             onClick={handleContact}
@@ -128,33 +183,67 @@ export default function SellerPage() {
           </button>
         </div>
 
-        {/* Seller Listings */}
-        <h2 className="text-2xl font-black mb-6">{tp('sellerListings')}</h2>
+        {/* Section Tabs */}
+        <h2 className="text-2xl font-black mb-4">{tp('sellerListings')}</h2>
+        <div className="flex gap-1 mb-6 overflow-x-auto no-scrollbar pb-1">
+          {SECTION_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveSection(tab.key)}
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-black rounded-full transition-all whitespace-nowrap ${
+                activeSection === tab.key
+                  ? 'bg-primary text-on-primary shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface bg-surface-container-low/50 dark:bg-surface-container-high/30 hover:bg-surface-container-low dark:hover:bg-surface-container-high/50'
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">{tab.icon}</span>
+              {tp(tab.labelKey)}
+            </button>
+          ))}
+        </div>
 
-        {listingsLoading ? (
+        {/* Seller Listings */}
+        {sectionData.isLoading ? (
           <ListingSkeleton count={4} />
-        ) : listings && listings.items.length > 0 ? (
+        ) : sectionData.items.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {listings.items.map((item) => {
-              const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];
+            {sectionData.items.map((item: any) => {
+              if (activeSection === 'cars') {
+                const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
+                return (
+                  <VehicleCard
+                    key={item.id}
+                    id={item.id}
+                    title={item.title}
+                    make={item.make}
+                    model={item.model}
+                    year={item.year}
+                    price={item.price}
+                    currency={item.currency}
+                    mileage={item.mileage}
+                    fuelType={item.fuelType}
+                    transmission={item.transmission}
+                    condition={item.condition}
+                    governorate={item.governorate}
+                    imageUrl={getImageUrl(img?.url)}
+                    listingType={item.listingType}
+                    dailyPrice={item.dailyPrice}
+                  />
+                );
+              }
+              const imgUrl = item.images?.[0]?.url || item.imageUrl || null;
               return (
-                <VehicleCard
+                <GenericListingCard
                   key={item.id}
                   id={item.id}
                   title={item.title}
-                  make={item.make}
-                  model={item.model}
-                  year={item.year}
-                  price={item.price}
-                  currency={item.currency}
-                  mileage={item.mileage}
-                  fuelType={item.fuelType}
-                  transmission={item.transmission}
-                  condition={item.condition}
+                  sectionType={currentTab.entityType}
+                  price={item.price || item.salary || item.priceFrom || item.basePrice || item.pricePerTrip}
+                  currency={item.currency || 'OMR'}
                   governorate={item.governorate}
-                  imageUrl={getImageUrl(img?.url)}
-                  listingType={item.listingType}
-                  dailyPrice={item.dailyPrice}
+                  imageUrl={imgUrl}
+                  createdAt={item.createdAt}
+                  description={item.description}
                 />
               );
             })}
@@ -166,6 +255,7 @@ export default function SellerPage() {
             description={tp('sellerEmptyDesc')}
           />
         )}
+
         {/* Reviews Section */}
         <div className="mt-12">
           <h2 className="text-2xl font-black mb-6 flex items-center gap-2">
