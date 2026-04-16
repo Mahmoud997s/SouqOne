@@ -102,16 +102,18 @@ export function GenericEditForm({
         }
       });
 
-      await updateFn(payload);
-
-      // Delete removed images from backend
+      // 1) Delete removed images FIRST (before update to avoid race conditions)
       if (deleteImageFn) {
         const currentIds = new Set(images.filter(img => img.id).map(img => img.id));
         const removedIds = initialImageIdsRef.current.filter(imgId => !currentIds.has(imgId));
+        console.log('[GenericEditForm] images:', images.length, 'initialIds:', initialImageIdsRef.current, 'removedIds:', removedIds);
         for (const imgId of removedIds) {
           await deleteImageFn(imgId);
         }
       }
+
+      // 2) Update listing data
+      await updateFn(payload);
 
       // Upload new images
       if (uploadEndpoint) {

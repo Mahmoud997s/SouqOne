@@ -33,16 +33,18 @@ export default function EditListingPage() {
   async function handleSubmit(data: Record<string, unknown>, images: UploadedImage[]) {
     setErrorMessages([]);
     try {
-      await updateListing.mutateAsync(data);
-
-      // Delete removed images from backend
+      // 1) Delete removed images FIRST (before update to avoid race conditions)
       const currentIds = new Set(images.filter(img => img.id).map(img => img.id));
       const removedIds = initialImageIdsRef.current.filter(imgId => !currentIds.has(imgId));
+      console.log('[EditListing] images:', images.length, 'initialIds:', initialImageIdsRef.current, 'removedIds:', removedIds);
       for (const imgId of removedIds) {
         await removeImage.mutateAsync(imgId);
       }
 
-      // Upload new images (those with a File object)
+      // 2) Update listing data
+      await updateListing.mutateAsync(data);
+
+      // 3) Upload new images (those with a File object)
       const newImages = images.filter((img) => img.file);
       if (newImages.length > 0) {
         setUploading(true);

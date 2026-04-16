@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { ImageUploader, type UploadedImage } from './image-uploader';
 import { useBrands, useCarModels, useCarYears } from '@/lib/api';
@@ -131,6 +131,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
   const intColors = interiorColorsT(tc);
   const [form, setForm] = useState<ListingFormData>({ ...defaultData, ...initialData });
   const [images, setImages] = useState<UploadedImage[]>(initialImages ?? []);
+  const imagesInitializedRef = useRef(!!initialImages?.length);
   const [selectedBrandId, setSelectedBrandId] = useState('');
   const [selectedModelId, setSelectedModelId] = useState('');
 
@@ -148,7 +149,10 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
   }, [initialData]);
 
   useEffect(() => {
-    if (initialImages) setImages(initialImages);
+    if (initialImages && !imagesInitializedRef.current) {
+      setImages(initialImages);
+      imagesInitializedRef.current = true;
+    }
   }, [initialImages]);
 
   function set<K extends keyof ListingFormData>(key: K, value: ListingFormData[K]) {
