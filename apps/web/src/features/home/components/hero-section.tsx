@@ -15,11 +15,11 @@ const TAB_META = [
 { key: 'equipment', labelKey: 'equipment', icon: 'construction', route: 'equipment', placeholderKey: 'equipment' },
 ] as const;
 
-const STAT_META = [
-  { icon: 'directions_car', labelKey: 'statCar', count: '500+' },
-  { icon: 'build', labelKey: 'statServiceAndPart', count: '200+' },
-  { icon: 'work', labelKey: 'statDriverJob', count: '50+' },
-] as const;
+// const STAT_META = [
+//   { icon: 'directions_car', labelKey: 'statCar', count: '500+' },
+//   { icon: 'build', labelKey: 'statServiceAndPart', count: '200+' },
+//   { icon: 'work', labelKey: 'statDriverJob', count: '50+' },
+// ] as const;
 
 export function HeroSection() {
   const router = useRouter();

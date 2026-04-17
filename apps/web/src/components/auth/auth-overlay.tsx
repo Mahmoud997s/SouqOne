@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useCallback, useRef } from 'react';
-import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuthModal } from '@/providers/auth-modal-provider';
 import type { AuthView } from '@/providers/auth-modal-provider';
