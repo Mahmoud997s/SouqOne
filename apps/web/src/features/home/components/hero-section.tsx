@@ -11,13 +11,15 @@ const TAB_META = [
   { key: 'parts',     labelKey: 'parts',     icon: 'settings',            route: '/parts',     placeholderKey: 'heroPartsPlaceholder' },
   { key: 'services',  labelKey: 'services',  icon: 'build',               route: '/services',  placeholderKey: 'heroServicesPlaceholder' },
   { key: 'jobs',      labelKey: 'jobs',      icon: 'work',                route: '/jobs',      placeholderKey: 'heroJobsPlaceholder' },
+ { key: 'buses', labelKey: 'buses', icon: 'directions_bus', route: '/buses', placeholderKey: 'buses' },
+{ key: 'equipment', labelKey: 'equipment', icon: 'construction', route: 'equipment', placeholderKey: 'equipment' },
 ] as const;
 
-const STAT_META = [
-  { icon: 'directions_car', labelKey: 'statCar', count: '500+' },
-  { icon: 'build', labelKey: 'statServiceAndPart', count: '200+' },
-  { icon: 'work', labelKey: 'statDriverJob', count: '50+' },
-] as const;
+// const STAT_META = [
+//   { icon: 'directions_car', labelKey: 'statCar', count: '500+' },
+//   { icon: 'build', labelKey: 'statServiceAndPart', count: '200+' },
+//   { icon: 'work', labelKey: 'statDriverJob', count: '50+' },
+// ] as const;
 
 export function HeroSection() {
   const router = useRouter();
@@ -39,7 +41,7 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
       {/* ── Multi-layer Background ── */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#F5F7FA] via-[#EBF0FB] to-[#F0F2F6] dark:from-[#0c0f1a] dark:via-[#101528] dark:to-[#0e1220]" />
+      <div className="absolute inset-0 h-[300px] bg-gradient-to-br from-[#F5F7FA] via-[#EBF0FB] to-[#F0F2F6] dark:from-[#0c0f1a] dark:via-[#101528] dark:to-[#0e1220]" />
 
       {/* Depth layer 1: large soft circles — clamped on mobile */}
       <div className="absolute top-[-20%] right-0 w-[60vw] md:w-[600px] h-[60vw] md:h-[600px] rounded-full bg-blue-400/[0.06] dark:bg-blue-500/[0.04] blur-3xl" />
@@ -82,7 +84,7 @@ export function HeroSection() {
                   key={tb.key}
                   type="button"
                   onClick={() => setActiveTab(tb.key)}
-                  className={`shrink-0 flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-2.5 sm:py-3 text-[12px] sm:text-[13px] font-bold transition-all border-b-2 ${
+                  className={`shrink-0 cursor-pointer flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-1.5 text-xs font-bold transition-all border-b-2 ${
                     activeTab === tb.key
                       ? 'bg-primary/5 text-primary border-primary'
                       : 'text-on-surface-variant hover:text-on-surface border-transparent'
@@ -121,8 +123,8 @@ export function HeroSection() {
         </div>
 
         {/* Quick stats + CTA */}
-        <div className="w-[92%] sm:w-[85%] md:w-[78%] lg:max-w-3xl mx-auto mt-5 flex flex-col sm:flex-row items-center gap-3 sm:gap-4" style={{ animation: 'hero-search-entrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both' }}>
-          <div className="flex items-center gap-3 sm:gap-5 flex-1 flex-wrap justify-center sm:justify-start">
+        <div className="w-[92%] sm:w-[85%] md:w-[78%] lg:max-w-3xl mx-auto mt-5 flex flex-col sm:flex-row items-center lg:justify-center gap-3 sm:gap-4">
+          {/* <div className="flex items-center gap-3 sm:gap-5 flex-1 flex-wrap justify-center sm:justify-start">
             {STAT_META.map(s => (
               <div key={s.labelKey} className="flex items-center gap-1.5 text-on-surface-variant dark:text-on-surface-variant">
                 <span className="material-symbols-outlined text-primary text-sm sm:text-base">{s.icon}</span>
@@ -130,10 +132,10 @@ export function HeroSection() {
                 <span className="text-[10px] sm:text-[11px] hidden sm:inline">{t(s.labelKey)}</span>
               </div>
             ))}
-          </div>
+          </div> */}
           <Link
             href="/add-listing"
-            className="btn-success px-4 py-2 text-sm font-black rounded-xl flex items-center gap-1.5 hover:brightness-110 shrink-0 transition-all animate-hero-float"
+            className="btn-success px-4 hover:scale-105 py-2.5 text-sm font-black rounded-xl flex items-center gap-1.5 hover:brightness-110 shrink-0 transition-all"
           >
             <span className="material-symbols-outlined text-sm">add_circle</span>
             {tc('addListingFree')}

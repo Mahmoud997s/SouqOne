@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { useTranslations, useLocale } from 'next-intl';
+import LogoArIcon from '@/components/icons/logo-ar';
 
 export default function Loading() {
   const tp = useTranslations('pages');
@@ -10,7 +10,8 @@ export default function Loading() {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-5">
         {locale === 'ar' && (
-          <Image src="/souq-one-ar.svg" alt="سوق وان" width={140} height={28} className="h-[28px] w-auto" />
+          // <Image src="/souq-one-ar.svg" alt="سوق وان" width={140} height={28} className="h-[28px] w-auto" />
+          <LogoArIcon className='w-35 h-7'/>
         )}
         <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center animate-pulse">
           <span className="material-symbols-outlined text-primary text-2xl">directions_car</span>

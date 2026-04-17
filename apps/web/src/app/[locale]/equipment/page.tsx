@@ -184,7 +184,7 @@ export default function EquipmentPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-24 pb-16">
+      <main className="pb-16 dark:bg-gradient-to-br dark:from-[#0c0f1a] dark:via-[#101528] dark:to-[#0e1220]">
         <style>{`.scrollbar-hide::-webkit-scrollbar{display:none} .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}`}</style>
 
         {/* Hero */}

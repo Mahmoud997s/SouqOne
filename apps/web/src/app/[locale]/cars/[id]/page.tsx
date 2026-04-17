@@ -242,7 +242,7 @@ export default function CarDetailsPage() {
             {/* ── Right Column: Price + Seller + Actions ── */}
             <div className="lg:col-span-4 space-y-4">
               {/* Price Card */}
-              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm">
+              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="p-4 md:p-5">
                   <h1 className="text-lg md:text-xl font-black text-on-surface mb-0.5 leading-tight">{car.title}</h1>
                   <p className="text-on-surface-variant text-xs mb-4 flex items-center gap-1">
@@ -435,12 +435,13 @@ export default function CarDetailsPage() {
                           {tp('carEditListing')}
                         </Link>
                       ) : (
-                        <button onClick={handleBuyNow} disabled={createConv.isPending} className={`w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-1.5 ${
-                          isWanted ? 'btn-warning' : 'btn-primary'
-                        }`}>
-                          <span className="material-symbols-outlined text-base">{isWanted ? 'chat' : 'shopping_cart'}</span>
-                          {createConv.isPending ? tp('carContactPending') : isWanted ? tp('carContactRequester') : tp('carBuyNow')}
-                        </button>
+                        null
+                        // <button onClick={handleBuyNow} disabled={createConv.isPending} className={`w-full py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg flex items-center justify-center gap-1.5 ${
+                        //   isWanted ? 'btn-warning' : 'btn-primary'
+                        // }`}>
+                        //   <span className="material-symbols-outlined text-base">{isWanted ? 'chat' : 'shopping_cart'}</span>
+                        //   {createConv.isPending ? tp('carContactPending') : isWanted ? tp('carContactRequester') : tp('carBuyNow')}
+                        // </button>
                       )}
                     </>
                   )}

@@ -109,6 +109,14 @@ export function SellerCard({
           <div className="mt-3 space-y-2">
             {/* Row 1: Message + Share side by side */}
             <div className="grid grid-cols-2 gap-2">
+              {/* HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ! */}
+              <a href={`tel:003222`} className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 py-2 sm:py-2.5 rounded-lg font-black text-[11px] sm:text-xs hover:bg-primary hover:text-on-primary transition-all flex items-center justify-center gap-1 disabled:opacity-60">
+                <span className="material-symbols-outlined text-lg">call</span> {tp('svcDetailCall')}
+              </a>
+              <a href={`https://wa.me/+201021620845`} target="_blank" rel="noopener noreferrer"
+                className='bg-surface-container-high hover:bg-[#25D366] hover:text-white dark:bg-surface-container-highest text-on-surface py-2 sm:py-2.5 rounded-lg font-black text-[11px] sm:text-xs transition-all flex items-center justify-center gap-1'>
+                <span className="material-symbols-outlined text-lg">chat</span> {tp('svcDetailWhatsapp')}
+              </a>
               {onMessage && (
                 <button
                   onClick={onMessage}
