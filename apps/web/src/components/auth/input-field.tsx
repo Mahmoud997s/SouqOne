@@ -9,6 +9,7 @@ interface InputFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'c
   /** Renders show/hide toggle when type="password" */
   isPassword?: boolean;
   hint?: string;
+  iconClassName?:string;
   onHintClick?: () => void;
 }
 
@@ -19,6 +20,7 @@ export function InputField({
   isPassword,
   hint,
   onHintClick,
+  iconClassName,
   ...rest
 }: InputFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +31,6 @@ export function InputField({
   const padStart = isPassword ? 42 : 12;
 
   // Browsers force LTR on type=email/url/tel — override with dir="auto" so RTL placeholders render correctly
-  const dirAttr = rest.dir ?? (['email', 'url', 'tel'].includes(inputType) ? 'auto' : undefined);
 
   return (
     <div className="flex flex-col gap-1">
@@ -56,14 +57,13 @@ export function InputField({
         <input
           {...rest}
           type={inputType}
-          dir={dirAttr}
           className="auth-input"
           style={{ paddingInlineEnd: padEnd, paddingInlineStart: padStart }}
         />
 
         {icon && (
           <span
-            className="material-symbols-outlined pointer-events-none text-on-surface-variant/40"
+            className={`material-symbols-outlined pointer-events-none text-on-surface-variant/40 ${iconClassName}`}
             style={{
               position: 'absolute',
               insetInlineEnd: 12,

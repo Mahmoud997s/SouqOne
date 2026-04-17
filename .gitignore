@@ -13,12 +13,7 @@ build/
 .turbo/
 
 # Environment
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.test
+.env.*
 
 # IDE
 .vscode/
@@ -55,3 +50,6 @@ apps/api/uploads/
 # Misc
 *.tsbuildinfo
 next-env.d.ts
+
+## mahmmouudmuhamed2097@gmail.com
+## 1234512345

@@ -168,9 +168,9 @@ export function Navbar() {
                   const hasChildren = link.children && link.children.length > 0;
                   return (
                     <div key={link.href} className="relative group/nav">
-                      <Link href={link.href} className={`relative flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold rounded-lg transition-colors duration-300 ${active ? 'text-primary' : 'text-on-surface-variant hover:text-primary hover:bg-surface-container-low/50'}`}>
+                      <Link href={link.href} className={`relative flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold rounded-lg transition-colors duration-300 ${active ? 'text-primary dark:text-[#FE5E00]' : 'text-on-surface-variant hover:text-primary dark:hover:text-[#FE5E00] hover:bg-surface-container-low/50'}`}>
                         {link.label}
-                        <span className={`absolute bottom-0.5 inset-x-3 h-[2px] rounded-full transition-all duration-300 origin-center ${active ? 'bg-primary scale-x-100' : 'bg-primary/60 scale-x-0 group-hover/nav:scale-x-100'}`} />
+                        <span className={`absolute bottom-0.5 inset-x-3 h-[2px] rounded-full transition-all duration-300 origin-center ${active ? 'bg-primary dark:bg-[#FE5E00] scale-x-100' : 'bg-primary/60 dark:bg-[#FE5E00] scale-x-0 group-hover/nav:scale-x-100'}`} />
                       </Link>
                       {hasChildren && (
                         <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-200 z-50">
@@ -181,7 +181,7 @@ export function Navbar() {
                                 href={child.href}
                                 className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors"
                               >
-                                <span className="material-symbols-outlined text-[20px] text-primary shrink-0">{child.icon}</span>
+                                <span className="material-symbols-outlined text-[20px] text-primary dark:text-[#FE5E00] shrink-0">{child.icon}</span>
                                 <div>
                                   <p className="text-sm font-bold text-on-surface">{child.label}</p>
                                   <p className="text-[11px] text-on-surface-variant">{child.desc}</p>

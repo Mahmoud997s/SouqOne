@@ -55,6 +55,7 @@ export default function LoginForm() {
           type="email"
           required
           autoFocus
+          iconClassName='rtl:inset-s-3! ltr:inset-e-3!'
           value={email}
           onChange={(e) => setEmail(e.currentTarget.value)}
           placeholder={t('emailPlaceholder')}
