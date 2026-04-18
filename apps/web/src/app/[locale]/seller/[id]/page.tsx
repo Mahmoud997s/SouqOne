@@ -16,7 +16,6 @@ import { useBusListings } from '@/lib/api/buses';
 import { useEquipmentListings, useOperatorListings } from '@/lib/api/equipment';
 import { useParts } from '@/lib/api/parts';
 import { useCarServices } from '@/lib/api/services';
-import { useInsuranceOffers } from '@/lib/api/insurance';
 import { useJobs } from '@/lib/api/jobs';
 import { useTransportServices } from '@/lib/api/transport';
 import { useTrips } from '@/lib/api/trips';
@@ -39,7 +38,6 @@ const SECTION_TABS = [
   { key: 'operators', icon: 'engineering', labelKey: 'sectionOperators', entityType: 'OPERATOR_LISTING' },
   { key: 'parts', icon: 'build', labelKey: 'sectionParts', entityType: 'SPARE_PART' },
   { key: 'services', icon: 'car_repair', labelKey: 'sectionServices', entityType: 'CAR_SERVICE' },
-  { key: 'insurance', icon: 'shield', labelKey: 'sectionInsurance', entityType: 'INSURANCE' },
   { key: 'transport', icon: 'local_shipping', labelKey: 'sectionTransport', entityType: 'TRANSPORT' },
   { key: 'trips', icon: 'route', labelKey: 'sectionTrips', entityType: 'TRIP' },
   { key: 'jobs', icon: 'work', labelKey: 'sectionJobs', entityType: 'JOB' },
@@ -61,7 +59,6 @@ export default function SellerPage() {
   const operators = useOperatorListings(sellerId ? { userId: sellerId, limit: '50' } : undefined);
   const parts = useParts(sellerId ? { sellerId, limit: '50' } : undefined);
   const services = useCarServices(sellerId ? { userId: sellerId, limit: '50' } : undefined);
-  const insurance = useInsuranceOffers(sellerId ? { userId: sellerId, limit: '50' } : undefined);
   const transport = useTransportServices(sellerId ? { userId: sellerId, limit: '50' } : undefined);
   const trips = useTrips(sellerId ? { userId: sellerId, limit: '50' } : undefined);
   const jobs = useJobs(sellerId ? { userId: sellerId, limit: '50' } : {});
@@ -84,7 +81,6 @@ export default function SellerPage() {
       case 'operators': return { items: operators.data?.items ?? [], isLoading: operators.isLoading };
       case 'parts': return { items: parts.data?.items ?? [], isLoading: parts.isLoading };
       case 'services': return { items: services.data?.items ?? [], isLoading: services.isLoading };
-      case 'insurance': return { items: insurance.data?.items ?? [], isLoading: insurance.isLoading };
       case 'jobs': return { items: jobs.data?.items ?? [], isLoading: jobs.isLoading };
       case 'transport': return { items: transport.data?.items ?? [], isLoading: transport.isLoading };
       case 'trips': return { items: trips.data?.items ?? [], isLoading: trips.isLoading };
@@ -214,7 +210,7 @@ export default function SellerPage() {
         {sectionData.isLoading ? (
           <ListingSkeleton count={4} />
         ) : sectionData.items.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             {sectionData.items.map((item: any) => {
               if (activeSection === 'cars') {
                 const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];

@@ -19,7 +19,6 @@ function useSearchCategories() {
     { value: 'equipment', label: ts('equipment'), placeholder: ts('navEquipmentPlaceholder'), route: '/equipment' },
     { value: 'parts',     label: ts('parts'),     placeholder: ts('navPartsPlaceholder'),     route: '/parts' },
     { value: 'services',  label: ts('services'),  placeholder: ts('navServicesPlaceholder'),  route: '/services' },
-    { value: 'insurance', label: ts('insurance'), placeholder: ts('navInsurancePlaceholder'), route: '/insurance' },
     { value: 'transport', label: ts('transport'), placeholder: ts('navTransportPlaceholder'), route: '/transport' },
     { value: 'trips',     label: ts('trips'),     placeholder: ts('navTripsPlaceholder'),     route: '/trips' },
     { value: 'jobs',      label: ts('jobs'),      placeholder: ts('navJobsPlaceholder'),      route: '/jobs' },

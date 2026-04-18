@@ -12,7 +12,6 @@ import { useMyBusListings, useDeleteBusListing } from '@/lib/api/buses';
 import { useMyEquipmentListings, useDeleteEquipmentListing, useMyOperatorListings, useDeleteOperatorListing } from '@/lib/api/equipment';
 import { useMyParts, useDeletePart } from '@/lib/api/parts';
 import { useMyCarServices, useDeleteCarService } from '@/lib/api/services';
-import { useMyInsuranceOffers, useDeleteInsurance } from '@/lib/api/insurance';
 import { useMyJobs, useDeleteJob } from '@/lib/api/jobs';
 import { useMyTransportServices, useDeleteTransportService } from '@/lib/api/transport';
 import { useMyTrips, useDeleteTrip } from '@/lib/api/trips';
@@ -30,7 +29,6 @@ const SECTION_TABS = [
   { key: 'operators', icon: 'engineering', labelKey: 'sectionOperators' },
   { key: 'parts', icon: 'build', labelKey: 'sectionParts' },
   { key: 'services', icon: 'car_repair', labelKey: 'sectionServices' },
-  { key: 'insurance', icon: 'shield', labelKey: 'sectionInsurance' },
   { key: 'transport', icon: 'local_shipping', labelKey: 'sectionTransport' },
   { key: 'trips', icon: 'route', labelKey: 'sectionTrips' },
   { key: 'jobs', icon: 'work', labelKey: 'sectionJobs' },
@@ -62,8 +60,6 @@ export default function MyListingsPage() {
   const deleteParts = useDeletePart();
   const services = useMyCarServices();
   const deleteService = useDeleteCarService();
-  const insurance = useMyInsuranceOffers();
-  const deleteIns = useDeleteInsurance();
   const jobs = useMyJobs();
   const deleteJob = useDeleteJob();
   const transport = useMyTransportServices();
@@ -95,7 +91,6 @@ export default function MyListingsPage() {
       case 'operators': return { items: operators.data ?? [], isLoading: operators.isLoading, refetch: operators.refetch };
       case 'parts': return { items: parts.data ?? [], isLoading: parts.isLoading, refetch: parts.refetch };
       case 'services': return { items: services.data ?? [], isLoading: services.isLoading, refetch: services.refetch };
-      case 'insurance': return { items: insurance.data ?? [], isLoading: insurance.isLoading, refetch: insurance.refetch };
       case 'jobs': return { items: jobs.data?.items ?? [], isLoading: jobs.isLoading, refetch: jobs.refetch };
       case 'transport': return { items: transport.data?.items ?? [], isLoading: transport.isLoading, refetch: transport.refetch };
       case 'trips': return { items: trips.data?.items ?? [], isLoading: trips.isLoading, refetch: trips.refetch };
@@ -111,7 +106,6 @@ export default function MyListingsPage() {
       case 'operators': return (id, opts) => deleteOperator.mutate(id, opts);
       case 'parts': return (id, opts) => deleteParts.mutate(id, opts);
       case 'services': return (id, opts) => deleteService.mutate(id, opts);
-      case 'insurance': return (id, opts) => deleteIns.mutate(id, opts);
       case 'jobs': return (id, opts) => deleteJob.mutate(id, opts);
       case 'transport': return (id, opts) => deleteTransport.mutate(id, opts);
       case 'trips': return (id, opts) => deleteTrip.mutate(id, opts);
@@ -127,7 +121,6 @@ export default function MyListingsPage() {
       case 'operators': return `/edit-listing/operator/${id}`;
       case 'parts': return `/edit-listing/parts/${id}`;
       case 'services': return `/edit-listing/service/${id}`;
-      case 'insurance': return `/edit-listing/insurance/${id}`;
       case 'jobs': return `/edit-listing/job/${id}`;
       case 'transport': return `/edit-listing/transport/${id}`;
       case 'trips': return `/edit-listing/trip/${id}`;
@@ -138,7 +131,7 @@ export default function MyListingsPage() {
   const ENTITY_TYPE_MAP: Record<SectionKey, string> = {
     cars: 'LISTING', buses: 'BUS_LISTING', equipment: 'EQUIPMENT_LISTING',
     operators: 'OPERATOR_LISTING', parts: 'SPARE_PART', services: 'CAR_SERVICE',
-    insurance: 'INSURANCE', transport: 'TRANSPORT', trips: 'TRIP', jobs: 'JOB',
+    transport: 'TRANSPORT', trips: 'TRIP', jobs: 'JOB',
   };
 
   const sectionData = getSectionData();
@@ -215,13 +208,13 @@ export default function MyListingsPage() {
 
           {/* Content */}
           {sectionData.isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="animate-pulse bg-surface-container-high aspect-[4/3] rounded-lg" />
               ))}
             </div>
           ) : filteredItems.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
               {filteredItems.map((item: any) => {
                 const st = statusLabels[item.status] ?? { label: item.status, cls: 'bg-outline/60 text-white' };
                 const entityType = ENTITY_TYPE_MAP[activeSection];

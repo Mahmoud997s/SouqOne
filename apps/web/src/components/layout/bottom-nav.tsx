@@ -26,7 +26,24 @@ export function BottomNav() {
   if (pathname.startsWith('/messages/') && pathname !== '/messages') return null;
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-surface-container-lowest/95 dark:bg-surface-container/95 backdrop-blur-xl border-t border-outline-variant/10 dark:border-outline-variant/20 safe-area-bottom">
+    <>
+    {/* Blur gap between bars */}
+    <div className="fixed bottom-16 inset-x-0 h-2 z-40 lg:hidden backdrop-blur-3xl" />
+
+    {/* CTA circle — centered between both bars: (64+8+64)/2=68px center, 68-26.5=41.5≈42 */}
+    <Link
+      href="/add-listing"
+      className="fixed z-[51] bottom-[37px] left-1/2 -translate-x-1/2 lg:hidden"
+    >
+      <div className="relative w-[63px] h-[63px] rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30 pulse-ring">
+        <span className="material-symbols-outlined text-on-primary text-2xl">add_circle</span>
+      </div>
+    </Link>
+
+    <nav
+      className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-gradient-to-r from-primary/[0.05] via-surface-container-lowest/95 to-brand-amber/[0.05] dark:from-primary/[0.08] dark:via-surface-container/95 dark:to-brand-amber/[0.06] backdrop-blur-xl border-t border-outline-variant/10 dark:border-outline-variant/20 safe-area-bottom rounded-t-2xl"
+      style={{ maskImage: 'radial-gradient(circle 36px at 50% -4px, transparent 100%, black 100%)', WebkitMaskImage: 'radial-gradient(circle 36px at 50% -4px, transparent 100%, black 100%)' }}
+    >
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {NAV_ITEMS.map((item) => {
           const needsAuth = item.authRequired && !isAuthenticated;
@@ -34,19 +51,12 @@ export function BottomNav() {
           const isActive = (item as any).isSearch ? searchOpen : (item.href === '/' ? pathname === '/' : pathname.startsWith(item.href));
 
           if (item.accent) {
+            // Spacer + label — the circle is fixed-positioned above
             return (
-              <Link
-                key={item.href}
-                href={href}
-                className="flex flex-col items-center justify-center -mt-4"
-              >
-                <div className="relative w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30 pulse-ring">
-                  <span className="material-symbols-outlined text-on-primary text-2xl">
-                    {item.icon}
-                  </span>
-                </div>
+              <div key={item.href} className="flex flex-col items-center justify-center min-w-[56px]">
+                <div className="w-12 h-12" />
                 <span className="text-[10px] font-bold text-primary mt-0.5">{item.label}</span>
-              </Link>
+              </div>
             );
           }
 
@@ -114,5 +124,6 @@ export function BottomNav() {
         })}
       </div>
     </nav>
+    </>
   );
 }

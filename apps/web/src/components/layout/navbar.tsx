@@ -36,7 +36,6 @@ function useNavLinks() {
         { href: '/listings?listingType=RENTAL', label: t('carsForRent'), icon: 'car_rental', desc: tn('dailyMonthlyRental') },
         { href: '/parts', label: t('spareParts'), icon: 'settings', desc: tn('originalAlternativeParts') },
         { href: '/services', label: t('carServices'), icon: 'build', desc: tn('maintenanceInspection') },
-        { href: '/insurance', label: t('insuranceAndFinance'), icon: 'shield', desc: tn('comprehensiveInsurance') },
       ],
     },
     {
@@ -72,7 +71,6 @@ function useNavLinks() {
     { href: '/listings', label: t('cars') },
     { href: '/parts', label: t('spareParts') },
     { href: '/services', label: t('carServices') },
-    { href: '/insurance', label: t('insuranceAndFinance') },
     { href: '/buses', label: t('buses') },
     { href: '/equipment', label: t('equipment') },
     { href: '/jobs', label: t('jobs') },
@@ -143,16 +141,67 @@ export function Navbar() {
 
         {/* ━━━ TOP BAR: Logo + Links + Actions ━━━ */}
         <div className="glass-nav transition-all duration-300" style={{ height: TOP_H, opacity: 1 }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-[auto_1fr_auto] items-center gap-4" style={{ height: TOP_H }}>
+
+          {/* ── Mobile Top Bar (< lg) ── */}
+          <div
+            className="lg:hidden grid grid-cols-[1fr_auto_1fr] items-center px-3"
+            dir="ltr"
+            style={{ height: TOP_H }}
+          >
+            {/* Physical LEFT: Drawer, Language, Theme */}
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={() => setMobileOpen(true)}
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low"
+              >
+                <span className="material-symbols-outlined text-[20px]">menu</span>
+              </button>
+              <LanguageSwitcher />
+              <ThemeToggle />
+            </div>
+
+            {/* CENTER: Logo */}
+            <div className="flex justify-center px-2">
+              <Link href="/" className="flex items-center">
+                {locale === 'ar' ? (
+                  <Image src="/souq-one-ar.svg" alt={t('siteName')} width={140} height={28} unoptimized className="h-[28px] w-auto" />
+                ) : (
+                  <>
+                    <Image src="/souq-one-en.svg" alt={t('siteName')} width={120} height={24} unoptimized className="h-[24px] w-auto object-contain dark:hidden" />
+                    <Image src="/souq-one-en-dark.svg" alt={t('siteName')} width={120} height={24} unoptimized className="h-[24px] w-auto object-contain hidden dark:block" />
+                  </>
+                )}
+              </Link>
+            </div>
+
+            {/* Physical RIGHT: Notifications, Chat, Favorites */}
+            <div className="flex justify-end">
+              <div className="flex items-center gap-0.5">
+                <Link href="/notifications" className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all relative">
+                  <span className="material-symbols-outlined text-[20px]">notifications</span>
+                  {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />}
+                </Link>
+                <Link href="/messages" className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all">
+                  <span className="material-symbols-outlined text-[20px]">chat</span>
+                </Link>
+                <Link href="/favorites" className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all">
+                  <span className="material-symbols-outlined text-[20px]">favorite</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Desktop Top Bar (lg+) ── */}
+          <div className="hidden lg:grid max-w-7xl mx-auto px-6 grid-cols-[auto_1fr_auto] items-center gap-4" style={{ height: TOP_H }}>
             {/* Brand + Language */}
             <div className="flex items-center gap-2 shrink-0">
               <Link href="/" className="flex items-center">
                 {locale === 'ar' ? (
-                  <Image src="/souq-one-ar.svg" alt={t('siteName')} width={190} height={38} className="h-[32px] sm:h-[38px] w-auto" />
+                  <Image src="/souq-one-ar.svg" alt={t('siteName')} width={190} height={38} unoptimized className="h-[32px] sm:h-[38px] w-auto" />
                 ) : (
                   <>
-                    <Image src="/souq-one-en.svg" alt={t('siteName')} width={158} height={31} className="h-[27px] sm:h-[31px] w-auto object-contain dark:hidden" />
-                    <Image src="/souq-one-en-dark.svg" alt={t('siteName')} width={158} height={31} className="h-[27px] sm:h-[31px] w-auto object-contain hidden dark:block" />
+                    <Image src="/souq-one-en.svg" alt={t('siteName')} width={158} height={31} unoptimized className="h-[27px] sm:h-[31px] w-auto object-contain dark:hidden" />
+                    <Image src="/souq-one-en-dark.svg" alt={t('siteName')} width={158} height={31} unoptimized className="h-[27px] sm:h-[31px] w-auto object-contain hidden dark:block" />
                   </>
                 )}
               </Link>
@@ -196,9 +245,6 @@ export function Navbar() {
                 })}
               </nav>
             </div>
-            {/* Spacer for mobile (no nav links shown) */}
-            <div className="lg:hidden" />
-
             {/* Actions */}
             <div className="flex items-center gap-0.5">
               {/* Icon buttons group */}
@@ -252,9 +298,6 @@ export function Navbar() {
                 </div>
               )}
 
-              <button onClick={() => setMobileOpen(true)} className="lg:hidden w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low">
-                <span className="material-symbols-outlined text-[20px]">menu</span>
-              </button>
             </div>
           </div>
         </div>

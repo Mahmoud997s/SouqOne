@@ -42,30 +42,30 @@ function getImg(item: ListingItem) {
 export function FeaturedShowroom({ items, isLoading }: FeaturedShowroomProps) {
   const t = useTranslations('home');
   return (
-    <section className="bg-surface-container-low dark:bg-surface-dim py-10">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-wrap justify-between items-end gap-2 mb-6">
+    <section className="bg-surface-container-low dark:bg-surface-dim py-6 sm:py-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6">
+        <div className="flex flex-wrap justify-between items-end gap-2 mb-4 sm:mb-6">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-8 w-1 bg-primary" />
-              <h2 className="text-xl md:text-3xl font-black">{t('latestCars')}</h2>
+            <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+              <div className="h-6 sm:h-8 w-1 bg-primary" />
+              <h2 className="text-base sm:text-xl md:text-3xl font-black">{t('latestCars')}</h2>
             </div>
-            <p className="text-on-surface-variant text-sm">{t('latestCarsDesc')}</p>
+            <p className="text-on-surface-variant text-xs sm:text-sm">{t('latestCarsDesc')}</p>
           </div>
           <Link
             href="/listings"
-            className="text-primary font-bold text-sm hover:underline transition-colors"
+            className="text-primary font-bold text-xs sm:text-sm hover:underline transition-colors"
           >
             {t('viewAll')}
           </Link>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {[1, 2, 3].map((i) => <CardSkeleton key={i} />)}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+            {[1, 2, 3, 4].map((i) => <CardSkeleton key={i} />)}
           </div>
         ) : items.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             {items.map((item) => (
               <VehicleCard
                 key={item.id}

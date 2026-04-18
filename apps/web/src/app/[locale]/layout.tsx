@@ -29,6 +29,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const altLocale = locale === 'ar' ? 'en' : 'ar';
 
   return {
+    icons: {
+      icon: '/logo.png',
+      apple: '/logo.png',
+    },
     title: {
       default: tp('layoutTitle'),
       template: tp('layoutTitleTemplate'),
@@ -100,6 +104,7 @@ export default async function LocaleLayout({
             __html: `
               var l = document.createElement('link');
               l.rel = 'stylesheet';
+              l.crossOrigin = 'anonymous';
               l.href = 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap';
               document.head.appendChild(l);
             `,

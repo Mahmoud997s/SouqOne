@@ -47,7 +47,7 @@ export function WelcomeModal() {
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={dismiss} />
 
       {/* Modal */}
-      <div className="relative bg-surface-container-lowest dark:bg-surface-container w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+      <div role="dialog" aria-modal="true" aria-labelledby="welcome-title" className="relative bg-surface-container-lowest dark:bg-surface-container w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
         {/* Skip */}
         {!isLast && (
           <button
@@ -66,7 +66,7 @@ export function WelcomeModal() {
           </div>
 
           {/* Title */}
-          <h2 className="text-xl font-black text-on-surface mb-3">{t(slide.titleKey)}</h2>
+          <h2 id="welcome-title" className="text-xl font-black text-on-surface mb-3">{t(slide.titleKey)}</h2>
 
           {/* Description */}
           <p className="text-sm text-on-surface-variant leading-relaxed max-w-xs mx-auto">

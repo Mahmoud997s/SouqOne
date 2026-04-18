@@ -6,7 +6,6 @@ import { WelcomeModal } from '@/components/welcome-modal';
 import { useListings, useJobs } from '@/lib/api';
 import { useBusListings } from '@/lib/api/buses';
 import { useParts } from '@/lib/api/parts';
-import { useInsuranceOffers } from '@/lib/api/insurance';
 import { useEquipmentListings } from '@/lib/api/equipment';
 import {
   HeroSection,
@@ -15,7 +14,6 @@ import {
   BusesShowcase,
   PartsShowcase,
   EquipmentShowcase,
-  InsuranceShowcase,
   QuickServicesGrid,
   JobsSection,
   NewsletterCta,
@@ -25,7 +23,6 @@ export default function Home() {
   const { data: featuredData, isLoading: featuredLoading } = useListings({ page: '1', limit: '4' });
   const { data: busesData, isLoading: busesLoading } = useBusListings({ page: '1', limit: '4' });
   const { data: partsData, isLoading: partsLoading } = useParts({ page: '1', limit: '4' });
-  const { data: insuranceData, isLoading: insuranceLoading } = useInsuranceOffers({ page: '1', limit: '4' });
   const { data: equipmentData, isLoading: equipmentLoading } = useEquipmentListings({ page: '1', limit: '4' });
   const { data: jobsData, isLoading: jobsLoading } = useJobs({ limit: '6' });
 
@@ -41,26 +38,26 @@ export default function Home() {
         {/* 2. Browse categories — 7 main sections */}
         <CategoriesSection />
 
-        {/* 3. Featured cars (sale + rental) */}
+        {/* 3. Quick services */}
+        <QuickServicesGrid />
+
+        {/* 4. Featured cars (sale + rental) */}
         <FeaturedShowroom
           items={featuredData?.items ?? []}
           isLoading={featuredLoading}
         />
 
-        {/* 4. Latest buses */}
+        {/* 5. Latest buses */}
         <BusesShowcase
           items={busesData?.items ?? []}
           isLoading={busesLoading}
         />
 
-        {/* 5. Latest spare parts */}
+        {/* 6. Latest spare parts */}
         <PartsShowcase
           items={partsData?.items ?? []}
           isLoading={partsLoading}
         />
-
-        {/* 6. Quick services grid */}
-        <QuickServicesGrid />
 
         {/* 7. Latest equipment */}
         <EquipmentShowcase
@@ -68,11 +65,6 @@ export default function Home() {
           isLoading={equipmentLoading}
         />
 
-        {/* 8. Insurance offers */}
-        <InsuranceShowcase
-          items={insuranceData?.items ?? []}
-          isLoading={insuranceLoading}
-        />
 
         {/* 9. Driver jobs */}
         <JobsSection

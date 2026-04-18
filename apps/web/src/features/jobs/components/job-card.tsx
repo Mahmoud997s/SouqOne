@@ -6,9 +6,23 @@ import { employmentLabelsT } from '@/lib/constants/jobs';
 import { relativeTimeT } from '@/lib/time-utils';
 import { useTranslations, useLocale } from 'next-intl';
 
-const TYPE_STYLE_CONFIG = {
-  OFFERING: { labelKey: 'lookingForWork' as const, posterLabelKey: 'individual' as const, bg: '#EAF3DE', color: '#27500A' },
-  HIRING:   { labelKey: 'lookingForDriver' as const, posterLabelKey: 'company' as const, bg: '#E6F1FB', color: '#0C447C' },
+const TYPE_STYLES = {
+  OFFERING: {
+    labelKey: 'lookingForWork' as const,
+    posterLabelKey: 'individual' as const,
+    icon: 'person_search',
+    headerBg: 'bg-primary-fixed dark:bg-primary-container/20',
+    badgeBg: 'bg-primary/10 dark:bg-primary/20 text-primary',
+    avatarBg: 'bg-primary/10 dark:bg-primary/20 text-primary',
+  },
+  HIRING: {
+    labelKey: 'lookingForDriver' as const,
+    posterLabelKey: 'company' as const,
+    icon: 'local_shipping',
+    headerBg: 'bg-tertiary-container dark:bg-tertiary-container/20',
+    badgeBg: 'bg-tertiary/10 dark:bg-tertiary/20 text-tertiary',
+    avatarBg: 'bg-tertiary/10 dark:bg-tertiary/20 text-tertiary',
+  },
 } as const;
 
 function isNew(date: string) {
@@ -26,8 +40,7 @@ export function JobCard({ job }: { job: JobItem }) {
   const tl = useTranslations('listings');
   const tt = useTranslations('time');
   const locale = useLocale();
-  const config = TYPE_STYLE_CONFIG[job.jobType] ?? TYPE_STYLE_CONFIG.OFFERING;
-  const style = { label: t(config.labelKey), posterLabel: t(config.posterLabelKey), bg: config.bg, color: config.color };
+  const s = TYPE_STYLES[job.jobType] ?? TYPE_STYLES.OFFERING;
   const empLabels = employmentLabelsT(t);
   const salaryPeriodLabels: Record<string, string> = {
     DAILY: t('perDay'), MONTHLY: t('perMonth'), YEARLY: t('perYear'), NEGOTIABLE: t('salaryNegotiable'),
@@ -38,123 +51,94 @@ export function JobCard({ job }: { job: JobItem }) {
   const posterName = job.user?.displayName || job.user?.username || t('user');
   const city = job.city || job.governorate || '';
 
-  const tags: { icon: React.ReactNode; text: string }[] = [];
+  const tags: { icon: string; text: string }[] = [];
 
-  tags.push({
-    icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>,
-    text: empLabels[job.employmentType] ?? job.employmentType,
-  });
+  tags.push({ icon: 'work', text: empLabels[job.employmentType] ?? job.employmentType });
 
   if (job.experienceYears != null) {
-    tags.push({
-      icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
-      text: t('yearsExperience', { count: job.experienceYears }),
-    });
+    tags.push({ icon: 'schedule', text: t('yearsExperience', { count: job.experienceYears }) });
   }
 
   if (city) {
-    tags.push({
-      icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
-      text: city,
-    });
+    tags.push({ icon: 'location_on', text: city });
   }
 
   if (job.licenseTypes.length > 0) {
     const first = licenseLabels[job.licenseTypes[0]] ?? job.licenseTypes[0];
-    tags.push({
-      icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10"/><path d="M7 12h6"/></svg>,
-      text: job.licenseTypes.length > 1 ? `${first} +${job.licenseTypes.length - 1}` : first,
-    });
+    tags.push({ icon: 'badge', text: job.licenseTypes.length > 1 ? `${first} +${job.licenseTypes.length - 1}` : first });
   }
 
   return (
-    <Link href={`/jobs/${job.id}`} className="block group h-full">
-      <article
-       
-        className="h-full bg-surface-container-lowest dark:bg-surface-container flex flex-col gap-2.5 transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
-        style={{ border: '0.5px solid var(--color-outline-variant, #e0e0e0)', borderRadius: 12, padding: '14px 14px 12px' }}
-      >
-        {/* Row 1: Avatar + Poster info + Type badge */}
-        <div className="flex items-center gap-2.5">
-          {/* Avatar */}
-          <div
-            className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold select-none"
-            style={{ background: style.bg, color: style.color, border: '0.5px solid var(--color-outline-variant, #e0e0e0)' }}
-          >
+    <article className="h-full rounded-xl overflow-hidden bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300">
+      <Link href={`/jobs/${job.id}`} className="h-full flex flex-col p-2.5 sm:p-3 gap-2 sm:gap-2.5">
+
+        {/* 1. Poster row (top) */}
+        <div className="flex items-center gap-2">
+          <div className={`shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold select-none ${s.avatarBg}`}>
             {getInitials(posterName)}
           </div>
-
-          {/* Poster info */}
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-on-surface truncate leading-tight">{posterName}</p>
-            <p className="text-[11px] text-on-surface-variant leading-tight mt-0.5">
-              {style.posterLabel}{city ? ` · ${city}` : ''}
+            <p className="text-[11px] sm:text-xs font-bold text-on-surface truncate leading-tight">{posterName}</p>
+            <p className="text-[9px] sm:text-[10px] text-on-surface-variant leading-tight">
+              {t(s.posterLabelKey)}{city ? ` · ${city}` : ''}
             </p>
           </div>
-
-          {/* Type badge */}
-          <span
-            className="shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full"
-            style={{ background: style.bg, color: style.color }}
-          >
-            {style.label}
-          </span>
-        </div>
-
-        {/* Divider */}
-        <div style={{ height: 0.5, background: 'var(--color-outline-variant, #e0e0e0)' }} />
-
-        {/* Title */}
-        <h3 className="text-[15px] font-medium text-on-surface leading-snug line-clamp-2">
-          {job.title}
-        </h3>
-
-        {/* Salary */}
-        <div className="flex items-baseline gap-1">
-          {job.salary ? (
-            <>
-              <span className="text-lg font-medium text-on-surface">
-                {Number(job.salary).toLocaleString('en-US')}
-              </span>
-              <span className="text-xs text-on-surface-variant">
-                {tl('currency')}{job.salaryPeriod ? salaryPeriodLabels[job.salaryPeriod] : ''}
-              </span>
-            </>
-          ) : (
-            <span className="text-xs text-on-surface-variant font-medium">{t('salaryNegotiable')}</span>
+          {isNew(job.createdAt) && (
+            <span className="shrink-0 text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-green/10 dark:bg-brand-green/20 text-brand-green">
+              {tl('new')}
+            </span>
           )}
         </div>
 
-        {/* Tags */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        {/* 2. Type badge + Title */}
+        <div className="space-y-1.5">
+          <span className={`inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full ${s.badgeBg}`}>
+            <span className="material-symbols-outlined text-[11px] sm:text-[12px]">{s.icon}</span>
+            {t(s.labelKey)}
+          </span>
+          <h3 className="text-xs sm:text-[13px] font-black leading-snug line-clamp-2 text-on-surface">
+            {job.title}
+          </h3>
+        </div>
+
+        {/* 3. Salary */}
+        <div className="flex items-baseline gap-1">
+          {job.salary ? (
+            <>
+              <span className="text-sm sm:text-base font-black text-on-surface">
+                {Number(job.salary).toLocaleString('en-US')}
+              </span>
+              <span className="text-[10px] sm:text-xs text-on-surface-variant">
+                {tl('currency')}{job.salaryPeriod ? ` / ${salaryPeriodLabels[job.salaryPeriod]}` : ''}
+              </span>
+            </>
+          ) : (
+            <span className="text-[11px] sm:text-xs text-on-surface-variant font-bold">{t('salaryNegotiable')}</span>
+          )}
+        </div>
+
+        {/* 4. Tags */}
+        <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
           {tags.map((tag, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-1 text-[10px] font-medium text-on-surface-variant bg-surface-container-low dark:bg-surface-container-high px-2 py-1 rounded-md"
-              style={{ border: '0.5px solid var(--color-outline-variant, #e0e0e0)' }}
+              className="inline-flex items-center gap-0.5 sm:gap-1 text-[9px] sm:text-[10px] font-medium text-on-surface-variant bg-surface-container-low dark:bg-surface-container-high px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md border border-outline-variant/10"
             >
-              {tag.icon}
+              <span className="material-symbols-outlined text-[10px] sm:text-[11px]">{tag.icon}</span>
               {tag.text}
             </span>
           ))}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between mt-auto pt-2">
-          {/* Time — right side in RTL */}
-          <span className="inline-flex items-center gap-1 text-[11px] text-on-surface-variant">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        {/* 5. Footer */}
+        <div className="flex items-center justify-between mt-auto pt-1.5 border-t border-outline-variant/10">
+          <span className="inline-flex items-center gap-0.5 text-[9px] sm:text-[10px] text-on-surface-variant">
+            <span className="material-symbols-outlined text-[10px] sm:text-[11px]">schedule</span>
             {relativeTimeT(job.createdAt, tt, locale)}
           </span>
-
-          {/* NEW badge — left side in RTL */}
-          {isNew(job.createdAt) && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#EAF3DE', color: '#27500A' }}>
-              {tl('new')}
-            </span>
-          )}
+          <span className="material-symbols-outlined icon-flip text-primary text-xs rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 transition-transform">arrow_back</span>
         </div>
-      </article>
-    </Link>
+      </Link>
+    </article>
   );
 }

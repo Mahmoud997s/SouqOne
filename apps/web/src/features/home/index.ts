@@ -4,7 +4,6 @@ export { FeaturedShowroom } from './components/featured-showroom';
 export { BusesShowcase } from './components/buses-showcase';
 export { PartsShowcase } from './components/parts-showcase';
 export { EquipmentShowcase } from './components/equipment-showcase';
-export { InsuranceShowcase } from './components/insurance-showcase';
 export { QuickServicesGrid } from './components/bento-recent';
 export { JobsSection } from './components/jobs-section';
 export { NewsletterCta } from './components/newsletter-cta';

@@ -150,7 +150,7 @@ function RentalsContent() {
         ) : (
           <>
             <p className="text-sm text-on-surface-variant mb-6">{tp('rentalsAvailable', { count: meta?.total ?? 0 })}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
               {items.map((item) => {
                 const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];
                 return (

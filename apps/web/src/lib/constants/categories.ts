@@ -70,14 +70,6 @@ export function getMainCategories(t: T): MainCategory[] {
         { value: 'operator-listing', label: t('operatorListing'), route: '/add-listing/operator', available: true },
       ],
     },
-    {
-      value: 'insurance', label: t('insurance'), icon: '🛡️',
-      color: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400',
-      subcategories: [
-        { value: 'car-insurance', label: t('carInsurance'), route: '/add-listing/insurance?type=CAR_COMPREHENSIVE', available: true },
-        { value: 'financing', label: t('financing'), route: '/add-listing/insurance?type=FINANCING', available: true },
-      ],
-    },
   ];
 }
 

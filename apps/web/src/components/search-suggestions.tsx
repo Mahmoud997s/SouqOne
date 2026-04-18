@@ -84,7 +84,6 @@ export function SearchSuggestions({ onClose, className }: SearchSuggestionsProps
     SPARE_PART: ts('entitySparePart'),
     SERVICE: ts('entityService'),
     JOB: ts('entityJob'),
-    INSURANCE: ts('entityInsurance'),
   };
 
   return (

@@ -34,27 +34,27 @@ interface RentalSectionProps {
 export function RentalSection({ items, isLoading }: RentalSectionProps) {
   const tp = useTranslations('pages');
   return (
-    <section className="py-20 bg-surface-container-low dark:bg-surface-dim">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-wrap items-end justify-between gap-2 mb-10">
+    <section className="py-6 sm:py-10 bg-surface-container-low dark:bg-surface-dim">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6">
+        <div className="flex flex-wrap items-end justify-between gap-2 mb-4 sm:mb-6">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-8 w-1 bg-primary" />
-              <h2 className="text-xl md:text-3xl font-black">{tp('rentalTitle')}</h2>
+            <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+              <div className="h-6 sm:h-8 w-1 bg-primary" />
+              <h2 className="text-base sm:text-xl md:text-3xl font-black">{tp('rentalTitle')}</h2>
             </div>
-            <p className="text-on-surface-variant text-sm">{tp('rentalSubtitle')}</p>
+            <p className="text-on-surface-variant text-xs sm:text-sm">{tp('rentalSubtitle')}</p>
           </div>
-          <Link href="/rentals" className="text-primary font-bold text-sm hover:underline transition-colors shrink-0">
+          <Link href="/rentals" className="text-primary font-bold text-xs sm:text-sm hover:underline transition-colors shrink-0">
             {tp('rentalViewAll')}
           </Link>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             {[1, 2, 3, 4].map((i) => <CardSkeleton key={i} />)}
           </div>
         ) : items.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             {items.map((item) => {
               const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];
               return (

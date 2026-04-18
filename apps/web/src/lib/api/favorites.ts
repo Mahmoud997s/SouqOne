@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '../auth';
+import { apiRequest, getAuthToken } from '../auth';
 import type { ListingItem } from './listings';
 
 export type EntityType =
@@ -9,7 +9,7 @@ export type EntityType =
   | 'CAR_SERVICE'
   | 'TRANSPORT'
   | 'TRIP'
-  | 'INSURANCE';
+;
 
 export interface FavoriteEntity {
   id: string;
@@ -38,6 +38,7 @@ export function useFavorites(entityType?: EntityType) {
   return useQuery<FavoritesResponse>({
     queryKey: ['favorites', entityType || 'all'],
     queryFn: () => apiRequest<FavoritesResponse>(`/favorites${qs ? `?${qs}` : ''}`),
+    enabled: !!getAuthToken(),
   });
 }
 
@@ -46,6 +47,7 @@ export function useFavoriteIds() {
     queryKey: ['favorite-ids'],
     queryFn: () => apiRequest<string[]>('/favorites/ids'),
     staleTime: 30_000,
+    enabled: !!getAuthToken(),
   });
 }
 
@@ -53,7 +55,7 @@ export function useCheckFavorite(listingId: string) {
   return useQuery<{ favorited: boolean }>({
     queryKey: ['favorite-check', 'LISTING', listingId],
     queryFn: () => apiRequest<{ favorited: boolean }>(`/favorites/check/${listingId}`),
-    enabled: !!listingId,
+    enabled: !!listingId && !!getAuthToken(),
   });
 }
 

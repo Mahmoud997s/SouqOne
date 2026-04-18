@@ -4,46 +4,45 @@ import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 
 const QL_META = [
-  { icon: 'build',           titleKey: 'qlMaintenance',    descKey: 'qlMaintenanceDesc',    href: '/services',                      color: 'text-blue-500' },
-  { icon: 'local_car_wash',  titleKey: 'qlCarWash',        descKey: 'qlCarWashDesc',        href: '/services',                      color: 'text-cyan-500' },
-  { icon: 'settings',        titleKey: 'qlOriginalParts',  descKey: 'qlOriginalPartsDesc',  href: '/parts',                         color: 'text-orange-500' },
-  { icon: 'shield',          titleKey: 'qlInsurance',      descKey: 'qlInsuranceDesc',      href: '/insurance',                     color: 'text-indigo-500' },
-  { icon: 'car_crash',       titleKey: 'qlTowing',         descKey: 'qlTowingDesc',         href: '/services',                      color: 'text-rose-500' },
+  { icon: 'electrical_services',   titleKey: 'qlElectrician',   href: '/services?serviceType=MAINTENANCE',         color: 'bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400' },
+  { icon: 'oil_barrel',            titleKey: 'qlOilChange',     href: '/services?serviceType=MAINTENANCE',         color: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' },
+  { icon: 'car_crash',             titleKey: 'qlTowing',        href: '/services?serviceType=TOWING',              color: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' },
+  { icon: 'tire_repair',           titleKey: 'qlMobileTire',    href: '/services?serviceType=MAINTENANCE',         color: 'bg-slate-500/10 text-slate-600 dark:bg-slate-500/20 dark:text-slate-400' },
+  { icon: 'battery_charging_full', titleKey: 'qlBattery',       href: '/services?serviceType=MAINTENANCE',         color: 'bg-yellow-500/10 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400' },
+  { icon: 'local_car_wash',        titleKey: 'qlCarWash',       href: '/services?serviceType=CLEANING',            color: 'bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400' },
+  { icon: 'build',                 titleKey: 'qlMaintenance',   href: '/services?serviceType=MAINTENANCE',         color: 'bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400' },
+  { icon: 'search_check_2',        titleKey: 'qlInspection',    href: '/services?serviceType=INSPECTION',          color: 'bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400' },
+  { icon: 'format_paint',          titleKey: 'qlBodywork',      href: '/services?serviceType=BODYWORK',            color: 'bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400' },
+  { icon: 'tune',                  titleKey: 'qlModification',  href: '/services?serviceType=MODIFICATION',        color: 'bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400' },
+  { icon: 'dashboard_customize',   titleKey: 'qlAccessories',   href: '/services?serviceType=ACCESSORIES_INSTALL', color: 'bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400' },
+  { icon: 'key',                   titleKey: 'qlKeysLocks',     href: '/services?serviceType=KEYS_LOCKS',          color: 'bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400' },
 ] as const;
 
 export function QuickServicesGrid() {
   const t = useTranslations('home');
   return (
-    <section className="bg-surface-container-low dark:bg-surface-dim py-10">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-2 mb-6">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-8 w-1 bg-primary" />
-              <h2 className="text-2xl font-black">{t('quickServices')}</h2>
-            </div>
-            <p className="text-on-surface-variant text-sm">{t('quickServicesDesc')}</p>
-          </div>
-          <div className="flex gap-2">
-            <Link href="/services" className="text-primary font-bold text-xs hover:underline">{t('servicesLink')}</Link>
-          </div>
+    <section className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
+      <div className="flex items-center justify-between mb-5 sm:mb-8">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="h-6 sm:h-8 w-1 rounded-full bg-primary" />
+          <h2 className="text-base sm:text-xl md:text-3xl font-black tracking-tight">{t('quickServices')}</h2>
         </div>
+        <Link href="/services" className="text-primary font-semibold text-xs sm:text-sm hover:underline underline-offset-2 transition-colors">{t('servicesLink')}</Link>
+      </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {QL_META.map((link) => (
-            <Link
-              key={link.titleKey}
-              href={link.href}
-              className="group bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 p-4 flex items-start gap-3 hover:border-primary/30 hover:shadow-md transition-all duration-300"
-            >
-              <span className={`material-symbols-outlined text-2xl ${link.color} shrink-0 mt-0.5`}>{link.icon}</span>
-              <div className="min-w-0">
-                <h3 className="font-bold text-sm text-on-surface mb-0.5 truncate">{t(link.titleKey)}</h3>
-                <p className="text-[11px] text-on-surface-variant leading-relaxed line-clamp-2">{t(link.descKey)}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
+      <div className="flex gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar pb-1">
+        {QL_META.map((link) => (
+          <Link
+            key={link.titleKey}
+            href={link.href}
+            className="group shrink-0 flex items-center gap-2 sm:gap-2.5 pe-3 ps-1.5 py-1.5 sm:pe-4 sm:ps-2 sm:py-2 rounded-full bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 hover:border-primary/20 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] active:scale-[0.97] transition-all duration-200"
+          >
+            <div className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center shrink-0 ${link.color} transition-transform duration-200 group-hover:scale-110`}>
+              <span className="material-symbols-outlined text-sm sm:text-lg">{link.icon}</span>
+            </div>
+            <span className="font-semibold text-[10px] sm:text-xs text-on-surface whitespace-nowrap">{t(link.titleKey)}</span>
+          </Link>
+        ))}
       </div>
     </section>
   );

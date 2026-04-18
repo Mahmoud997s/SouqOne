@@ -247,14 +247,14 @@ export default function EquipmentPage() {
           {/* Listings tab */}
           {tab === 'listings' && (
             listings.isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                 {Array.from({ length: 8 }).map((_, i) => <div key={i} className="animate-pulse bg-surface-container-low dark:bg-surface-container rounded-2xl h-72" />)}
               </div>
             ) : (listings.data?.items?.length ?? 0) === 0 ? (
               <EmptyState icon="construction" label={tp('equipNoListings')} sub={tp('equipNoListingsSub')} href="/add-listing/equipment" btn={tp('equipAddEquipment')} />
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                   {listings.data!.items.map(item => <EquipmentCard key={item.id} item={item} />)}
                 </div>
                 <Pagination meta={listings.data!.meta} page={page} setPage={setPage} />
@@ -265,14 +265,14 @@ export default function EquipmentPage() {
           {/* Requests tab */}
           {tab === 'requests' && (
             requests.isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                 {Array.from({ length: 6 }).map((_, i) => <div key={i} className="animate-pulse bg-surface-container-low dark:bg-surface-container rounded-2xl h-48" />)}
               </div>
             ) : (requests.data?.items?.length ?? 0) === 0 ? (
               <EmptyState icon="assignment" label={tp('equipNoRequests')} sub={tp('equipNoRequestsSub')} href="/equipment/requests/new" btn={tp('equipRequestEquipment')} />
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                   {requests.data!.items.map(item => <RequestCard key={item.id} item={item} />)}
                 </div>
                 <Pagination meta={requests.data!.meta} page={page} setPage={setPage} />
@@ -283,14 +283,14 @@ export default function EquipmentPage() {
           {/* Operators tab */}
           {tab === 'operators' && (
             operators.isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                 {Array.from({ length: 6 }).map((_, i) => <div key={i} className="animate-pulse bg-surface-container-low dark:bg-surface-container rounded-2xl h-48" />)}
               </div>
             ) : (operators.data?.items?.length ?? 0) === 0 ? (
               <EmptyState icon="engineering" label={tp('equipNoOperators')} sub={tp('equipNoOperatorsSub')} href="/add-listing/operator" btn={tp('equipRegisterOperator')} />
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                   {operators.data!.items.map(item => <OperatorCard key={item.id} item={item} />)}
                 </div>
                 <Pagination meta={operators.data!.meta} page={page} setPage={setPage} />

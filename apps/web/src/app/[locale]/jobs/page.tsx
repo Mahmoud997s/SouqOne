@@ -336,7 +336,7 @@ function JobsContent() {
       {/* ═══════════ RESULTS ═══════════ */}
       <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-10">
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="animate-pulse bg-surface-container-low dark:bg-surface-container rounded-2xl h-56" />
             ))}
@@ -377,7 +377,7 @@ function JobsContent() {
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
               {items.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
@@ -441,7 +441,7 @@ function RecommendedJobsSection() {
         <span className="material-symbols-outlined text-primary">recommend</span>
         <h2 className="text-xl font-extrabold">وظائف مقترحة لك</h2>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
         {jobs.slice(0, 6).map((job) => (
           <Link key={job.id} href={`/jobs/${job.id}`}
             className="block p-4 bg-surface-container-lowest border border-primary/10 rounded-xl hover:shadow-md transition">
