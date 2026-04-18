@@ -107,7 +107,8 @@ export function HeroSection() {
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder={t('heroSearchPlaceholder')}
-            className="flex-1 bg-transparent text-xs sm:text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none min-w-0"
+            dir="auto"
+            className="flex-1 bg-transparent text-xs sm:text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none min-w-0 text-start"
           />
 
           <button
@@ -142,44 +143,44 @@ export function HeroSection() {
                 key={i}
                 type="button"
                 onClick={() => setActiveSlide(i)}
-                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all ${i === activeSlide ? 'bg-white w-4 sm:w-6' : 'bg-white/40'}`}
+                className={`h-2 sm:h-2.5 rounded-full transition-all ${i === activeSlide ? 'bg-white w-5 sm:w-7' : 'bg-white/50 w-2 sm:w-2.5'}`}
               />
             ))}
           </div>
 
           <div className="absolute bottom-0 inset-x-0 px-4 sm:px-8 lg:px-12 xl:px-16 pb-3 sm:pb-6 lg:pb-10 xl:pb-12 text-white">
-            <h1 className="text-sm sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight mb-0.5 sm:mb-1 lg:mb-2">
+            <h1 className="text-[11px] sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black leading-tight mb-0.5 sm:mb-1 lg:mb-2">
               {t('heroTitle')}
             </h1>
-            <p className="text-[9px] sm:text-sm md:text-base lg:text-lg text-white/80 leading-snug mb-1.5 sm:mb-3 lg:mb-5 max-w-lg lg:max-w-xl">
+            <p className="text-[8px] sm:text-sm md:text-base lg:text-lg text-white/80 leading-snug mb-1 sm:mb-3 lg:mb-5 max-w-lg lg:max-w-xl">
               {t('heroSubtitle')}
             </p>
 
-            <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 mb-1.5 sm:mb-3 lg:mb-5 flex-wrap">
+            <div className="flex items-center gap-0.5 sm:gap-2 lg:gap-3 mb-1 sm:mb-3 lg:mb-5 flex-wrap">
               {TRUST_BADGES.map(b => (
                 <span
                   key={b.key}
-                  className="inline-flex items-center gap-0.5 sm:gap-1 text-[7px] sm:text-[11px] lg:text-xs font-bold bg-white/15 backdrop-blur-sm rounded-full px-1.5 py-px sm:px-2.5 sm:py-1 lg:px-3 lg:py-1.5"
+                  className="inline-flex items-center gap-0.5 sm:gap-1 text-[6px] sm:text-[11px] lg:text-xs font-bold bg-white/15 backdrop-blur-sm rounded-full px-1 py-px sm:px-2.5 sm:py-1 lg:px-3 lg:py-1.5"
                 >
-                  <span className="material-symbols-outlined text-[8px] sm:text-[12px] lg:text-sm">{b.icon}</span>
+                  <span className="material-symbols-outlined text-[7px] sm:text-[12px] lg:text-sm">{b.icon}</span>
                   {t(b.key)}
                 </span>
               ))}
             </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-3 lg:gap-4">
+            <div className="flex items-center gap-1 sm:gap-3 lg:gap-4">
               <Link
                 href="/add-listing"
-                className="btn-brand shrink-0 flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-5 lg:px-7 py-1.5 sm:py-2.5 lg:py-3 text-[10px] sm:text-sm lg:text-base font-black rounded-lg sm:rounded-xl hover:brightness-110 transition-all"
+                className="btn-brand shrink-0 flex items-center gap-0.5 sm:gap-1.5 px-2 sm:px-5 lg:px-7 py-1 sm:py-2.5 lg:py-3 text-[8px] sm:text-sm lg:text-base font-black rounded-md sm:rounded-xl hover:brightness-110 transition-all"
               >
-                <span className="material-symbols-outlined text-xs sm:text-sm lg:text-base">add_circle</span>
+                <span className="material-symbols-outlined text-[10px] sm:text-sm lg:text-base">add_circle</span>
                 {t('heroAddCta')}
               </Link>
               <Link
                 href="/listings"
-                className="shrink-0 flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-5 lg:px-7 py-1.5 sm:py-2.5 lg:py-3 text-[10px] sm:text-sm lg:text-base font-bold rounded-lg sm:rounded-xl border border-white/30 text-white hover:bg-white/10 transition-all"
+                className="shrink-0 flex items-center gap-0.5 sm:gap-1.5 px-2 sm:px-5 lg:px-7 py-1 sm:py-2.5 lg:py-3 text-[8px] sm:text-sm lg:text-base font-bold rounded-md sm:rounded-xl border border-white/30 text-white hover:bg-white/10 transition-all"
               >
-                <span className="material-symbols-outlined text-xs sm:text-sm lg:text-base">explore</span>
+                <span className="material-symbols-outlined text-[10px] sm:text-sm lg:text-base">explore</span>
                 {t('heroExploreCta')}
               </Link>
             </div>
