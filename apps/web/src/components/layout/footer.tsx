@@ -42,7 +42,6 @@ export function Footer() {
 
   const servicesLinks = [
     { label: t('carServices'), href: '/services' },
-    { label: t('insuranceAndFinance'), href: '/insurance' },
     { label: t('addListing'), href: '/add-listing' },
   ];
 

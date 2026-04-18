@@ -65,7 +65,7 @@ export default function DriversPage() {
 
           {/* Results */}
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="glass-card rounded-xl p-6 animate-pulse">
                   <div className="h-12 w-12 bg-surface-container-low rounded-full mb-3" />
@@ -81,7 +81,7 @@ export default function DriversPage() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                 {items.map((driver) => (
                   <DriverCard key={driver.id} driver={driver} />
                 ))}

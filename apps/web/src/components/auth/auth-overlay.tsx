@@ -12,6 +12,7 @@ import VerifyEmailContent from '@/components/auth/verify-content';
 import LogoArIcon from '../icons/logo-ar';
 import LogoEnIcon from '../icons/logo-en';
 import { useHandleOutSide } from '@/hooks/use-handle-outside';
+import { useRouter } from '@/i18n/navigation';
 
 const VIEW_META: Record<Exclude<AuthView, null>, { titleKey: string; subtitleKey: string }> = {
   login:    { titleKey: 'loginTitle',          subtitleKey: 'loginSubtitle' },
@@ -25,6 +26,12 @@ export function AuthOverlay() {
   const { view, isOpen, message, close } = useAuthModal();
   const locale = useLocale();
   const t = useTranslations('auth');
+  const router = useRouter();
+
+  const dismiss = useCallback(() => {
+    close();
+    router.push('/');
+  }, [close, router]);
 
   // Lock body scroll
   useEffect(() => {
@@ -36,12 +43,12 @@ export function AuthOverlay() {
 
   const modalRef = useRef(null);
 
-  useHandleOutSide(modalRef, ()=> close())
+  useHandleOutSide(modalRef, () => dismiss())
 
   // Close on Escape
   const handleEscape = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') close();
-  }, [close]);
+    if (e.key === 'Escape') dismiss();
+  }, [dismiss]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -59,7 +66,7 @@ export function AuthOverlay() {
       className="fixed inset-0 z-100 flex items-end sm:items-center justify-center backdrop-blur-xl transition-colors duration-200 bg-brand-navy/45 dark:bg-black/60"
     >
       <div
-        className="flex flex-col items-center"
+        className="w-full sm:w-auto flex flex-col items-center"
         ref={modalRef}
       >
 

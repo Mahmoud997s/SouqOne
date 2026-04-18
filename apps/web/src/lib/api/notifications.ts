@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '../auth';
+import { apiRequest, getAuthToken } from '../auth';
 
 export interface NotificationItem {
   id: string;
@@ -20,6 +20,7 @@ export function useNotifications(page = 1) {
   return useQuery<PaginatedNotifications>({
     queryKey: ['notifications', page],
     queryFn: () => apiRequest<PaginatedNotifications>(`/notifications?page=${page}&limit=20`),
+    enabled: !!getAuthToken(),
   });
 }
 
@@ -28,6 +29,7 @@ export function useUnreadCount() {
     queryKey: ['unread-count'],
     queryFn: () => apiRequest<{ count: number }>('/notifications/unread-count'),
     refetchInterval: 30000,
+    enabled: !!getAuthToken(),
   });
 }
 

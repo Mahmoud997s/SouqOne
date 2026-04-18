@@ -282,13 +282,13 @@ export default function ProfilePage() {
           {tab === 'listings' && (
             <>
               {listingsLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                   {Array.from({ length: 3 }).map((_, i) => (
                     <div key={i} className="animate-pulse bg-surface-container-high aspect-[4/3]" />
                   ))}
                 </div>
               ) : myListings && myListings.items.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                   {/* Add New */}
                   <Link
                     href="/add-listing"
@@ -382,13 +382,13 @@ export default function ProfilePage() {
           {tab === 'favorites' && (
             <>
               {favsLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                   {Array.from({ length: 3 }).map((_, i) => (
                     <div key={i} className="animate-pulse bg-surface-container-high aspect-[4/3]" />
                   ))}
                 </div>
               ) : favorites && favorites.items?.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
                   {favorites.items.map((fav: any) => {
                     const item = fav.listing;
                     if (!item) return null;

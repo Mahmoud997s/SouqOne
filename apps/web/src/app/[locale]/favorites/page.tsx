@@ -20,7 +20,6 @@ function useFavTabs() {
     { value: 'JOB' as const, label: tp('favTabJobs'), icon: 'work' },
     { value: 'SPARE_PART' as const, label: tp('favTabParts'), icon: 'settings' },
     { value: 'CAR_SERVICE' as const, label: tp('favTabServices'), icon: 'build' },
-    { value: 'INSURANCE' as const, label: tp('favTabInsurance'), icon: 'shield' },
   ];
 }
 
@@ -29,7 +28,6 @@ const ENTITY_ROUTES: Record<string, string> = {
   JOB: '/jobs',
   SPARE_PART: '/parts',
   CAR_SERVICE: '/services',
-  INSURANCE: '/insurance',
 };
 
 function GenericFavCard({ entityType, entityId, entity, tabIcon, tabs }: {
@@ -143,7 +141,7 @@ export default function FavoritesPage() {
 
           {/* ── Content ── */}
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="rounded-2xl overflow-hidden bg-surface-container-lowest border border-outline-variant/10 animate-pulse">
                   <div className="aspect-[16/10] bg-surface-container-high" />
@@ -162,7 +160,7 @@ export default function FavoritesPage() {
           ) : isError ? (
             <ErrorState onRetry={() => refetch()} />
           ) : items.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
               {items.map((fav) => {
                 if (fav.entityType === 'LISTING' && fav.listing) {
                   const item = fav.listing;

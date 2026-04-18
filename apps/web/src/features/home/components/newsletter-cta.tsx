@@ -2,42 +2,49 @@
 
 import { useTranslations } from 'next-intl';
 
+const STATS = [
+  { icon: 'campaign', valueKey: 'statListings', labelKey: 'statListingsLabel' },
+  { icon: 'group', valueKey: 'statUsers', labelKey: 'statUsersLabel' },
+  { icon: 'verified_user', valueKey: 'statSafe', labelKey: 'statSafeLabel' },
+  { icon: 'support_agent', valueKey: 'statSupport', labelKey: 'statSupportLabel' },
+] as const;
+
 export function NewsletterCta() {
   const t = useTranslations('home');
+
   return (
-    <section className="relative overflow-hidden bg-brand-navy py-10 sm:py-12 md:py-16">
-      {/* Decorative gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-transparent pointer-events-none" />
-      <div className="absolute -top-20 -left-20 w-60 h-60 rounded-full bg-primary/10 blur-[80px] pointer-events-none" />
-
-      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 flex flex-col items-center text-center lg:text-end lg:flex-row lg:items-center lg:justify-between gap-6 sm:gap-8 lg:gap-10">
-        <div className="max-w-xl">
-          <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1 mb-3 sm:mb-4">
-            <span className="material-symbols-outlined text-primary text-sm">notifications_active</span>
-            <span className="text-white/70 text-[11px] sm:text-xs font-bold">{t('instantAlerts')}</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl md:text-4xl font-black mb-2 sm:mb-4 text-white leading-snug">
-            {t('dontMiss')}
-          </h2>
-          <p className="text-white/50 text-xs sm:text-sm md:text-lg leading-relaxed max-w-md mx-auto lg:mx-0">
-            {t('newsletterDesc')}
-          </p>
+    <div
+      className="fixed bottom-[72px] inset-x-0 z-40 lg:hidden bg-gradient-to-r from-primary/[0.05] via-surface-container-lowest/95 to-brand-amber/[0.05] dark:from-primary/[0.08] dark:via-surface-container/95 dark:to-brand-amber/[0.06] backdrop-blur-xl rounded-t-2xl"
+      style={{ maskImage: 'radial-gradient(circle 36px at 50% calc(100% + 4px), transparent 100%, black 100%)', WebkitMaskImage: 'radial-gradient(circle 36px at 50% calc(100% + 4px), transparent 100%, black 100%)' }}
+    >
+      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
+        {/* Slot 1 */}
+        <div className="flex flex-col items-center gap-1 min-w-[56px]">
+          <span className="material-symbols-outlined text-primary text-[20px]">{STATS[0].icon}</span>
+          <span className="text-on-surface text-[10px] font-black leading-none whitespace-nowrap">{t(STATS[0].valueKey)}</span>
+          <span className="text-on-surface-variant text-[7px] font-medium leading-none whitespace-nowrap">{t(STATS[0].labelKey)}</span>
         </div>
-
-        <div className="w-full sm:w-auto">
-          <div className="flex flex-row w-full lg:w-[420px] rounded-full overflow-hidden shadow-lg">
-            <input
-              type="email"
-              placeholder={t('emailPlaceholder')}
-              className="bg-white/5 border border-white/10 border-s-0 px-5 py-3 sm:py-4 w-3/4 rounded-e-full focus:outline-none focus:border-primary text-white placeholder:text-white/40 text-sm sm:text-base transition-all"
-            />
-            <button className="btn-warning w-1/4 py-3 sm:py-4 font-black whitespace-nowrap hover:brightness-110 transition-all text-xs sm:text-sm rounded-s-full">
-              {t('subscribeNow')}
-            </button>
-          </div>
-          <p className="text-white/30 text-[10px] sm:text-xs mt-2 sm:mt-3">{t('freeNoSpam')}</p>
+        {/* Slot 2 */}
+        <div className="flex flex-col items-center gap-1 min-w-[56px]">
+          <span className="material-symbols-outlined text-primary text-[20px]">{STATS[1].icon}</span>
+          <span className="text-on-surface text-[10px] font-black leading-none whitespace-nowrap">{t(STATS[1].valueKey)}</span>
+          <span className="text-on-surface-variant text-[7px] font-medium leading-none whitespace-nowrap">{t(STATS[1].labelKey)}</span>
+        </div>
+        {/* Center spacer — aligned with CTA button */}
+        <div className="min-w-[56px]" />
+        {/* Slot 3 */}
+        <div className="flex flex-col items-center gap-1 min-w-[56px]">
+          <span className="material-symbols-outlined text-primary text-[20px]">{STATS[2].icon}</span>
+          <span className="text-on-surface text-[10px] font-black leading-none whitespace-nowrap">{t(STATS[2].valueKey)}</span>
+          <span className="text-on-surface-variant text-[7px] font-medium leading-none whitespace-nowrap">{t(STATS[2].labelKey)}</span>
+        </div>
+        {/* Slot 4 */}
+        <div className="flex flex-col items-center gap-1 min-w-[56px]">
+          <span className="material-symbols-outlined text-primary text-[20px]">{STATS[3].icon}</span>
+          <span className="text-on-surface text-[10px] font-black leading-none whitespace-nowrap">{t(STATS[3].valueKey)}</span>
+          <span className="text-on-surface-variant text-[7px] font-medium leading-none whitespace-nowrap">{t(STATS[3].labelKey)}</span>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

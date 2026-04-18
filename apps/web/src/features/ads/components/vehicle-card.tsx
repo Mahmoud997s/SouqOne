@@ -4,12 +4,16 @@ import { useState, useEffect } from 'react';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/image-utils';
-import { conditionBadge, fuelLabels, transmissionLabels, PILL_COLORS } from '@/lib/constants/mappings';
-import { VerifiedBadge } from '@/components/verified-badge';
+import { conditionBadge, fuelLabels, transmissionLabels } from '@/lib/constants/mappings';
 import { relativeTimeT } from '@/lib/time-utils';
 import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
 import { useTranslations, useLocale } from 'next-intl';
+
+const CONDITION_DOT: Record<string, string> = {
+  NEW: 'bg-emerald-500', LIKE_NEW: 'bg-teal-500', USED: 'bg-slate-400',
+  GOOD: 'bg-sky-500', FAIR: 'bg-amber-500', POOR: 'bg-red-500',
+};
 
 interface VehicleCardProps {
   id: string;
@@ -93,7 +97,7 @@ export function VehicleCard(props: VehicleCardProps) {
               src={imgSrc}
               alt={props.title}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="object-cover group-hover:scale-105 transition-transform duration-700"
             />
           ) : (
@@ -124,13 +128,14 @@ export function VehicleCard(props: VehicleCardProps) {
             </button>
           )}
 
-          {/* ── Condition / Wanted badge (top-right) ── */}
+          {/* ── Top-right: WANTED wins, else condition (neutral + dot) ── */}
           {isWanted ? (
             <span className="absolute top-2 right-2 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-orange-500 text-white">
               {t('wanted')}
             </span>
           ) : badge && (
-            <span className={`absolute top-2 right-2 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold ${badge.cls}`}>
+            <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${CONDITION_DOT[props.condition!] || 'bg-slate-400'}`} />
               {badge.label}
             </span>
           )}
@@ -144,11 +149,10 @@ export function VehicleCard(props: VehicleCardProps) {
             </span>
           </div>
 
-          {/* ── Featured badge (bottom-left if no distance) ── */}
+          {/* ── Premium star (top-left, after fav) ── */}
           {props.isPremium && (
-            <span className="absolute top-2 left-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded px-1.5 py-0.5 flex items-center gap-0.5 text-[9px] font-black shadow-sm z-10">
-              <span className="material-symbols-outlined text-[10px]">workspace_premium</span>
-              {t('featured')}
+            <span className="absolute top-2 left-10 bg-amber-500 text-white rounded px-1 py-0.5 text-[10px] font-black shadow-sm z-10 leading-none">
+              ★
             </span>
           )}
 
@@ -179,47 +183,77 @@ export function VehicleCard(props: VehicleCardProps) {
             <span className="truncate">{props.make} {props.model} {props.year}</span>
           </div>
 
-          {/* Badges: verified + rental + negotiable */}
-          {(props.isVerified || props.listingType === 'RENTAL' || props.isPriceNegotiable) && (
-            <div className="flex items-center gap-1 flex-wrap">
-              {props.isVerified && <VerifiedBadge />}
-              {props.listingType === 'RENTAL' && (
-                <span className={`inline-flex items-center gap-0.5 text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded ${PILL_COLORS.green}`}>
-                  <span className="material-symbols-outlined text-[9px] sm:text-[10px]">car_rental</span>
-                  {t('forRent')}
+          {/* Meta tags: single inline row — no colors */}
+          {(props.isVerified || props.listingType === 'RENTAL' || props.isPriceNegotiable || (isWanted && badge)) && (
+            <div className="flex items-center flex-wrap gap-x-1.5 text-[9px] sm:text-[10px] text-on-surface-variant">
+              {isWanted && badge && (
+                <span className="inline-flex items-center gap-1">
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${CONDITION_DOT[props.condition!] || 'bg-slate-400'}`} />
+                  {badge.label}
                 </span>
               )}
-              {props.isPriceNegotiable && (
-                <span className={`inline-flex items-center gap-0.5 text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded ${PILL_COLORS.info}`}>
-                  <span className="material-symbols-outlined text-[9px] sm:text-[10px]">handshake</span>
-                  {t('negotiable')}
+              {isWanted && badge && (props.isVerified || props.listingType === 'RENTAL' || props.isPriceNegotiable) && (
+                <span className="text-outline-variant/40">·</span>
+              )}
+              {props.isVerified && (
+                <span className="inline-flex items-center gap-0.5">
+                  <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                  {t('verified')}
                 </span>
+              )}
+              {props.isVerified && (props.listingType === 'RENTAL' || props.isPriceNegotiable) && (
+                <span className="text-outline-variant/40">·</span>
+              )}
+              {props.listingType === 'RENTAL' && (
+                <span>{t('forRent')}</span>
+              )}
+              {props.listingType === 'RENTAL' && props.isPriceNegotiable && (
+                <span className="text-outline-variant/40">·</span>
+              )}
+              {props.isPriceNegotiable && (
+                <span>{t('negotiable')}</span>
               )}
             </div>
           )}
 
-          {/* Specs Grid — always 3 columns */}
-          <div className="grid grid-cols-3 gap-1">
+          {/* Specs — inline row on mobile, grid boxes on sm+ */}
+          <div className="flex items-center gap-1.5 text-[8px] text-on-surface-variant sm:hidden">
+            <span className="flex items-center gap-0.5">
+              <span className="material-symbols-outlined text-primary text-[10px]">speed</span>
+              {props.mileage != null ? props.mileage.toLocaleString('en-US') : '0'} {t('km')}
+            </span>
+            <span className="text-outline-variant/30">·</span>
+            <span className="flex items-center gap-0.5">
+              <span className="material-symbols-outlined text-primary text-[10px]">local_gas_station</span>
+              {props.fuelType ? (fuels[props.fuelType] ?? props.fuelType) : t('petrol')}
+            </span>
+            <span className="text-outline-variant/30">·</span>
+            <span className="flex items-center gap-0.5">
+              <span className="material-symbols-outlined text-primary text-[10px]">settings</span>
+              {props.transmission ? (transmissions[props.transmission] ?? props.transmission) : t('automatic')}
+            </span>
+          </div>
+          <div className="hidden sm:grid grid-cols-3 gap-1">
             <div className="flex flex-col items-center gap-0.5 bg-surface-container-low rounded py-1 sm:py-1.5 px-0.5">
-              <span className="material-symbols-outlined text-primary text-[12px] sm:text-[13px]">speed</span>
-              <span className="text-[9px] sm:text-[10px] font-bold text-on-surface leading-none">
+              <span className="material-symbols-outlined text-primary text-[11px] sm:text-[13px]">speed</span>
+              <span className="text-[8px] sm:text-[10px] font-bold text-on-surface leading-none">
                 {props.mileage != null ? props.mileage.toLocaleString('en-US') : '0'}
               </span>
-              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">{t('km')}</span>
+              <span className="text-[7px] sm:text-[9px] text-on-surface-variant">{t('km')}</span>
             </div>
             <div className="flex flex-col items-center gap-0.5 bg-surface-container-low rounded py-1 sm:py-1.5 px-0.5">
-              <span className="material-symbols-outlined text-primary text-[12px] sm:text-[13px]">local_gas_station</span>
-              <span className="text-[9px] sm:text-[10px] font-bold text-on-surface leading-none">
+              <span className="material-symbols-outlined text-primary text-[11px] sm:text-[13px]">local_gas_station</span>
+              <span className="text-[8px] sm:text-[10px] font-bold text-on-surface leading-none">
                 {props.fuelType ? (fuels[props.fuelType] ?? props.fuelType) : t('petrol')}
               </span>
-              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">{t('fuel')}</span>
+              <span className="text-[7px] sm:text-[9px] text-on-surface-variant">{t('fuel')}</span>
             </div>
             <div className="flex flex-col items-center gap-0.5 bg-surface-container-low rounded py-1 sm:py-1.5 px-0.5">
-              <span className="material-symbols-outlined text-primary text-[12px] sm:text-[13px]">settings</span>
-              <span className="text-[9px] sm:text-[10px] font-bold text-on-surface leading-none">
+              <span className="material-symbols-outlined text-primary text-[11px] sm:text-[13px]">settings</span>
+              <span className="text-[8px] sm:text-[10px] font-bold text-on-surface leading-none">
                 {props.transmission ? (transmissions[props.transmission] ?? props.transmission) : t('automatic')}
               </span>
-              <span className="text-[8px] sm:text-[9px] text-on-surface-variant">{t('transmission')}</span>
+              <span className="text-[7px] sm:text-[9px] text-on-surface-variant">{t('transmission')}</span>
             </div>
           </div>
 

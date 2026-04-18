@@ -14,27 +14,27 @@ interface JobsSectionProps {
 export function JobsSection({ items, isLoading }: JobsSectionProps) {
   const t = useTranslations('home');
   return (
-    <section className="py-10">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-wrap items-end justify-between gap-2 mb-6">
+    <section className="py-6 sm:py-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6">
+        <div className="flex flex-wrap items-end justify-between gap-2 mb-4 sm:mb-6">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-8 w-1 bg-primary" />
-              <h2 className="text-xl md:text-3xl font-black">{t('driverJobs')}</h2>
+            <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+              <div className="h-6 sm:h-8 w-1 bg-primary" />
+              <h2 className="text-base sm:text-xl md:text-3xl font-black">{t('driverJobs')}</h2>
             </div>
-            <p className="text-on-surface-variant text-sm">{t('driverJobsDesc')}</p>
+            <p className="text-on-surface-variant text-xs sm:text-sm">{t('driverJobsDesc')}</p>
           </div>
-          <Link href="/jobs" className="text-primary font-bold text-sm hover:underline transition-colors shrink-0">
+          <Link href="/jobs" className="text-primary font-bold text-xs sm:text-sm hover:underline transition-colors shrink-0">
             {t('viewAll')}
           </Link>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {[1, 2, 3].map((i) => <CardSkeleton key={i} />)}
           </div>
         ) : items.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {items.map((job) => (
               <JobCard key={job.id} job={job} />
             ))}

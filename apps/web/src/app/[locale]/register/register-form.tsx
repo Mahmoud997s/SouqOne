@@ -84,7 +84,7 @@ export default function RegisterForm() {
 
   return (
     <div className={shake ? 'animate-shake' : ''}>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-1.5">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-1">
 
         {/* ── Section 1: المعلومات الأساسية ── */}
         <div className="section-divider"><span>{t('basicInfo')}</span></div>
@@ -283,7 +283,7 @@ export default function RegisterForm() {
         <button
           type="submit"
           disabled={loading || !agreedTerms}
-          className="btn-primary w-full h-[42px] rounded-xl text-[13px] font-bold flex items-center justify-center gap-2 transition-opacity disabled:opacity-60"
+          className="btn-primary w-full h-[38px] sm:h-[42px] rounded-xl text-[12px] sm:text-[13px] font-bold flex items-center justify-center gap-2 transition-opacity disabled:opacity-60"
         >
           {loading ? (
             <>
@@ -306,7 +306,7 @@ export default function RegisterForm() {
       </form>
 
       {/* Divider */}
-      <div className="flex items-center gap-4 my-3">
+      <div className="flex items-center gap-4 my-2 sm:my-3">
         <div className="h-px flex-1 bg-outline-variant/20" />
         <span className="text-xs text-on-surface-variant/60 font-medium">{t('or')}</span>
         <div className="h-px flex-1 bg-outline-variant/20" />
@@ -315,7 +315,7 @@ export default function RegisterForm() {
       {/* Google Sign-In */}
       <GoogleSignInButton onError={setError} />
 
-      <p className="text-center text-xs text-on-surface-variant font-medium mt-3">
+      <p className="text-center text-xs text-on-surface-variant font-medium mt-2 sm:mt-3">
         {t('hasAccount')}{' '}
         <button type="button" onClick={() => switchView('login')} className="text-primary font-bold hover:underline">
           {t('loginBtn')}

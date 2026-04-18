@@ -11,7 +11,6 @@ const SB_META = [
   { key: 'rentals',   labelKey: 'rentals',   icon: 'car_rental',          route: '/rentals',   placeholderKey: 'boxRentalsPlaceholder' },
   { key: 'parts',     labelKey: 'parts',     icon: 'build',               route: '/parts',     placeholderKey: 'boxPartsPlaceholder' },
   { key: 'services',  labelKey: 'services',  icon: 'home_repair_service', route: '/services',  placeholderKey: 'boxServicesPlaceholder' },
-  { key: 'insurance', labelKey: 'insurance', icon: 'verified_user',       route: '/insurance', placeholderKey: 'boxInsurancePlaceholder' },
   { key: 'jobs',      labelKey: 'jobs',      icon: 'work',                route: '/jobs',      placeholderKey: 'boxJobsPlaceholder' },
 ] as const;
 

@@ -86,7 +86,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="btn-primary w-full h-[42px] flex items-center justify-center gap-2 font-bold text-sm rounded-xl hover:brightness-110 hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-60"
+          className="btn-primary w-full h-[38px] sm:h-[42px] flex items-center justify-center gap-2 font-bold text-[12px] sm:text-sm rounded-xl hover:brightness-110 hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-60"
         >
           {loading ? (
             <>
@@ -103,7 +103,7 @@ export default function LoginForm() {
       </form>
 
       {/* Divider */}
-      <div className="flex items-center gap-4 my-4">
+      <div className="flex items-center gap-4 my-3 sm:my-4">
         <div className="h-px flex-1 bg-outline-variant/20" />
         <span className="text-[11px] text-on-surface-variant/50 font-medium">{t('or')}</span>
         <div className="h-px flex-1 bg-outline-variant/20" />
@@ -113,7 +113,7 @@ export default function LoginForm() {
       <GoogleSignInButton onError={setError} onSuccess={navigateAfterLogin} />
 
       {/* Register link */}
-      <p className="text-center text-on-surface-variant text-[12px] mt-4 font-medium">
+      <p className="text-center text-on-surface-variant text-[12px] mt-3 sm:mt-4 font-medium">
         {t('noAccount')}{' '}
         <button type="button" onClick={() => switchView('register')} className="text-primary font-bold hover:underline transition-all">
           {t('createNewAccount')}

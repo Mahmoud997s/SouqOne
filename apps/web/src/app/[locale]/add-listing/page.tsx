@@ -15,7 +15,6 @@ const CATEGORY_STYLE: Record<string, { icon: string; bg: string; text: string }>
   'motorcycles': { icon: 'two_wheeler', bg: 'bg-rose-50 dark:bg-rose-950/40', text: 'text-rose-600 dark:text-rose-400' },
   'marine': { icon: 'directions_boat', bg: 'bg-teal-50 dark:bg-teal-950/40', text: 'text-teal-600 dark:text-teal-400' },
   'heavy-equipment': { icon: 'front_loader', bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-600 dark:text-amber-400' },
-  'insurance': { icon: 'verified_user', bg: 'bg-indigo-50 dark:bg-indigo-950/40', text: 'text-indigo-600 dark:text-indigo-400' },
 };
 
 const DEFAULT_STYLE = { icon: 'category', bg: 'bg-slate-50 dark:bg-slate-950/40', text: 'text-slate-600 dark:text-slate-400' };
@@ -80,7 +79,7 @@ export default function AddListingPage() {
 
                 {/* Subcategory Links */}
                 <div className="px-5 md:px-6 pb-5 md:pb-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     {availableSubs.map((sub) => (
                       <button
                         key={sub.value}
