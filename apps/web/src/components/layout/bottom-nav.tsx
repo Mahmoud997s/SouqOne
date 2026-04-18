@@ -28,12 +28,12 @@ export function BottomNav() {
   return (
     <>
     {/* Blur gap between bars */}
-    <div className="fixed bottom-16 inset-x-0 h-2 z-40 lg:hidden backdrop-blur-3xl" />
+    <div className="fixed bottom-12 inset-x-0 h-1 z-40 lg:hidden backdrop-blur-3xl" />
 
     {/* CTA circle — centered between both bars: (64+8+64)/2=68px center, 68-26.5=41.5≈42 */}
     <Link
       href="/add-listing"
-      className="fixed z-[51] bottom-[37px] left-1/2 -translate-x-1/2 lg:hidden"
+      className="fixed z-[51] bottom-[21px] left-1/2 -translate-x-1/2 lg:hidden"
     >
       <div className="relative w-[63px] h-[63px] rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30 pulse-ring">
         <span className="material-symbols-outlined text-on-primary text-2xl">add_circle</span>
@@ -41,10 +41,10 @@ export function BottomNav() {
     </Link>
 
     <nav
-      className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-gradient-to-r from-primary/[0.05] via-surface-container-lowest/95 to-brand-amber/[0.05] dark:from-primary/[0.08] dark:via-surface-container/95 dark:to-brand-amber/[0.06] backdrop-blur-xl border-t border-outline-variant/10 dark:border-outline-variant/20 safe-area-bottom rounded-t-2xl"
-      style={{ maskImage: 'radial-gradient(circle 36px at 50% -4px, transparent 100%, black 100%)', WebkitMaskImage: 'radial-gradient(circle 36px at 50% -4px, transparent 100%, black 100%)' }}
+      className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-gradient-to-r from-primary/[0.05] via-surface-container-lowest/95 to-brand-amber/[0.05] dark:from-primary/[0.08] dark:via-surface-container/95 dark:to-brand-amber/[0.06] backdrop-blur-xl safe-area-bottom"
+      style={{ maskImage: 'radial-gradient(circle 38px at 50% -4px, transparent 98%, black 100%)', WebkitMaskImage: 'radial-gradient(circle 38px at 50% -4px, transparent 98%, black 100%)' }}
     >
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
+      <div className="flex items-center justify-around h-12 max-w-lg mx-auto px-2">
         {NAV_ITEMS.map((item) => {
           const needsAuth = item.authRequired && !isAuthenticated;
           const href = needsAuth ? '#' : item.href;
@@ -53,9 +53,9 @@ export function BottomNav() {
           if (item.accent) {
             // Spacer + label — the circle is fixed-positioned above
             return (
-              <div key={item.href} className="flex flex-col items-center justify-center min-w-[56px]">
-                <div className="w-12 h-12" />
-                <span className="text-[10px] font-bold text-primary mt-0.5">{item.label}</span>
+              <div key={item.href} className="flex flex-col items-center justify-center min-w-[48px]">
+                <div className="w-10 h-6" />
+                <span className="text-[9px] font-bold text-primary">{item.label}</span>
               </div>
             );
           }
@@ -66,16 +66,16 @@ export function BottomNav() {
               <button
                 key="search"
                 onClick={toggleSearch}
-                className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] py-1 transition-colors ${
+                className={`flex flex-col items-center justify-center gap-0 min-w-[48px] py-0.5 transition-colors ${
                   isActive
                     ? 'text-primary'
                     : 'text-on-surface-variant/60 hover:text-on-surface-variant'
                 }`}
               >
-                <span className={`material-symbols-outlined text-[22px] ${isActive ? 'font-variation-settings: "FILL" 1' : ''}`}>
+                <span className={`material-symbols-outlined text-[18px] ${isActive ? 'font-variation-settings: "FILL" 1' : ''}`}>
                   {searchOpen ? 'close' : 'search'}
                 </span>
-                <span className={`text-[10px] ${isActive ? 'font-bold' : 'font-medium'}`}>
+                <span className={`text-[9px] ${isActive ? 'font-bold' : 'font-medium'}`}>
                   {item.label}
                 </span>
               </button>
@@ -87,10 +87,10 @@ export function BottomNav() {
               <button
                 key={item.href}
                 onClick={() => openAuth('login')}
-                className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] py-1 transition-colors text-on-surface-variant/60 hover:text-on-surface-variant`}
+                className={`flex flex-col items-center justify-center gap-0 min-w-[48px] py-0.5 transition-colors text-on-surface-variant/60 hover:text-on-surface-variant`}
               >
-                <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
+                <span className="text-[9px] font-medium">{item.label}</span>
               </button>
             );
           }
@@ -99,14 +99,14 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={href}
-              className={`flex flex-col items-center justify-center gap-0.5 min-w-[56px] py-1 transition-colors ${
+              className={`flex flex-col items-center justify-center gap-0 min-w-[48px] py-0.5 transition-colors ${
                 isActive
                   ? 'text-primary'
                   : 'text-on-surface-variant/60 hover:text-on-surface-variant'
               }`}
             >
               <div className="relative">
-                <span className={`material-symbols-outlined text-[22px] ${isActive ? 'font-variation-settings: "FILL" 1' : ''}`}>
+                <span className={`material-symbols-outlined text-[18px] ${isActive ? 'font-variation-settings: "FILL" 1' : ''}`}>
                   {item.icon}
                 </span>
                 {/* Unread badge for messages */}
@@ -116,7 +116,7 @@ export function BottomNav() {
                   </span>
                 )}
               </div>
-              <span className={`text-[10px] ${isActive ? 'font-bold' : 'font-medium'}`}>
+              <span className={`text-[9px] ${isActive ? 'font-bold' : 'font-medium'}`}>
                 {item.label}
               </span>
             </Link>

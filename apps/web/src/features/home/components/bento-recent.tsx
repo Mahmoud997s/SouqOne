@@ -30,7 +30,7 @@ export function QuickServicesGrid() {
         <Link href="/services" className="text-primary font-semibold text-xs sm:text-sm hover:underline underline-offset-2 transition-colors">{t('servicesLink')}</Link>
       </div>
 
-      <div className="flex gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar pb-1">
+      <div className="flex gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar pb-1 ps-0.5">
         {QL_META.map((link) => (
           <Link
             key={link.titleKey}

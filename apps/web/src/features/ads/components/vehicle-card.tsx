@@ -169,7 +169,7 @@ export function VehicleCard(props: VehicleCardProps) {
         <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1.5">
 
           {/* Title */}
-          <h3 className="text-xs sm:text-[13px] font-black leading-snug line-clamp-1">{props.title}</h3>
+          <h3 dir="auto" className="text-[10px] sm:text-[13px] font-black leading-snug line-clamp-2 sm:line-clamp-1">{props.title}</h3>
 
           {/* Meta: location · make model year */}
           <div className="flex items-center gap-1 text-[10px] text-on-surface-variant leading-none">
@@ -180,7 +180,7 @@ export function VehicleCard(props: VehicleCardProps) {
                 <span className="text-outline-variant/40 mx-0.5">·</span>
               </>
             )}
-            <span className="truncate">{props.make} {props.model} {props.year}</span>
+            <span dir="ltr" className="truncate">{props.make} {props.model} {props.year}</span>
           </div>
 
           {/* Meta tags: single inline row — no colors */}
@@ -217,7 +217,7 @@ export function VehicleCard(props: VehicleCardProps) {
           )}
 
           {/* Specs — inline row on mobile, grid boxes on sm+ */}
-          <div className="flex items-center gap-1.5 text-[8px] text-on-surface-variant sm:hidden">
+          <div className="hidden">
             <span className="flex items-center gap-0.5">
               <span className="material-symbols-outlined text-primary text-[10px]">speed</span>
               {props.mileage != null ? props.mileage.toLocaleString('en-US') : '0'} {t('km')}
