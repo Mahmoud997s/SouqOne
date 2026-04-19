@@ -13,7 +13,7 @@ function saveRecent(q: string) { const r = getRecent().filter(s => s !== q); r.u
 function useSearchCategories() {
   const ts = useTranslations('search');
   return [
-    { value: 'all',       label: ts('all'),       placeholder: ts('navPlaceholder'),         route: '/listings' },
+    { value: 'all',       label: ts('all'),       placeholder: ts('navPlaceholder'),         route: '/search' },
     { value: 'cars',      label: ts('cars'),      placeholder: ts('navCarsPlaceholder'),      route: '/listings' },
     { value: 'buses',     label: ts('buses'),     placeholder: ts('navBusesPlaceholder'),     route: '/buses' },
     { value: 'equipment', label: ts('equipment'), placeholder: ts('navEquipmentPlaceholder'), route: '/equipment' },
@@ -67,7 +67,8 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
     e?.preventDefault();
     if (!searchQuery.trim()) return;
     saveRecent(searchQuery.trim());
-    router.push(`${activeCat.route}?search=${encodeURIComponent(searchQuery.trim())}`);
+    const paramKey = activeCat.route === '/search' ? 'q' : 'search';
+    router.push(`${activeCat.route}?${paramKey}=${encodeURIComponent(searchQuery.trim())}`);
     onSearchOpenChange(false);
     setShowSuggestions(false);
     onCloseMobile?.();
@@ -76,7 +77,8 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
   function handleSuggestionClick(title: string) {
     setSearchQuery(title);
     saveRecent(title);
-    router.push(`${activeCat.route}?search=${encodeURIComponent(title)}`);
+    const paramKey = activeCat.route === '/search' ? 'q' : 'search';
+    router.push(`${activeCat.route}?${paramKey}=${encodeURIComponent(title)}`);
     onSearchOpenChange(false);
     setShowSuggestions(false);
     onCloseMobile?.();
