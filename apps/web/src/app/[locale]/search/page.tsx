@@ -149,15 +149,15 @@ function SearchContent() {
         {/* Sort */}
         <div>
           <label className="text-xs font-bold text-on-surface-variant block mb-2">الترتيب</label>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-wrap gap-1.5">
             {[
               { value: '', label: 'الأحدث' },
-              { value: 'price:asc', label: 'السعر: الأقل' },
-              { value: 'price:desc', label: 'السعر: الأعلى' },
+              { value: 'price:asc', label: 'الأقل سعراً' },
+              { value: 'price:desc', label: 'الأعلى سعراً' },
             ].map(opt => (
               <button key={opt.value} type="button"
                 onClick={() => setSort(opt.value)}
-                className={`text-start px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${sort === opt.value ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'}`}>
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${sort === opt.value ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'}`}>
                 {opt.label}
               </button>
             ))}
@@ -176,12 +176,12 @@ function SearchContent() {
 
         {/* Price range */}
         <div>
-          <label className="text-xs font-bold text-on-surface-variant block mb-2">نطاق السعر</label>
-          <div className="flex gap-2">
+          <label className="text-xs font-bold text-on-surface-variant block mb-2">نطاق السعر (ر.ع)</label>
+          <div className="grid grid-cols-2 gap-2">
             <input type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)}
-              placeholder="من" className="flex-1 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm" />
+              placeholder="من" className="w-full min-w-0 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm" />
             <input type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)}
-              placeholder="إلى" className="flex-1 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm" />
+              placeholder="إلى" className="w-full min-w-0 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm" />
           </div>
         </div>
 
@@ -218,8 +218,8 @@ function SearchContent() {
             <div className="flex flex-wrap gap-1.5">
               {fuelOpts.map(opt => (
                 <button key={opt.value} type="button"
-                  onClick={() => { /* fuel not in SearchParams yet — navigate with condition */ }}
-                  className="px-3 py-1.5 text-xs font-bold rounded-lg bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant">
+                  onClick={() => setSelectedCond(opt.value === selectedCond ? '' : opt.value)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${selectedCond === opt.value ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'}`}>
                   {opt.label}
                 </button>
               ))}
