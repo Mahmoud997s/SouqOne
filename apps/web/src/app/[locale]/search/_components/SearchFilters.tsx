@@ -17,15 +17,27 @@ function PillGroup({
   onChange: (v: string) => void;
   dark?: boolean;
 }) {
+  const [pulsing, setPulsing] = useState<string | null>(null);
+
+  function handleClick(v: string) {
+    const next = value === v ? '' : v;
+    if (next) {
+      setPulsing(next);
+      setTimeout(() => setPulsing(null), 210);
+    }
+    onChange(next);
+  }
+
   return (
     <div className="flex flex-wrap gap-1.5">
       {options.map(o => (
         <button
           key={o.value}
           type="button"
-          onClick={() => onChange(value === o.value ? '' : o.value)}
+          onClick={() => handleClick(o.value)}
           className={clsx(
-            'px-3 py-1.5 rounded-full text-xs font-bold border transition-all',
+            'px-3 py-1.5 rounded-full text-xs font-bold border transition-colors',
+            pulsing === o.value && 'pill-selected',
             dark
               ? value === o.value
                 ? 'bg-white text-primary border-white'
@@ -67,7 +79,8 @@ function SearchableSelect({
         type="button"
         onClick={() => { setOpen(!open); setSearch(''); }}
         className={clsx(
-          'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl border text-xs font-bold transition-all',
+          'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl border text-xs font-bold',
+          'filter-input-focus transition-colors',
           dark
             ? 'bg-white/10 border-white/20 text-white hover:bg-white/15'
             : 'bg-surface-container border-outline-variant/20 text-on-surface hover:border-primary/40'
@@ -76,7 +89,7 @@ function SearchableSelect({
         <span className={selected ? '' : (dark ? 'text-white/50' : 'text-on-surface-variant/60')}>
           {selected ? selected.label : placeholder}
         </span>
-        <span className={clsx('material-symbols-outlined text-sm transition-transform', open && 'rotate-180')}>
+        <span className={clsx('material-symbols-outlined text-sm transition-transform duration-200', open && 'rotate-180')}>
           expand_more
         </span>
       </button>
@@ -84,6 +97,7 @@ function SearchableSelect({
       {open && (
         <div className={clsx(
           'absolute top-full mt-1 w-full z-50 rounded-xl border shadow-lg overflow-hidden',
+          'search-dropdown-enter',
           dark ? 'bg-[#0B2447] border-white/20' : 'bg-surface-container-lowest border-outline-variant/20'
         )}>
           <div className="p-2 border-b border-outline-variant/10">
@@ -150,10 +164,10 @@ function RangeInputs({
   dark?: boolean;
 }) {
   const base = clsx(
-    'flex-1 min-w-0 text-xs font-bold px-3 py-2 rounded-xl border outline-none transition-all',
+    'flex-1 min-w-0 text-xs font-bold px-3 py-2 rounded-xl border outline-none filter-input-focus',
     dark
-      ? 'bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/50'
-      : 'bg-surface-container border-outline-variant/20 text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary/50'
+      ? 'bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/40'
+      : 'bg-surface-container border-outline-variant/20 text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary/40'
   );
   return (
     <div className="flex items-center gap-2">
@@ -173,12 +187,18 @@ function Toggle({ value, onChange, label, dark = false }: {
 }) {
   return (
     <button type="button" onClick={() => onChange(!value)}
-      className="flex items-center justify-between w-full">
+      className="flex items-center justify-between w-full group">
       <span className={clsx('text-xs font-bold', dark ? 'text-white' : 'text-on-surface')}>{label}</span>
-      <div className={clsx('relative w-10 h-6 rounded-full transition-colors shrink-0',
-        value ? 'bg-primary' : dark ? 'bg-white/20' : 'bg-outline-variant/40')}>
-        <div className={clsx('absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all',
-          value ? 'right-1' : 'right-5')} />
+      <div className={clsx(
+        'relative w-11 h-6 rounded-full shrink-0',
+        'transition-colors duration-200',
+        value ? 'bg-primary' : dark ? 'bg-white/20' : 'bg-outline-variant/40'
+      )}>
+        <div className={clsx(
+          'absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm',
+          'transition-[right] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
+          value ? 'right-1' : 'right-6'
+        )} />
       </div>
     </button>
   );

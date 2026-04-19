@@ -110,17 +110,29 @@ export function MobileFilterSheet({
 
   if (!mounted) return null;
 
+  const reduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const sheetTransform = dragY > 0
     ? `translateY(${dragY}px)`
     : visible ? 'translateY(0)' : 'translateY(100%)';
+
+  // open: spring cubic-bezier 300ms | close: ease-in 250ms
+  const sheetTransition = reduced || dragY > 0
+    ? 'none'
+    : visible
+      ? 'transform 300ms cubic-bezier(0.32,0.72,0,1), opacity 300ms ease'
+      : 'transform 250ms ease-in, opacity 250ms ease-in';
+
+  const overlayTransition = reduced ? 'none' : visible ? 'opacity 300ms ease' : 'opacity 250ms ease-in';
 
   return (
     <div className="fixed inset-0 z-[200] sm:hidden">
       {/* Overlay */}
       <div
         onClick={onClose}
+        style={{ transition: overlayTransition }}
         className={clsx(
-          'absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300',
+          'absolute inset-0 bg-black/40 backdrop-blur-sm',
           visible ? 'opacity-100' : 'opacity-0'
         )}
       />
@@ -131,7 +143,7 @@ export function MobileFilterSheet({
         style={{
           maxHeight: '90vh',
           transform: sheetTransform,
-          transition: dragY > 0 ? 'none' : 'transform 300ms cubic-bezier(0.32,0.72,0,1)',
+          transition: sheetTransition,
         }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}

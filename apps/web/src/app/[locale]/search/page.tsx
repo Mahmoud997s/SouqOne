@@ -540,15 +540,16 @@ function SearchContent() {
                 onOpen={() => setShowMobileFilters(true)}
               />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {items.map(item => {
+            <div className={`results-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4${isLoading ? ' results-grid-loading' : ''}`}>
+              {items.map((item, idx) => {
                 const cfg = ENTITY_CFG[item._entityType ?? activeTab];
                 const imgUrl = getItemImage(item);
                 const price = getItemPrice(item);
                 const href = getItemHref(item);
                 return (
                   <Link key={item.id} href={href}
-                    className="group bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl overflow-hidden hover:shadow-md hover:border-primary/20 transition-all duration-200 flex flex-col">
+                    className="search-card-enter group bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl overflow-hidden hover:shadow-md hover:border-primary/20 transition-all duration-200 flex flex-col"
+                    style={{ animationDelay: `${Math.min(idx * 30, 300)}ms` }}>
                     <div className="relative h-44 bg-surface-container-low overflow-hidden">
                       {imgUrl ? (
                         <Image src={imgUrl as string} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
