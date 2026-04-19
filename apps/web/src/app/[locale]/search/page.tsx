@@ -259,7 +259,7 @@ function SearchContent() {
     if (maxPParam)   p.maxPrice       = maxPParam;
     if (capMinParam) p.minCapacity    = capMinParam;
     if (capMaxParam) p.maxCapacity    = capMaxParam;
-    if (sortParam)   p.sort           = sortParam;
+    if (sortParam)   p.sort = sortParam === 'price:asc' ? 'price_asc' : sortParam === 'price:desc' ? 'price_desc' : 'newest';
     return p;
   }, [page, qParam, govParam, makeParam, busTypeParam, busLTParam, minPParam, maxPParam, capMinParam, capMaxParam, sortParam]);
 
@@ -338,29 +338,28 @@ function SearchContent() {
   function InlineFilters() {
     return (
       <div className="flex overflow-x-auto no-scrollbar gap-2 mt-3 pb-2 items-center">
-        {/* Sort */}
+        {/* ── Sort ── API: listings→sortBy+sortOrder, buses→sort(newest|price_asc|price_desc), jobs→sortBy+sortOrder, all→Meilisearch sortBy */}
         <select value={sort} onChange={e => { setSort(e.target.value); applyNow('sort', e.target.value); }} className={SEL}>
           <option value="" className={SEL_OPT}>الأحدث</option>
           <option value="price:asc"  className={SEL_OPT}>الأقل سعراً</option>
           <option value="price:desc" className={SEL_OPT}>الأعلى سعراً</option>
-          {isJobs && <option value="salary:desc" className={SEL_OPT}>أعلى راتب</option>}
         </select>
 
-        {/* Governorate — all tabs */}
+        {/* ── Governorate ── API param: governorate (all endpoints) */}
         <select value={gov} onChange={e => { setGov(e.target.value); applyNow('governorate', e.target.value); }} className={SEL}>
           <option value="" className={SEL_OPT}>كل المحافظات</option>
           {govOpts.map(g => <option key={g.value} value={g.value} className={SEL_OPT}>{g.label}</option>)}
         </select>
 
-        {/* Price range — listings, parts, buses */}
+        {/* ── Price range ── API: listings→priceMin/priceMax, parts/buses→minPrice/maxPrice */}
         {(isAll || isListings || isParts || isBuses) && (<>
-          <input type="number" value={minP} onChange={e => setMinP(e.target.value)} onBlur={() => applyFilters()}
+          <input type="number" min="0" value={minP} onChange={e => setMinP(e.target.value)} onBlur={() => applyFilters()}
             placeholder="سعر من" className="shrink-0 w-24 bg-white/10 border border-white/20 text-white text-xs font-bold rounded-xl py-2 px-3 outline-none placeholder:text-white/50" />
-          <input type="number" value={maxP} onChange={e => setMaxP(e.target.value)} onBlur={() => applyFilters()}
+          <input type="number" min="0" value={maxP} onChange={e => setMaxP(e.target.value)} onBlur={() => applyFilters()}
             placeholder="سعر إلى" className="shrink-0 w-24 bg-white/10 border border-white/20 text-white text-xs font-bold rounded-xl py-2 px-3 outline-none placeholder:text-white/50" />
         </>)}
 
-        {/* Listing type — listings only */}
+        {/* ── Listing type ── API /api/listings → listingType: SALE | RENTAL | WANTED */}
         {isListings && (
           <select value={lt} onChange={e => { setLt(e.target.value); applyNow('listingType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>بيع وإيجار</option>
@@ -370,7 +369,7 @@ function SearchContent() {
           </select>
         )}
 
-        {/* Make — listings, buses, parts */}
+        {/* ── Make ── API /api/listings /api/parts /api/buses → make (string) */}
         {(isListings || isBuses || isParts || isAll) && (
           <select value={make} onChange={e => { setMake(e.target.value); applyNow('make', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل الماركات</option>
@@ -378,7 +377,7 @@ function SearchContent() {
           </select>
         )}
 
-        {/* Condition — listings, parts */}
+        {/* ── Condition ── API /api/listings → condition: ItemCondition enum | /api/parts → condition: PartCondition enum */}
         {(isListings || isParts || isAll) && (
           <select value={cond} onChange={e => { setCond(e.target.value); applyNow('condition', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل الحالات</option>
@@ -386,7 +385,7 @@ function SearchContent() {
           </select>
         )}
 
-        {/* Fuel type — listings only */}
+        {/* ── Fuel type ── API /api/listings → fuelType (string) */}
         {isListings && (
           <select value={fuel} onChange={e => { setFuel(e.target.value); applyNow('fuelType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل أنواع الوقود</option>
@@ -394,7 +393,7 @@ function SearchContent() {
           </select>
         )}
 
-        {/* Transmission — listings only */}
+        {/* ── Transmission ── API /api/listings → transmission: AUTOMATIC | MANUAL */}
         {isListings && (
           <select value={trans} onChange={e => { setTrans(e.target.value); applyNow('transmission', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل ناقلات الحركة</option>
@@ -402,7 +401,7 @@ function SearchContent() {
           </select>
         )}
 
-        {/* Year range — listings only */}
+        {/* ── Year range ── API /api/listings → yearMin / yearMax (integer) */}
         {isListings && (<>
           <select value={yearMin} onChange={e => { setYearMin(e.target.value); applyNow('yearMin', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>سنة من</option>
@@ -414,7 +413,7 @@ function SearchContent() {
           </select>
         </>)}
 
-        {/* Bus type — buses only */}
+        {/* ── Bus type ── API /api/buses → busType: MINI_BUS | MEDIUM_BUS | LARGE_BUS | COASTER | SCHOOL_BUS */}
         {isBuses && (
           <select value={busType} onChange={e => { setBusType(e.target.value); applyNow('busType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل أنواع الباصات</option>
@@ -426,26 +425,27 @@ function SearchContent() {
           </select>
         )}
 
-        {/* Bus listing type — buses only */}
+        {/* ── Bus listing type ── API /api/buses → busListingType: BUS_SALE | BUS_SALE_WITH_CONTRACT | BUS_RENT | BUS_CONTRACT | BUS_REQUEST */}
         {isBuses && (
           <select value={busLT} onChange={e => { setBusLT(e.target.value); applyNow('busListingType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل أنواع الإعلانات</option>
-            <option value="BUS_SALE"              className={SEL_OPT}>بيع</option>
-            <option value="BUS_SALE_WITH_CONTRACT" className={SEL_OPT}>بيع مع عقد</option>
-            <option value="BUS_RENT"              className={SEL_OPT}>إيجار</option>
-            <option value="BUS_REQUEST"           className={SEL_OPT}>طلب</option>
+            <option value="BUS_SALE"               className={SEL_OPT}>بيع</option>
+            <option value="BUS_SALE_WITH_CONTRACT"  className={SEL_OPT}>بيع مع عقد</option>
+            <option value="BUS_CONTRACT"            className={SEL_OPT}>تعاقد</option>
+            <option value="BUS_RENT"               className={SEL_OPT}>إيجار</option>
+            <option value="BUS_REQUEST"            className={SEL_OPT}>طلب</option>
           </select>
         )}
 
-        {/* Capacity range — buses only */}
+        {/* ── Capacity ── API /api/buses → minCapacity / maxCapacity (number) */}
         {isBuses && (<>
-          <input type="number" value={capMin} onChange={e => setCapMin(e.target.value)} onBlur={() => applyFilters()}
+          <input type="number" min="0" value={capMin} onChange={e => setCapMin(e.target.value)} onBlur={() => applyFilters()}
             placeholder="سعة من" className="shrink-0 w-20 bg-white/10 border border-white/20 text-white text-xs font-bold rounded-xl py-2 px-3 outline-none placeholder:text-white/50" />
-          <input type="number" value={capMax} onChange={e => setCapMax(e.target.value)} onBlur={() => applyFilters()}
+          <input type="number" min="0" value={capMax} onChange={e => setCapMax(e.target.value)} onBlur={() => applyFilters()}
             placeholder="سعة إلى" className="shrink-0 w-20 bg-white/10 border border-white/20 text-white text-xs font-bold rounded-xl py-2 px-3 outline-none placeholder:text-white/50" />
         </>)}
 
-        {/* Part category — parts only */}
+        {/* ── Part category ── API /api/parts → partCategory: ENGINE|BODY|ELECTRICAL|SUSPENSION|BRAKES|INTERIOR|TIRES|BATTERIES|OILS|ACCESSORIES|OTHER */}
         {isParts && (
           <select value={partCat} onChange={e => { setPartCat(e.target.value); applyNow('partCategory', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل الفئات</option>
@@ -455,26 +455,31 @@ function SearchContent() {
             <option value="SUSPENSION"  className={SEL_OPT}>تعليق</option>
             <option value="BRAKES"      className={SEL_OPT}>فرامل</option>
             <option value="INTERIOR"    className={SEL_OPT}>داخلية</option>
-            <option value="COOLING"     className={SEL_OPT}>تبريد</option>
-            <option value="TRANSMISSION" className={SEL_OPT}>ناقل حركة</option>
+            <option value="TIRES"       className={SEL_OPT}>إطارات</option>
+            <option value="BATTERIES"   className={SEL_OPT}>بطاريات</option>
+            <option value="OILS"        className={SEL_OPT}>زيوت</option>
+            <option value="ACCESSORIES" className={SEL_OPT}>إكسسوارات</option>
             <option value="OTHER"       className={SEL_OPT}>أخرى</option>
           </select>
         )}
 
-        {/* Service type — services only */}
+        {/* ── Service type ── API /api/services → serviceType: MAINTENANCE|CLEANING|MODIFICATION|INSPECTION|BODYWORK|ACCESSORIES_INSTALL|KEYS_LOCKS|TOWING|OTHER_SERVICE */}
         {isServices && (
           <select value={svcType} onChange={e => { setSvcType(e.target.value); applyNow('serviceType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل الخدمات</option>
-            <option value="MAINTENANCE"  className={SEL_OPT}>صيانة</option>
-            <option value="CLEANING"     className={SEL_OPT}>تنظيف</option>
-            <option value="MODIFICATION" className={SEL_OPT}>تعديل</option>
-            <option value="INSPECTION"   className={SEL_OPT}>فحص</option>
-            <option value="TOWING"       className={SEL_OPT}>سحب</option>
-            <option value="RECOVERY"     className={SEL_OPT}>إنقاذ</option>
+            <option value="MAINTENANCE"         className={SEL_OPT}>صيانة</option>
+            <option value="CLEANING"            className={SEL_OPT}>تنظيف</option>
+            <option value="MODIFICATION"        className={SEL_OPT}>تعديل</option>
+            <option value="INSPECTION"          className={SEL_OPT}>فحص</option>
+            <option value="BODYWORK"            className={SEL_OPT}>هيكل وطلاء</option>
+            <option value="ACCESSORIES_INSTALL" className={SEL_OPT}>تركيب إكسسوارات</option>
+            <option value="KEYS_LOCKS"          className={SEL_OPT}>مفاتيح وأقفال</option>
+            <option value="TOWING"             className={SEL_OPT}>سحب</option>
+            <option value="OTHER_SERVICE"       className={SEL_OPT}>أخرى</option>
           </select>
         )}
 
-        {/* Provider type — services, transport */}
+        {/* ── Provider type ── API /api/services /api/transport → providerType: WORKSHOP|INDIVIDUAL|MOBILE|COMPANY */}
         {(isServices || isTransport) && (
           <select value={provType} onChange={e => { setProvType(e.target.value); applyNow('providerType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل المزودين</option>
@@ -485,7 +490,7 @@ function SearchContent() {
           </select>
         )}
 
-        {/* Home service toggle — services only */}
+        {/* ── Home service ── API /api/services → isHomeService (boolean) */}
         {isServices && (
           <button onClick={() => { const v = !homeServ; setHomeServ(v); applyFilters({ isHomeService: v ? 'true' : '' }); }}
             className={`shrink-0 flex items-center gap-1.5 text-xs font-bold rounded-xl py-2 px-3 border transition-all ${homeServ ? 'bg-white text-primary border-white' : 'bg-white/10 border-white/20 text-white hover:bg-white/15'}`}>
@@ -494,7 +499,7 @@ function SearchContent() {
           </button>
         )}
 
-        {/* Job type — jobs only */}
+        {/* ── Job type ── API /api/jobs → jobType: OFFERING | HIRING */}
         {isJobs && (
           <select value={jobType} onChange={e => { setJobType(e.target.value); applyNow('jobType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل الوظائف</option>
@@ -503,7 +508,7 @@ function SearchContent() {
           </select>
         )}
 
-        {/* Employment type — jobs only */}
+        {/* ── Employment type ── API /api/jobs → employmentType: FULL_TIME | PART_TIME | TEMPORARY | CONTRACT */}
         {isJobs && (
           <select value={empType} onChange={e => { setEmpType(e.target.value); applyNow('employmentType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>نوع التوظيف</option>
@@ -514,7 +519,7 @@ function SearchContent() {
           </select>
         )}
 
-        {/* License type — jobs only */}
+        {/* ── License type ── API /api/jobs → licenseType (string, free text) */}
         {isJobs && (
           <select value={lic} onChange={e => { setLic(e.target.value); applyNow('licenseType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>نوع الرخصة</option>
@@ -526,38 +531,39 @@ function SearchContent() {
           </select>
         )}
 
-        {/* Transport type — transport only */}
+        {/* ── Transport type ── API /api/transport → transportType: CARGO|FURNITURE|DELIVERY|HEAVY_TRANSPORT|TRUCK_RENTAL|OTHER_TRANSPORT */}
         {isTransport && (
           <select value={trType} onChange={e => { setTrType(e.target.value); applyNow('transportType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل أنواع النقل</option>
             <option value="CARGO"           className={SEL_OPT}>شحن</option>
             <option value="FURNITURE"       className={SEL_OPT}>أثاث</option>
             <option value="DELIVERY"        className={SEL_OPT}>توصيل</option>
-            <option value="CRANE_TRANSPORT" className={SEL_OPT}>رافعة</option>
+            <option value="HEAVY_TRANSPORT" className={SEL_OPT}>نقل ثقيل</option>
+            <option value="TRUCK_RENTAL"    className={SEL_OPT}>تأجير شاحنة</option>
             <option value="OTHER_TRANSPORT" className={SEL_OPT}>أخرى</option>
           </select>
         )}
 
-        {/* Trip type — trips only */}
+        {/* ── Trip type ── API /api/trips → tripType: BUS_SUBSCRIPTION|SCHOOL_TRANSPORT|TOURISM|CORPORATE|CARPOOLING */}
         {isTrips && (
           <select value={tripType} onChange={e => { setTripType(e.target.value); applyNow('tripType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل الرحلات</option>
-            <option value="BUS_SUBSCRIPTION"  className={SEL_OPT}>اشتراك باص</option>
-            <option value="SCHOOL_TRANSPORT"  className={SEL_OPT}>نقل مدرسي</option>
-            <option value="TOURISM"           className={SEL_OPT}>سياحة</option>
-            <option value="AIRPORT_TRANSFER"  className={SEL_OPT}>نقل مطار</option>
-            <option value="CARPOOLING"        className={SEL_OPT}>مشاركة سيارة</option>
+            <option value="BUS_SUBSCRIPTION" className={SEL_OPT}>اشتراك باص</option>
+            <option value="SCHOOL_TRANSPORT" className={SEL_OPT}>نقل مدرسي</option>
+            <option value="TOURISM"          className={SEL_OPT}>سياحة</option>
+            <option value="CORPORATE"        className={SEL_OPT}>شركات</option>
+            <option value="CARPOOLING"       className={SEL_OPT}>مشاركة سيارة</option>
           </select>
         )}
 
-        {/* Schedule type — trips only */}
+        {/* ── Schedule type ── API /api/trips → scheduleType: SCHEDULE_DAILY|SCHEDULE_WEEKLY|SCHEDULE_MONTHLY|ONE_TIME */}
         {isTrips && (
           <select value={sched} onChange={e => { setSched(e.target.value); applyNow('scheduleType', e.target.value); }} className={SEL}>
             <option value="" className={SEL_OPT}>كل الجداول</option>
             <option value="SCHEDULE_DAILY"   className={SEL_OPT}>يومي</option>
             <option value="SCHEDULE_WEEKLY"  className={SEL_OPT}>أسبوعي</option>
             <option value="SCHEDULE_MONTHLY" className={SEL_OPT}>شهري</option>
-            <option value="ON_DEMAND"        className={SEL_OPT}>عند الطلب</option>
+            <option value="ONE_TIME"         className={SEL_OPT}>مرة واحدة</option>
           </select>
         )}
 
