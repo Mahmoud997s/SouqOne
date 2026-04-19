@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import clsx from 'clsx';
+import { useModels, useRecentFilters, type RecentFilterEntry } from './useFilterIntelligence';
 
 // ─── Primitive components ────────────────────────────────────────────────────
 
@@ -206,14 +207,15 @@ function Toggle({ value, onChange, label, dark = false }: {
 
 /** Collapsible filter group */
 function FilterGroup({
-  icon, label, activeCount, children, defaultOpen = false, dark = false,
+  icon, label, activeCount, children, defaultOpen = false, dark = false, onClear,
 }: {
   icon: string; label: string; activeCount: number;
   children: React.ReactNode; defaultOpen?: boolean; dark?: boolean;
+  onClear?: () => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className={clsx('rounded-xl border overflow-hidden transition-all',
+    <div className={clsx('rounded-xl border overflow-hidden',
       dark ? 'border-white/15 bg-white/5' : 'border-outline-variant/15 bg-surface-container-lowest')}>
       <button type="button" onClick={() => setOpen(!open)}
         className={clsx('w-full flex items-center gap-2 px-4 py-3 transition-colors',
@@ -223,12 +225,28 @@ function FilterGroup({
         <span className={clsx('flex-1 text-right text-sm font-black',
           dark ? 'text-white' : 'text-on-surface')}>{label}</span>
         {activeCount > 0 && (
-          <span className={clsx('text-[10px] font-black px-2 py-0.5 rounded-full shrink-0',
-            dark ? 'bg-white text-primary' : 'bg-primary text-on-primary')}>
-            {activeCount}
-          </span>
+          <>
+            <span className={clsx('text-[10px] font-black px-2 py-0.5 rounded-full shrink-0',
+              dark ? 'bg-white text-primary' : 'bg-primary text-on-primary')}>
+              {activeCount}
+            </span>
+            {onClear && (
+              <button
+                type="button"
+                onClick={e => { e.stopPropagation(); onClear(); }}
+                className={clsx(
+                  'text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 transition-colors',
+                  dark
+                    ? 'border-white/30 text-white/60 hover:bg-white/10'
+                    : 'border-outline-variant/30 text-on-surface-variant/60 hover:text-error hover:border-error/30'
+                )}
+              >
+                مسح
+              </button>
+            )}
+          </>
         )}
-        <span className={clsx('material-symbols-outlined text-sm transition-transform shrink-0',
+        <span className={clsx('material-symbols-outlined text-sm transition-transform duration-200 shrink-0',
           open && 'rotate-180', dark ? 'text-white/50' : 'text-on-surface-variant')}>
           expand_more
         </span>
@@ -239,6 +257,92 @@ function FilterGroup({
           <div className="pt-3">{children}</div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Dependent model dropdown with loading state */
+function ModelSelect({
+  brand, value, onChange, dark = false,
+}: {
+  brand: string; value: string; onChange: (v: string) => void; dark?: boolean;
+}) {
+  const { models, loading } = useModels(brand);
+  const opts = models.map(m => ({ value: m, label: m }));
+
+  if (!brand) {
+    return (
+      <p className={clsx('text-[11px] italic', dark ? 'text-white/40' : 'text-on-surface-variant/50')}>
+        اختر الماركة أولاً
+      </p>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className={clsx(
+        'w-full flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-bold',
+        dark ? 'bg-white/10 border-white/20 text-white/50' : 'bg-surface-container border-outline-variant/20 text-on-surface-variant/50'
+      )}>
+        <svg className="animate-spin w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3"/>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+        </svg>
+        جارٍ التحميل...
+      </div>
+    );
+  }
+
+  if (opts.length === 0) {
+    return (
+      <p className={clsx('text-[11px] italic', dark ? 'text-white/40' : 'text-on-surface-variant/50')}>
+        لا موديلات متاحة
+      </p>
+    );
+  }
+
+  return (
+    <SearchableSelect
+      options={opts}
+      value={value}
+      onChange={onChange}
+      placeholder="كل الموديلات"
+      dark={dark}
+    />
+  );
+}
+
+/** Recent filter chips row */
+function RecentFiltersRow({
+  recents, onApply, dark = false,
+}: {
+  recents: RecentFilterEntry[];
+  onApply: (params: Record<string, string>) => void;
+  dark?: boolean;
+}) {
+  if (recents.length === 0) return null;
+  return (
+    <div className="space-y-1.5">
+      <p className={clsx('text-[10px] font-bold uppercase tracking-wide',
+        dark ? 'text-white/40' : 'text-on-surface-variant/50')}>بحث سابق</p>
+      <div className="flex flex-col gap-1.5">
+        {recents.map((r, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => onApply(r.params)}
+            className={clsx(
+              'text-right text-[11px] font-bold px-3 py-2 rounded-xl border truncate transition-colors',
+              dark
+                ? 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                : 'bg-surface-container border-outline-variant/15 text-on-surface-variant hover:border-primary/30 hover:text-primary'
+            )}
+          >
+            <span className={clsx('ml-1.5', dark ? 'text-white/30' : 'text-on-surface-variant/40')}>↩</span>
+            {r.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -419,6 +523,13 @@ export function SearchFilters({
   const makeOpts   = CAR_MAKES.map(m => ({ value: m, label: m }));
   const yearOpts   = years.map(y => ({ value: y, label: y }));
 
+  // ── recent filters (read-only — saving handled by page.tsx) ──
+  const { recents } = useRecentFilters(activeTab);
+
+  function applyRecent(params: Record<string, string>) {
+    applyFilters(params);
+  }
+
   // ── per-group active counts ──
   const cShared  = [state.gov, state.sort].filter(Boolean).length;
   const cPrice   = [state.minP, state.maxP].filter(Boolean).length;
@@ -430,8 +541,27 @@ export function SearchFilters({
   const cTrSpec  = [state.trType, state.provType].filter(Boolean).length;
   const cTripSpec= [state.tripType, state.sched].filter(Boolean).length;
 
+  // ── per-group clear handlers ──
+  function clearShared()   { applyFilters({ governorate: '', sort: '' }); }
+  function clearPrice()    { applyFilters({ minPrice: '', maxPrice: '' }); }
+  function clearCar()      { applyFilters({ make: '', model: '', condition: '', fuelType: '', transmission: '', listingType: '', yearMin: '', yearMax: '' }); }
+  function clearBusSpec()  { applyFilters({ busType: '', busListingType: '', capMin: '', capMax: '' }); }
+  function clearPartSpec() { applyFilters({ partCategory: '', condition: '' }); }
+  function clearSvcSpec()  { applyFilters({ serviceType: '', providerType: '', isHomeService: '' }); }
+  function clearJobSpec()  { applyFilters({ jobType: '', employmentType: '', licenseType: '' }); }
+  function clearTrSpec()   { applyFilters({ transportType: '', providerType: '' }); }
+  function clearTripSpec() { applyFilters({ tripType: '', scheduleType: '' }); }
+
   return (
     <div className={clsx('space-y-2', d ? 'pt-3' : 'p-1')}>
+
+      {/* ── Recent filters ── */}
+      {recents.length > 0 && (
+        <div className={clsx('rounded-xl border p-3 space-y-2',
+          d ? 'border-white/10 bg-white/5' : 'border-outline-variant/15 bg-surface-container-lowest')}>
+          <RecentFiltersRow recents={recents} onApply={applyRecent} dark={d} />
+        </div>
+      )}
 
       {/* ── Clear all ── */}
       {activeFilterCount > 0 && (
@@ -450,7 +580,7 @@ export function SearchFilters({
 
       {/* ══ GROUP 1: الترتيب والموقع (all tabs) ══ */}
       {/* API param: sort, governorate */}
-      <FilterGroup icon="sort" label="الترتيب والموقع" activeCount={cShared} defaultOpen dark={d}>
+      <FilterGroup icon="sort" label="الترتيب والموقع" activeCount={cShared} defaultOpen dark={d} onClear={cShared > 0 ? clearShared : undefined}>
         <FilterRow label="ترتيب النتائج" dark={d}>
           {/* 3 values → PillGroup */}
           <PillGroup options={SORT_OPTS} value={state.sort}
@@ -466,7 +596,7 @@ export function SearchFilters({
       {/* ══ GROUP 2: السيارة — listings + isAll ══ */}
       {/* API /api/listings → make, model, listingType, condition, fuelType, transmission */}
       {(isListings || isAll) && (
-        <FilterGroup icon="directions_car" label="السيارة" activeCount={cCar} dark={d}>
+        <FilterGroup icon="directions_car" label="السيارة" activeCount={cCar} dark={d} onClear={cCar > 0 ? clearCar : undefined}>
           <FilterRow label="نوع الإعلان" dark={d}>
             {/* 3 values → PillGroup */}
             <PillGroup options={LISTING_TYPES} value={state.lt}
@@ -478,12 +608,11 @@ export function SearchFilters({
           </FilterRow>
           {isListings && (
             <FilterRow label="الموديل" dark={d}>
-              <input value={state.model} onChange={e => setters.setModel(e.target.value)}
-                onBlur={() => applyFilters()}
-                placeholder="مثال: Camry"
-                className={clsx('w-full text-xs font-bold px-3 py-2 rounded-xl border outline-none transition-all',
-                  d ? 'bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/50'
-                    : 'bg-surface-container border-outline-variant/20 text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary/50')}
+              <ModelSelect
+                brand={state.make}
+                value={state.model}
+                onChange={v => { setters.setModel(v); applyNow('model', v); }}
+                dark={d}
               />
             </FilterRow>
           )}
@@ -518,7 +647,7 @@ export function SearchFilters({
       {/* ══ GROUP 3: السعر — listings, parts, buses, isAll ══ */}
       {/* API: listings→priceMin/priceMax, parts/buses→minPrice/maxPrice */}
       {(isAll || isListings || isParts || isBuses) && (
-        <FilterGroup icon="payments" label="نطاق السعر" activeCount={cPrice} dark={d}>
+        <FilterGroup icon="payments" label="نطاق السعر" activeCount={cPrice} dark={d} onClear={cPrice > 0 ? clearPrice : undefined}>
           <RangeInputs minVal={state.minP} maxVal={state.maxP}
             onMinChange={setters.setMinP} onMaxChange={setters.setMaxP}
             onBlur={() => applyFilters()} unit="OMR" dark={d} />
@@ -528,7 +657,7 @@ export function SearchFilters({
       {/* ══ GROUP 4: قطع الغيار — parts ══ */}
       {/* API /api/parts → partCategory, condition, make */}
       {isParts && (
-        <FilterGroup icon="settings" label="قطع الغيار" activeCount={cPartSpec} dark={d}>
+        <FilterGroup icon="settings" label="قطع الغيار" activeCount={cPartSpec} dark={d} onClear={cPartSpec > 0 ? clearPartSpec : undefined}>
           <FilterRow label="الفئة" dark={d}>
             {/* 11 values → SearchableSelect */}
             <SearchableSelect options={PART_CATS} value={state.partCat} placeholder="كل الفئات"
@@ -550,7 +679,7 @@ export function SearchFilters({
       {/* ══ GROUP 5: الباصات — buses ══ */}
       {/* API /api/buses → busListingType, busType, make, minCapacity, maxCapacity */}
       {isBuses && (
-        <FilterGroup icon="directions_bus" label="الباصات" activeCount={cBusSpec} dark={d}>
+        <FilterGroup icon="directions_bus" label="الباصات" activeCount={cBusSpec} dark={d} onClear={cBusSpec > 0 ? clearBusSpec : undefined}>
           <FilterRow label="نوع الإعلان" dark={d}>
             {/* 5 values → SearchableSelect */}
             <SearchableSelect options={BUS_LT} value={state.busLT} placeholder="كل الإعلانات"
@@ -576,7 +705,7 @@ export function SearchFilters({
       {/* ══ GROUP 6: الخدمات — services ══ */}
       {/* API /api/services → serviceType, providerType, isHomeService */}
       {isServices && (
-        <FilterGroup icon="home_repair_service" label="الخدمات" activeCount={cSvcSpec} dark={d}>
+        <FilterGroup icon="home_repair_service" label="الخدمات" activeCount={cSvcSpec} dark={d} onClear={cSvcSpec > 0 ? clearSvcSpec : undefined}>
           <FilterRow label="نوع الخدمة" dark={d}>
             {/* 9 values → SearchableSelect */}
             <SearchableSelect options={SVC_TYPES} value={state.svcType} placeholder="كل الخدمات"
@@ -595,7 +724,7 @@ export function SearchFilters({
       {/* ══ GROUP 7: الوظائف — jobs ══ */}
       {/* API /api/jobs → jobType, employmentType, licenseType */}
       {isJobs && (
-        <FilterGroup icon="work" label="الوظائف" activeCount={cJobSpec} dark={d}>
+        <FilterGroup icon="work" label="الوظائف" activeCount={cJobSpec} dark={d} onClear={cJobSpec > 0 ? clearJobSpec : undefined}>
           <FilterRow label="نوع الوظيفة" dark={d}>
             {/* 2 values → PillGroup */}
             <PillGroup options={JOB_TYPES} value={state.jobType}
@@ -617,7 +746,7 @@ export function SearchFilters({
       {/* ══ GROUP 8: النقل — transport ══ */}
       {/* API /api/transport → transportType, providerType */}
       {isTransport && (
-        <FilterGroup icon="local_shipping" label="النقل" activeCount={cTrSpec} dark={d}>
+        <FilterGroup icon="local_shipping" label="النقل" activeCount={cTrSpec} dark={d} onClear={cTrSpec > 0 ? clearTrSpec : undefined}>
           <FilterRow label="نوع النقل" dark={d}>
             {/* 6 values → SearchableSelect */}
             <SearchableSelect options={TR_TYPES} value={state.trType} placeholder="كل أنواع النقل"
@@ -633,7 +762,7 @@ export function SearchFilters({
       {/* ══ GROUP 9: الرحلات — trips ══ */}
       {/* API /api/trips → tripType, scheduleType */}
       {isTrips && (
-        <FilterGroup icon="route" label="الرحلات" activeCount={cTripSpec} dark={d}>
+        <FilterGroup icon="route" label="الرحلات" activeCount={cTripSpec} dark={d} onClear={cTripSpec > 0 ? clearTripSpec : undefined}>
           <FilterRow label="نوع الرحلة" dark={d}>
             {/* 5 values → SearchableSelect */}
             <SearchableSelect options={TRIP_TYPES} value={state.tripType} placeholder="كل الرحلات"

@@ -21,6 +21,7 @@ import Image from 'next/image';
 import { SearchFilters, type FilterState, type FilterSetters } from './_components/SearchFilters';
 import { MobileFilterSheet, MobileFilterTrigger } from './_components/MobileFilterSheet';
 import { ActiveFilters, buildActiveFilters, type ActiveFilter } from './_components/ActiveFilters';
+import { useRecentFilters, buildFilterLabel } from './_components/useFilterIntelligence';
 
 // ─── Entity config ───
 const ENTITY_CFG: Record<string, { labelKey: string; icon: string; color: string; href: (h: SearchHit) => string }> = {
@@ -178,7 +179,42 @@ function SearchContent() {
   }
 
   function applyFilters(ov: Record<string, string> = {}) { setPage(1); router.push(buildURL(ov)); }
-  function applyNow(key: string, val: string) { applyFilters({ [key]: val }); }
+  function applyNow(key: string, val: string) {
+    // when make is cleared, also clear model
+    if (key === 'make' && !val) { applyFilters({ make: '', model: '' }); return; }
+    applyFilters({ [key]: val });
+  }
+
+  // ── recent filter saving ──
+  const { saveRecent: saveFilterRecent } = useRecentFilters(activeTab);
+
+  function saveFiltersToRecent() {
+    const params: Record<string, string> = {};
+    const fields: [string, string][] = [
+      ['governorate', govParam], ['sort', sortParam],
+      ['minPrice', minPParam], ['maxPrice', maxPParam],
+      ['make', makeParam], ['model', modelParam], ['condition', condParam],
+      ['fuelType', fuelParam], ['transmission', transParam], ['listingType', ltParam],
+      ['yearMin', yearMinParam], ['yearMax', yearMaxParam],
+      ['busType', busTypeParam], ['busListingType', busLTParam],
+      ['capMin', capMinParam], ['capMax', capMaxParam],
+      ['partCategory', partCatParam], ['serviceType', svcTypeParam],
+      ['providerType', provTypeParam], ['isHomeService', homeParam],
+      ['jobType', jobTypeParam], ['employmentType', empTypeParam],
+      ['licenseType', licParam], ['transportType', trTypeParam],
+      ['tripType', tripTypeParam], ['scheduleType', schedParam],
+    ];
+    fields.forEach(([k, v]) => { if (v) params[k] = v; });
+    if (Object.keys(params).length === 0) return;
+    const label = buildFilterLabel({
+      make: makeParam, model: modelParam, yearMin: yearMinParam, yearMax: yearMaxParam,
+      fuel: fuelParam, cond: condParam, trans: transParam, lt: ltParam,
+      gov: govParam, minP: minPParam, maxP: maxPParam,
+      busType: busTypeParam, partCat: partCatParam, svcType: svcTypeParam,
+      jobType: jobTypeParam, tripType: tripTypeParam, trType: trTypeParam,
+    });
+    saveFilterRecent({ label, params, tab: activeTab });
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -498,6 +534,7 @@ function SearchContent() {
         CAR_MAKES={CAR_MAKES}
         applyFilters={applyFilters}
         applyNow={applyNow}
+        onSaveRecent={saveFiltersToRecent}
       />
 
       {/* ── Active filter chips — between hero and results ── */}

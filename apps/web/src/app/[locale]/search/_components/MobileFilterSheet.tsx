@@ -83,12 +83,13 @@ interface MobileFilterSheetProps {
   CAR_MAKES: string[];
   applyFilters: (ov?: Record<string, string>) => void;
   applyNow: (key: string, val: string) => void;
+  onSaveRecent?: () => void;
 }
 
 export function MobileFilterSheet({
   open, onClose, total, activeFilterCount, clearAllFilters,
   activeTab, state, setters, govOpts, condOpts, fuelOpts, transOpts,
-  years, CAR_MAKES, applyFilters, applyNow,
+  years, CAR_MAKES, applyFilters, applyNow, onSaveRecent,
 }: MobileFilterSheetProps) {
   const { dragY, onTouchStart, onTouchMove, onTouchEnd } = useDragDismiss(onClose);
   const [visible, setVisible] = useState(false);
@@ -211,7 +212,7 @@ export function MobileFilterSheet({
         <div className="shrink-0 px-4 py-4 border-t border-outline-variant/10 bg-surface-container-lowest">
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => { onSaveRecent?.(); onClose(); }}
             className="w-full bg-primary text-on-primary py-3.5 rounded-2xl text-sm font-black hover:brightness-110 active:scale-[0.98] transition-all"
           >
             {total > 0 ? `عرض النتائج (${total})` : 'عرض النتائج'}
