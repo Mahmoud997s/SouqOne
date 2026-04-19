@@ -201,6 +201,21 @@ function ListingsContent() {
   const isError = usesMeili ? meiliResult.isError : prismaResult.isError;
   const refetch = usesMeili ? meiliResult.refetch : prismaResult.refetch;
 
+  function buildParams(overrides: Record<string, string>) {
+    const p = new URLSearchParams();
+    const vals: Record<string, string> = {
+      listingType, search: searchInput, fuelType: selectedFuels.join(','),
+      condition: selectedCondition, maxPrice: priceMax, minPrice: priceMin,
+      make: selectedMake, model: modelInput, yearMin: selectedYearMin,
+      yearMax: selectedYearMax, mileageMax: mileageMaxInput,
+      transmission: selectedTransmission, governorate: selectedGovernorate,
+      sortBy, ...overrides,
+    };
+    Object.entries(vals).forEach(([k, v]) => { if (v) p.set(k, v); });
+    p.set('page', '1');
+    return p;
+  }
+
   function applyFilters() {
     const p = new URLSearchParams();
     if (listingType) p.set('listingType', listingType);
@@ -336,35 +351,41 @@ function ListingsContent() {
                   </button>
                 </div>
 
-                {/* Quick filter chips */}
-                <div className="flex overflow-x-auto no-scrollbar gap-1.5 sm:gap-2 sm:flex-wrap mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-white/10">
+                {/* Quick filter chips — Row 1: Condition + Fuel + Transmission */}
+                <div className="flex overflow-x-auto no-scrollbar gap-1.5 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-white/10">
                   {condOpts.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)}
-                      className={`shrink-0 px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold rounded-md sm:rounded-lg transition-all ${
-                        selectedCondition === opt.value
-                          ? 'bg-white text-primary'
-                          : 'bg-white/10 text-white/70 hover:bg-white/20'
-                      }`}
-                    >
+                    <button key={opt.value} type="button"
+                      onClick={() => { const next = selectedCondition === opt.value ? '' : opt.value; setSelectedCondition(next); router.push(`/listings?${buildParams({ condition: next })}`); }}
+                      className={`shrink-0 px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${selectedCondition === opt.value ? 'bg-white text-primary' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}>
                       {opt.label}
                     </button>
                   ))}
-                  <span className="w-px h-6 bg-white/20 mx-1 self-center" />
+                  <span className="w-px h-5 bg-white/20 mx-0.5 self-center shrink-0" />
                   {fuelOpts.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => toggleFuel(opt.value)}
-                      className={`shrink-0 px-2.5 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold rounded-md sm:rounded-lg transition-all ${
-                        selectedFuels.includes(opt.value)
-                          ? 'bg-white text-primary'
-                          : 'bg-white/10 text-white/70 hover:bg-white/20'
-                      }`}
-                    >
+                    <button key={opt.value} type="button"
+                      onClick={() => { const next = selectedFuels.includes(opt.value) ? selectedFuels.filter(f => f !== opt.value) : [...selectedFuels, opt.value]; setSelectedFuels(next); router.push(`/listings?${buildParams({ fuelType: next.join(',') })}`); }}
+                      className={`shrink-0 px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${selectedFuels.includes(opt.value) ? 'bg-white text-primary' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}>
                       {opt.label}
+                    </button>
+                  ))}
+                  <span className="w-px h-5 bg-white/20 mx-0.5 self-center shrink-0" />
+                  {transmissionOpts.map((opt) => (
+                    <button key={opt.value} type="button"
+                      onClick={() => { const next = selectedTransmission === opt.value ? '' : opt.value; setSelectedTransmission(next); router.push(`/listings?${buildParams({ transmission: next })}`); }}
+                      className={`shrink-0 px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${selectedTransmission === opt.value ? 'bg-white text-primary' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Quick filter chips — Row 2: Top Makes */}
+                <div className="flex overflow-x-auto no-scrollbar gap-1.5 mt-1.5">
+                  {['Toyota', 'Nissan', 'Honda', 'Hyundai', 'Kia', 'BMW', 'Mercedes-Benz', 'Lexus', 'Ford', 'Mitsubishi'].map((m) => (
+                    <button key={m} type="button"
+                      onClick={() => { const next = selectedMake === m ? '' : m; setSelectedMake(next); router.push(`/listings?${buildParams({ make: next })}`); }}
+                      className={`shrink-0 px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 ${selectedMake === m ? 'bg-white text-primary' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}>
+                      <span className="material-symbols-outlined text-[11px]">directions_car</span>
+                      {m}
                     </button>
                   ))}
                 </div>
