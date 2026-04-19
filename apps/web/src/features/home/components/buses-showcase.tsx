@@ -2,10 +2,12 @@
 
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
 import { conditionBadge } from '@/lib/constants/mappings';
+import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useAuth } from '@/providers/auth-provider';
 import type { BusListingItem } from '@/lib/api/buses';
 
 interface BusesShowcaseProps {
@@ -18,12 +20,30 @@ const CONDITION_DOT: Record<string, string> = {
   GOOD: 'bg-sky-500', FAIR: 'bg-amber-500', POOR: 'bg-red-500',
 };
 
+function BusFavButton({ id }: { id: string }) {
+  const { isAuthenticated } = useAuth();
+  const { data: favIds } = useFavoriteIds();
+  const toggleFav = useToggleFavorite();
+  const isFav = favIds?.includes(`BUS_LISTING:${id}`) ?? false;
+  if (!isAuthenticated) return null;
+  return (
+    <button
+      onClick={e => { e.preventDefault(); toggleFav.mutate({ entityType: 'BUS_LISTING', entityId: id }); }}
+      className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center"
+    >
+      <span
+        className={`material-symbols-outlined text-[18px] sm:text-[20px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all duration-200 ${isFav ? 'text-red-500' : 'text-white'}`}
+        style={{ fontVariationSettings: isFav ? "'FILL' 1" : "'FILL' 0" }}
+      >favorite</span>
+    </button>
+  );
+}
+
 export function BusesShowcase({ items, isLoading }: BusesShowcaseProps) {
   const t = useTranslations('home');
   const tl = useTranslations('listings');
   const tp = useTranslations('pages');
   const tm = useTranslations('mappings');
-  const locale = useLocale();
   const badges = conditionBadge(tm);
 
   const TYPE_LABELS: Record<string, string> = {
@@ -82,23 +102,33 @@ export function BusesShowcase({ items, isLoading }: BusesShowcaseProps) {
                     )}
                     <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 
-                    {/* أعلى يسار: نوع الإعلان */}
-                    <span className="absolute top-2 left-2 inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
-                      {TYPE_LABELS[bus.busListingType] || bus.busListingType}
-                    </span>
+                    {/* Fav top-left */}
+                    <BusFavButton id={bus.id} />
 
-                    {/* أعلى يمين: الحالة (نقطة + label) */}
-                    {cond && (
-                      <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
-                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${CONDITION_DOT[bus.condition] || 'bg-slate-400'}`} />
-                        {cond.label}
+                    {/* Condition + type top-right */}
+                    <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 flex items-center gap-0.5">
+                      {cond && (
+                        <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${CONDITION_DOT[bus.condition] || 'bg-slate-400'}`} />
+                          {cond.label}
+                        </span>
+                      )}
+                      <span className="px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+                        {TYPE_LABELS[bus.busListingType] || bus.busListingType}
+                      </span>
+                    </div>
+
+                    {/* Verified bottom-left */}
+                    {bus.user?.isVerified && (
+                      <span className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 text-blue-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+                        <span className="material-symbols-outlined text-[13px] sm:text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                       </span>
                     )}
 
-                    {/* أسفل يمين: السعر */}
+                    {/* Price bottom-right */}
                     {pt && (
-                      <div className="absolute bottom-2 right-2">
-                        <span className="px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs font-black bg-primary text-on-primary shadow-sm">
+                      <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2">
+                        <span className="px-1.5 sm:px-2 py-px sm:py-0.5 rounded text-[9px] sm:text-xs font-black bg-primary text-on-primary shadow-sm">
                           {pt}
                         </span>
                       </div>
@@ -106,79 +136,14 @@ export function BusesShowcase({ items, isLoading }: BusesShowcaseProps) {
                   </div>
 
                   {/* ── Body ── */}
-                  <div className="p-2 sm:p-3 flex-1 flex flex-col gap-1">
-                    <h3 className="font-black text-xs sm:text-sm text-on-surface leading-snug line-clamp-1">{bus.title}</h3>
-
-                    {/* Meta: make model year · location */}
-                    <div className="flex items-center gap-1 text-[9px] sm:text-[10px] text-on-surface-variant leading-none">
-                      <span className="truncate">{bus.make} {bus.model} {bus.year}</span>
+                  <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1.5">
+                    <h3 dir="auto" className="text-[10px] sm:text-[13px] font-black leading-snug line-clamp-2 sm:line-clamp-1">{bus.title}</h3>
+                    <div className="flex items-center gap-1 flex-wrap text-[8px] sm:text-[10px] text-on-surface-variant">
                       {bus.governorate && (
-                        <>
-                          <span className="text-outline-variant/40 mx-0.5">·</span>
-                          <span className="material-symbols-outlined text-[10px]">location_on</span>
-                          <span className="truncate">{bus.governorate}</span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Contract details — for contract types only */}
-                    {(bus.busListingType === 'BUS_SALE_WITH_CONTRACT' || bus.busListingType === 'BUS_CONTRACT') && (bus.contractMonthly || bus.contractDuration || bus.contractExpiry) && (
-                      <div className="flex items-center flex-wrap gap-x-1.5 text-[8px] sm:text-[10px] text-on-surface-variant">
-                        {bus.contractMonthly && (
-                          <span className="flex items-center gap-0.5">
-                            <span className="material-symbols-outlined text-[10px]">payments</span>
-                            {bus.contractMonthly} {tl('currency')}{tl('perMonth')}
-                          </span>
-                        )}
-                        {bus.contractMonthly && (bus.contractDuration || bus.contractExpiry) && (
-                          <span className="text-outline-variant/40">·</span>
-                        )}
-                        {bus.contractDuration && (
-                          <span className="flex items-center gap-0.5">
-                            <span className="material-symbols-outlined text-[10px]">schedule</span>
-                            {bus.contractDuration} {tl('months')}
-                          </span>
-                        )}
-                        {bus.contractDuration && bus.contractExpiry && (
-                          <span className="text-outline-variant/40">·</span>
-                        )}
-                        {bus.contractExpiry && (
-                          <span className="flex items-center gap-0.5">
-                            <span className="material-symbols-outlined text-[10px]">event</span>
-                            {new Date(bus.contractExpiry).toLocaleDateString(locale === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', year: 'numeric' })}
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Meta tags: inline row — ordered by importance */}
-                    <div className="flex items-center flex-wrap gap-x-1.5 text-[8px] sm:text-[10px] text-on-surface-variant">
-                      {bus.user?.isVerified && (
-                        <span className="inline-flex items-center gap-0.5">
-                          <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                          {tl('verified')}
+                        <span className="flex items-center gap-px shrink-0">
+                          <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
+                          {bus.governorate}
                         </span>
-                      )}
-                      {bus.user?.isVerified && (bus.withDriver || bus.capacity || bus.isPriceNegotiable) && (
-                        <span className="text-outline-variant/40">·</span>
-                      )}
-                      {bus.withDriver && (
-                        <span>{tl('withDriver')}</span>
-                      )}
-                      {bus.withDriver && (bus.capacity || bus.isPriceNegotiable) && (
-                        <span className="text-outline-variant/40">·</span>
-                      )}
-                      {bus.capacity && (
-                        <span className="flex items-center gap-0.5">
-                          <span className="material-symbols-outlined text-[10px]">event_seat</span>
-                          {bus.capacity}
-                        </span>
-                      )}
-                      {bus.capacity && bus.isPriceNegotiable && (
-                        <span className="text-outline-variant/40">·</span>
-                      )}
-                      {bus.isPriceNegotiable && (
-                        <span>{tl('negotiable')}</span>
                       )}
                     </div>
                   </div>

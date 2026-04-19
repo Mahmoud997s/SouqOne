@@ -206,8 +206,8 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
 
   const [step, setStep] = useState(0);
 
-  const inputCls = 'w-full bg-surface-container-low border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:outline-none text-sm';
-  const labelCls = 'text-xs font-bold text-on-surface-variant uppercase tracking-widest block mb-2';
+  const inputCls = 'w-full bg-surface-container-low dark:bg-surface-container-high/50 border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl py-3 px-4 focus:bg-surface-container-lowest dark:focus:bg-surface-container focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none text-sm transition-all placeholder:text-on-surface-variant/40';
+  const labelCls = 'text-xs font-bold text-on-surface-variant block mb-2';
 
   const steps = [
     { label: tp('lfStep1') },
@@ -224,8 +224,8 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
     <MultiStepForm
       steps={steps}
       currentStep={step}
-      onNext={() => setStep(s => Math.min(s + 1, steps.length - 1))}
-      onBack={() => setStep(s => Math.max(s - 1, 0))}
+      onNext={() => { setStep(s => Math.min(s + 1, steps.length - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+      onBack={() => { setStep(s => Math.max(s - 1, 0)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
       onSubmit={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
       isLoading={isLoading}
       submitLabel={submitLabel}

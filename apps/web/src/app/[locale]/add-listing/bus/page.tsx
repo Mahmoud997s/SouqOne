@@ -236,7 +236,7 @@ function AddBusContent() {
   return (
     <AuthGuard>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-[900px] mx-auto px-4 md:px-8">
+      <main className="pt-28 pb-8 max-w-[900px] mx-auto px-4 md:px-8">
         <MultiStepForm
           steps={steps}
           currentStep={step}

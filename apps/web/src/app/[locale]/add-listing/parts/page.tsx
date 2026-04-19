@@ -158,12 +158,12 @@ function AddPartContent() {
   return (
     <AuthGuard>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-[900px] mx-auto px-4 md:px-8">
+      <main className="pt-28 pb-8 max-w-[900px] mx-auto px-4 md:px-8">
         <MultiStepForm
           steps={steps}
           currentStep={step}
-          onNext={() => setStep(s => Math.min(s + 1, 2))}
-          onBack={() => setStep(s => Math.max(s - 1, 0))}
+          onNext={() => { setStep(s => Math.min(s + 1, 2)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+          onBack={() => { setStep(s => Math.max(s - 1, 0)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
           onSubmit={handleSubmit}
           isLoading={isLoading}
           submitLabel={tp('partSubmit')}

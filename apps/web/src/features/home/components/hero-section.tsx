@@ -122,7 +122,7 @@ export function HeroSection() {
 
       {/* ── Hero Banner Slider ── */}
       <div className="px-3 sm:px-6 pb-3">
-        <div className="relative w-full overflow-hidden aspect-[16/6] sm:aspect-[16/5] lg:aspect-[16/5.5] xl:aspect-[16/5] rounded-2xl sm:rounded-3xl">
+        <div className="relative w-full overflow-hidden aspect-[16/9] sm:aspect-[16/5] lg:aspect-[16/5.5] xl:aspect-[16/5] rounded-2xl sm:rounded-3xl">
           {HERO_SLIDES.map((src, i) => (
             <Image
               key={src}
@@ -156,33 +156,33 @@ export function HeroSection() {
               {t('heroSubtitle')}
             </p>
 
-            <div className="flex items-center gap-0.5 sm:gap-2 lg:gap-3 mb-1 sm:mb-3 lg:mb-5 flex-wrap">
-              {TRUST_BADGES.map(b => (
-                <span
-                  key={b.key}
-                  className="inline-flex items-center gap-0.5 sm:gap-1 text-[6px] sm:text-[11px] lg:text-xs font-bold bg-white/15 backdrop-blur-sm rounded-full px-1 py-px sm:px-2.5 sm:py-1 lg:px-3 lg:py-1.5"
-                >
-                  <span className="material-symbols-outlined text-[7px] sm:text-[12px] lg:text-sm">{b.icon}</span>
-                  {t(b.key)}
-                </span>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-1 sm:gap-3 lg:gap-4">
+            <div className="flex items-center gap-1 sm:gap-3 lg:gap-4 mb-1 sm:mb-3 lg:mb-5">
               <Link
                 href="/add-listing"
-                className="btn-brand shrink-0 flex items-center gap-0.5 sm:gap-1.5 px-2 sm:px-5 lg:px-7 py-1 sm:py-2.5 lg:py-3 text-[8px] sm:text-sm lg:text-base font-black rounded-md sm:rounded-xl hover:brightness-110 transition-all"
+                className="btn-brand shrink-0 flex items-center gap-0.5 sm:gap-1.5 px-1.5 sm:px-5 lg:px-7 py-0.5 sm:py-2.5 lg:py-3 text-[7px] sm:text-sm lg:text-base font-black rounded-md sm:rounded-xl hover:brightness-110 transition-all"
               >
-                <span className="material-symbols-outlined text-[10px] sm:text-sm lg:text-base">add_circle</span>
+                <span className="material-symbols-outlined text-[8px] sm:text-sm lg:text-base">add_circle</span>
                 {t('heroAddCta')}
               </Link>
               <Link
                 href="/listings"
-                className="shrink-0 flex items-center gap-0.5 sm:gap-1.5 px-2 sm:px-5 lg:px-7 py-1 sm:py-2.5 lg:py-3 text-[8px] sm:text-sm lg:text-base font-bold rounded-md sm:rounded-xl border border-white/30 text-white hover:bg-white/10 transition-all"
+                className="shrink-0 flex items-center gap-0.5 sm:gap-1.5 px-1.5 sm:px-5 lg:px-7 py-0.5 sm:py-2.5 lg:py-3 text-[7px] sm:text-sm lg:text-base font-bold rounded-md sm:rounded-xl border border-white/30 text-white hover:bg-white/10 transition-all"
               >
-                <span className="material-symbols-outlined text-[10px] sm:text-sm lg:text-base">explore</span>
+                <span className="material-symbols-outlined text-[8px] sm:text-sm lg:text-base">explore</span>
                 {t('heroExploreCta')}
               </Link>
+            </div>
+
+            <div className="flex items-center gap-0.5 sm:gap-2 lg:gap-3 flex-wrap">
+              {TRUST_BADGES.map(b => (
+                <span
+                  key={b.key}
+                  className="inline-flex items-center gap-0.5 sm:gap-1 text-[5px] sm:text-[11px] lg:text-xs font-bold bg-white/15 backdrop-blur-sm rounded-full px-1 py-px sm:px-2.5 sm:py-1 lg:px-3 lg:py-1.5"
+                >
+                  <span className="material-symbols-outlined text-[5px] sm:text-[12px] lg:text-sm">{b.icon}</span>
+                  {t(b.key)}
+                </span>
+              ))}
             </div>
           </div>
         </div>

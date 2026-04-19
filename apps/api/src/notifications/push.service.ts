@@ -5,21 +5,28 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class PushService {
   private readonly logger = new Logger(PushService.name);
-  private readonly enabled: boolean;
+  private enabled: boolean;
 
   constructor(private readonly prisma: PrismaService) {
     const publicKey = process.env.VAPID_PUBLIC_KEY || '';
     const privateKey = process.env.VAPID_PRIVATE_KEY || '';
     const subject = process.env.VAPID_SUBJECT || 'mailto:admin@souqone.com';
 
-    this.enabled = !!(publicKey && privateKey);
+    let valid = !!(publicKey && privateKey);
 
-    if (this.enabled) {
-      webPush.setVapidDetails(subject, publicKey, privateKey);
-      this.logger.log('Web Push (VAPID) configured');
+    if (valid) {
+      try {
+        webPush.setVapidDetails(subject, publicKey, privateKey);
+        this.logger.log('Web Push (VAPID) configured');
+      } catch (err: any) {
+        valid = false;
+        this.logger.warn(`VAPID keys invalid — push notifications disabled: ${err?.message || ''}`);
+      }
     } else {
       this.logger.warn('VAPID keys not set — push notifications disabled');
     }
+
+    this.enabled = valid;
   }
 
   getPublicKey(): string {

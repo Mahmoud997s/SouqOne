@@ -38,16 +38,16 @@ export default function AddListingPage() {
         <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
         <div className="absolute top-[-20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-white/[0.05] blur-3xl" />
 
-        <div className="relative z-10 pt-24 pb-12 md:pt-28 md:pb-16">
+        <div className="relative z-10 pt-16 pb-8 md:pt-28 md:pb-16">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/80 px-4 py-1.5 rounded-full text-xs font-bold mb-5">
               <span className="material-symbols-outlined text-sm">campaign</span>
               {tp('addListingBadge')}
             </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-3 drop-shadow-sm">
+            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-2 sm:mb-3 drop-shadow-sm">
               {tp('addListingTitle')}
             </h1>
-            <p className="text-white/60 text-sm md:text-base max-w-md mx-auto">
+            <p className="text-white/60 text-xs sm:text-sm md:text-base max-w-md mx-auto">
               {tp('addListingSubtitle')}
             </p>
           </div>
@@ -55,7 +55,7 @@ export default function AddListingPage() {
       </section>
 
       {/* ═══════════ AVAILABLE CATEGORIES ═══════════ */}
-      <main className="max-w-5xl mx-auto px-6 -mt-6 relative z-20 pb-16">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 -mt-6 relative z-20 pb-48 sm:pb-16">
         <div className="space-y-4">
           {available.map((cat) => {
             const style = CATEGORY_STYLE[cat.value] || DEFAULT_STYLE;
@@ -84,13 +84,10 @@ export default function AddListingPage() {
                       <button
                         key={sub.value}
                         onClick={() => router.push(sub.route)}
-                        className="group flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl bg-surface-container-low/50 dark:bg-surface-container-high/30 border border-transparent hover:border-primary/20 hover:bg-primary/5 dark:hover:bg-primary/10 transition-all"
+                        className="group flex items-center justify-start gap-2 px-3 sm:px-4 py-3 sm:py-3.5 rounded-xl bg-surface-container-low/50 dark:bg-surface-container-high/30 border border-transparent hover:border-primary/20 hover:bg-primary/5 dark:hover:bg-primary/10 transition-all h-full"
                       >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className="material-symbols-outlined text-lg text-on-surface-variant group-hover:text-primary transition-colors">add_circle</span>
-                          <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors truncate">{sub.label}</span>
-                        </div>
-                        <span className="material-symbols-outlined icon-flip text-sm text-on-surface-variant/30 group-hover:text-primary transition-all rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1 shrink-0">arrow_back</span>
+                        <span className="material-symbols-outlined text-base shrink-0 text-on-surface-variant group-hover:text-primary transition-colors">add_circle</span>
+                        <span className="text-xs sm:text-sm font-bold text-on-surface group-hover:text-primary transition-colors leading-tight text-start">{sub.label}</span>
                       </button>
                     ))}
                   </div>
@@ -133,19 +130,26 @@ export default function AddListingPage() {
         )}
 
         {/* ═══════════ HELP SECTION ═══════════ */}
-        <div className="mt-12 bg-surface-container-low/50 dark:bg-surface-container/30 border border-outline-variant/10 rounded-2xl p-6 md:p-8 text-center">
-          <span className="material-symbols-outlined text-primary text-3xl mb-3 block">help</span>
-          <h3 className="font-black text-on-surface mb-1">{tp('addListingHelpTitle')}</h3>
-          <p className="text-xs text-on-surface-variant max-w-md mx-auto mb-4">
-            {tp('addListingHelpDesc')}
-          </p>
-          <Link
-            href="/messages"
-            className="inline-flex items-center gap-1.5 bg-primary text-on-primary px-5 py-2.5 rounded-xl text-sm font-bold hover:brightness-110 transition-all"
-          >
-            <span className="material-symbols-outlined text-sm">chat</span>
-            {tp('addListingHelpContact')}
-          </Link>
+        <div className="mt-6 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#004ac6] via-[#2563eb] to-[#0B2447] shadow-lg shadow-primary/20">
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 md:p-6">
+            <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-start w-full sm:w-auto">
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-white text-lg">support_agent</span>
+              </div>
+              <div>
+                <h3 className="font-black text-white text-sm">{tp('addListingHelpTitle')}</h3>
+                <p className="text-white/60 text-xs mt-0.5 leading-snug">{tp('addListingHelpDesc')}</p>
+              </div>
+            </div>
+            <Link
+              href="/messages"
+              className="self-center sm:self-auto shrink-0 inline-flex items-center gap-1.5 bg-white text-primary px-4 py-2 rounded-xl text-xs font-black hover:brightness-95 transition-all shadow-sm whitespace-nowrap"
+            >
+              <span className="material-symbols-outlined text-sm">chat</span>
+              {tp('addListingHelpContact')}
+            </Link>
+          </div>
         </div>
       </main>
 

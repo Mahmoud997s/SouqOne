@@ -257,13 +257,13 @@ export function ImageUploader({
 
               {/* Primary Badge */}
               {img.isPrimary && (
-                <div className="absolute top-2 right-2 bg-primary text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+                <div className="absolute top-2 end-2 bg-primary text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
                   {tp('imgUploadPrimary')}
                 </div>
               )}
 
               {/* Order Badge */}
-              <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[11px] font-bold w-6 h-6 rounded-full flex items-center justify-center">
+              <div className="absolute bottom-2 start-2 bg-black/60 text-white text-[11px] font-bold w-6 h-6 rounded-full flex items-center justify-center">
                 {index + 1}
               </div>
 

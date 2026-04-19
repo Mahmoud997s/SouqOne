@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { useRouter } from '@/i18n/navigation';
+import { useRouter, Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { VehicleCard } from '@/features/ads/components/vehicle-card';
@@ -210,8 +210,9 @@ export default function SellerPage() {
         {sectionData.isLoading ? (
           <ListingSkeleton count={4} />
         ) : sectionData.items.length > 0 ? (
+          <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-            {sectionData.items.map((item: any) => {
+            {sectionData.items.slice(0, 6).map((item: any) => {
               if (activeSection === 'cars') {
                 const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
                 return (
@@ -252,6 +253,15 @@ export default function SellerPage() {
               );
             })}
           </div>
+          {sectionData.items.length > 6 && (
+            <div className="flex justify-center mt-4">
+              <Link href="/listings" className="text-primary font-bold text-sm hover:underline flex items-center gap-1">
+                <span className="material-symbols-outlined text-base">expand_more</span>
+                {tp('viewAll')}
+              </Link>
+            </div>
+          )}
+          </>
         ) : (
           <EmptyState
             icon="inventory_2"

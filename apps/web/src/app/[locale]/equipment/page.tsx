@@ -10,16 +10,14 @@ import type { EquipmentListingItem, EquipmentRequestItem, OperatorListingItem } 
 import { getGovernorates, type LocationOption } from '@/lib/location-data';
 import { relativeTimeT } from '@/lib/time-utils';
 import { useTranslations, useLocale } from 'next-intl';
+import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useAuth } from '@/providers/auth-provider';
 
 const EQUIP_TYPE_ICONS: Record<string, string> = {
   EXCAVATOR: 'precision_manufacturing', CRANE: 'crane', LOADER: 'front_loader', BULLDOZER: 'agriculture',
   FORKLIFT: 'forklift', CONCRETE_MIXER: 'concrete', GENERATOR: 'bolt', COMPRESSOR: 'air',
   SCAFFOLDING: 'construction', WELDING_MACHINE: 'hardware', TRUCK: 'local_shipping', DUMP_TRUCK: 'local_shipping',
   WATER_TANKER: 'water_drop', LIGHT_EQUIPMENT: 'build', OTHER_EQUIPMENT: 'category',
-};
-
-const LISTING_TYPE_COLORS: Record<string, string> = {
-  EQUIPMENT_SALE: 'bg-blue-600', EQUIPMENT_RENT: 'bg-violet-600',
 };
 
 const REQUEST_STATUS_COLORS: Record<string, string> = {
@@ -40,39 +38,67 @@ function EquipmentCard({ item }: { item: EquipmentListingItem }) {
   const tl = useTranslations('listings');
   const tt = useTranslations('time');
   const locale = useLocale();
+  const { isAuthenticated } = useAuth();
+  const { data: favIds } = useFavoriteIds();
+  const toggleFav = useToggleFavorite();
+  const isFav = favIds?.includes(`EQUIPMENT_LISTING:${item.id}`) ?? false;
 
-  const typeLabel = tp(EQUIP_TYPE_KEYS[item.equipmentType] || 'equipOther');
   const listingLabel = item.listingType === 'EQUIPMENT_SALE' ? tl('typeSale') : tl('typeRental');
   const img = item.images?.[0]?.url;
-  const price = item.listingType === 'EQUIPMENT_SALE'
-    ? (item.price ? `${Number(item.price).toLocaleString()} ${item.currency}` : tp('callForPrice'))
-    : (item.dailyPrice ? `${Number(item.dailyPrice).toLocaleString()} ${item.currency}${tp('equipPerDay')}` : item.monthlyPrice ? `${Number(item.monthlyPrice).toLocaleString()} ${item.currency}${tp('equipPerMonth')}` : tp('callForPrice'));
+  const priceText = item.listingType === 'EQUIPMENT_SALE'
+    ? (item.price ? `${Number(item.price).toLocaleString()} ${item.currency}` : null)
+    : (item.dailyPrice ? `${Number(item.dailyPrice).toLocaleString()} ${item.currency}${tp('equipPerDay')}` : item.monthlyPrice ? `${Number(item.monthlyPrice).toLocaleString()} ${item.currency}${tp('equipPerMonth')}` : null);
 
   return (
-    <Link href={`/equipment/${item.id}`} className="group bg-surface-container-lowest dark:bg-surface-container rounded-2xl overflow-hidden border border-outline-variant/10 hover:shadow-xl transition-all hover:-translate-y-0.5">
-      <div className="relative aspect-[4/3] bg-surface-container-low">
-        {img ? <Image src={img} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 25vw" /> : (
-          <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-5xl text-on-surface-variant/20">{EQUIP_TYPE_ICONS[item.equipmentType] || 'construction'}</span></div>
-        )}
-        <span className={`absolute top-2 right-2 text-white text-[10px] font-black px-2.5 py-0.5 rounded-lg ${LISTING_TYPE_COLORS[item.listingType] || 'bg-primary'}`}>{listingLabel}</span>
-      </div>
-      <div className="p-3 space-y-1.5">
-        <h3 className="font-bold text-sm text-on-surface line-clamp-1">{item.title}</h3>
-        <div className="flex items-center gap-1.5 text-[11px] text-on-surface-variant">
-          <span className="material-symbols-outlined text-xs">{EQUIP_TYPE_ICONS[item.equipmentType] || 'construction'}</span>
-          {typeLabel}
-          {item.governorate && <><span className="mx-1">·</span><span className="material-symbols-outlined text-xs">location_on</span>{item.governorate}</>}
+    <article className="h-full rounded-xl overflow-hidden bg-surface-container-lowest group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300 border border-outline-variant/10">
+      <Link href={`/equipment/${item.id}`} className="h-full flex flex-col">
+        <div className="relative aspect-[16/10] overflow-hidden bg-surface-container-low">
+          {img ? <Image src={img} alt={item.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width:640px) 50vw, 25vw" /> : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="material-symbols-outlined text-3xl sm:text-5xl text-on-surface-variant/20">{EQUIP_TYPE_ICONS[item.equipmentType] || 'construction'}</span>
+            </div>
+          )}
+          <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+          {/* Fav */}
+          {isAuthenticated && (
+            <button onClick={e => { e.preventDefault(); toggleFav.mutate({ entityType: 'EQUIPMENT_LISTING', entityId: item.id }); }}
+              className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center">
+              <span className={`material-symbols-outlined text-[18px] sm:text-[20px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all duration-200 ${isFav ? 'text-red-500' : 'text-white'}`}
+                style={{ fontVariationSettings: isFav ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
+            </button>
+          )}
+          {/* Type top-right */}
+          <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+            {listingLabel}
+          </span>
+          {/* Verified */}
+          {item.user?.isVerified && (
+            <span className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 text-blue-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+              <span className="material-symbols-outlined text-[13px] sm:text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+            </span>
+          )}
+          {/* Price */}
+          {priceText && (
+            <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2">
+              <span className="px-1.5 sm:px-2 py-px sm:py-0.5 rounded text-[9px] sm:text-xs font-black bg-primary text-on-primary shadow-sm">{priceText}</span>
+            </div>
+          )}
         </div>
-        <p className="text-primary font-black text-sm">{price}</p>
-        <div className="flex items-center justify-between text-[10px] text-on-surface-variant/60 pt-1 border-t border-outline-variant/5">
-          <span>{relativeTimeT(item.createdAt, tt, locale)}</span>
-          <div className="flex items-center gap-2">
-            {item.withOperator && <span className="flex items-center gap-0.5"><span className="material-symbols-outlined text-[11px]">person</span>{tp('equipWithOperator')}</span>}
-            {item.deliveryAvailable && <span className="flex items-center gap-0.5"><span className="material-symbols-outlined text-[11px]">local_shipping</span>{tl('delivery')}</span>}
+        <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1.5">
+          <h3 dir="auto" className="text-[10px] sm:text-[13px] font-black leading-snug line-clamp-2 sm:line-clamp-1">{item.title}</h3>
+          <div className="flex items-center gap-1 flex-wrap text-[8px] sm:text-[10px] text-on-surface-variant">
+            <span className="shrink-0">{relativeTimeT(item.createdAt, tt, locale)}</span>
+            {item.governorate && <span className="text-outline/40">·</span>}
+            {item.governorate && (
+              <span className="flex items-center gap-px shrink-0">
+                <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
+                {item.governorate}
+              </span>
+            )}
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </article>
   );
 }
 

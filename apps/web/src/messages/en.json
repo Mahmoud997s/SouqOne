@@ -988,6 +988,25 @@
     "notifTimeMinutes": "{count} min ago",
     "notifTimeHours": "{count} hr ago",
     "notifTimeDays": "{count} days ago",
+    "notifToday": "Today",
+    "notifYesterday": "Yesterday",
+    "notifAll": "All",
+    "notifUnread": "Unread",
+    "notifUnreadSummary": "You have {count} unread notifications",
+    "notifAllRead": "All notifications are read",
+    "notifNoUnread": "No unread notifications",
+    "notifEmptyDesc": "Your notifications will appear here when you receive updates",
+    "notifShowAll": "Show all notifications",
+    "notifViewDetails": "View details",
+    "notifTypeMessage": "Message",
+    "notifTypeSold": "Sold",
+    "notifTypeFavorite": "Favorite",
+    "notifTypePriceDrop": "Price drop",
+    "notifTypeSystem": "System",
+    "notifTypeBooking": "Booking",
+    "notifTypeReminder": "Reminder",
+    "notifTypeJob": "Job",
+    "notifTypeOther": "Notification",
 
     "comingSoonAvailable": "Coming Soon",
     "comingSoonDesc": "We are currently preparing this section for the best experience. Stay tuned for updates!",
@@ -2356,6 +2375,11 @@
   "notifications": {
     "pushTitle": "Enable Push Notifications",
     "pushDesc": "Get instant notifications for new messages and booking updates",
-    "pushEnable": "Enable"
+    "pushEnable": "Enable",
+    "pushEnabling": "Enabling...",
+    "pushRetry": "Retry",
+    "pushEnabled": "Enabled",
+    "pushEnabledTitle": "Push notifications enabled",
+    "pushEnabledDesc": "You'll receive instant notifications for new messages and updates"
   }
 }

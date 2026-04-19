@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
+import { Footer } from '@/components/layout/footer';
 import { AuthGuard } from '@/components/auth-guard';
 import { MultiStepForm } from '@/components/ui/multi-step-form';
 import { ImageUploader, type UploadedImage } from '@/features/ads/components/image-uploader';
@@ -151,7 +152,7 @@ export default function AddEquipmentPage() {
   return (
     <AuthGuard>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-[900px] mx-auto px-4 md:px-8">
+      <main className="pt-28 pb-8 max-w-[900px] mx-auto px-4 md:px-8">
         <MultiStepForm
           steps={steps}
           currentStep={step}
@@ -181,7 +182,7 @@ export default function AddEquipmentPage() {
               </section>
               <section className={sectionCls}>
                 <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelEquipType')}</h3>
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
                   {EQUIP_TYPE_KEYS.map(t => (
                     <button key={t.value} type="button" onClick={() => setEquipmentType(t.value)}
                       className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all text-center ${equipmentType === t.value ? 'border-primary bg-primary/5' : 'border-outline-variant/10 hover:border-primary/30'}`}>
@@ -206,7 +207,7 @@ export default function AddEquipmentPage() {
               </section>
               <section className={sectionCls}>
                 <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelTechSpecs')}</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div><label className={labelCls}>{tp('eqLabelBrand')}</label><input className={inputCls} value={make} onChange={e => setMake(e.target.value)} placeholder="Caterpillar" /></div>
                   <div><label className={labelCls}>{tp('eqLabelModel')}</label><input className={inputCls} value={model} onChange={e => setModel(e.target.value)} placeholder="320D" /></div>
                   <div><label className={labelCls}>{tp('eqLabelYear')}</label><input type="number" className={inputCls} value={year} onChange={e => setYear(e.target.value)} placeholder="2020" /></div>
@@ -280,6 +281,7 @@ export default function AddEquipmentPage() {
 
         {errors.length > 0 && <FormErrorOverlay messages={errors} onClose={() => setErrors([])} />}
       </main>
+      <Footer />
     </AuthGuard>
   );
 }
