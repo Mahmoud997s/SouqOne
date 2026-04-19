@@ -5,30 +5,12 @@ import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { type ListingType } from '@/features/ads/constants';
 import { getGovernorates } from '@/lib/location-data';
 import { relativeTimeT } from '@/lib/time-utils';
 import { useTranslations, useLocale } from 'next-intl';
 import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
 import { useBusListings, type BusListingItem } from '@/lib/api/buses';
-
-const TABS = [
-  { value: '', label: t('all'), icon: 'grid_view' },
-  { value: 'BUS_SALE', label: t('busesTabSale'), icon: 'sell' },
-  { value: 'BUS_SALE_WITH_CONTRACT', label: t('busesTabSaleContract'), icon: 'assignment' },
-  { value: 'BUS_RENT', label: t('busesTabRent'), icon: 'car_rental' },
-  { value: 'BUS_CONTRACT', label: t('busesTabContract'), icon: 'request_quote' },
-];
-const [activeTab, setActiveTab] = useState('');
-const [governorate, setGovernorate] = useState('');
-const [page, setPage] = useState(1);
-const TYPE_COLORS: Record<string, string> = {
-  BUS_SALE: 'bg-blue-600 text-white',
-  BUS_SALE_WITH_CONTRACT: 'bg-emerald-600 text-white',
-  BUS_RENT: 'bg-violet-600 text-white',
-  BUS_CONTRACT: 'bg-orange-600 text-white',
-};
 
 export default function BusesPage() {
   const t = useTranslations('pages');
