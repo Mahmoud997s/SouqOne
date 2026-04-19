@@ -15,9 +15,9 @@ import Image from 'next/image';
 // ─── Entity config ───
 const ENTITY_CFG: Record<string, { labelKey: string; icon: string; color: string; href: (h: SearchHit) => string }> = {
   listings:    { labelKey: 'cars',      icon: 'directions_car',          color: 'bg-blue-500',    href: h => `/listings/${h.slug || h.id}` },
-  spare_parts: { labelKey: 'parts',     icon: 'settings',                color: 'bg-orange-500',  href: h => `/parts/${h.slug || h.id}` },
+  parts:       { labelKey: 'parts',     icon: 'settings',                color: 'bg-orange-500',  href: h => `/parts/${h.slug || h.id}` },
   buses:       { labelKey: 'buses',     icon: 'directions_bus',          color: 'bg-green-500',   href: h => `/buses/${h.slug || h.id}` },
-  equipment:   { labelKey: 'equipment', icon: 'precision_manufacturing', color: 'bg-yellow-600',  href: h => `/equipment/${h.slug || h.id}` },
+  insurance:   { labelKey: 'insurance', icon: 'shield',                 color: 'bg-pink-500',    href: h => `/insurance/${h.slug || h.id}` },
   services:    { labelKey: 'services',  icon: 'home_repair_service',     color: 'bg-violet-500',  href: h => `/services/${h.slug || h.id}` },
   jobs:        { labelKey: 'jobs',      icon: 'work',                    color: 'bg-teal-500',    href: h => `/jobs/${h.slug || h.id}` },
   transport:   { labelKey: 'transport', icon: 'local_shipping',          color: 'bg-sky-500',     href: h => `/transport/${h.slug || h.id}` },
@@ -25,13 +25,15 @@ const ENTITY_CFG: Record<string, { labelKey: string; icon: string; color: string
 };
 
 const TABS = [
-  { value: '',            icon: 'apps',                    labelKey: 'all' },
-  { value: 'listings',    icon: 'directions_car',          labelKey: 'cars' },
-  { value: 'spare_parts', icon: 'settings',                labelKey: 'parts' },
-  { value: 'buses',       icon: 'directions_bus',          labelKey: 'buses' },
-  { value: 'equipment',   icon: 'precision_manufacturing', labelKey: 'equipment' },
-  { value: 'services',    icon: 'home_repair_service',     labelKey: 'services' },
-  { value: 'jobs',        icon: 'work',                    labelKey: 'jobs' },
+  { value: '',           icon: 'apps',                labelKey: 'all' },
+  { value: 'listings',   icon: 'directions_car',      labelKey: 'cars' },
+  { value: 'parts',      icon: 'settings',            labelKey: 'parts' },
+  { value: 'buses',      icon: 'directions_bus',      labelKey: 'buses' },
+  { value: 'services',   icon: 'home_repair_service', labelKey: 'services' },
+  { value: 'jobs',       icon: 'work',                labelKey: 'jobs' },
+  { value: 'transport',  icon: 'local_shipping',      labelKey: 'transport' },
+  { value: 'trips',      icon: 'route',               labelKey: 'trips' },
+  { value: 'insurance',  icon: 'shield',              labelKey: 'insurance' },
 ];
 
 const CAR_MAKES = [
