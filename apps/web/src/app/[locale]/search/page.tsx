@@ -20,6 +20,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { SearchFilters, type FilterState, type FilterSetters } from './_components/SearchFilters';
 import { MobileFilterSheet, MobileFilterTrigger } from './_components/MobileFilterSheet';
+import { ActiveFilters, buildActiveFilters, type ActiveFilter } from './_components/ActiveFilters';
 
 // ─── Entity config ───
 const ENTITY_CFG: Record<string, { labelKey: string; icon: string; color: string; href: (h: SearchHit) => string }> = {
@@ -349,6 +350,28 @@ function SearchContent() {
     setJobType, setEmpType, setLic, setTrType, setTripType, setSched,
   };
 
+  // ── active filter chips ──
+  const activeFilters: ActiveFilter[] = buildActiveFilters({
+    govParam, sortParam, minPParam, maxPParam,
+    makeParam, condParam, fuelParam, transParam, ltParam, modelParam,
+    yearMinParam, yearMaxParam, busTypeParam, busLTParam, capMinParam, capMaxParam,
+    partCatParam, svcTypeParam, provTypeParam, homeParam,
+    jobTypeParam, empTypeParam, licParam, trTypeParam, tripTypeParam, schedParam,
+    govOpts,
+  });
+
+  function removeFilter(key: string) {
+    const ov: Record<string, string> = { [key]: '' };
+    // removing one side of a range also clears the paired param
+    if (key === 'minPrice') ov.maxPrice = '';
+    if (key === 'maxPrice') ov.minPrice = '';
+    if (key === 'capMin')   ov.capMax   = '';
+    if (key === 'capMax')   ov.capMin   = '';
+    if (key === 'yearMin')  ov.yearMax  = '';
+    if (key === 'yearMax')  ov.yearMin  = '';
+    applyFilters(ov);
+  }
+
 
   // helper: get image url from item (SearchHit vs individual API item)
   function getItemImage(item: AnyItem) {
@@ -477,6 +500,19 @@ function SearchContent() {
         applyNow={applyNow}
       />
 
+      {/* ── Active filter chips — between hero and results ── */}
+      {activeFilters.length > 0 && (
+        <div className="max-w-5xl mx-auto px-4 pt-3">
+          <ActiveFilters
+            filters={activeFilters}
+            onRemove={removeFilter}
+            onClearAll={clearAllFilters}
+            isLoading={isLoading}
+            total={total}
+          />
+        </div>
+      )}
+
       {/* ── Main ── */}
       <main className="max-w-5xl mx-auto px-4 py-8">
         {!qParam ? (
@@ -496,15 +532,6 @@ function SearchContent() {
           </div>
         ) : (
           <>
-            {/* Results header — mobile trigger + count */}
-            <div className="flex items-center justify-between gap-3 mb-4">
-              <p className="text-sm text-on-surface-variant shrink-0">{total} نتيجة</p>
-              {activeFilterCount > 0 && (
-                <button onClick={clearAllFilters} className="hidden sm:block text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">
-                  {activeFilterCount} فلتر مفعّل · مسح الكل
-                </button>
-              )}
-            </div>
             {/* Mobile filter trigger — full width above results */}
             <div className="mb-4">
               <MobileFilterTrigger
