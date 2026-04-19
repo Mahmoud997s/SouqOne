@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter, Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { useSearch, type SearchHit } from '@/lib/api/search';
 import { useListings } from '@/lib/api/listings';
 import { useParts } from '@/lib/api/parts';
@@ -20,6 +19,7 @@ import { getImageUrl } from '@/lib/image-utils';
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { SearchFilters, type FilterState, type FilterSetters } from './_components/SearchFilters';
+import { MobileFilterSheet, MobileFilterTrigger } from './_components/MobileFilterSheet';
 
 // ─── Entity config ───
 const ENTITY_CFG: Record<string, { labelKey: string; icon: string; color: string; href: (h: SearchHit) => string }> = {
@@ -452,43 +452,30 @@ function SearchContent() {
               />
             </div>
 
-            {/* Mobile filter button */}
-            <div className="sm:hidden mt-3 flex items-center gap-2">
-              <button onClick={() => setShowMobileFilters(true)}
-                className="flex items-center gap-1.5 bg-white/10 border border-white/20 text-white text-xs font-bold rounded-xl py-2 px-3 transition-all hover:bg-white/20">
-                <span className="material-symbols-outlined text-sm">tune</span>
-                فلاتر
-                {activeFilterCount > 0 && (
-                  <span className="bg-white text-primary text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">{activeFilterCount}</span>
-                )}
-              </button>
-            </div>
+            {/* Mobile — no inline filters; trigger lives above results */}
           </div>
         </div>
       </section>
 
-      {/* Mobile bottom sheet */}
-      <BottomSheet open={showMobileFilters} onClose={() => setShowMobileFilters(false)} title="فلاتر البحث">
-        <SearchFilters
-          activeTab={activeTab}
-          state={filterState}
-          setters={filterSetters}
-          govOpts={govOpts}
-          condOpts={condOpts}
-          fuelOpts={fuelOpts}
-          transOpts={transOpts}
-          years={years}
-          CAR_MAKES={CAR_MAKES}
-          applyFilters={applyFilters}
-          applyNow={applyNow}
-          activeFilterCount={activeFilterCount}
-          clearAllFilters={clearAllFilters}
-        />
-        <button onClick={() => { applyFilters(); setShowMobileFilters(false); }}
-          className="w-full bg-primary text-on-primary py-3 text-sm font-black rounded-xl hover:brightness-110 transition-colors mt-4 mx-auto block">
-          عرض النتائج
-        </button>
-      </BottomSheet>
+      {/* Mobile filter sheet */}
+      <MobileFilterSheet
+        open={showMobileFilters}
+        onClose={() => setShowMobileFilters(false)}
+        total={total}
+        activeFilterCount={activeFilterCount}
+        clearAllFilters={clearAllFilters}
+        activeTab={activeTab}
+        state={filterState}
+        setters={filterSetters}
+        govOpts={govOpts}
+        condOpts={condOpts}
+        fuelOpts={fuelOpts}
+        transOpts={transOpts}
+        years={years}
+        CAR_MAKES={CAR_MAKES}
+        applyFilters={applyFilters}
+        applyNow={applyNow}
+      />
 
       {/* ── Main ── */}
       <main className="max-w-5xl mx-auto px-4 py-8">
@@ -509,13 +496,22 @@ function SearchContent() {
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-on-surface-variant">{total} نتيجة</p>
+            {/* Results header — mobile trigger + count */}
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <p className="text-sm text-on-surface-variant shrink-0">{total} نتيجة</p>
               {activeFilterCount > 0 && (
-                <button onClick={clearAllFilters} className="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">
+                <button onClick={clearAllFilters} className="hidden sm:block text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">
                   {activeFilterCount} فلتر مفعّل · مسح الكل
                 </button>
               )}
+            </div>
+            {/* Mobile filter trigger — full width above results */}
+            <div className="mb-4">
+              <MobileFilterTrigger
+                activeFilterCount={activeFilterCount}
+                total={total}
+                onOpen={() => setShowMobileFilters(true)}
+              />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
               {items.map(item => {
