@@ -160,45 +160,54 @@ export default function FavoritesPage() {
           ) : isError ? (
             <ErrorState onRetry={() => refetch()} />
           ) : items.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-              {items.map((fav) => {
-                if (fav.entityType === 'LISTING' && fav.listing) {
-                  const item = fav.listing;
-                  const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+                {items.slice(0, 6).map((fav) => {
+                  if (fav.entityType === 'LISTING' && fav.listing) {
+                    const item = fav.listing;
+                    const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
+                    return (
+                      <VehicleCard
+                        key={fav.id}
+                        id={item.id}
+                        title={item.title}
+                        make={item.make}
+                        model={item.model}
+                        year={item.year}
+                        price={item.price}
+                        currency={item.currency}
+                        mileage={item.mileage}
+                        fuelType={item.fuelType}
+                        transmission={item.transmission}
+                        condition={item.condition}
+                        governorate={item.governorate}
+                        imageUrl={getImageUrl(img?.url)}
+                        listingType={item.listingType}
+                        dailyPrice={item.dailyPrice}
+                      />
+                    );
+                  }
                   return (
-                    <VehicleCard
+                    <GenericFavCard
                       key={fav.id}
-                      id={item.id}
-                      title={item.title}
-                      make={item.make}
-                      model={item.model}
-                      year={item.year}
-                      price={item.price}
-                      currency={item.currency}
-                      mileage={item.mileage}
-                      fuelType={item.fuelType}
-                      transmission={item.transmission}
-                      condition={item.condition}
-                      governorate={item.governorate}
-                      imageUrl={getImageUrl(img?.url)}
-                      listingType={item.listingType}
-                      dailyPrice={item.dailyPrice}
+                      entityType={fav.entityType}
+                      entityId={fav.entityId}
+                      entity={fav.entity}
+                      tabIcon={TABS.find(t => t.value === fav.entityType)?.icon || 'bookmark'}
+                      tabs={TABS}
                     />
                   );
-                }
-
-                return (
-                  <GenericFavCard
-                    key={fav.id}
-                    entityType={fav.entityType}
-                    entityId={fav.entityId}
-                    entity={fav.entity}
-                    tabIcon={TABS.find(t => t.value === fav.entityType)?.icon || 'bookmark'}
-                    tabs={TABS}
-                  />
-                );
-              })}
-            </div>
+                })}
+              </div>
+              {items.length > 6 && (
+                <div className="flex justify-center mt-4">
+                  <Link href="/listings" className="text-primary font-bold text-sm hover:underline flex items-center gap-1">
+                    <span className="material-symbols-outlined text-base">expand_more</span>
+                    {tp('viewAll')}
+                  </Link>
+                </div>
+              )}
+            </>
           ) : (
             <div className="flex flex-col items-center justify-center py-20">
               <div className="w-20 h-20 rounded-full bg-surface-container-low flex items-center justify-center mb-6">

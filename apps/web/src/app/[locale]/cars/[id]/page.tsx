@@ -504,8 +504,8 @@ export default function CarDetailsPage() {
                   {tp('carViewAll')}
                 </Link>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {filteredSimilar.map((item) => {
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+                {filteredSimilar.slice(0, 6).map((item) => {
                   const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];
                   return (
                     <VehicleCard

@@ -33,6 +33,11 @@ export function usePushNotifications() {
         setIsSubscribed(!!sub);
       });
     });
+
+    // Check if VAPID key is available — hide banner if not configured
+    apiRequest<{ key: string }>('/notifications/push/vapid-key')
+      .then(res => { if (!res?.key) setStatus('unsupported'); })
+      .catch(() => setStatus('unsupported'));
   }, []);
 
   const subscribe = useCallback(async () => {

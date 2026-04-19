@@ -988,6 +988,25 @@
     "notifTimeMinutes": "منذ {count} دقيقة",
     "notifTimeHours": "منذ {count} ساعة",
     "notifTimeDays": "منذ {count} يوم",
+    "notifToday": "اليوم",
+    "notifYesterday": "أمس",
+    "notifAll": "الكل",
+    "notifUnread": "غير مقروء",
+    "notifUnreadSummary": "لديك {count} إشعار غير مقروء",
+    "notifAllRead": "جميع الإشعارات مقروءة",
+    "notifNoUnread": "لا توجد إشعارات غير مقروءة",
+    "notifEmptyDesc": "ستظهر هنا إشعاراتك عند وصول تحديثات جديدة",
+    "notifShowAll": "عرض جميع الإشعارات",
+    "notifViewDetails": "عرض التفاصيل",
+    "notifTypeMessage": "رسالة",
+    "notifTypeSold": "تم البيع",
+    "notifTypeFavorite": "إعجاب",
+    "notifTypePriceDrop": "تخفيض سعر",
+    "notifTypeSystem": "النظام",
+    "notifTypeBooking": "حجز",
+    "notifTypeReminder": "تذكير",
+    "notifTypeJob": "وظيفة",
+    "notifTypeOther": "إشعار",
 
     "comingSoonAvailable": "سوف يتوفر قريبًا",
     "comingSoonDesc": "نعمل حاليًا على تجهيز هذا القسم ليكون جاهزًا لك بأفضل تجربة. ترقبوا التحديثات!",
@@ -1651,7 +1670,7 @@
     "addListingBadge": "مجاني بالكامل — بدون رسوم",
     "addListingTitle": "انشر إعلانك في ثواني",
     "addListingSubtitle": "اختر القسم المناسب وابدأ بنشر إعلانك. يصل إعلانك لآلاف المستخدمين في سلطنة عمان.",
-    "addListingAvailableCount": "{count} نوع متاح — اختر واحد وابدأ",
+    "addListingAvailableCount": "متاح {count} أنواع — اختر واحد وابدأ",
     "addListingComingSoonHeader": "أقسام قادمة قريباً",
     "addListingComingSoonBadge": "قريباً",
     "addListingHelpTitle": "محتاج مساعدة؟",
@@ -2356,6 +2375,11 @@
   "notifications": {
     "pushTitle": "تفعيل الإشعارات الفورية",
     "pushDesc": "احصل على إشعارات فورية عند وصول رسائل أو تحديثات لحجوزاتك",
-    "pushEnable": "تفعيل"
+    "pushEnable": "تفعيل",
+    "pushEnabling": "جاري...",
+    "pushRetry": "إعادة المحاولة",
+    "pushEnabled": "مفعّل",
+    "pushEnabledTitle": "الإشعارات الفورية مفعّلة",
+    "pushEnabledDesc": "ستصلك إشعارات فورية عند وصول رسائل أو تحديثات جديدة"
   }
 }

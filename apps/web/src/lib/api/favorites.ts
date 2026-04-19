@@ -9,6 +9,8 @@ export type EntityType =
   | 'CAR_SERVICE'
   | 'TRANSPORT'
   | 'TRIP'
+  | 'BUS_LISTING'
+  | 'EQUIPMENT_LISTING'
 ;
 
 export interface FavoriteEntity {

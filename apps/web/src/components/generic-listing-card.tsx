@@ -71,77 +71,79 @@ export function GenericListingCard(props: GenericListingCardProps) {
     : null;
 
   return (
-    <Link
-      href={`${route}/${props.id}`}
-      className="group block rounded-2xl border border-outline-variant/10 dark:border-outline-variant/20 bg-surface-container-lowest dark:bg-surface-container overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
-    >
-      {/* Image */}
-      <div className="relative aspect-[16/10] bg-surface-container-low dark:bg-surface-container-high overflow-hidden">
-        {imgSrc ? (
-          <Image
-            src={imgSrc}
-            alt={props.title}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-700"
-          />
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-on-surface-variant/30">
-            <span className="material-symbols-outlined text-3xl sm:text-4xl">{icon}</span>
-            <span className="text-[9px] font-medium">{tl('noImage')}</span>
-          </div>
-        )}
-        {/* Section badge */}
-        {props.showBadge !== false && (
-          <div className={`absolute top-2 start-2 flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold ${badgeColor}`}>
-            <span className="material-symbols-outlined text-xs">{icon}</span>
-          </div>
-        )}
-        {/* Status badge */}
-        {props.status && props.status !== 'ACTIVE' && (
-          <div className="absolute top-2 end-2 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-            {props.status === 'INACTIVE' ? 'غير نشط' : props.status === 'SOLD' ? 'مباع' : props.status}
-          </div>
-        )}
-      </div>
+    <article className="h-full rounded-xl overflow-hidden bg-surface-container-lowest group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300 border border-outline-variant/10">
+      <Link href={`${route}/${props.id}`} className="h-full flex flex-col">
 
-      {/* Content */}
-      <div className="p-3 space-y-1.5">
-        <h3 className="text-sm font-bold text-on-surface line-clamp-1 group-hover:text-primary transition-colors">
-          {props.title}
-        </h3>
-
-        {props.description && (
-          <p className="text-[11px] text-on-surface-variant/70 line-clamp-1">{props.description}</p>
-        )}
-
-        <div className="flex items-center justify-between gap-2">
-          {priceDisplay ? (
-            <span className="text-sm font-extrabold text-primary">{priceDisplay}</span>
+        {/* Image */}
+        <div className="relative aspect-[16/10] overflow-hidden bg-surface-container-low">
+          {imgSrc ? (
+            <Image
+              src={imgSrc}
+              alt={props.title}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+            />
           ) : (
-            <span className="text-[11px] text-on-surface-variant/50">اتصل للسعر</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-on-surface-variant/30">
+              <span className="material-symbols-outlined text-3xl sm:text-4xl">{icon}</span>
+              <span className="text-[9px] font-medium">{tl('noImage')}</span>
+            </div>
           )}
-        </div>
 
-        <div className="flex items-center justify-between text-[10px] text-on-surface-variant/60">
-          {props.governorate && (
-            <span className="flex items-center gap-0.5">
-              <span className="material-symbols-outlined text-[12px]">location_on</span>
-              {props.governorate}
+          {/* Gradient overlay */}
+          <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+
+          {/* Section badge top-right */}
+          {props.showBadge !== false && (
+            <span className={`absolute top-1.5 right-1.5 sm:top-2 sm:right-2 inline-flex items-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold ${badgeColor}`}>
+              <span className="material-symbols-outlined text-[8px] sm:text-xs">{icon}</span>
             </span>
           )}
-          {props.createdAt && (
-            <span>{relativeTimeT(props.createdAt, tt, locale)}</span>
+
+          {/* Status badge top-left */}
+          {props.status && props.status !== 'ACTIVE' && (
+            <span className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-yellow-400 text-yellow-900">
+              {props.status === 'INACTIVE' ? 'غير نشط' : props.status === 'SOLD' ? 'مباع' : props.status}
+            </span>
+          )}
+
+          {/* Price bottom-right */}
+          {priceDisplay && (
+            <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2">
+              <span className="px-1.5 sm:px-2 py-px sm:py-0.5 rounded text-[9px] sm:text-xs font-black tracking-tight shadow-sm bg-primary text-on-primary">
+                {priceDisplay}
+              </span>
+            </div>
           )}
         </div>
 
-        {/* Custom actions slot */}
-        {props.actions && (
-          <div className="pt-1.5 border-t border-outline-variant/10" onClick={e => e.preventDefault()}>
-            {props.actions}
+        {/* Body */}
+        <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1.5">
+          <h3 dir="auto" className="text-[10px] sm:text-[13px] font-black leading-snug line-clamp-2 sm:line-clamp-1">{props.title}</h3>
+
+          {/* type · date · location */}
+          <div className="flex items-center gap-1 flex-wrap text-[8px] sm:text-[10px] text-on-surface-variant">
+            {props.createdAt && (
+              <span className="shrink-0">{relativeTimeT(props.createdAt, tt, locale)}</span>
+            )}
+            {props.createdAt && props.governorate && <span className="text-outline/40">·</span>}
+            {props.governorate && (
+              <span className="flex items-center gap-px shrink-0">
+                <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
+                {props.governorate}
+              </span>
+            )}
           </div>
-        )}
-      </div>
-    </Link>
+
+          {/* Custom actions slot */}
+          {props.actions && (
+            <div className="pt-1.5 border-t border-outline-variant/10 mt-auto" onClick={e => e.preventDefault()}>
+              {props.actions}
+            </div>
+          )}
+        </div>
+      </Link>
+    </article>
   );
 }

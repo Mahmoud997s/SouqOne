@@ -9,6 +9,8 @@ import { useBusListings, type BusListingItem } from '@/lib/api/buses';
 import { getGovernorates } from '@/lib/location-data';
 import { relativeTimeT } from '@/lib/time-utils';
 import { useTranslations, useLocale } from 'next-intl';
+import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useAuth } from '@/providers/auth-provider';
 
 const TYPE_COLORS: Record<string, string> = {
   BUS_SALE: 'bg-blue-600 text-white',
@@ -132,114 +134,73 @@ function BusCard({ bus }: { bus: BusListingItem }) {
   const tl = useTranslations('listings');
   const tt = useTranslations('time');
   const locale = useLocale();
+  const { isAuthenticated } = useAuth();
+  const { data: favIds } = useFavoriteIds();
+  const toggleFav = useToggleFavorite();
+  const isFav = favIds?.includes(`BUS_LISTING:${bus.id}`) ?? false;
 
-  const BUS_TYPE_LABELS: Record<string, string> = {
-    MINI_BUS: t('busesMini'), MEDIUM_BUS: t('busesMedium'), LARGE_BUS: t('busesLarge'),
-    COASTER: t('busesCoaster'), SCHOOL_BUS: t('busesSchool'),
-  };
   const TYPE_LABELS: Record<string, string> = {
     BUS_SALE: t('busesTypeSale'), BUS_SALE_WITH_CONTRACT: t('busesTypeSaleContract'),
     BUS_RENT: t('busesTypeRent'), BUS_CONTRACT: t('busesTypeContract'),
   };
 
   const img = bus.images?.[0]?.url;
-  const isContract = bus.busListingType === 'BUS_CONTRACT';
-  const hasContract = bus.busListingType === 'BUS_SALE_WITH_CONTRACT';
+  const priceText = bus.price ? `${Number(bus.price).toLocaleString('en-US')} ${tl('currency')}`
+    : bus.dailyPrice ? `${Number(bus.dailyPrice).toLocaleString('en-US')} ${tl('currency')}${t('busesPerDay')}`
+    : bus.monthlyPrice ? `${Number(bus.monthlyPrice).toLocaleString('en-US')} ${tl('currency')}${tl('perMonth')}`
+    : null;
 
   return (
-    <Link href={`/buses/${bus.id}`} className="group bg-surface-container-lowest dark:bg-surface-container rounded-2xl overflow-hidden border border-outline-variant/10 hover:border-primary/20 shadow-sm hover:shadow-md transition-all">
-      {/* Image */}
-      <div className="relative aspect-[16/10] bg-surface-container-low overflow-hidden">
-        {img ? (
-          <Image src={img} alt={bus.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 25vw" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="material-symbols-outlined text-5xl text-on-surface-variant/20">directions_bus</span>
-          </div>
-        )}
-        {/* Type Badge */}
-        <span className={`absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-md ${TYPE_COLORS[bus.busListingType] || 'bg-primary text-white'}`}>
-          {TYPE_LABELS[bus.busListingType] || bus.busListingType}
-        </span>
-        {/* Capacity */}
-        {!isContract && (
-          <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-0.5">
-            <span className="material-symbols-outlined text-[10px]">groups</span>{t('busesPassenger', { count: bus.capacity })}
+    <article className="h-full rounded-xl overflow-hidden bg-surface-container-lowest group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300 border border-outline-variant/10">
+      <Link href={`/buses/${bus.id}`} className="h-full flex flex-col">
+        <div className="relative aspect-[16/10] overflow-hidden bg-surface-container-low">
+          {img ? (
+            <Image src={img} alt={bus.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width:640px) 50vw, 25vw" />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="material-symbols-outlined text-3xl sm:text-5xl text-on-surface-variant/20">directions_bus</span>
+            </div>
+          )}
+          <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+          {/* Fav */}
+          {isAuthenticated && (
+            <button onClick={e => { e.preventDefault(); toggleFav.mutate({ entityType: 'BUS_LISTING', entityId: bus.id }); }}
+              className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center">
+              <span className={`material-symbols-outlined text-[18px] sm:text-[20px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all duration-200 ${isFav ? 'text-red-500' : 'text-white'}`}
+                style={{ fontVariationSettings: isFav ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
+            </button>
+          )}
+          {/* Type top-right */}
+          <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+            {TYPE_LABELS[bus.busListingType] || bus.busListingType}
           </span>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-3">
-        <h3 className="font-black text-on-surface text-sm leading-tight line-clamp-2 mb-1.5 group-hover:text-primary transition-colors">{bus.title}</h3>
-
-        {!isContract && (
-          <p className="text-[11px] text-on-surface-variant mb-2 flex items-center gap-1">
-            <span className="material-symbols-outlined text-[11px]">directions_bus</span>
-            {BUS_TYPE_LABELS[bus.busType] || bus.busType} · {bus.year} · {bus.make}
-          </p>
-        )}
-
-        {/* Price / Contract info */}
-        {bus.busListingType === 'BUS_SALE' && bus.price && (
-          <p className="text-base font-black text-primary">{Number(bus.price).toLocaleString('en-US')} <span className="text-[10px] text-on-surface-variant font-bold">{tl('currency')}</span></p>
-        )}
-        {hasContract && (
-          <div>
-            {bus.price && <p className="text-base font-black text-primary">{Number(bus.price).toLocaleString('en-US')} <span className="text-[10px] text-on-surface-variant font-bold">{tl('currency')}</span></p>}
-            {bus.contractMonthly && (
-              <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-0.5">
-                <span className="material-symbols-outlined text-[11px]">assignment</span>
-                {t('busesContract', { price: bus.contractMonthly })}
-              </p>
-            )}
-            {bus.contractMonthly && bus.price && (() => {
-              const price = Number(bus.price);
-              const monthly = Number(bus.contractMonthly);
-              const duration = bus.contractDuration || 36;
-              const netProfit = (monthly * duration) - price;
-              const roi = ((netProfit / price) * 100).toFixed(1);
-              const payback = Math.ceil(price / monthly);
-              return (
-                <div className="flex items-center gap-2 mt-1">
-                  <span className={`inline-flex items-center gap-0.5 text-[10px] font-black px-1.5 py-0.5 rounded-md ${Number(roi) > 0 ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' : 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400'}`}>
-                    <span className="material-symbols-outlined text-[10px]">trending_up</span>
-                    ROI {roi}%
-                  </span>
-                  <span className="text-[10px] text-on-surface-variant font-bold">
-                    {t('busDetailROIPaybackMonths', { months: payback })}
-                  </span>
-                </div>
-              );
-            })()}
-          </div>
-        )}
-        {bus.busListingType === 'BUS_RENT' && (
-          <div className="flex items-baseline gap-1.5">
-            {bus.dailyPrice && <p className="text-base font-black text-violet-700 dark:text-violet-400">{Number(bus.dailyPrice).toLocaleString('en-US')} <span className="text-[10px] font-bold">{t('busesPerDay')}</span></p>}
-          </div>
-        )}
-        {isContract && (
-          <div className="flex items-center gap-1 text-[11px] text-orange-700 dark:text-orange-400 font-bold">
-            <span className="material-symbols-outlined text-[11px]">groups</span>
-            {t('busesPassenger', { count: bus.requestPassengers ?? 0 })} · {bus.requestSchedule || t('busesNotSpecified')}
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-outline-variant/5">
-          <span className="text-[10px] text-on-surface-variant flex items-center gap-0.5">
-            <span className="material-symbols-outlined text-[10px]">schedule</span>
-            {relativeTimeT(bus.createdAt, tt, locale)}
-          </span>
-          {bus.governorate && (
-            <span className="text-[10px] text-on-surface-variant flex items-center gap-0.5">
-              <span className="material-symbols-outlined text-[10px]">location_on</span>
-              {bus.governorate}
+          {/* Verified */}
+          {bus.user?.isVerified && (
+            <span className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 text-blue-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+              <span className="material-symbols-outlined text-[13px] sm:text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
             </span>
           )}
+          {/* Price */}
+          {priceText && (
+            <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2">
+              <span className="px-1.5 sm:px-2 py-px sm:py-0.5 rounded text-[9px] sm:text-xs font-black bg-primary text-on-primary shadow-sm">{priceText}</span>
+            </div>
+          )}
         </div>
-      </div>
-    </Link>
+        <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1.5">
+          <h3 dir="auto" className="text-[10px] sm:text-[13px] font-black leading-snug line-clamp-2 sm:line-clamp-1">{bus.title}</h3>
+          <div className="flex items-center gap-1 flex-wrap text-[8px] sm:text-[10px] text-on-surface-variant">
+            <span className="shrink-0">{relativeTimeT(bus.createdAt, tt, locale)}</span>
+            {bus.governorate && <span className="text-outline/40">·</span>}
+            {bus.governorate && (
+              <span className="flex items-center gap-px shrink-0">
+                <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
+                {bus.governorate}
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
+    </article>
   );
 }

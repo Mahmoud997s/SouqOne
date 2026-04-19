@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
+import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useAuth } from '@/providers/auth-provider';
 import type { EquipmentListingItem } from '@/lib/api/equipment';
 
 interface EquipmentShowcaseProps {
@@ -15,6 +17,25 @@ interface EquipmentShowcaseProps {
 const CONDITION_DOT: Record<string, string> = {
   NEW: 'bg-emerald-500', USED: 'bg-slate-400', REFURBISHED: 'bg-sky-500',
 };
+
+function EqFavButton({ id }: { id: string }) {
+  const { isAuthenticated } = useAuth();
+  const { data: favIds } = useFavoriteIds();
+  const toggleFav = useToggleFavorite();
+  const isFav = favIds?.includes(`EQUIPMENT_LISTING:${id}`) ?? false;
+  if (!isAuthenticated) return null;
+  return (
+    <button
+      onClick={e => { e.preventDefault(); toggleFav.mutate({ entityType: 'EQUIPMENT_LISTING', entityId: id }); }}
+      className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center"
+    >
+      <span
+        className={`material-symbols-outlined text-[18px] sm:text-[20px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] transition-all duration-200 ${isFav ? 'text-red-500' : 'text-white'}`}
+        style={{ fontVariationSettings: isFav ? "'FILL' 1" : "'FILL' 0" }}
+      >favorite</span>
+    </button>
+  );
+}
 
 export function EquipmentShowcase({ items, isLoading }: EquipmentShowcaseProps) {
   const t = useTranslations('home');
@@ -80,21 +101,31 @@ export function EquipmentShowcase({ items, isLoading }: EquipmentShowcaseProps) 
                     )}
                     <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 
-                    {/* أعلى يسار: نوع الإعلان */}
-                    <span className="absolute top-2 left-2 inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
-                      {TYPE_LABELS[eq.listingType] || eq.listingType}
-                    </span>
+                    {/* Fav top-left */}
+                    <EqFavButton id={eq.id} />
 
-                    {/* أعلى يمين: الحالة (نقطة + label) */}
-                    <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${CONDITION_DOT[eq.condition] || 'bg-slate-400'}`} />
-                      {condLabel(eq.condition)}
-                    </span>
+                    {/* Condition + type top-right */}
+                    <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 flex items-center gap-0.5">
+                      <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${CONDITION_DOT[eq.condition] || 'bg-slate-400'}`} />
+                        {condLabel(eq.condition)}
+                      </span>
+                      <span className="px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+                        {TYPE_LABELS[eq.listingType] || eq.listingType}
+                      </span>
+                    </div>
 
-                    {/* أسفل يمين: السعر */}
+                    {/* Verified bottom-left */}
+                    {eq.user?.isVerified && (
+                      <span className="absolute bottom-1.5 left-1.5 sm:bottom-2 sm:left-2 text-blue-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+                        <span className="material-symbols-outlined text-[13px] sm:text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                      </span>
+                    )}
+
+                    {/* Price bottom-right */}
                     {pt && (
-                      <div className="absolute bottom-2 right-2">
-                        <span className="px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs font-black bg-primary text-on-primary shadow-sm">
+                      <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2">
+                        <span className="px-1.5 sm:px-2 py-px sm:py-0.5 rounded text-[9px] sm:text-xs font-black bg-primary text-on-primary shadow-sm">
                           {pt}
                         </span>
                       </div>
@@ -102,51 +133,14 @@ export function EquipmentShowcase({ items, isLoading }: EquipmentShowcaseProps) 
                   </div>
 
                   {/* ── Body ── */}
-                  <div className="p-2 sm:p-3 flex-1 flex flex-col gap-1">
-                    <h3 className="font-black text-xs sm:text-sm text-on-surface leading-snug line-clamp-1">{eq.title}</h3>
-
-                    {/* Meta: make model year · location */}
-                    <div className="flex items-center gap-1 text-[9px] sm:text-[10px] text-on-surface-variant leading-none">
-                      <span className="truncate">
-                        {[eq.make, eq.model, eq.year].filter(Boolean).join(' ')}
-                      </span>
+                  <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1.5">
+                    <h3 dir="auto" className="text-[10px] sm:text-[13px] font-black leading-snug line-clamp-2 sm:line-clamp-1">{eq.title}</h3>
+                    <div className="flex items-center gap-1 flex-wrap text-[8px] sm:text-[10px] text-on-surface-variant">
                       {eq.governorate && (
-                        <>
-                          <span className="text-outline-variant/40 mx-0.5">·</span>
-                          <span className="material-symbols-outlined text-[10px]">location_on</span>
-                          <span className="truncate">{eq.governorate}</span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Meta tags — ordered by importance */}
-                    <div className="flex items-center flex-wrap gap-x-1.5 text-[8px] sm:text-[10px] text-on-surface-variant">
-                      {eq.user?.isVerified && (
-                        <span className="inline-flex items-center gap-0.5">
-                          <span className="material-symbols-outlined text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                          {tl('verified')}
+                        <span className="flex items-center gap-px shrink-0">
+                          <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
+                          {eq.governorate}
                         </span>
-                      )}
-                      {eq.user?.isVerified && (eq.withOperator || eq.hoursUsed || eq.isPriceNegotiable) && (
-                        <span className="text-outline-variant/40">·</span>
-                      )}
-                      {eq.withOperator && (
-                        <span>{tl('withOperator')}</span>
-                      )}
-                      {eq.withOperator && (eq.hoursUsed || eq.isPriceNegotiable) && (
-                        <span className="text-outline-variant/40">·</span>
-                      )}
-                      {eq.hoursUsed != null && eq.hoursUsed > 0 && (
-                        <span className="flex items-center gap-0.5">
-                          <span className="material-symbols-outlined text-[10px]">schedule</span>
-                          {eq.hoursUsed.toLocaleString()} {tl('hours')}
-                        </span>
-                      )}
-                      {eq.hoursUsed != null && eq.hoursUsed > 0 && eq.isPriceNegotiable && (
-                        <span className="text-outline-variant/40">·</span>
-                      )}
-                      {eq.isPriceNegotiable && (
-                        <span>{tl('negotiable')}</span>
                       )}
                     </div>
                   </div>

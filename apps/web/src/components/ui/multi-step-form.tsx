@@ -73,7 +73,7 @@ export function MultiStepForm({
                       {done ? <span className="material-symbols-outlined text-sm sm:text-base">check_circle</span> : i + 1}
                     </div>
                     <span
-                      className={`mt-1.5 text-[8px] sm:text-[11px] font-bold text-center leading-tight max-w-[72px] sm:max-w-[120px] transition-colors ${
+                      className={`mt-1.5 text-[9px] sm:text-[11px] font-bold text-center leading-tight max-w-[80px] sm:max-w-[120px] transition-colors ${
                         active || done ? 'text-white' : 'text-white/40'
                       }`}
                     >
@@ -109,7 +109,7 @@ export function MultiStepForm({
       </div>
 
       {/* ── Navigation ── */}
-      <div className="flex items-center justify-between mt-8 gap-3 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-2xl p-3 sm:p-4">
+      <div className="flex items-center justify-between mt-8 mb-28 sm:mb-8 gap-3 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-2xl p-3 sm:p-4">
         {!isFirst ? (
           <button
             type="button"

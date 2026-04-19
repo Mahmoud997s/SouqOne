@@ -69,11 +69,11 @@ export function JobCard({ job }: { job: JobItem }) {
   }
 
   return (
-    <article className="h-full rounded-xl overflow-hidden bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300">
+    <article className="h-full rounded-xl overflow-hidden bg-surface-container-lowest dark:bg-surface-container border-2 border-outline-variant/20 group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300">
       <Link href={`/jobs/${job.id}`} className="h-full flex flex-col p-2.5 sm:p-3 gap-2 sm:gap-2.5">
 
         {/* 1. Poster row (top) */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 -mx-2.5 sm:-mx-3 px-2.5 sm:px-3 -mt-2.5 sm:-mt-3 pt-2.5 sm:pt-3 pb-2 sm:pb-2.5 bg-surface-container-low dark:bg-surface-container-high">
           <div className={`shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold select-none ${s.avatarBg}`}>
             {getInitials(posterName)}
           </div>
@@ -83,22 +83,24 @@ export function JobCard({ job }: { job: JobItem }) {
               {t(s.posterLabelKey)}{city ? ` · ${city}` : ''}
             </p>
           </div>
+          <span className={`shrink-0 inline-flex items-center gap-0.5 text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full ${s.badgeBg}`}>
+            <span className="material-symbols-outlined" style={{fontSize:'8px'}}>{s.icon}</span>
+            {t(s.labelKey)}
+          </span>
+        </div>
+
+        <div className="border-t border-outline-variant/20" />
+
+        {/* 2. Title */}
+        <div className="flex items-start gap-1.5">
+          <h3 className="flex-1 text-xs sm:text-[13px] font-black leading-snug line-clamp-2 text-on-surface">
+            {job.title}
+          </h3>
           {isNew(job.createdAt) && (
-            <span className="shrink-0 text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-green/10 dark:bg-brand-green/20 text-brand-green">
+            <span className="shrink-0 text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-brand-green/10 dark:bg-brand-green/20 text-brand-green">
               {tl('new')}
             </span>
           )}
-        </div>
-
-        {/* 2. Type badge + Title */}
-        <div className="space-y-1.5">
-          <span className={`inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full ${s.badgeBg}`}>
-            <span className="material-symbols-outlined text-[11px] sm:text-[12px]">{s.icon}</span>
-            {t(s.labelKey)}
-          </span>
-          <h3 className="text-xs sm:text-[13px] font-black leading-snug line-clamp-2 text-on-surface">
-            {job.title}
-          </h3>
         </div>
 
         {/* 3. Salary */}
@@ -122,9 +124,9 @@ export function JobCard({ job }: { job: JobItem }) {
           {tags.map((tag, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-0.5 sm:gap-1 text-[9px] sm:text-[10px] font-medium text-on-surface-variant bg-surface-container-low dark:bg-surface-container-high px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md border border-outline-variant/10"
+              className="inline-flex items-center gap-0.5 text-[10px] sm:text-[11px] font-medium text-on-surface-variant bg-surface-container-low dark:bg-surface-container-high px-1 sm:px-1.5 py-0.5 rounded-md border border-outline-variant/10"
             >
-              <span className="material-symbols-outlined text-[10px] sm:text-[11px]">{tag.icon}</span>
+              <span className="material-symbols-outlined" style={{fontSize:'8px'}}>{tag.icon}</span>
               {tag.text}
             </span>
           ))}

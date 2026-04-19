@@ -14,7 +14,7 @@ export function NewsletterCta() {
 
   return (
     <div
-      className="fixed bottom-[52px] inset-x-0 z-40 lg:hidden bg-gradient-to-r from-primary/[0.05] via-surface-container-lowest/95 to-brand-amber/[0.05] dark:from-primary/[0.08] dark:via-surface-container/95 dark:to-brand-amber/[0.06] backdrop-blur-xl"
+      className="fixed bottom-[57px] inset-x-0 z-40 lg:hidden bg-gradient-to-r from-primary/[0.05] via-surface-container-lowest/95 to-brand-amber/[0.05] dark:from-primary/[0.08] dark:via-surface-container/95 dark:to-brand-amber/[0.06] backdrop-blur-xl"
       style={{ maskImage: 'radial-gradient(circle 38px at 50% calc(100% + 4px), transparent 98%, black 100%)', WebkitMaskImage: 'radial-gradient(circle 38px at 50% calc(100% + 4px), transparent 98%, black 100%)' }}
     >
       <div className="flex items-center justify-around h-[53px] max-w-lg mx-auto px-2">
