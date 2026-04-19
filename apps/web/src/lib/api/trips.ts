@@ -43,12 +43,13 @@ interface PaginatedTrips {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
-export function useTrips(params?: Record<string, string>) {
+export function useTrips(params?: Record<string, string>, enabled = true) {
   const searchParams = new URLSearchParams(params);
   const qs = searchParams.toString();
   return useQuery<PaginatedTrips>({
     queryKey: ['trips', params],
     queryFn: () => apiRequest(`/trips${qs ? `?${qs}` : ''}`),
+    enabled,
   });
 }
 

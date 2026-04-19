@@ -63,7 +63,7 @@ export interface SearchParams {
 
 // ── Hooks ──
 
-export function useSearch(params: SearchParams) {
+export function useSearch(params: SearchParams, enabled = true) {
   const searchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== '' && value !== null) {
@@ -74,7 +74,7 @@ export function useSearch(params: SearchParams) {
   return useQuery<SearchResponse>({
     queryKey: ['search', params],
     queryFn: () => apiRequest<SearchResponse>(`/search?${searchParams.toString()}`),
-    enabled: !!(params.q || params.entityType || params.category || params.governorate),
+    enabled: enabled && !!(params.q || params.entityType || params.category || params.governorate),
   });
 }
 

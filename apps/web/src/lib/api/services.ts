@@ -39,12 +39,13 @@ interface PaginatedServices {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
-export function useCarServices(params?: Record<string, string>) {
+export function useCarServices(params?: Record<string, string>, enabled = true) {
   const searchParams = new URLSearchParams(params);
   const qs = searchParams.toString();
   return useQuery<PaginatedServices>({
     queryKey: ['services', params],
     queryFn: () => apiRequest(`/services${qs ? `?${qs}` : ''}`),
+    enabled,
   });
 }
 

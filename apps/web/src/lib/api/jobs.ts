@@ -65,11 +65,12 @@ export interface JobApplicationItem {
   createdAt: string;
 }
 
-export function useJobs(params: Record<string, string> = {}) {
+export function useJobs(params: Record<string, string> = {}, enabled = true) {
   const searchParams = new URLSearchParams(params);
   return useQuery<JobsResponse>({
     queryKey: ['jobs', params],
     queryFn: () => apiRequest<JobsResponse>(`/jobs?${searchParams.toString()}`),
+    enabled,
   });
 }
 

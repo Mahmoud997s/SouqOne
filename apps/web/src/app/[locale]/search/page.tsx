@@ -302,14 +302,14 @@ function SearchContent() {
     return p;
   }, [page, qParam, govParam, tripTypeParam, schedParam]);
 
-  const searchResult   = useSearch({ q: qParam||undefined, entityType: typeParam||undefined, governorate: govParam||undefined, sortBy: (sortParam as any)||undefined, minPrice: minPParam?Number(minPParam):undefined, maxPrice: maxPParam?Number(maxPParam):undefined, make: makeParam||undefined, condition: condParam||undefined, page, limit: 20 });
-  const listingsResult = useListings(listingsParams);
-  const partsResult    = useParts(partsParams);
-  const busesResult    = useBusListings(busesParams);
-  const servicesResult = useCarServices(servicesParams);
-  const jobsResult     = useJobs(jobsParams);
-  const transportResult= useTransportServices(transportParams);
-  const tripsResult    = useTrips(tripsParams);
+  const searchResult   = useSearch({ q: qParam||undefined, entityType: typeParam||undefined, governorate: govParam||undefined, sortBy: (sortParam as any)||undefined, minPrice: minPParam?Number(minPParam):undefined, maxPrice: maxPParam?Number(maxPParam):undefined, make: makeParam||undefined, condition: condParam||undefined, page, limit: 20 }, isAll && !!qParam);
+  const listingsResult = useListings(listingsParams, isListings);
+  const partsResult    = useParts(partsParams,       isParts);
+  const busesResult    = useBusListings(busesParams, isBuses);
+  const servicesResult = useCarServices(servicesParams, isServices);
+  const jobsResult     = useJobs(jobsParams,         isJobs);
+  const transportResult= useTransportServices(transportParams, isTransport);
+  const tripsResult    = useTrips(tripsParams,       isTrips);
 
   type AnyItem = { id: string; title: string; slug?: string; imageUrl?: string | null; images?: {url:string}[]; price?: any; basePrice?: any; priceFrom?: any; pricePerTrip?: any; make?: string; model?: string; year?: number; governorate?: string; currency?: string; jobType?: string; employmentType?: string; tripType?: string; serviceType?: string; busType?: string; _entityType?: string };
   type TabResult = { items: AnyItem[]; total: number; totalPages: number; isLoading: boolean; isError: boolean };

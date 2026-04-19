@@ -65,11 +65,12 @@ export interface ListingsResponse {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
-export function useListings(params: Record<string, string> = {}) {
+export function useListings(params: Record<string, string> = {}, enabled = true) {
   const searchParams = new URLSearchParams(params);
   return useQuery<ListingsResponse>({
     queryKey: ['listings', params],
     queryFn: () => apiRequest<ListingsResponse>(`/listings?${searchParams.toString()}`),
+    enabled,
   });
 }
 

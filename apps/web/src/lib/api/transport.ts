@@ -38,12 +38,13 @@ interface PaginatedTransport {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
-export function useTransportServices(params?: Record<string, string>) {
+export function useTransportServices(params?: Record<string, string>, enabled = true) {
   const searchParams = new URLSearchParams(params);
   const qs = searchParams.toString();
   return useQuery<PaginatedTransport>({
     queryKey: ['transport', params],
     queryFn: () => apiRequest(`/transport${qs ? `?${qs}` : ''}`),
+    enabled,
   });
 }
 

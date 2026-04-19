@@ -63,12 +63,13 @@ interface PaginatedBuses {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
-export function useBusListings(params?: Record<string, string>) {
+export function useBusListings(params?: Record<string, string>, enabled = true) {
   const searchParams = new URLSearchParams(params);
   const qs = searchParams.toString();
   return useQuery<PaginatedBuses>({
     queryKey: ['buses', params],
     queryFn: () => apiRequest(`/buses${qs ? `?${qs}` : ''}`),
+    enabled,
   });
 }
 
