@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useState, useRef, useEffect, useMemo } from 'react';
+import clsx from 'clsx';
 import { useSearchParams } from 'next/navigation';
 import { useRouter, Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
@@ -18,10 +19,9 @@ import { getGovernorates } from '@/lib/location-data';
 import { getImageUrl } from '@/lib/image-utils';
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
-import { SearchFilters, type FilterState, type FilterSetters } from './_components/SearchFilters';
-import { MobileFilterSheet, MobileFilterTrigger } from './_components/MobileFilterSheet';
+import { FilterBar, type FilterDef } from './_components/FilterBar';
+import { MobileSheet, MobileFilterBar } from './_components/MobileSheet';
 import { ActiveFilters, buildActiveFilters, type ActiveFilter } from './_components/ActiveFilters';
-import { useRecentFilters, buildFilterLabel } from './_components/useFilterIntelligence';
 
 // ─── Entity config ───
 const ENTITY_CFG: Record<string, { labelKey: string; icon: string; color: string; href: (h: SearchHit) => string }> = {
@@ -114,7 +114,7 @@ function SearchContent() {
   const [query,    setQuery]    = useState(qParam);
   const [activeTab,setActiveTab]= useState(typeParam);
   const [page,     setPage]     = useState(1);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false); // mobile sheet
   const inputRef = useRef<HTMLInputElement>(null);
 
   // filter local state mirrors
@@ -151,7 +151,7 @@ function SearchContent() {
   const fuelOpts = fuelOptionsFn(tm);
   const transOpts= transmissionOptionsFn(tm);
   const YEAR_NOW = new Date().getFullYear();
-  const years    = Array.from({ length: YEAR_NOW - 1989 }, (_, i) => String(YEAR_NOW - i));
+  void YEAR_NOW; // year range available for future use
 
   useEffect(() => { setPage(1); }, [qParam, typeParam, govParam, sortParam, minPParam, maxPParam,
     makeParam, condParam, fuelParam, transParam, ltParam, modelParam, yearMinParam, yearMaxParam,
@@ -179,41 +179,10 @@ function SearchContent() {
   }
 
   function applyFilters(ov: Record<string, string> = {}) { setPage(1); router.push(buildURL(ov)); }
-  function applyNow(key: string, val: string) {
-    // when make is cleared, also clear model
-    if (key === 'make' && !val) { applyFilters({ make: '', model: '' }); return; }
-    applyFilters({ [key]: val });
-  }
-
-  // ── recent filter saving ──
-  const { saveRecent: saveFilterRecent } = useRecentFilters(activeTab);
-
-  function saveFiltersToRecent() {
-    const params: Record<string, string> = {};
-    const fields: [string, string][] = [
-      ['governorate', govParam], ['sort', sortParam],
-      ['minPrice', minPParam], ['maxPrice', maxPParam],
-      ['make', makeParam], ['model', modelParam], ['condition', condParam],
-      ['fuelType', fuelParam], ['transmission', transParam], ['listingType', ltParam],
-      ['yearMin', yearMinParam], ['yearMax', yearMaxParam],
-      ['busType', busTypeParam], ['busListingType', busLTParam],
-      ['capMin', capMinParam], ['capMax', capMaxParam],
-      ['partCategory', partCatParam], ['serviceType', svcTypeParam],
-      ['providerType', provTypeParam], ['isHomeService', homeParam],
-      ['jobType', jobTypeParam], ['employmentType', empTypeParam],
-      ['licenseType', licParam], ['transportType', trTypeParam],
-      ['tripType', tripTypeParam], ['scheduleType', schedParam],
-    ];
-    fields.forEach(([k, v]) => { if (v) params[k] = v; });
-    if (Object.keys(params).length === 0) return;
-    const label = buildFilterLabel({
-      make: makeParam, model: modelParam, yearMin: yearMinParam, yearMax: yearMaxParam,
-      fuel: fuelParam, cond: condParam, trans: transParam, lt: ltParam,
-      gov: govParam, minP: minPParam, maxP: maxPParam,
-      busType: busTypeParam, partCat: partCatParam, svcType: svcTypeParam,
-      jobType: jobTypeParam, tripType: tripTypeParam, trType: trTypeParam,
-    });
-    saveFilterRecent({ label, params, tab: activeTab });
+  // when make is cleared, also clear model
+  function applyFiltersWithMakeReset(ov: Record<string, string>) {
+    if ('make' in ov && !ov.make) ov.model = '';
+    applyFilters(ov);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -369,22 +338,133 @@ function SearchContent() {
 
   const { items, total, totalPages, isLoading, isError } = activeResult;
 
-  // ── shared filter state + setter objects ──
-  const filterState: FilterState = {
-    gov, sort, minP, maxP,
-    make, cond, fuel, trans, lt, model, yearMin, yearMax,
-    busType, busLT, capMin, capMax,
-    partCat, svcType, provType, homeServ,
-    jobType, empType, lic, trType, tripType, sched,
+  // ── flat values record for FilterBar / MobileSheet ──
+  const filterValues: Record<string, string> = {
+    governorate: govParam, sort: sortParam,
+    minPrice: minPParam, maxPrice: maxPParam,
+    make: makeParam, condition: condParam, fuelType: fuelParam,
+    transmission: transParam, listingType: ltParam,
+    model: modelParam, yearMin: yearMinParam, yearMax: yearMaxParam,
+    busType: busTypeParam, busListingType: busLTParam,
+    capMin: capMinParam, capMax: capMaxParam,
+    partCategory: partCatParam,
+    serviceType: svcTypeParam, providerType: provTypeParam,
+    isHomeService: homeParam,
+    jobType: jobTypeParam, employmentType: empTypeParam, licenseType: licParam,
+    transportType: trTypeParam,
+    tripType: tripTypeParam, scheduleType: schedParam,
   };
 
-  const filterSetters: FilterSetters = {
-    setGov, setSort, setMinP, setMaxP,
-    setMake, setCond, setFuel, setTrans, setLt, setModel, setYearMin, setYearMax,
-    setBusType, setBusLT, setCapMin, setCapMax,
-    setPartCat, setSvcType, setProvType, setHomeServ,
-    setJobType, setEmpType, setLic, setTrType, setTripType, setSched,
-  };
+  const SORT_OPTS = [
+    { value: '',            label: 'الأحدث' },
+    { value: 'price:asc',  label: 'الأقل سعراً' },
+    { value: 'price:desc', label: 'الأعلى سعراً' },
+  ];
+
+  const makeOpts = CAR_MAKES.map(m => ({ value: m, label: m }));
+
+  const LISTING_TYPE_OPTS = [
+    { value: 'SALE', label: 'للبيع' }, { value: 'RENTAL', label: 'إيجار' }, { value: 'WANTED', label: 'مطلوب' },
+  ];
+  const BUS_TYPE_OPTS = [
+    { value: 'MINI_BUS', label: 'ميني باص' }, { value: 'MEDIUM_BUS', label: 'متوسط' },
+    { value: 'LARGE_BUS', label: 'كبير' }, { value: 'COASTER', label: 'كوستر' }, { value: 'SCHOOL_BUS', label: 'مدرسية' },
+  ];
+  const BUS_LT_OPTS = [
+    { value: 'BUS_SALE', label: 'بيع' }, { value: 'BUS_SALE_WITH_CONTRACT', label: 'بيع مع عقد' },
+    { value: 'BUS_CONTRACT', label: 'تعاقد' }, { value: 'BUS_RENT', label: 'إيجار' }, { value: 'BUS_REQUEST', label: 'طلب' },
+  ];
+  const PART_CAT_OPTS = [
+    { value: 'ENGINE', label: 'محرك' }, { value: 'BODY', label: 'هيكل' }, { value: 'ELECTRICAL', label: 'كهربائيات' },
+    { value: 'SUSPENSION', label: 'تعليق' }, { value: 'BRAKES', label: 'فرامل' }, { value: 'INTERIOR', label: 'داخلية' },
+    { value: 'TIRES', label: 'إطارات' }, { value: 'BATTERIES', label: 'بطاريات' }, { value: 'OILS', label: 'زيوت' },
+    { value: 'ACCESSORIES', label: 'إكسسوارات' }, { value: 'OTHER', label: 'أخرى' },
+  ];
+  const SVC_TYPE_OPTS = [
+    { value: 'MAINTENANCE', label: 'صيانة' }, { value: 'CLEANING', label: 'تنظيف' }, { value: 'MODIFICATION', label: 'تعديل' },
+    { value: 'INSPECTION', label: 'فحص' }, { value: 'BODYWORK', label: 'هيكل وطلاء' },
+    { value: 'ACCESSORIES_INSTALL', label: 'تركيب إكسسوارات' }, { value: 'KEYS_LOCKS', label: 'مفاتيح وأقفال' },
+    { value: 'TOWING', label: 'سحب' }, { value: 'OTHER_SERVICE', label: 'أخرى' },
+  ];
+  const PROV_TYPE_OPTS = [
+    { value: 'WORKSHOP', label: 'ورشة' }, { value: 'INDIVIDUAL', label: 'فرد' },
+    { value: 'MOBILE', label: 'متنقل' }, { value: 'COMPANY', label: 'شركة' },
+  ];
+  const JOB_TYPE_OPTS = [{ value: 'OFFERING', label: 'عرض عمل' }, { value: 'HIRING', label: 'توظيف' }];
+  const EMP_TYPE_OPTS = [
+    { value: 'FULL_TIME', label: 'دوام كامل' }, { value: 'PART_TIME', label: 'جزئي' },
+    { value: 'TEMPORARY', label: 'مؤقت' }, { value: 'CONTRACT', label: 'عقد' },
+  ];
+  const LIC_OPTS = [
+    { value: 'LIGHT', label: 'خفيفة' }, { value: 'HEAVY', label: 'ثقيلة' },
+    { value: 'TRANSPORT', label: 'نقل' }, { value: 'BUS', label: 'باص' }, { value: 'MOTORCYCLE', label: 'دراجة' },
+  ];
+  const TR_TYPE_OPTS = [
+    { value: 'CARGO', label: 'شحن' }, { value: 'FURNITURE', label: 'أثاث' }, { value: 'DELIVERY', label: 'توصيل' },
+    { value: 'HEAVY_TRANSPORT', label: 'نقل ثقيل' }, { value: 'TRUCK_RENTAL', label: 'تأجير شاحنة' }, { value: 'OTHER_TRANSPORT', label: 'أخرى' },
+  ];
+  const TRIP_TYPE_OPTS = [
+    { value: 'BUS_SUBSCRIPTION', label: 'اشتراك باص' }, { value: 'SCHOOL_TRANSPORT', label: 'نقل مدرسي' },
+    { value: 'TOURISM', label: 'سياحة' }, { value: 'CORPORATE', label: 'شركات' }, { value: 'CARPOOLING', label: 'مشاركة سيارة' },
+  ];
+  const SCHED_TYPE_OPTS = [
+    { value: 'SCHEDULE_DAILY', label: 'يومي' }, { value: 'SCHEDULE_WEEKLY', label: 'أسبوعي' },
+    { value: 'SCHEDULE_MONTHLY', label: 'شهري' }, { value: 'ONE_TIME', label: 'مرة واحدة' },
+  ];
+
+  // FilterDef list per tab — ordered most-important first (RTL = leftmost in chip row)
+  const tabFilterDefs: FilterDef[] = [
+    // ── always ──
+    { key: 'governorate', label: 'المحافظة', type: 'enum', options: govOpts },
+    // ── listings + all ──
+    ...(isListings || isAll ? [
+      { key: 'make',        label: 'الماركة',     type: 'enum' as const, options: makeOpts },
+      { key: 'condition',   label: 'الحالة',      type: 'enum' as const, options: condOpts },
+      { key: 'listingType', label: 'نوع الإعلان', type: 'enum' as const, options: LISTING_TYPE_OPTS },
+    ] : []),
+    ...(isListings ? [
+      { key: 'fuelType',    label: 'الوقود',      type: 'enum' as const, options: fuelOpts },
+      { key: 'transmission',label: 'ناقل الحركة', type: 'enum' as const, options: transOpts },
+      { key: 'yearMin',     label: 'السنة',       type: 'range' as const, pairedKey: 'yearMax', pairedLabel: 'حتى' },
+    ] : []),
+    // ── price ──
+    ...(isListings || isParts || isBuses || isAll ? [
+      { key: 'minPrice', label: 'السعر', type: 'range' as const, pairedKey: 'maxPrice', unit: 'OMR' },
+    ] : []),
+    // ── parts ──
+    ...(isParts ? [
+      { key: 'partCategory', label: 'الفئة', type: 'enum' as const, options: PART_CAT_OPTS },
+      { key: 'condition',    label: 'الحالة', type: 'enum' as const, options: condOpts },
+    ] : []),
+    // ── buses ──
+    ...(isBuses ? [
+      { key: 'busType',       label: 'نوع الباص',   type: 'enum' as const, options: BUS_TYPE_OPTS },
+      { key: 'busListingType',label: 'نوع الإعلان', type: 'enum' as const, options: BUS_LT_OPTS },
+      { key: 'capMin',        label: 'الطاقة',      type: 'range' as const, pairedKey: 'capMax', unit: 'راكب' },
+    ] : []),
+    // ── services ──
+    ...(isServices ? [
+      { key: 'serviceType',  label: 'الخدمة',    type: 'enum' as const, options: SVC_TYPE_OPTS },
+      { key: 'providerType', label: 'المزود',    type: 'enum' as const, options: PROV_TYPE_OPTS },
+      { key: 'isHomeService',label: 'خدمة منزلية', type: 'boolean' as const },
+    ] : []),
+    // ── jobs ──
+    ...(isJobs ? [
+      { key: 'jobType',       label: 'نوع الوظيفة',  type: 'enum' as const, options: JOB_TYPE_OPTS },
+      { key: 'employmentType',label: 'التوظيف',       type: 'enum' as const, options: EMP_TYPE_OPTS },
+      { key: 'licenseType',   label: 'الرخصة',        type: 'enum' as const, options: LIC_OPTS },
+    ] : []),
+    // ── transport ──
+    ...(isTransport ? [
+      { key: 'transportType', label: 'النقل',    type: 'enum' as const, options: TR_TYPE_OPTS },
+      { key: 'providerType',  label: 'المزود',   type: 'enum' as const, options: PROV_TYPE_OPTS },
+    ] : []),
+    // ── trips ──
+    ...(isTrips ? [
+      { key: 'tripType',     label: 'الرحلة',  type: 'enum' as const, options: TRIP_TYPE_OPTS },
+      { key: 'scheduleType', label: 'الجدول',  type: 'enum' as const, options: SCHED_TYPE_OPTS },
+    ] : []),
+  ];
 
   // ── active filter chips ──
   const activeFilters: ActiveFilter[] = buildActiveFilters({
@@ -491,53 +571,41 @@ function SearchContent() {
               ))}
             </div>
 
-            {/* Desktop inline filters — accordion groups */}
-            <div className="hidden sm:block max-h-[60vh] overflow-y-auto pb-1">
-              <SearchFilters
-                activeTab={activeTab}
-                state={filterState}
-                setters={filterSetters}
-                govOpts={govOpts}
-                condOpts={condOpts}
-                fuelOpts={fuelOpts}
-                transOpts={transOpts}
-                years={years}
-                CAR_MAKES={CAR_MAKES}
-                applyFilters={applyFilters}
-                applyNow={applyNow}
-                activeFilterCount={activeFilterCount}
-                clearAllFilters={clearAllFilters}
-                dark
-              />
-            </div>
-
-            {/* Mobile — no inline filters; trigger lives above results */}
           </div>
         </div>
       </section>
 
-      {/* Mobile filter sheet */}
-      <MobileFilterSheet
+      {/* ── Desktop: horizontal filter chip bar (hidden on mobile) ── */}
+      <div className="hidden sm:block">
+        <FilterBar
+          filters={tabFilterDefs}
+          values={filterValues}
+          onApply={applyFiltersWithMakeReset}
+          activeTab={activeTab}
+          total={total}
+          allFiltersContent={
+            <div className="space-y-2">
+              {tabFilterDefs.map(def => (
+                <AllFiltersGroup key={def.key} def={def} values={filterValues} onApply={applyFiltersWithMakeReset} />
+              ))}
+            </div>
+          }
+        />
+      </div>
+
+      {/* ── Mobile: full-screen sheet ── */}
+      <MobileSheet
         open={showMobileFilters}
         onClose={() => setShowMobileFilters(false)}
+        filters={tabFilterDefs}
+        values={filterValues}
+        onApply={applyFiltersWithMakeReset}
+        onClearAll={clearAllFilters}
         total={total}
         activeFilterCount={activeFilterCount}
-        clearAllFilters={clearAllFilters}
-        activeTab={activeTab}
-        state={filterState}
-        setters={filterSetters}
-        govOpts={govOpts}
-        condOpts={condOpts}
-        fuelOpts={fuelOpts}
-        transOpts={transOpts}
-        years={years}
-        CAR_MAKES={CAR_MAKES}
-        applyFilters={applyFilters}
-        applyNow={applyNow}
-        onSaveRecent={saveFiltersToRecent}
       />
 
-      {/* ── Active filter chips — between hero and results ── */}
+      {/* ── Active filter chips — below filter bar ── */}
       {activeFilters.length > 0 && (
         <div className="max-w-5xl mx-auto px-4 pt-3">
           <ActiveFilters
@@ -551,7 +619,7 @@ function SearchContent() {
       )}
 
       {/* ── Main ── */}
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-5xl mx-auto px-4 py-8 pb-24 sm:pb-8">
         {!qParam ? (
           <EmptyPrompt onSearch={q => { setQuery(q); saveRecent(q); applyFilters({ q }); }} ts={ts} />
         ) : isLoading ? (
@@ -569,14 +637,6 @@ function SearchContent() {
           </div>
         ) : (
           <>
-            {/* Mobile filter trigger — full width above results */}
-            <div className="mb-4">
-              <MobileFilterTrigger
-                activeFilterCount={activeFilterCount}
-                total={total}
-                onOpen={() => setShowMobileFilters(true)}
-              />
-            </div>
             <div className={`results-grid grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4${isLoading ? ' results-grid-loading' : ''}`}>
               {items.map((item, idx) => {
                 const cfg = ENTITY_CFG[item._entityType ?? activeTab];
@@ -646,8 +706,96 @@ function SearchContent() {
         )}
       </main>
 
+      {/* ── Mobile sticky bottom filter bar ── */}
+      <MobileFilterBar
+        activeFilterCount={activeFilterCount}
+        sortValue={sortParam}
+        sortOptions={SORT_OPTS}
+        onOpenFilters={() => setShowMobileFilters(true)}
+        onApplySort={v => applyFilters({ sort: v })}
+      />
+
       <Footer />
     </>
+  );
+}
+
+// ─── AllFiltersGroup — reused inside the all-filters modal ─────────────────
+function AllFiltersGroup({
+  def, values, onApply,
+}: {
+  def: FilterDef;
+  values: Record<string, string>;
+  onApply: (ov: Record<string, string>) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [minDraft, setMinDraft] = useState(values[def.key] ?? '');
+  const [maxDraft, setMaxDraft] = useState(def.pairedKey ? (values[def.pairedKey] ?? '') : '');
+  const currentVal = values[def.key] ?? '';
+  const currentPaired = def.pairedKey ? (values[def.pairedKey] ?? '') : '';
+  const isActive = !!currentVal || !!currentPaired;
+
+  return (
+    <div className="border border-outline-variant/15 rounded-2xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between gap-3 px-4 py-3 text-right bg-surface-container-lowest hover:bg-surface-container transition-colors"
+      >
+        <span className="text-sm font-black text-on-surface">{def.label}</span>
+        <div className="flex items-center gap-2">
+          {isActive && <span className="w-2 h-2 rounded-full bg-primary" />}
+          <span className={clsx('material-symbols-outlined text-sm text-on-surface-variant transition-transform duration-200', open && 'rotate-180')}>expand_more</span>
+        </div>
+      </button>
+      {open && (
+        <div className="border-t border-outline-variant/10 p-4">
+          {def.type === 'enum' && def.options && (
+            <div className="flex flex-wrap gap-2">
+              {currentVal && (
+                <button type="button" onClick={() => onApply({ [def.key]: '' })}
+                  className="px-3 py-1.5 rounded-full text-xs font-bold border border-outline-variant/20 text-on-surface-variant/60 hover:bg-surface-container">
+                  إلغاء
+                </button>
+              )}
+              {def.options.map(o => (
+                <button key={o.value} type="button"
+                  onClick={() => onApply({ [def.key]: currentVal === o.value ? '' : o.value })}
+                  className={clsx('px-4 py-1.5 rounded-full text-xs font-bold border transition-all',
+                    currentVal === o.value
+                      ? 'bg-primary border-primary text-on-primary'
+                      : 'border-outline-variant/20 text-on-surface hover:border-primary/40')}>
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          )}
+          {def.type === 'range' && (
+            <div className="flex items-center gap-3">
+              <input type="number" value={minDraft} onChange={e => setMinDraft(e.target.value)} placeholder="من"
+                className="flex-1 text-xs px-3 py-2 rounded-xl border border-outline-variant/20 bg-surface-container outline-none focus:border-primary/50" />
+              <input type="number" value={maxDraft} onChange={e => setMaxDraft(e.target.value)} placeholder="إلى"
+                className="flex-1 text-xs px-3 py-2 rounded-xl border border-outline-variant/20 bg-surface-container outline-none focus:border-primary/50" />
+              {def.unit && <span className="text-xs text-on-surface-variant/60 font-bold shrink-0">{def.unit}</span>}
+              <button type="button"
+                onClick={() => { const ov: Record<string, string> = { [def.key]: minDraft }; if (def.pairedKey) ov[def.pairedKey] = maxDraft; onApply(ov); }}
+                className="px-4 py-2 bg-primary text-on-primary rounded-xl text-xs font-black shrink-0 hover:brightness-110 transition-all">
+                تطبيق
+              </button>
+            </div>
+          )}
+          {def.type === 'boolean' && (
+            <button type="button" onClick={() => onApply({ [def.key]: currentVal !== 'true' ? 'true' : '' })}
+              className="flex items-center justify-between w-full">
+              <span className="text-sm font-bold text-on-surface">{def.label}</span>
+              <div className={clsx('relative w-11 h-6 rounded-full shrink-0 transition-colors duration-200', currentVal === 'true' ? 'bg-primary' : 'bg-outline-variant/40')}>
+                <div className={clsx('absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200', currentVal === 'true' ? 'right-1' : 'right-6')} />
+              </div>
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
