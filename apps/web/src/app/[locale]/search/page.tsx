@@ -147,7 +147,7 @@ function SearchContent() {
         <div className="absolute inset-0 opacity-[0.06]"
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
         <div className="relative z-10 pt-20 pb-6 sm:pt-24 sm:pb-8">
-          <div className="max-w-3xl mx-auto px-4">
+          <div className="max-w-5xl mx-auto px-4">
             <div className="text-center mb-5">
               <h1 className="text-xl sm:text-2xl font-black text-white drop-shadow-sm mb-1">{ts('searchInSouqOne')}</h1>
               {qParam && (
