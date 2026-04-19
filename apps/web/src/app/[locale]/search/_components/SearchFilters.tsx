@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import clsx from 'clsx';
 import { useModels, useRecentFilters, type RecentFilterEntry } from './useFilterIntelligence';
+import { useDropdownPortal, DropdownPortal } from './DropdownPortal';
 
 // ─── Primitive components ────────────────────────────────────────────────────
 
@@ -55,7 +56,10 @@ function PillGroup({
   );
 }
 
-/** Searchable select — for enums with 5+ values */
+/** Searchable select — for enums with 5+ values.
+ *  - dark=false (desktop): uses DropdownPortal (renders into document.body)
+ *  - dark=true  (mobile BottomSheet): uses inline accordion (no portal needed)
+ */
 function SearchableSelect({
   options,
   value,
@@ -74,20 +78,109 @@ function SearchableSelect({
   const filtered = options.filter(o => o.label.toLowerCase().includes(search.toLowerCase()));
   const selected = options.find(o => o.value === value);
 
+  const handleClose = useCallback(() => { setOpen(false); setSearch(''); }, []);
+  const { triggerRef, pos } = useDropdownPortal(open && !dark, handleClose);
+
+  // ── shared option list content ──
+  function OptionList() {
+    return (
+      <>
+        <div className="p-2 border-b border-outline-variant/10">
+          <input
+            autoFocus
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="بحث..."
+            className={clsx(
+              'w-full text-xs px-2 py-1.5 rounded-lg outline-none',
+              dark
+                ? 'bg-white/10 text-white placeholder:text-white/40'
+                : 'bg-surface-container text-on-surface placeholder:text-on-surface-variant/50'
+            )}
+          />
+        </div>
+        <div className="max-h-48 overflow-y-auto">
+          {value && (
+            <button
+              type="button"
+              onClick={() => { onChange(''); handleClose(); }}
+              className={clsx('w-full text-right px-3 py-2 text-xs font-bold transition-colors',
+                dark ? 'text-white/40 hover:bg-white/10' : 'text-on-surface-variant/60 hover:bg-surface-container')}
+            >
+              إلغاء التحديد
+            </button>
+          )}
+          {filtered.length === 0 && (
+            <p className={clsx('px-3 py-2 text-xs', dark ? 'text-white/40' : 'text-on-surface-variant/60')}>لا نتائج</p>
+          )}
+          {filtered.map(o => (
+            <button
+              key={o.value}
+              type="button"
+              onClick={() => { onChange(o.value); handleClose(); }}
+              className={clsx(
+                'w-full text-right px-3 py-2 text-xs font-bold transition-colors',
+                value === o.value
+                  ? dark ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'
+                  : dark ? 'text-white hover:bg-white/10' : 'text-on-surface hover:bg-surface-container'
+              )}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  const triggerCls = clsx(
+    'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl border text-xs font-bold',
+    'filter-input-focus transition-colors',
+    dark
+      ? 'bg-white/10 border-white/20 text-white hover:bg-white/15'
+      : 'bg-surface-container border-outline-variant/20 text-on-surface hover:border-primary/40'
+  );
+
+  const panelCls = clsx(
+    'rounded-xl border shadow-lg overflow-hidden',
+    dark ? 'bg-[#0B2447] border-white/20' : 'bg-surface-container-lowest border-outline-variant/20'
+  );
+
+  // ── Mobile (inside BottomSheet): inline accordion, no portal ──
+  if (dark) {
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={() => { setOpen(o => !o); setSearch(''); }}
+          className={triggerCls}
+        >
+          <span className={selected ? 'text-white' : 'text-white/50'}>
+            {selected ? selected.label : placeholder}
+          </span>
+          <span className={clsx('material-symbols-outlined text-sm transition-transform duration-200', open && 'rotate-180')}>
+            expand_more
+          </span>
+        </button>
+        {open && (
+          <div className={clsx(panelCls, 'mt-1 search-dropdown-enter')}>
+            <OptionList />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Desktop: portal-based dropdown ──
   return (
     <div className="relative">
       <button
+        ref={triggerRef}
         type="button"
-        onClick={() => { setOpen(!open); setSearch(''); }}
-        className={clsx(
-          'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl border text-xs font-bold',
-          'filter-input-focus transition-colors',
-          dark
-            ? 'bg-white/10 border-white/20 text-white hover:bg-white/15'
-            : 'bg-surface-container border-outline-variant/20 text-on-surface hover:border-primary/40'
-        )}
+        onClick={() => { setOpen(o => !o); setSearch(''); }}
+        className={triggerCls}
       >
-        <span className={selected ? '' : (dark ? 'text-white/50' : 'text-on-surface-variant/60')}>
+        <span className={selected ? '' : 'text-on-surface-variant/60'}>
           {selected ? selected.label : placeholder}
         </span>
         <span className={clsx('material-symbols-outlined text-sm transition-transform duration-200', open && 'rotate-180')}>
@@ -95,56 +188,9 @@ function SearchableSelect({
         </span>
       </button>
 
-      {open && (
-        <div className={clsx(
-          'absolute top-full mt-1 w-full z-50 rounded-xl border shadow-lg overflow-hidden',
-          'search-dropdown-enter',
-          dark ? 'bg-[#0B2447] border-white/20' : 'bg-surface-container-lowest border-outline-variant/20'
-        )}>
-          <div className="p-2 border-b border-outline-variant/10">
-            <input
-              autoFocus
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="بحث..."
-              className={clsx(
-                'w-full text-xs px-2 py-1.5 rounded-lg outline-none',
-                dark ? 'bg-white/10 text-white placeholder:text-white/40' : 'bg-surface-container text-on-surface placeholder:text-on-surface-variant/50'
-              )}
-            />
-          </div>
-          <div className="max-h-48 overflow-y-auto">
-            {value && (
-              <button
-                type="button"
-                onClick={() => { onChange(''); setOpen(false); }}
-                className={clsx('w-full text-right px-3 py-2 text-xs font-bold transition-colors',
-                  dark ? 'text-white/40 hover:bg-white/10' : 'text-on-surface-variant/60 hover:bg-surface-container')}
-              >
-                إلغاء التحديد
-              </button>
-            )}
-            {filtered.length === 0 && (
-              <p className={clsx('px-3 py-2 text-xs', dark ? 'text-white/40' : 'text-on-surface-variant/60')}>لا نتائج</p>
-            )}
-            {filtered.map(o => (
-              <button
-                key={o.value}
-                type="button"
-                onClick={() => { onChange(o.value); setOpen(false); setSearch(''); }}
-                className={clsx(
-                  'w-full text-right px-3 py-2 text-xs font-bold transition-colors',
-                  value === o.value
-                    ? dark ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'
-                    : dark ? 'text-white hover:bg-white/10' : 'text-on-surface hover:bg-surface-container'
-                )}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      <DropdownPortal open={open} pos={pos} onClose={handleClose} triggerRef={triggerRef} className={panelCls}>
+        <OptionList />
+      </DropdownPortal>
     </div>
   );
 }
