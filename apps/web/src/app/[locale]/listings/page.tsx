@@ -14,8 +14,9 @@ import { useListings, useSearch, type SearchHit } from '@/lib/api';
 import { haversineDistance } from '@/lib/geo-utils';
 import { getImageUrl } from '@/lib/image-utils';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
-import { fuelOptions as fuelOptionsFn, conditionOptions as conditionOptionsFn } from '@/lib/constants/mappings';
-import { useTranslations } from 'next-intl';
+import { fuelOptions as fuelOptionsFn, conditionOptions as conditionOptionsFn, transmissionOptions as transmissionOptionsFn } from '@/lib/constants/mappings';
+import { getGovernorates } from '@/lib/location-data';
+import { useTranslations, useLocale } from 'next-intl';
 
 const ListingsMap = dynamic(() => import('@/components/map/listings-map'), { ssr: false });
 
@@ -31,8 +32,21 @@ function ListingsContent() {
   const tp = useTranslations('pages');
   const tm = useTranslations('mappings');
   const tl = useTranslations('listings');
+  const locale = useLocale();
   const fuelOpts = fuelOptionsFn(tm);
   const condOpts = conditionOptionsFn(tm).filter(o => ['NEW', 'USED', 'LIKE_NEW'].includes(o.value));
+  const transmissionOpts = transmissionOptionsFn(tm);
+  const governorateOpts = getGovernorates('OM', locale);
+
+  const CAR_MAKES = [
+    'Toyota', 'Nissan', 'Honda', 'Hyundai', 'Kia', 'Mitsubishi', 'Suzuki', 'Mazda',
+    'Ford', 'Chevrolet', 'BMW', 'Mercedes-Benz', 'Audi', 'Volkswagen', 'Lexus',
+    'Infiniti', 'Land Rover', 'Jeep', 'Dodge', 'GMC', 'Isuzu', 'Subaru',
+  ];
+
+  const CURRENT_YEAR = new Date().getFullYear();
+  const YEAR_OPTIONS = Array.from({ length: CURRENT_YEAR - 1989 }, (_, i) => CURRENT_YEAR - i);
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -68,14 +82,30 @@ function ListingsContent() {
   const fuelType = searchParams.get('fuelType') || '';
   const condition = searchParams.get('condition') || '';
   const maxPrice = searchParams.get('maxPrice') || '';
+  const minPrice = searchParams.get('minPrice') || '';
   const sortBy = searchParams.get('sortBy') || '';
   const listingType = searchParams.get('listingType') || '';
   const bodyType = searchParams.get('bodyType') || '';
+  const make = searchParams.get('make') || '';
+  const model = searchParams.get('model') || '';
+  const yearMin = searchParams.get('yearMin') || '';
+  const yearMax = searchParams.get('yearMax') || '';
+  const mileageMax = searchParams.get('mileageMax') || '';
+  const transmission = searchParams.get('transmission') || '';
+  const governorate = searchParams.get('governorate') || '';
 
   const [searchInput, setSearchInput] = useState(search);
   const [selectedFuels, setSelectedFuels] = useState<string[]>(fuelType ? fuelType.split(',') : []);
   const [selectedCondition, setSelectedCondition] = useState(condition);
   const [priceMax, setPriceMax] = useState(maxPrice);
+  const [priceMin, setPriceMin] = useState(minPrice);
+  const [selectedMake, setSelectedMake] = useState(make);
+  const [modelInput, setModelInput] = useState(model);
+  const [selectedYearMin, setSelectedYearMin] = useState(yearMin);
+  const [selectedYearMax, setSelectedYearMax] = useState(yearMax);
+  const [mileageMaxInput, setMileageMaxInput] = useState(mileageMax);
+  const [selectedTransmission, setSelectedTransmission] = useState(transmission);
+  const [selectedGovernorate, setSelectedGovernorate] = useState(governorate);
 
   const params = useMemo(() => {
     const p: Record<string, string> = { page, limit: '12' };
@@ -85,13 +115,21 @@ function ListingsContent() {
     if (condition) p.condition = condition;
     if (bodyType) p.bodyType = bodyType;
     if (maxPrice) p.priceMax = maxPrice;
+    if (minPrice) p.priceMin = minPrice;
+    if (make) p.make = make;
+    if (model) p.model = model;
+    if (yearMin) p.yearMin = yearMin;
+    if (yearMax) p.yearMax = yearMax;
+    if (mileageMax) p.mileageMax = mileageMax;
+    if (transmission) p.transmission = transmission;
+    if (governorate) p.governorate = governorate;
     if (sortBy) {
       const [field, order] = sortBy.split('_');
       p.sortBy = field;
       if (order) p.sortOrder = order;
     }
     return p;
-  }, [page, search, fuelType, condition, bodyType, maxPrice, sortBy, listingType]);
+  }, [page, search, fuelType, condition, bodyType, maxPrice, minPrice, make, model, yearMin, yearMax, mileageMax, transmission, governorate, sortBy, listingType]);
 
   function setListingType(type: string) {
     const p = new URLSearchParams(searchParams.toString());
@@ -170,10 +208,20 @@ function ListingsContent() {
     if (selectedFuels.length) p.set('fuelType', selectedFuels.join(','));
     if (selectedCondition) p.set('condition', selectedCondition);
     if (priceMax) p.set('maxPrice', priceMax);
+    if (priceMin) p.set('minPrice', priceMin);
+    if (selectedMake) p.set('make', selectedMake);
+    if (modelInput) p.set('model', modelInput);
+    if (selectedYearMin) p.set('yearMin', selectedYearMin);
+    if (selectedYearMax) p.set('yearMax', selectedYearMax);
+    if (mileageMaxInput) p.set('mileageMax', mileageMaxInput);
+    if (selectedTransmission) p.set('transmission', selectedTransmission);
+    if (selectedGovernorate) p.set('governorate', selectedGovernorate);
     if (sortBy) p.set('sortBy', sortBy);
     p.set('page', '1');
     router.push(`/listings?${p.toString()}`);
   }
+
+  const activeFilterCount = [make, model, yearMin, yearMax, minPrice, maxPrice, mileageMax, transmission, governorate, fuelType, condition].filter(Boolean).length;
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -383,97 +431,199 @@ function ListingsContent() {
           >
             <span className="material-symbols-outlined text-base">tune</span>
             {tp('filterResults')}
+            {activeFilterCount > 0 && (
+              <span className="bg-primary text-on-primary text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">{activeFilterCount}</span>
+            )}
             <span className="material-symbols-outlined text-sm">expand_more</span>
           </button>
 
           {/* ── Mobile Bottom Sheet Filters ── */}
           <BottomSheet open={showMobileFilters} onClose={() => setShowMobileFilters(false)} title={tp('filterResults')}>
-            <div className="space-y-5">
+            <div className="space-y-5 pb-4">
+              {/* Make */}
               <div>
-                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsMaxPrice')}</label>
-                <input type="number" value={priceMax} onChange={(e) => setPriceMax(e.target.value)} placeholder={tp('listingsPriceExample')} className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm" />
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsMakeLabel')}</label>
+                <select value={selectedMake} onChange={e => setSelectedMake(e.target.value)} className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm">
+                  <option value="">{tp('listingsAllMakes')}</option>
+                  {CAR_MAKES.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
               </div>
+              {/* Model */}
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsModelLabel')}</label>
+                <input type="text" value={modelInput} onChange={e => setModelInput(e.target.value)} placeholder={tp('listingsModelPlaceholder')} className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm" />
+              </div>
+              {/* Year Range */}
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsYearRange')}</label>
+                <div className="flex gap-2">
+                  <select value={selectedYearMin} onChange={e => setSelectedYearMin(e.target.value)} className="flex-1 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm">
+                    <option value="">{tp('listingsYearFrom')}</option>
+                    {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                  <select value={selectedYearMax} onChange={e => setSelectedYearMax(e.target.value)} className="flex-1 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm">
+                    <option value="">{tp('listingsYearTo')}</option>
+                    {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                </div>
+              </div>
+              {/* Price Range */}
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsPriceRange')}</label>
+                <div className="flex gap-2">
+                  <input type="number" value={priceMin} onChange={e => setPriceMin(e.target.value)} placeholder={tp('listingsMinPrice')} className="flex-1 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm" />
+                  <input type="number" value={priceMax} onChange={e => setPriceMax(e.target.value)} placeholder={tp('listingsMaxPrice')} className="flex-1 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm" />
+                </div>
+              </div>
+              {/* Mileage */}
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsMileageMax')}</label>
+                <input type="number" value={mileageMaxInput} onChange={e => setMileageMaxInput(e.target.value)} placeholder={tp('listingsMileagePlaceholder')} className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm" />
+              </div>
+              {/* Condition */}
               <div>
                 <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsConditionLabel')}</label>
-                <div className="space-y-1.5">{condOpts.map((opt) => (<label key={opt.value} className="flex items-center gap-2.5 cursor-pointer group py-1.5"><input type="radio" name="condition-mobile" checked={selectedCondition === opt.value} onChange={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)} className="w-4 h-4 accent-primary" /><span className="text-sm font-medium text-on-surface">{opt.label}</span></label>))}</div>
+                <div className="flex flex-wrap gap-2">{condOpts.map(opt => <button key={opt.value} type="button" onClick={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)} className={`px-3.5 py-2 min-h-[44px] text-xs font-bold rounded-lg transition-all ${selectedCondition === opt.value ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant'}`}>{opt.label}</button>)}</div>
               </div>
+              {/* Fuel */}
               <div>
                 <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsFuelLabel')}</label>
-                <div className="flex flex-wrap gap-2">{fuelOpts.map((opt) => (<button key={opt.value} onClick={() => toggleFuel(opt.value)} className={`px-3.5 py-2 min-h-[44px] text-xs font-bold rounded-lg transition-all ${selectedFuels.includes(opt.value) ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant'}`}>{opt.label}</button>))}</div>
+                <div className="flex flex-wrap gap-2">{fuelOpts.map(opt => <button key={opt.value} type="button" onClick={() => toggleFuel(opt.value)} className={`px-3.5 py-2 min-h-[44px] text-xs font-bold rounded-lg transition-all ${selectedFuels.includes(opt.value) ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant'}`}>{opt.label}</button>)}</div>
+              </div>
+              {/* Transmission */}
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsTransmissionLabel')}</label>
+                <div className="flex gap-2">{transmissionOpts.map(opt => <button key={opt.value} type="button" onClick={() => setSelectedTransmission(selectedTransmission === opt.value ? '' : opt.value)} className={`flex-1 py-2.5 min-h-[44px] text-xs font-bold rounded-lg transition-all ${selectedTransmission === opt.value ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant'}`}>{opt.label}</button>)}</div>
+              </div>
+              {/* Governorate */}
+              <div>
+                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsGovernorateLabel')}</label>
+                <select value={selectedGovernorate} onChange={e => setSelectedGovernorate(e.target.value)} className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm">
+                  <option value="">{tp('listingsAllGovernorates')}</option>
+                  {governorateOpts.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                </select>
               </div>
               <button onClick={() => { applyFilters(); setShowMobileFilters(false); }} className="bg-primary text-on-primary w-full py-3 min-h-[44px] text-sm font-black rounded-xl hover:brightness-110 transition-colors">{tp('applyFilters')}</button>
             </div>
           </BottomSheet>
 
           {/* ── Desktop Sidebar Filters ── */}
-          <aside className="hidden lg:block lg:w-64 shrink-0">
-            <div className="sticky top-24 space-y-5 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl p-5 shadow-sm">
-              <div>
-                <h2 className="text-lg font-black mb-0.5">{tp('filterResults')}</h2>
-                <p className="text-on-surface-variant text-xs">{tp('listingsCustomize')}</p>
-              </div>
-
-              {/* Price Range */}
-              <div>
-                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsMaxPrice')}</label>
-                <input
-                  type="number"
-                  value={priceMax}
-                  onChange={(e) => setPriceMax(e.target.value)}
-                  placeholder={tp('listingsPriceExample')}
-                  className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm"
-                />
-              </div>
-
-              {/* Condition */}
-              <div>
-                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsConditionLabel')}</label>
-                <div className="space-y-1.5">
-                  {condOpts.map((opt) => (
-                    <label key={opt.value} className="flex items-center gap-2.5 cursor-pointer group py-1">
-                      <input
-                        type="radio"
-                        name="condition-sidebar"
-                        checked={selectedCondition === opt.value}
-                        onChange={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)}
-                        className="w-4 h-4 accent-primary"
-                      />
-                      <span className="text-sm font-medium text-on-surface group-hover:text-primary transition-colors">{opt.label}</span>
-                    </label>
-                  ))}
+          <aside className="hidden lg:block lg:w-72 shrink-0">
+            <div className="sticky top-24 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl shadow-sm overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/10">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-base">tune</span>
+                  <h2 className="text-sm font-black">{tp('filterResults')}</h2>
+                  {activeFilterCount > 0 && (
+                    <span className="bg-primary text-on-primary text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">{activeFilterCount}</span>
+                  )}
                 </div>
+                {activeFilterCount > 0 && (
+                  <button
+                    onClick={() => { setSelectedMake(''); setModelInput(''); setSelectedYearMin(''); setSelectedYearMax(''); setPriceMin(''); setPriceMax(''); setMileageMaxInput(''); setSelectedCondition(''); setSelectedFuels([]); setSelectedTransmission(''); setSelectedGovernorate(''); router.push('/listings'); }}
+                    className="text-[11px] font-bold text-on-surface-variant hover:text-primary transition-colors"
+                  >
+                    {tp('all')} ×
+                  </button>
+                )}
               </div>
 
-              {/* Fuel Type */}
-              <div>
-                <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsFuelLabel')}</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {fuelOpts.map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => toggleFuel(opt.value)}
-                      className={`px-3.5 py-2 min-h-[44px] text-xs font-bold rounded-lg transition-all ${
-                        selectedFuels.includes(opt.value)
-                          ? 'bg-primary text-on-primary'
-                          : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
+              <div className="p-5 space-y-5 max-h-[calc(100vh-140px)] overflow-y-auto">
+                {/* Make */}
+                <div>
+                  <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsMakeLabel')}</label>
+                  <select value={selectedMake} onChange={e => setSelectedMake(e.target.value)} className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm">
+                    <option value="">{tp('listingsAllMakes')}</option>
+                    {CAR_MAKES.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
                 </div>
+
+                {/* Model */}
+                <div>
+                  <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsModelLabel')}</label>
+                  <input type="text" value={modelInput} onChange={e => setModelInput(e.target.value)} placeholder={tp('listingsModelPlaceholder')} className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm" />
+                </div>
+
+                {/* Year Range */}
+                <div>
+                  <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsYearRange')}</label>
+                  <div className="flex gap-2">
+                    <select value={selectedYearMin} onChange={e => setSelectedYearMin(e.target.value)} className="flex-1 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-2 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm">
+                      <option value="">{tp('listingsYearFrom')}</option>
+                      {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                    <select value={selectedYearMax} onChange={e => setSelectedYearMax(e.target.value)} className="flex-1 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-2 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm">
+                      <option value="">{tp('listingsYearTo')}</option>
+                      {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Price Range */}
+                <div>
+                  <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsPriceRange')}</label>
+                  <div className="flex gap-2">
+                    <input type="number" value={priceMin} onChange={e => setPriceMin(e.target.value)} placeholder={tp('listingsYearFrom')} className="flex-1 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm" />
+                    <input type="number" value={priceMax} onChange={e => setPriceMax(e.target.value)} placeholder={tp('listingsYearTo')} className="flex-1 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm" />
+                  </div>
+                </div>
+
+                {/* Mileage */}
+                <div>
+                  <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsMileageMax')}</label>
+                  <input type="number" value={mileageMaxInput} onChange={e => setMileageMaxInput(e.target.value)} placeholder={tp('listingsMileagePlaceholder')} className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm" />
+                </div>
+
+                <div className="h-px bg-outline-variant/10" />
+
+                {/* Condition */}
+                <div>
+                  <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsConditionLabel')}</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {condOpts.map(opt => (
+                      <button key={opt.value} type="button" onClick={() => setSelectedCondition(selectedCondition === opt.value ? '' : opt.value)} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${selectedCondition === opt.value ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'}`}>{opt.label}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Transmission */}
+                <div>
+                  <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsTransmissionLabel')}</label>
+                  <div className="flex gap-2">
+                    {transmissionOpts.map(opt => (
+                      <button key={opt.value} type="button" onClick={() => setSelectedTransmission(selectedTransmission === opt.value ? '' : opt.value)} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${selectedTransmission === opt.value ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'}`}>{opt.label}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Fuel Type */}
+                <div>
+                  <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsFuelLabel')}</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {fuelOpts.map(opt => (
+                      <button key={opt.value} type="button" onClick={() => toggleFuel(opt.value)} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${selectedFuels.includes(opt.value) ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'}`}>{opt.label}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Governorate */}
+                <div>
+                  <label className="text-xs font-bold text-on-surface-variant block mb-2">{tp('listingsGovernorateLabel')}</label>
+                  <select value={selectedGovernorate} onChange={e => setSelectedGovernorate(e.target.value)} className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none text-sm">
+                    <option value="">{tp('listingsAllGovernorates')}</option>
+                    {governorateOpts.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
+                  </select>
+                </div>
+
+                <button onClick={applyFilters} className="bg-primary text-on-primary w-full py-2.5 text-sm font-black rounded-xl hover:brightness-110 transition-colors">
+                  {tp('applyFilters')}
+                </button>
+
+                <Link href="/add-listing" className="block bg-on-surface text-surface font-black text-center py-2.5 rounded-xl hover:bg-primary hover:text-on-primary transition-all text-sm">
+                  {tp('listingsAddYours')}
+                </Link>
               </div>
-
-              <button onClick={applyFilters} className="bg-primary text-on-primary w-full py-2.5 text-sm font-black rounded-xl hover:brightness-110 transition-colors">
-                {tp('applyFilters')}
-              </button>
-
-              <Link
-                href="/add-listing"
-                className="block bg-on-surface text-surface font-black text-center py-2.5 rounded-xl hover:bg-primary hover:text-on-primary transition-all text-sm"
-              >
-                {tp('listingsAddYours')}
-              </Link>
             </div>
           </aside>
 
