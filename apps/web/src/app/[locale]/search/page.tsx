@@ -5,9 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter, Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { BottomSheet } from '@/components/ui/bottom-sheet';
 import { useSearch, type SearchHit } from '@/lib/api/search';
-import { fuelOptions as fuelOptionsFn, conditionOptions as conditionOptionsFn } from '@/lib/constants/mappings';
+import { conditionOptions as conditionOptionsFn } from '@/lib/constants/mappings';
 import { getGovernorates } from '@/lib/location-data';
 import { getImageUrl } from '@/lib/image-utils';
 import { useTranslations } from 'next-intl';
@@ -55,7 +54,6 @@ export default function SearchPage() {
 
 function SearchContent() {
   const ts = useTranslations('search');
-  const tm = useTranslations('mappings');
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -77,11 +75,9 @@ function SearchContent() {
   const [selectedMake, setSelectedMake] = useState(makeParam);
   const [selectedCond, setSelectedCond] = useState(condParam);
   const [page, setPage]             = useState(1);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const fuelOpts  = fuelOptionsFn(tm);
-  const condOpts  = conditionOptionsFn(tm).filter(o => ['NEW', 'USED', 'LIKE_NEW'].includes(o.value));
+  const condOpts  = conditionOptionsFn(ts).filter(o => ['NEW', 'USED', 'LIKE_NEW'].includes(o.value));
   const govOpts   = getGovernorates('OM');
 
   useEffect(() => { setPage(1); }, [qParam, typeParam, govParam, sortParam, minPParam, maxPParam, makeParam, condParam]);
@@ -142,100 +138,6 @@ function SearchContent() {
 
   const isCarTab = activeTab === 'listings' || activeTab === '';
 
-  // ── Filter panel (reused in sidebar + bottom sheet) ──
-  function FiltersPanel({ onApply }: { onApply?: () => void }) {
-    return (
-      <div className="space-y-5">
-        {/* Sort */}
-        <div>
-          <label className="text-xs font-bold text-on-surface-variant block mb-2">الترتيب</label>
-          <div className="flex flex-wrap gap-1.5">
-            {[
-              { value: '', label: 'الأحدث' },
-              { value: 'price:asc', label: 'الأقل سعراً' },
-              { value: 'price:desc', label: 'الأعلى سعراً' },
-            ].map(opt => (
-              <button key={opt.value} type="button"
-                onClick={() => setSort(opt.value)}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${sort === opt.value ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'}`}>
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Governorate */}
-        <div>
-          <label className="text-xs font-bold text-on-surface-variant block mb-2">المحافظة</label>
-          <select value={governorate} onChange={e => setGovernorate(e.target.value)}
-            className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm">
-            <option value="">كل المحافظات</option>
-            {govOpts.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
-          </select>
-        </div>
-
-        {/* Price range */}
-        <div>
-          <label className="text-xs font-bold text-on-surface-variant block mb-2">نطاق السعر (ر.ع)</label>
-          <div className="grid grid-cols-2 gap-2">
-            <input type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)}
-              placeholder="من" className="w-full min-w-0 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm" />
-            <input type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)}
-              placeholder="إلى" className="w-full min-w-0 bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm" />
-          </div>
-        </div>
-
-        {/* Make — car tabs only */}
-        {isCarTab && (
-          <div>
-            <label className="text-xs font-bold text-on-surface-variant block mb-2">الماركة</label>
-            <select value={selectedMake} onChange={e => setSelectedMake(e.target.value)}
-              className="w-full bg-surface-container-low dark:bg-surface-container-high border border-outline-variant/15 rounded-xl py-2.5 px-3 focus:border-primary outline-none text-sm">
-              <option value="">كل الماركات</option>
-              {CAR_MAKES.map(m => <option key={m} value={m}>{m}</option>)}
-            </select>
-          </div>
-        )}
-
-        {/* Condition */}
-        <div>
-          <label className="text-xs font-bold text-on-surface-variant block mb-2">الحالة</label>
-          <div className="flex flex-wrap gap-1.5">
-            {condOpts.map(opt => (
-              <button key={opt.value} type="button"
-                onClick={() => setSelectedCond(selectedCond === opt.value ? '' : opt.value)}
-                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${selectedCond === opt.value ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'}`}>
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Fuel — car tabs only */}
-        {isCarTab && (
-          <div>
-            <label className="text-xs font-bold text-on-surface-variant block mb-2">نوع الوقود</label>
-            <div className="flex flex-wrap gap-1.5">
-              {fuelOpts.map(opt => (
-                <button key={opt.value} type="button"
-                  onClick={() => setSelectedCond(opt.value === selectedCond ? '' : opt.value)}
-                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${selectedCond === opt.value ? 'bg-primary text-on-primary' : 'bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high'}`}>
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <button
-          onClick={() => { applyFilters(); onApply?.(); }}
-          className="bg-primary text-on-primary w-full py-2.5 text-sm font-black rounded-xl hover:brightness-110 transition-colors">
-          تطبيق الفلاتر
-        </button>
-      </div>
-    );
-  }
-
   return (
     <>
       <Navbar />
@@ -290,7 +192,7 @@ function SearchContent() {
             )}
 
             {/* Tabs */}
-            <div className="flex overflow-x-auto no-scrollbar gap-2 mt-5 pb-1 justify-center">
+            <div className="flex overflow-x-auto no-scrollbar gap-2 mt-4 pb-1 justify-center">
               {TABS.map(tab => {
                 const cnt = tab.value ? (countByType[tab.value] ?? 0) : total;
                 return (
@@ -306,58 +208,56 @@ function SearchContent() {
                 );
               })}
             </div>
+
+            {/* ── Inline Filter Row ── */}
+            <div className="flex overflow-x-auto no-scrollbar gap-2 mt-3 pb-2 items-center">
+              <select value={sort} onChange={e => { setSort(e.target.value); applyFilters({ sort: e.target.value }); }}
+                className="shrink-0 bg-white/10 hover:bg-white/15 border border-white/20 text-white text-xs font-bold rounded-xl py-2 px-3 outline-none cursor-pointer">
+                <option value="" className="text-on-surface bg-surface">الأحدث</option>
+                <option value="price:asc" className="text-on-surface bg-surface">الأقل سعراً</option>
+                <option value="price:desc" className="text-on-surface bg-surface">الأعلى سعراً</option>
+              </select>
+
+              <select value={governorate} onChange={e => { setGovernorate(e.target.value); applyFilters({ governorate: e.target.value }); }}
+                className="shrink-0 bg-white/10 hover:bg-white/15 border border-white/20 text-white text-xs font-bold rounded-xl py-2 px-3 outline-none cursor-pointer">
+                <option value="" className="text-on-surface bg-surface">كل المحافظات</option>
+                {govOpts.map(g => <option key={g.value} value={g.value} className="text-on-surface bg-surface">{g.label}</option>)}
+              </select>
+
+              <input type="number" value={minPrice} onChange={e => setMinPrice(e.target.value)} onBlur={() => applyFilters()}
+                placeholder="سعر من" className="shrink-0 w-24 bg-white/10 border border-white/20 text-white text-xs font-bold rounded-xl py-2 px-3 outline-none placeholder:text-white/50" />
+              <input type="number" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} onBlur={() => applyFilters()}
+                placeholder="سعر إلى" className="shrink-0 w-24 bg-white/10 border border-white/20 text-white text-xs font-bold rounded-xl py-2 px-3 outline-none placeholder:text-white/50" />
+
+              {isCarTab && (
+                <select value={selectedMake} onChange={e => { setSelectedMake(e.target.value); applyFilters({ make: e.target.value }); }}
+                  className="shrink-0 bg-white/10 hover:bg-white/15 border border-white/20 text-white text-xs font-bold rounded-xl py-2 px-3 outline-none cursor-pointer">
+                  <option value="" className="text-on-surface bg-surface">كل الماركات</option>
+                  {CAR_MAKES.map(m => <option key={m} value={m} className="text-on-surface bg-surface">{m}</option>)}
+                </select>
+              )}
+
+              <select value={selectedCond} onChange={e => { setSelectedCond(e.target.value); applyFilters({ condition: e.target.value }); }}
+                className="shrink-0 bg-white/10 hover:bg-white/15 border border-white/20 text-white text-xs font-bold rounded-xl py-2 px-3 outline-none cursor-pointer">
+                <option value="" className="text-on-surface bg-surface">كل الحالات</option>
+                {condOpts.map(o => <option key={o.value} value={o.value} className="text-on-surface bg-surface">{o.label}</option>)}
+              </select>
+
+              {activeFilterCount > 0 && (
+                <button onClick={clearAllFilters}
+                  className="shrink-0 flex items-center gap-1 bg-white/20 hover:bg-white/30 text-white text-xs font-bold rounded-xl py-2 px-3 transition-all">
+                  <span className="material-symbols-outlined text-sm">filter_list_off</span>
+                  مسح ({activeFilterCount})
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── Main ── */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {qParam && (
-          <div className="flex items-center gap-3 mb-6 lg:hidden">
-            {/* Mobile filter button */}
-            <button onClick={() => setShowMobileFilters(true)}
-              className="flex items-center gap-2 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 rounded-xl px-4 py-2.5 text-sm font-black text-on-surface-variant">
-              <span className="material-symbols-outlined text-base">tune</span>
-              فلاتر
-              {activeFilterCount > 0 && (
-                <span className="bg-primary text-on-primary text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">{activeFilterCount}</span>
-              )}
-            </button>
-            {total > 0 && <span className="text-sm text-on-surface-variant ml-auto">{total} نتيجة</span>}
-          </div>
-        )}
-
-        {/* Mobile Bottom Sheet */}
-        <BottomSheet open={showMobileFilters} onClose={() => setShowMobileFilters(false)} title="فلاتر البحث">
-          <FiltersPanel onApply={() => setShowMobileFilters(false)} />
-        </BottomSheet>
-
+      <main className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex gap-8">
-          {/* Desktop Sidebar */}
-          {qParam && (
-            <aside className="hidden lg:block w-64 shrink-0">
-              <div className="sticky top-24 bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/10">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary text-base">tune</span>
-                    <h2 className="text-sm font-black">فلاتر البحث</h2>
-                    {activeFilterCount > 0 && (
-                      <span className="bg-primary text-on-primary text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">{activeFilterCount}</span>
-                    )}
-                  </div>
-                  {activeFilterCount > 0 && (
-                    <button onClick={clearAllFilters} className="text-[11px] font-bold text-on-surface-variant hover:text-primary transition-colors">
-                      مسح الكل ×
-                    </button>
-                  )}
-                </div>
-                <div className="p-5 max-h-[calc(100vh-160px)] overflow-y-auto">
-                  <FiltersPanel />
-                </div>
-              </div>
-            </aside>
-          )}
-
           {/* Results */}
           <div className="flex-1 min-w-0">
             {!qParam ? (
