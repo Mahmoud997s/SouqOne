@@ -20,10 +20,6 @@ const EQUIP_TYPE_ICONS: Record<string, string> = {
   WATER_TANKER: 'water_drop', LIGHT_EQUIPMENT: 'build', OTHER_EQUIPMENT: 'category',
 };
 
-const LISTING_TYPE_COLORS: Record<string, string> = {
-  EQUIPMENT_SALE: 'bg-blue-600', EQUIPMENT_RENT: 'bg-violet-600',
-};
-
 const REQUEST_STATUS_COLORS: Record<string, string> = {
   OPEN: 'bg-emerald-600', IN_PROGRESS: 'bg-amber-600', CLOSED: 'bg-gray-500', CANCELLED: 'bg-red-600',
 };
