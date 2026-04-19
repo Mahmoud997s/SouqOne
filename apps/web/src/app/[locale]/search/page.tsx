@@ -25,7 +25,6 @@ const ENTITY_CFG: Record<string, { labelKey: string; icon: string; color: string
   listings:    { labelKey: 'cars',      icon: 'directions_car',          color: 'bg-blue-500',    href: h => `/listings/${h.slug || h.id}` },
   parts:       { labelKey: 'parts',     icon: 'settings',                color: 'bg-orange-500',  href: h => `/parts/${h.slug || h.id}` },
   buses:       { labelKey: 'buses',     icon: 'directions_bus',          color: 'bg-green-500',   href: h => `/buses/${h.slug || h.id}` },
-  insurance:   { labelKey: 'insurance', icon: 'shield',                 color: 'bg-pink-500',    href: h => `/insurance/${h.slug || h.id}` },
   services:    { labelKey: 'services',  icon: 'home_repair_service',     color: 'bg-violet-500',  href: h => `/services/${h.slug || h.id}` },
   jobs:        { labelKey: 'jobs',      icon: 'work',                    color: 'bg-teal-500',    href: h => `/jobs/${h.slug || h.id}` },
   transport:   { labelKey: 'transport', icon: 'local_shipping',          color: 'bg-sky-500',     href: h => `/transport/${h.slug || h.id}` },
@@ -41,7 +40,6 @@ const TABS = [
   { value: 'jobs',       icon: 'work',                labelKey: 'jobs' },
   { value: 'transport',  icon: 'local_shipping',      labelKey: 'transport' },
   { value: 'trips',      icon: 'route',               labelKey: 'trips' },
-  { value: 'insurance',  icon: 'shield',              labelKey: 'insurance' },
 ];
 
 const CAR_MAKES = [
@@ -111,8 +109,6 @@ function SearchContent() {
   // trips-specific
   const tripTypeParam= searchParams.get('tripType') || '';
   const schedParam   = searchParams.get('scheduleType') || '';
-  // insurance-specific
-  const insTypeParam = searchParams.get('offerType') || '';
 
   // ── local UI state ──
   const [query,    setQuery]    = useState(qParam);
@@ -148,7 +144,6 @@ function SearchContent() {
   const [trType,   setTrType]   = useState(trTypeParam);
   const [tripType, setTripType] = useState(tripTypeParam);
   const [sched,    setSched]    = useState(schedParam);
-  const [insType,  setInsType]  = useState(insTypeParam);
 
   // ── option lists ──
   const govOpts  = getGovernorates('OM', locale);
@@ -161,7 +156,7 @@ function SearchContent() {
   useEffect(() => { setPage(1); }, [qParam, typeParam, govParam, sortParam, minPParam, maxPParam,
     makeParam, condParam, fuelParam, transParam, ltParam, modelParam, yearMinParam, yearMaxParam,
     busTypeParam, busLTParam, capMinParam, capMaxParam, partCatParam, svcTypeParam, provTypeParam,
-    homeParam, jobTypeParam, empTypeParam, licParam, trTypeParam, tripTypeParam, schedParam, insTypeParam]);
+    homeParam, jobTypeParam, empTypeParam, licParam, trTypeParam, tripTypeParam, schedParam]);
 
   // ── build URL from current state ──
   function buildURL(ov: Record<string, string> = {}) {
@@ -175,7 +170,7 @@ function SearchContent() {
       serviceType: svcType, providerType: provType,
       isHomeService: homeServ ? 'true' : '',
       jobType, employmentType: empType, licenseType: lic,
-      transportType: trType, tripType, scheduleType: sched, offerType: insType,
+      transportType: trType, tripType, scheduleType: sched,
       ...ov,
     };
     const p = new URLSearchParams();
@@ -198,13 +193,13 @@ function SearchContent() {
     govParam, sortParam, minPParam, maxPParam, makeParam, condParam, fuelParam, transParam, ltParam,
     modelParam, yearMinParam, yearMaxParam, busTypeParam, busLTParam, capMinParam, capMaxParam,
     partCatParam, svcTypeParam, provTypeParam, homeParam, jobTypeParam, empTypeParam, licParam,
-    trTypeParam, tripTypeParam, schedParam, insTypeParam,
+    trTypeParam, tripTypeParam, schedParam,
   ].filter(Boolean).length;
 
   function clearAllFilters() {
     [setGov,setSort,setMinP,setMaxP,setMake,setCond,setFuel,setTrans,setLt,setModel,
      setYearMin,setYearMax,setBusType,setBusLT,setCapMin,setCapMax,setPartCat,setSvcType,
-     setProvType,setJobType,setEmpType,setLic,setTrType,setTripType,setSched,setInsType]
+     setProvType,setJobType,setEmpType,setLic,setTrType,setTripType,setSched]
       .forEach(fn => fn(''));
     setHomeServ(false);
     const p = new URLSearchParams();
@@ -222,7 +217,6 @@ function SearchContent() {
   const isJobs     = activeTab === 'jobs';
   const isTransport= activeTab === 'transport';
   const isTrips    = activeTab === 'trips';
-  const isInsurance= activeTab === 'insurance';
 
   const listingsParams = useMemo(() => {
     const p: Record<string,string> = { page: String(page), limit: '20' };
@@ -332,14 +326,11 @@ function SearchContent() {
     if (isJobs)      return wrap(jobsResult,     'jobs');
     if (isTransport) return wrap(transportResult,'transport');
     if (isTrips)     return wrap(tripsResult,    'trips');
-    if (isInsurance) {
-      return { items: [], total: 0, totalPages: 1, isLoading: false, isError: false };
-    }
     // isAll — use Meilisearch
     const sr = searchResult;
     return { items: sr.data?.items ?? [], total: sr.data?.meta?.total ?? 0, totalPages: sr.data?.meta?.totalPages ?? 1, isLoading: sr.isLoading, isError: sr.isError };
-  }, [isAll, isListings, isParts, isBuses, isServices, isJobs, isTransport, isTrips, isInsurance,
-      searchResult, listingsResult, partsResult, busesResult, servicesResult, jobsResult, transportResult, tripsResult]);
+  }, [isAll, isListings, isParts, isBuses, isServices, isJobs, isTransport, isTrips,
+      searchResult, listingsResult, partsResult, busesResult, servicesResult, jobsResult, transportResult, tripsResult]); // eslint-disable-line
 
   const { items, total, totalPages, isLoading, isError } = activeResult;
 
@@ -347,15 +338,13 @@ function SearchContent() {
   function InlineFilters() {
     return (
       <div className="flex overflow-x-auto no-scrollbar gap-2 mt-3 pb-2 items-center">
-        {/* Sort — all tabs except insurance/transport/trips */}
-        {!isInsurance && (
-          <select value={sort} onChange={e => { setSort(e.target.value); applyNow('sort', e.target.value); }} className={SEL}>
-            <option value="" className={SEL_OPT}>الأحدث</option>
-            <option value="price:asc"  className={SEL_OPT}>الأقل سعراً</option>
-            <option value="price:desc" className={SEL_OPT}>الأعلى سعراً</option>
-            {isJobs && <option value="salary:desc" className={SEL_OPT}>أعلى راتب</option>}
-          </select>
-        )}
+        {/* Sort */}
+        <select value={sort} onChange={e => { setSort(e.target.value); applyNow('sort', e.target.value); }} className={SEL}>
+          <option value="" className={SEL_OPT}>الأحدث</option>
+          <option value="price:asc"  className={SEL_OPT}>الأقل سعراً</option>
+          <option value="price:desc" className={SEL_OPT}>الأعلى سعراً</option>
+          {isJobs && <option value="salary:desc" className={SEL_OPT}>أعلى راتب</option>}
+        </select>
 
         {/* Governorate — all tabs */}
         <select value={gov} onChange={e => { setGov(e.target.value); applyNow('governorate', e.target.value); }} className={SEL}>
@@ -569,16 +558,6 @@ function SearchContent() {
             <option value="SCHEDULE_WEEKLY"  className={SEL_OPT}>أسبوعي</option>
             <option value="SCHEDULE_MONTHLY" className={SEL_OPT}>شهري</option>
             <option value="ON_DEMAND"        className={SEL_OPT}>عند الطلب</option>
-          </select>
-        )}
-
-        {/* Insurance type — insurance only */}
-        {isInsurance && (
-          <select value={insType} onChange={e => { setInsType(e.target.value); applyNow('offerType', e.target.value); }} className={SEL}>
-            <option value="" className={SEL_OPT}>كل التأمينات</option>
-            <option value="CAR_COMPREHENSIVE" className={SEL_OPT}>تأمين شامل</option>
-            <option value="CAR_THIRD_PARTY"   className={SEL_OPT}>طرف ثالث</option>
-            <option value="MARINE_INSURANCE"  className={SEL_OPT}>بحري</option>
           </select>
         )}
 
