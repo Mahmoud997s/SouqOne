@@ -207,8 +207,22 @@ model Listing {
 model Booking {
   id                 String             @id @default(cuid())
 
-  listingId          String
-  listing            Listing            @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  entityType         String             @default("CAR") // CAR, BUS, EQUIPMENT, TRANSPORT, TRIP
+
+  listingId          String?
+  listing            Listing?           @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  busListingId       String?
+  busListing         BusListing?        @relation(fields: [busListingId], references: [id], onDelete: Cascade)
+
+  equipmentListingId String?
+  equipmentListing   EquipmentListing?  @relation(fields: [equipmentListingId], references: [id], onDelete: Cascade)
+
+  transportServiceId String?
+  transportService   TransportService?  @relation(fields: [transportServiceId], references: [id], onDelete: Cascade)
+
+  tripServiceId      String?
+  tripService        TripService?       @relation(fields: [tripServiceId], references: [id], onDelete: Cascade)
 
   renterId           String
   renter             User               @relation("RenterBookings", fields: [renterId], references: [id], onDelete: Cascade)
@@ -241,6 +255,11 @@ model Booking {
   updatedAt          DateTime           @updatedAt
 
   @@index([listingId])
+  @@index([busListingId])
+  @@index([equipmentListingId])
+  @@index([transportServiceId])
+  @@index([tripServiceId])
+  @@index([entityType])
   @@index([renterId])
   @@index([ownerId])
   @@index([status])
@@ -1097,6 +1116,7 @@ model TransportService {
   userId          String
   user            User           @relation("UserTransportServices", fields: [userId], references: [id], onDelete: Cascade)
   images          TransportImage[]
+  bookings        Booking[]
 
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -1159,6 +1179,7 @@ model TripService {
   userId          String
   user            User          @relation("UserTripServices", fields: [userId], references: [id], onDelete: Cascade)
   images          TripImage[]
+  bookings        Booking[]
 
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -1329,6 +1350,7 @@ model BusListing {
   offers            BusListingOffer[] @relation("BusRequestOffers")
   statusLogs        BusListingStatusLog[] @relation("BusStatusLogs")
   priceHistory      BusListingPriceHistory[] @relation("BusPriceHistory")
+  bookings          Booking[]
 
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
@@ -1502,6 +1524,7 @@ model EquipmentListing {
   userId              String
   user                User                 @relation("UserEquipmentListings", fields: [userId], references: [id], onDelete: Cascade)
   images              EquipmentListingImage[]
+  bookings            Booking[]
 
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt

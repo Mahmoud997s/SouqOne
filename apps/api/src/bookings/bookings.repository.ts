@@ -12,11 +12,30 @@ const USER_SELECT = {
   phone: true,
 };
 
-const FULL_INCLUDE = {
+const ENTITY_INCLUDES = {
   listing: { include: { images: true } },
+  busListing: { include: { images: true } },
+  equipmentListing: { include: { images: true } },
+  transportService: { include: { images: true } },
+  tripService: { include: { images: true } },
+};
+
+const FULL_INCLUDE = {
+  ...ENTITY_INCLUDES,
   renter: { select: USER_SELECT },
   owner: { select: USER_SELECT },
 } as const;
+
+// Map entityType → the foreign key field on Booking
+function entityFkField(entityType: string): string {
+  switch (entityType) {
+    case 'BUS': return 'busListingId';
+    case 'EQUIPMENT': return 'equipmentListingId';
+    case 'TRANSPORT': return 'transportServiceId';
+    case 'TRIP': return 'tripServiceId';
+    default: return 'listingId';
+  }
+}
 
 @Injectable()
 export class BookingsRepository {
@@ -34,16 +53,26 @@ export class BookingsRepository {
       where: { id },
       include: {
         listing: { include: { images: true, seller: { select: USER_SELECT } } },
+        busListing: { include: { images: true, user: { select: USER_SELECT } } },
+        equipmentListing: { include: { images: true, user: { select: USER_SELECT } } },
+        transportService: { include: { images: true, user: { select: USER_SELECT } } },
+        tripService: { include: { images: true, user: { select: USER_SELECT } } },
         renter: { select: USER_SELECT },
         owner: { select: USER_SELECT },
       },
     });
   }
 
-  async findByIdWithListing(id: string) {
+  async findByIdWithEntity(id: string) {
     return this.prisma.booking.findUnique({
       where: { id },
-      include: { listing: true },
+      include: {
+        listing: true,
+        busListing: true,
+        equipmentListing: true,
+        transportService: true,
+        tripService: true,
+      },
     });
   }
 
@@ -57,7 +86,7 @@ export class BookingsRepository {
         where, skip, take,
         orderBy: { createdAt: 'desc' },
         include: {
-          listing: { include: { images: true } },
+          ...ENTITY_INCLUDES,
           owner: { select: USER_SELECT },
         },
       }),
@@ -75,7 +104,7 @@ export class BookingsRepository {
         where, skip, take,
         orderBy: { createdAt: 'desc' },
         include: {
-          listing: { include: { images: true } },
+          ...ENTITY_INCLUDES,
           renter: { select: USER_SELECT },
         },
       }),
@@ -91,10 +120,12 @@ export class BookingsRepository {
     });
   }
 
-  async findConflicting(listingId: string, startDate: Date, endDate: Date) {
+  async findConflicting(entityType: string, entityId: string, startDate: Date, endDate: Date) {
+    const fk = entityFkField(entityType);
     return this.prisma.booking.findFirst({
       where: {
-        listingId,
+        entityType,
+        [fk]: entityId,
         status: { in: ['PENDING', 'CONFIRMED', 'ACTIVE'] },
         OR: [
           { startDate: { lte: endDate }, endDate: { gte: startDate } },
@@ -103,10 +134,12 @@ export class BookingsRepository {
     });
   }
 
-  async findActiveBookings(listingId: string) {
+  async findActiveBookings(entityType: string, entityId: string) {
+    const fk = entityFkField(entityType);
     return this.prisma.booking.findMany({
       where: {
-        listingId,
+        entityType,
+        [fk]: entityId,
         status: { in: ['PENDING', 'CONFIRMED', 'ACTIVE'] },
       },
       select: { startDate: true, endDate: true, status: true },

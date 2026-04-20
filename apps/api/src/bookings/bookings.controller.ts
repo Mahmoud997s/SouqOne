@@ -42,18 +42,22 @@ export class BookingsController {
     return this.bookingsService.findReceivedBookings(user.sub, query);
   }
 
-  @Get('availability/:listingId')
-  getAvailability(@Param('listingId') listingId: string) {
-    return this.bookingsService.getAvailability(listingId);
+  @Get('availability/:entityType/:entityId')
+  getAvailability(
+    @Param('entityType') entityType: string,
+    @Param('entityId') entityId: string,
+  ) {
+    return this.bookingsService.getAvailability(entityType, entityId);
   }
 
   @Get('calculate-price')
   calculatePrice(
-    @Query('listingId') listingId: string,
+    @Query('entityType') entityType: string,
+    @Query('entityId') entityId: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    return this.bookingsService.calculatePriceForListing(listingId, startDate, endDate);
+    return this.bookingsService.calculatePriceForEntity(entityType, entityId, startDate, endDate);
   }
 
   @UseGuards(JwtAuthGuard)

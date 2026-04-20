@@ -1,8 +1,11 @@
-import { IsString, IsDateString, IsOptional, IsBoolean } from 'class-validator';
+import { IsString, IsDateString, IsOptional, IsBoolean, IsIn } from 'class-validator';
 
 export class CreateBookingDto {
+  @IsIn(['CAR', 'BUS', 'EQUIPMENT', 'TRANSPORT', 'TRIP'])
+  entityType!: string;
+
   @IsString()
-  listingId!: string;
+  entityId!: string;
 
   @IsDateString()
   startDate!: string;
@@ -29,4 +32,8 @@ export class CreateBookingDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsString()
+  quantity?: string;
 }

@@ -12,6 +12,15 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { QueryBookingsDto } from './dto/query-bookings.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
 
+// Entity type labels for notifications
+const ENTITY_LABELS: Record<string, string> = {
+  CAR: 'سيارة',
+  BUS: 'باص',
+  EQUIPMENT: 'معدة',
+  TRANSPORT: 'خدمة نقل',
+  TRIP: 'رحلة',
+};
+
 @Injectable()
 export class BookingsService {
   constructor(
@@ -62,17 +71,122 @@ export class BookingsService {
     return { totalPrice: Math.round(totalPrice * 1000) / 1000, breakdown };
   }
 
+  // ── Resolve entity by type ──
+  private async resolveEntity(entityType: string, entityId: string) {
+    switch (entityType) {
+      case 'CAR': {
+        const listing = await this.prisma.listing.findUnique({
+          where: { id: entityId },
+          include: { seller: { select: { id: true, displayName: true, username: true } } },
+        });
+        if (!listing) throw new NotFoundException('الإعلان غير موجود');
+        if (listing.listingType !== 'RENTAL') throw new BadRequestException('هذا الإعلان ليس للإيجار');
+        if (listing.status !== 'ACTIVE') throw new BadRequestException('الإعلان غير متاح حالياً');
+        return {
+          title: listing.title,
+          ownerId: listing.sellerId,
+          dailyPrice: listing.dailyPrice ? Number(listing.dailyPrice) : null,
+          weeklyPrice: listing.weeklyPrice ? Number(listing.weeklyPrice) : null,
+          monthlyPrice: listing.monthlyPrice ? Number(listing.monthlyPrice) : null,
+          minRentalDays: listing.minRentalDays,
+          depositAmount: listing.depositAmount,
+          currency: listing.currency,
+          cancellationPolicy: listing.cancellationPolicy ?? 'FREE',
+          connectField: { listing: { connect: { id: entityId } } },
+        };
+      }
+      case 'BUS': {
+        const bus = await this.prisma.busListing.findUnique({
+          where: { id: entityId },
+          include: { user: { select: { id: true, displayName: true, username: true } } },
+        });
+        if (!bus) throw new NotFoundException('إعلان الباص غير موجود');
+        if (bus.busListingType !== 'BUS_RENT') throw new BadRequestException('هذا الإعلان ليس للإيجار');
+        if (bus.status !== 'ACTIVE') throw new BadRequestException('الإعلان غير متاح حالياً');
+        return {
+          title: bus.title,
+          ownerId: bus.userId,
+          dailyPrice: bus.dailyPrice ? Number(bus.dailyPrice) : null,
+          weeklyPrice: null,
+          monthlyPrice: bus.monthlyPrice ? Number(bus.monthlyPrice) : null,
+          minRentalDays: bus.minRentalDays,
+          depositAmount: null,
+          currency: bus.currency,
+          cancellationPolicy: 'FREE' as const,
+          connectField: { busListing: { connect: { id: entityId } } },
+        };
+      }
+      case 'EQUIPMENT': {
+        const eq = await this.prisma.equipmentListing.findUnique({
+          where: { id: entityId },
+          include: { user: { select: { id: true, displayName: true, username: true } } },
+        });
+        if (!eq) throw new NotFoundException('إعلان المعدة غير موجود');
+        if (eq.listingType !== 'EQUIPMENT_RENT') throw new BadRequestException('هذا الإعلان ليس للإيجار');
+        if (eq.status !== 'ACTIVE') throw new BadRequestException('الإعلان غير متاح حالياً');
+        return {
+          title: eq.title,
+          ownerId: eq.userId,
+          dailyPrice: eq.dailyPrice ? Number(eq.dailyPrice) : null,
+          weeklyPrice: eq.weeklyPrice ? Number(eq.weeklyPrice) : null,
+          monthlyPrice: eq.monthlyPrice ? Number(eq.monthlyPrice) : null,
+          minRentalDays: eq.minRentalDays,
+          depositAmount: null,
+          currency: eq.currency,
+          cancellationPolicy: 'FREE' as const,
+          connectField: { equipmentListing: { connect: { id: entityId } } },
+        };
+      }
+      case 'TRANSPORT': {
+        const ts = await this.prisma.transportService.findUnique({
+          where: { id: entityId },
+          include: { user: { select: { id: true, displayName: true, username: true } } },
+        });
+        if (!ts) throw new NotFoundException('خدمة النقل غير موجودة');
+        if (ts.status !== 'ACTIVE') throw new BadRequestException('الخدمة غير متاحة حالياً');
+        return {
+          title: ts.title,
+          ownerId: ts.userId,
+          dailyPrice: ts.basePrice ? Number(ts.basePrice) : null,
+          weeklyPrice: null,
+          monthlyPrice: null,
+          minRentalDays: null,
+          depositAmount: null,
+          currency: ts.currency,
+          cancellationPolicy: 'FREE' as const,
+          connectField: { transportService: { connect: { id: entityId } } },
+        };
+      }
+      case 'TRIP': {
+        const trip = await this.prisma.tripService.findUnique({
+          where: { id: entityId },
+          include: { user: { select: { id: true, displayName: true, username: true } } },
+        });
+        if (!trip) throw new NotFoundException('الرحلة غير موجودة');
+        if (trip.status !== 'ACTIVE') throw new BadRequestException('الرحلة غير متاحة حالياً');
+        return {
+          title: trip.title,
+          ownerId: trip.userId,
+          dailyPrice: trip.pricePerTrip ? Number(trip.pricePerTrip) : null,
+          weeklyPrice: null,
+          monthlyPrice: trip.priceMonthly ? Number(trip.priceMonthly) : null,
+          minRentalDays: null,
+          depositAmount: null,
+          currency: trip.currency,
+          cancellationPolicy: 'FREE' as const,
+          connectField: { tripService: { connect: { id: entityId } } },
+        };
+      }
+      default:
+        throw new BadRequestException('نوع إعلان غير مدعوم');
+    }
+  }
+
   // ── إنشاء حجز ──
   async create(dto: CreateBookingDto, renterId: string) {
-    const listing = await this.prisma.listing.findUnique({
-      where: { id: dto.listingId },
-      include: { seller: { select: { id: true, displayName: true, username: true } } },
-    });
+    const entity = await this.resolveEntity(dto.entityType, dto.entityId);
 
-    if (!listing) throw new NotFoundException('الإعلان غير موجود');
-    if (listing.listingType !== 'RENTAL') throw new BadRequestException('هذا الإعلان ليس للإيجار');
-    if (listing.status !== 'ACTIVE') throw new BadRequestException('الإعلان غير متاح حالياً');
-    if (listing.sellerId === renterId) throw new BadRequestException('لا يمكنك حجز سيارتك');
+    if (entity.ownerId === renterId) throw new BadRequestException('لا يمكنك حجز إعلانك');
 
     const startDate = new Date(dto.startDate);
     const endDate = new Date(dto.endDate);
@@ -84,48 +198,49 @@ export class BookingsService {
 
     const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (listing.minRentalDays && totalDays < listing.minRentalDays) {
-      throw new BadRequestException(`أقل مدة إيجار ${listing.minRentalDays} يوم`);
+    if (entity.minRentalDays && totalDays < entity.minRentalDays) {
+      throw new BadRequestException(`أقل مدة إيجار ${entity.minRentalDays} يوم`);
     }
 
     // التحقق من التضارب
-    const conflict = await this.repo.findConflicting(dto.listingId, startDate, endDate);
-
-    if (conflict) throw new BadRequestException('السيارة محجوزة في هذه الفترة');
+    const conflict = await this.repo.findConflicting(dto.entityType, dto.entityId, startDate, endDate);
+    if (conflict) throw new BadRequestException('محجوز في هذه الفترة');
 
     const { totalPrice } = this.calculatePrice(
       totalDays,
-      listing.dailyPrice ? Number(listing.dailyPrice) : null,
-      listing.weeklyPrice ? Number(listing.weeklyPrice) : null,
-      listing.monthlyPrice ? Number(listing.monthlyPrice) : null,
+      entity.dailyPrice,
+      entity.weeklyPrice,
+      entity.monthlyPrice,
     );
 
     const booking = await this.repo.create({
-        listing: { connect: { id: dto.listingId } },
-        renter: { connect: { id: renterId } },
-        owner: { connect: { id: listing.sellerId } },
-        startDate,
-        endDate,
-        totalDays,
-        totalPrice: new Prisma.Decimal(totalPrice),
-        depositAmount: listing.depositAmount,
-        currency: listing.currency,
-        status: 'PENDING',
-        cancellationPolicy: listing.cancellationPolicy ?? 'FREE',
-        driverRequested: dto.driverRequested ?? false,
-        insuranceSelected: dto.insuranceSelected ?? false,
-        pickupLocation: dto.pickupLocation,
-        dropoffLocation: dto.dropoffLocation,
-        notes: dto.notes,
+      entityType: dto.entityType,
+      ...entity.connectField,
+      renter: { connect: { id: renterId } },
+      owner: { connect: { id: entity.ownerId } },
+      startDate,
+      endDate,
+      totalDays,
+      totalPrice: new Prisma.Decimal(totalPrice),
+      depositAmount: entity.depositAmount,
+      currency: entity.currency,
+      status: 'PENDING',
+      cancellationPolicy: entity.cancellationPolicy,
+      driverRequested: dto.driverRequested ?? false,
+      insuranceSelected: dto.insuranceSelected ?? false,
+      pickupLocation: dto.pickupLocation,
+      dropoffLocation: dto.dropoffLocation,
+      notes: dto.notes,
     });
 
     // إشعار للمؤجر
+    const label = ENTITY_LABELS[dto.entityType] || 'إعلان';
     await this.notifications.create({
       type: 'BOOKING_REQUEST',
       title: 'طلب حجز جديد',
-      body: `لديك طلب حجز جديد لسيارة ${listing.title}`,
-      userId: listing.sellerId,
-      data: { bookingId: booking.id, listingId: listing.id },
+      body: `لديك طلب حجز جديد لـ${label} ${entity.title}`,
+      userId: entity.ownerId,
+      data: { bookingId: booking.id, entityType: dto.entityType, entityId: dto.entityId },
     });
 
     return booking;
@@ -171,9 +286,19 @@ export class BookingsService {
     return booking;
   }
 
+  // ── Helper: get entity title from booking ──
+  private getEntityTitle(booking: any): string {
+    if (booking.listing) return booking.listing.title;
+    if (booking.busListing) return booking.busListing.title;
+    if (booking.equipmentListing) return booking.equipmentListing.title;
+    if (booking.transportService) return booking.transportService.title;
+    if (booking.tripService) return booking.tripService.title;
+    return 'إعلان';
+  }
+
   // ── تغيير حالة الحجز ──
   async updateStatus(id: string, dto: UpdateBookingStatusDto, userId: string) {
-    const booking = await this.repo.findByIdWithListing(id);
+    const booking = await this.repo.findByIdWithEntity(id);
 
     if (!booking) throw new NotFoundException('الحجز غير موجود');
 
@@ -208,11 +333,13 @@ export class BookingsService {
     const updated = await this.repo.update(id, updateData);
 
     // إشعارات
+    const entityTitle = this.getEntityTitle(booking);
+    const label = ENTITY_LABELS[booking.entityType] || 'إعلان';
     const notifMap: Record<string, { type: string; title: string; body: string; to: string }> = {
-      CONFIRMED: { type: 'BOOKING_CONFIRMED', title: 'تم تأكيد حجزك', body: `تم تأكيد حجزك لسيارة ${booking.listing.title}`, to: booking.renterId },
-      REJECTED: { type: 'BOOKING_REJECTED', title: 'تم رفض الحجز', body: `تم رفض حجزك لسيارة ${booking.listing.title}`, to: booking.renterId },
-      CANCELLED: { type: 'BOOKING_CANCELLED', title: 'تم إلغاء الحجز', body: `تم إلغاء الحجز لسيارة ${booking.listing.title}`, to: isRenter ? booking.ownerId : booking.renterId },
-      COMPLETED: { type: 'BOOKING_COMPLETED', title: 'تم إكمال الحجز', body: `تم إكمال حجز سيارة ${booking.listing.title}`, to: booking.renterId },
+      CONFIRMED: { type: 'BOOKING_CONFIRMED', title: 'تم تأكيد حجزك', body: `تم تأكيد حجزك لـ${label} ${entityTitle}`, to: booking.renterId },
+      REJECTED: { type: 'BOOKING_REJECTED', title: 'تم رفض الحجز', body: `تم رفض حجزك لـ${label} ${entityTitle}`, to: booking.renterId },
+      CANCELLED: { type: 'BOOKING_CANCELLED', title: 'تم إلغاء الحجز', body: `تم إلغاء الحجز لـ${label} ${entityTitle}`, to: isRenter ? booking.ownerId : booking.renterId },
+      COMPLETED: { type: 'BOOKING_COMPLETED', title: 'تم إكمال الحجز', body: `تم إكمال حجز ${label} ${entityTitle}`, to: booking.renterId },
     };
 
     const notif = notifMap[status];
@@ -222,7 +349,7 @@ export class BookingsService {
         title: notif.title,
         body: notif.body,
         userId: notif.to,
-        data: { bookingId: id, listingId: booking.listingId },
+        data: { bookingId: id, entityType: booking.entityType },
       });
     }
 
@@ -230,15 +357,13 @@ export class BookingsService {
   }
 
   // ── التواريخ المحجوزة ──
-  async getAvailability(listingId: string) {
-    return this.repo.findActiveBookings(listingId);
+  async getAvailability(entityType: string, entityId: string) {
+    return this.repo.findActiveBookings(entityType, entityId);
   }
 
   // ── حاسبة سعر API ──
-  async calculatePriceForListing(listingId: string, startDate: string, endDate: string) {
-    const listing = await this.prisma.listing.findUnique({ where: { id: listingId } });
-    if (!listing) throw new NotFoundException('الإعلان غير موجود');
-    if (listing.listingType !== 'RENTAL') throw new BadRequestException('ليس إعلان إيجار');
+  async calculatePriceForEntity(entityType: string, entityId: string, startDate: string, endDate: string) {
+    const entity = await this.resolveEntity(entityType, entityId);
 
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -248,16 +373,16 @@ export class BookingsService {
 
     const result = this.calculatePrice(
       totalDays,
-      listing.dailyPrice ? Number(listing.dailyPrice) : null,
-      listing.weeklyPrice ? Number(listing.weeklyPrice) : null,
-      listing.monthlyPrice ? Number(listing.monthlyPrice) : null,
+      entity.dailyPrice,
+      entity.weeklyPrice,
+      entity.monthlyPrice,
     );
 
     return {
       totalDays,
       ...result,
-      depositAmount: listing.depositAmount ? Number(listing.depositAmount) : null,
-      currency: listing.currency,
+      depositAmount: entity.depositAmount ? Number(entity.depositAmount) : null,
+      currency: entity.currency,
     };
   }
 
