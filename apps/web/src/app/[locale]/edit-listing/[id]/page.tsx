@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
@@ -29,6 +29,7 @@ export default function EditListingPage() {
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const initialImageIdsRef = useRef<string[]>([]);
+  const initializedRef = useRef(false);
 
   async function handleSubmit(data: Record<string, unknown>, images: UploadedImage[]) {
     setErrorMessages([]);
@@ -39,7 +40,11 @@ export default function EditListingPage() {
       const currentIds = new Set(images.filter(img => img.id).map(img => img.id));
       const removedIds = initialImageIdsRef.current.filter(imgId => !currentIds.has(imgId));
       for (const imgId of removedIds) {
-        await removeImage.mutateAsync(imgId);
+        try {
+          await removeImage.mutateAsync(imgId);
+        } catch {
+          // ignore — image may already be deleted
+        }
       }
 
       // Upload new images (those with a File object)
@@ -54,15 +59,22 @@ export default function EditListingPage() {
             formData.append('file', img.file);
             formData.append('isPrimary', String(img.isPrimary));
 
-            await fetch(`${API_BASE}/api/v1/uploads/listings/${id}/images`, {
+            const res = await fetch(`${API_BASE}/api/v1/uploads/listings/${id}/images`, {
               method: 'POST',
               headers: token ? { Authorization: `Bearer ${token}` } : {},
               body: formData,
             });
+            if (!res.ok) {
+              const err = await res.json().catch(() => null);
+              throw new Error(err?.message || tp('errUploadFailed'));
+            }
           }
         }
         setUploading(false);
       }
+
+      // Update ref to reflect current saved state (prevents stale IDs on re-submit)
+      initialImageIdsRef.current = images.filter(img => img.id).map(img => img.id as string);
 
       addToast('success', tp('editListingSaved'));
       router.push(`/cars/${id}`);
@@ -72,6 +84,14 @@ export default function EditListingPage() {
       setErrorMessages(msg.split('\n').filter(Boolean));
     }
   }
+
+  // Populate initial image IDs once after car data loads
+  useEffect(() => {
+    if (!initializedRef.current && car?.images && car.images.length > 0) {
+      initialImageIdsRef.current = car.images.map(img => img.id).filter(Boolean);
+      initializedRef.current = true;
+    }
+  }, [car]);
 
   if (isLoading) return <><Navbar /><DetailSkeleton /></>;
   if (isError || !car) return <><Navbar /><div className="pt-28 px-8"><ErrorState onRetry={() => refetch()} /></div></>;
@@ -89,15 +109,30 @@ export default function EditListingPage() {
     condition: car.condition || '',
     bodyType: car.bodyType || '',
     exteriorColor: car.exteriorColor || '',
+    interiorColor: car.interior || '',
     engineSize: car.engineSize || '',
     horsepower: car.horsepower ? String(car.horsepower) : '',
     doors: car.doors ? String(car.doors) : '',
     seats: car.seats ? String(car.seats) : '',
     driveType: car.driveType || '',
+    features: car.features ?? [],
     description: car.description || '',
     governorate: car.governorate || '',
     city: car.city || '',
+    latitude: car.latitude ?? null,
+    longitude: car.longitude ?? null,
     isPriceNegotiable: car.isPriceNegotiable,
+    listingType: (car.listingType as 'SALE' | 'RENTAL' | 'WANTED') ?? 'SALE',
+    dailyPrice: car.dailyPrice ? String(car.dailyPrice) : '',
+    weeklyPrice: car.weeklyPrice ? String(car.weeklyPrice) : '',
+    monthlyPrice: car.monthlyPrice ? String(car.monthlyPrice) : '',
+    minRentalDays: car.minRentalDays ? String(car.minRentalDays) : '1',
+    depositAmount: car.depositAmount ? String(car.depositAmount) : '',
+    kmLimitPerDay: car.kmLimitPerDay ? String(car.kmLimitPerDay) : '',
+    withDriver: car.withDriver ?? false,
+    deliveryAvailable: car.deliveryAvailable ?? false,
+    insuranceIncluded: car.insuranceIncluded ?? false,
+    cancellationPolicy: car.cancellationPolicy || '',
   };
 
   // Convert existing DB images to UploadedImage format
@@ -113,11 +148,6 @@ export default function EditListingPage() {
       isPrimary: img.isPrimary,
       order: i,
     }));
-
-  // Store initial image IDs on first render for diffing on submit
-  if (initialImageIdsRef.current.length === 0 && existingImages.length > 0) {
-    initialImageIdsRef.current = existingImages.map(img => img.id).filter(Boolean) as string[];
-  }
 
   const isBusy = updateListing.isPending || uploading;
 

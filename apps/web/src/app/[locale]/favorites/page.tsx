@@ -2,226 +2,434 @@
 
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { AuthGuard } from '@/components/auth-guard';
 import { VehicleCard } from '@/features/ads/components/vehicle-card';
+import { RentalCard } from '@/features/rentals/components/rental-card';
 import { ErrorState } from '@/components/error-state';
-import { useFavorites, useToggleFavorite, type EntityType } from '@/lib/api';
+import { Heart, SlidersHorizontal } from 'lucide-react';
+import { useFavorites, useToggleFavorite, type EntityType, type FavoriteItem } from '@/lib/api';
 import { getImageUrl } from '@/lib/image-utils';
-import { useTranslations } from 'next-intl';
 
-function useFavTabs() {
-  const tp = useTranslations('pages');
-  return [
-    { value: 'ALL' as const, label: tp('favTabAll'), icon: 'apps' },
-    { value: 'LISTING' as const, label: tp('favTabCars'), icon: 'directions_car' },
-    { value: 'JOB' as const, label: tp('favTabJobs'), icon: 'work' },
-    { value: 'SPARE_PART' as const, label: tp('favTabParts'), icon: 'settings' },
-    { value: 'CAR_SERVICE' as const, label: tp('favTabServices'), icon: 'build' },
-  ];
+// ── Types ──
+type SortOption = 'newest' | 'price' | 'oldest';
+
+interface UndoState {
+  item: FavoriteItem;
+  timeoutId: NodeJS.Timeout;
 }
+
+// ── Category Tabs Config ──
+const CATEGORY_TABS: { value: EntityType; label: string; icon: string }[] = [
+  { value: 'LISTING', label: 'سيارات', icon: 'directions_car' },
+  { value: 'BUS_LISTING', label: 'باصات', icon: 'directions_bus' },
+  { value: 'EQUIPMENT_LISTING', label: 'معدات', icon: 'construction' },
+  { value: 'SPARE_PART', label: 'قطع غيار', icon: 'settings' },
+  { value: 'CAR_SERVICE', label: 'خدمات', icon: 'build' },
+  { value: 'JOB', label: 'وظائف', icon: 'work' },
+  { value: 'TRANSPORT', label: 'نقل', icon: 'local_shipping' },
+  { value: 'TRIP', label: 'رحلات', icon: 'flight' },
+];
 
 const ENTITY_ROUTES: Record<string, string> = {
   LISTING: '/cars',
   JOB: '/jobs',
   SPARE_PART: '/parts',
   CAR_SERVICE: '/services',
+  BUS_LISTING: '/buses',
+  EQUIPMENT_LISTING: '/equipment',
+  TRANSPORT: '/transport',
+  TRIP: '/trips',
 };
 
-function GenericFavCard({ entityType, entityId, entity, tabIcon, tabs }: {
-  entityType: string;
-  entityId: string;
-  entity?: { title: string; image: string | null } | null;
-  tabIcon: string;
-  tabs: { value: string; label: string; icon: string }[];
-}) {
-  const route = ENTITY_ROUTES[entityType] || '/';
-  const toggleFav = useToggleFavorite();
-  const tp = useTranslations('pages');
-  const tabLabel = tabs.find(t => t.value === entityType)?.label;
+// ── Sort Options ──
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: 'newest', label: 'الأحدث' },
+  { value: 'price', label: 'السعر' },
+  { value: 'oldest', label: 'الأقدم' },
+];
 
-  function handleRemove(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleFav.mutate({ entityType: entityType as EntityType, entityId });
-  }
+// ── Generic Fav Card for non-vehicle entities ──
+function GenericFavCard({
+  item,
+  onRemove,
+}: {
+  item: FavoriteItem;
+  onRemove: (item: FavoriteItem) => void;
+}) {
+  const route = ENTITY_ROUTES[item.entityType] || '/';
+  const tabConfig = CATEGORY_TABS.find(t => t.value === item.entityType);
 
   return (
     <Link
-      href={`${route}/${entityId}`}
-      className="rounded-2xl overflow-hidden bg-surface-container-lowest border border-outline-variant/10 group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300"
+      href={`${route}/${item.entityId}`}
+      className="group relative rounded-2xl overflow-hidden bg-surface-container-lowest border border-outline-variant/10 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300"
     >
       <div className="aspect-[16/10] bg-surface-container-low relative overflow-hidden">
-        {entity?.image ? (
+        {item.entity?.image ? (
           <Image
-            src={getImageUrl(entity.image) || ''}
-            alt={entity?.title || ''}
+            src={getImageUrl(item.entity.image) || ''}
+            alt={item.entity?.title || ''}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-on-surface-variant/25">
-            <span className="material-symbols-outlined text-4xl">{tabIcon}</span>
+            <span className="material-symbols-outlined text-4xl">{tabConfig?.icon || 'bookmark'}</span>
           </div>
         )}
-        {/* Remove button */}
+
+        {/* Filled Heart - Remove Button */}
         <button
-          onClick={handleRemove}
-          className="absolute top-2 left-2 z-10 w-8 h-8 flex items-center justify-center"
-          aria-label={tp('favRemoveAria')}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onRemove(item);
+          }}
+          className="absolute top-2 left-2 w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors z-10"
+          aria-label="إزالة من المفضلة"
         >
-          <span
-            className="material-symbols-outlined text-[22px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] text-red-500 transition-all duration-200 hover:scale-110"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            favorite
-          </span>
+          <Heart className="w-4 h-4 fill-primary text-primary" />
         </button>
+
         {/* Category badge */}
         <span className="absolute top-2 right-2 bg-primary/90 text-white text-[9px] font-bold px-2 py-0.5 rounded backdrop-blur-sm">
-          {tabLabel}
+          {tabConfig?.label || item.entityType}
         </span>
       </div>
       <div className="p-3.5">
-        <h3 className="font-bold text-sm text-on-surface line-clamp-2 leading-snug">{entity?.title || tp('favDeletedItem')}</h3>
+        <h3 className="font-bold text-sm text-on-surface line-clamp-2 leading-snug">
+          {item.entity?.title || 'عنصر محذوف'}
+        </h3>
       </div>
     </Link>
   );
 }
 
+// ── Vehicle Fav Card Wrapper with Heart Overlay ──
+function VehicleFavCard({
+  item,
+  onRemove,
+}: {
+  item: FavoriteItem;
+  onRemove: (item: FavoriteItem) => void;
+}) {
+  const listing = item.listing;
+  if (!listing) return null;
+
+  const img = listing.images?.find((i: any) => i.isPrimary) ?? listing.images?.[0];
+
+  // Check if it's a rental listing
+  if (listing.listingType === 'RENTAL') {
+    return (
+      <div className="relative group">
+        <RentalCard
+          id={listing.id}
+          title={listing.title}
+          make={listing.make}
+          model={listing.model}
+          year={listing.year}
+          dailyPrice={listing.dailyPrice}
+          weeklyPrice={listing.weeklyPrice}
+          monthlyPrice={listing.monthlyPrice}
+          currency={listing.currency}
+          mileage={listing.mileage}
+          fuelType={listing.fuelType}
+          transmission={listing.transmission}
+          governorate={listing.governorate}
+          imageUrl={getImageUrl(img?.url)}
+        />
+        {/* Heart overlay for removal */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onRemove(item);
+          }}
+          className="absolute top-2 left-2 w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors z-20"
+          aria-label="إزالة من المفضلة"
+        >
+          <Heart className="w-4 h-4 fill-primary text-primary" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative group">
+      <VehicleCard
+        id={listing.id}
+        title={listing.title}
+        make={listing.make}
+        model={listing.model}
+        year={listing.year}
+        price={listing.price}
+        currency={listing.currency}
+        mileage={listing.mileage}
+        fuelType={listing.fuelType}
+        transmission={listing.transmission}
+        condition={listing.condition}
+        governorate={listing.governorate}
+        imageUrl={getImageUrl(img?.url)}
+        listingType={listing.listingType}
+        dailyPrice={listing.dailyPrice}
+      />
+      {/* Heart overlay for removal */}
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onRemove(item);
+        }}
+        className="absolute top-2 left-2 w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors z-20"
+        aria-label="إزالة من المفضلة"
+      >
+        <Heart className="w-4 h-4 fill-primary text-primary" />
+      </button>
+    </div>
+  );
+}
+
+// ── Undo Toast Component ──
+function UndoToast({
+  visible,
+  onUndo,
+  onDismiss,
+}: {
+  visible: boolean;
+  onUndo: () => void;
+  onDismiss: () => void;
+}) {
+  useEffect(() => {
+    if (!visible) return;
+    const timer = setTimeout(onDismiss, 4000);
+    return () => clearTimeout(timer);
+  }, [visible, onDismiss]);
+
+  if (!visible) return null;
+
+  return (
+    <div className="fixed bottom-20 right-4 left-4 lg:right-8 lg:left-auto lg:w-80 bg-foreground text-background rounded-2xl px-4 py-3 flex items-center justify-between z-50 shadow-lg animate-in slide-in-from-bottom-2 fade-in duration-200">
+      <span className="text-sm">تمت الإزالة من المفضلة</span>
+      <button
+        onClick={onUndo}
+        className="text-primary font-medium text-sm hover:underline px-2 py-1 rounded"
+      >
+        تراجع
+      </button>
+    </div>
+  );
+}
+
+// ── Main Page ──
 export default function FavoritesPage() {
   const [activeTab, setActiveTab] = useState<EntityType | 'ALL'>('ALL');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
+  const [undoState, setUndoState] = useState<UndoState | null>(null);
+  const [showUndo, setShowUndo] = useState(false);
+
   const filterType = activeTab === 'ALL' ? undefined : activeTab;
   const { data, isLoading, isError, refetch } = useFavorites(filterType);
   const items = data?.items ?? [];
   const totalCount = data?.meta?.total ?? 0;
-  const tp = useTranslations('pages');
-  const TABS = useFavTabs();
+  const toggleFav = useToggleFavorite();
+
+  // Compute available tabs based on all favorites (not filtered)
+  const { data: allFavs } = useFavorites(undefined);
+  const availableTabs = useMemo(() => {
+    if (!allFavs?.items) return [];
+    const types = new Set(allFavs.items.map(i => i.entityType));
+    return CATEGORY_TABS.filter(tab => types.has(tab.value));
+  }, [allFavs]);
+
+  // Sort items
+  const sortedItems = useMemo(() => {
+    const sorted = [...items];
+    switch (sortBy) {
+      case 'newest':
+        return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      case 'oldest':
+        return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      case 'price':
+        return sorted.sort((a, b) => {
+          const priceA = Number(a.listing?.price ?? 0);
+          const priceB = Number(b.listing?.price ?? 0);
+          return priceB - priceA; // High to low
+        });
+      default:
+        return sorted;
+    }
+  }, [items, sortBy]);
+
+  // Handle remove with undo
+  const handleRemove = useCallback((item: FavoriteItem) => {
+    // Clear any existing undo
+    if (undoState) {
+      clearTimeout(undoState.timeoutId);
+    }
+
+    // Optimistically remove
+    toggleFav.mutate({ entityType: item.entityType, entityId: item.entityId });
+
+    // Show undo toast
+    setShowUndo(true);
+    const timeoutId = setTimeout(() => {
+      setShowUndo(false);
+      setUndoState(null);
+    }, 4000);
+
+    setUndoState({ item, timeoutId });
+  }, [toggleFav, undoState]);
+
+  // Handle undo
+  const handleUndo = useCallback(() => {
+    if (undoState) {
+      clearTimeout(undoState.timeoutId);
+      // Re-add to favorites
+      toggleFav.mutate({
+        entityType: undoState.item.entityType,
+        entityId: undoState.item.entityId,
+      });
+      setShowUndo(false);
+      setUndoState(null);
+    }
+  }, [undoState, toggleFav]);
+
+  const handleDismissUndo = useCallback(() => {
+    setShowUndo(false);
+    setUndoState(null);
+  }, []);
+
+  // Count display
+  const countText = totalCount === 0 ? 'لا يوجد إعلانات' : totalCount === 1 ? 'إعلان واحد' : `${totalCount} إعلان`;
 
   return (
     <AuthGuard>
       <Navbar />
-      <div className="min-h-screen bg-background">
-        {/* ── Hero Header ── */}
-        <div className="relative bg-gradient-to-bl from-[#004ac6] via-[#2563eb] to-[#0B2447] pt-24 pb-12 md:pt-28 md:pb-16">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,255,255,0.06),transparent_60%)]" />
-          <div className="relative max-w-7xl mx-auto px-4 md:px-8">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="material-symbols-outlined text-white/80 text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
-              <h1 className="text-3xl md:text-4xl font-black text-white">{tp('favTitle')}</h1>
-            </div>
-            <p className="text-white/60 text-sm md:text-base">
-              {totalCount > 0 ? tp('favCountSaved', { count: totalCount }) : tp('favSubtitle')}
-            </p>
+      <div className="min-h-screen bg-background" dir="rtl">
+        {/* ── Page Header ── */}
+        <div className="px-4 pt-6 pb-2">
+          <div className="flex items-center justify-between">
+            <h1 className="text-[22px] font-medium text-on-surface">المفضلة</h1>
+            <span className="text-[13px] text-muted-foreground">{countText}</span>
           </div>
         </div>
 
-        <main className="max-w-7xl mx-auto px-4 md:px-8 -mt-6 pb-16 relative z-10">
-          {/* ── Filter Tabs ── */}
-          <div className="bg-surface-container-lowest rounded-2xl shadow-lg border border-outline-variant/10 p-3 mb-8">
-            <div className="flex flex-wrap gap-1.5">
-              {TABS.map(tab => (
+        {/* ── Category Filter Tabs ── */}
+        {availableTabs.length > 0 && (
+          <div className="px-4 py-2">
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setActiveTab('ALL')}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  activeTab === 'ALL'
+                    ? 'bg-primary text-on-primary'
+                    : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
+                }`}
+              >
+                الكل
+              </button>
+              {availableTabs.map(tab => (
                 <button
                   key={tab.value}
                   onClick={() => setActiveTab(tab.value)}
-                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                     activeTab === tab.value
-                      ? 'bg-primary text-on-primary shadow-lg'
-                      : 'text-on-surface-variant hover:bg-surface-container'
+                      ? 'bg-primary text-on-primary'
+                      : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-sm">{tab.icon}</span>
                   {tab.label}
                 </button>
               ))}
             </div>
           </div>
+        )}
 
-          {/* ── Content ── */}
+        {/* ── Sort Row ── */}
+        {totalCount > 0 && (
+          <div className="flex items-center justify-between px-4 py-2">
+            <span className="text-sm text-muted-foreground">
+              {sortedItems.length} {sortedItems.length === 1 ? 'نتيجة' : 'نتائج'}
+            </span>
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                className="text-sm bg-transparent border-none outline-none text-on-surface cursor-pointer"
+              >
+                {SORT_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* ── Results Grid ── */}
+        <main className="px-4 pb-24">
           {isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-              {Array.from({ length: 8 }).map((_, i) => (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="rounded-2xl overflow-hidden bg-surface-container-lowest border border-outline-variant/10 animate-pulse">
                   <div className="aspect-[16/10] bg-surface-container-high" />
-                  <div className="p-4 space-y-3">
-                    <div className="h-4 bg-surface-container-high rounded-full w-4/5" />
-                    <div className="h-3 bg-surface-container-high rounded-full w-3/5" />
-                    <div className="flex gap-2">
-                      <div className="h-6 bg-surface-container-high rounded-full w-16" />
-                      <div className="h-6 bg-surface-container-high rounded-full w-16" />
-                      <div className="h-6 bg-surface-container-high rounded-full w-16" />
-                    </div>
+                  <div className="p-3 space-y-2">
+                    <div className="h-3 bg-surface-container-high rounded-full w-3/4" />
+                    <div className="h-3 bg-surface-container-high rounded-full w-1/2" />
                   </div>
                 </div>
               ))}
             </div>
           ) : isError ? (
             <ErrorState onRetry={() => refetch()} />
-          ) : items.length > 0 ? (
-            <>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-                {items.slice(0, 6).map((fav) => {
-                  if (fav.entityType === 'LISTING' && fav.listing) {
-                    const item = fav.listing;
-                    const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
-                    return (
-                      <VehicleCard
-                        key={fav.id}
-                        id={item.id}
-                        title={item.title}
-                        make={item.make}
-                        model={item.model}
-                        year={item.year}
-                        price={item.price}
-                        currency={item.currency}
-                        mileage={item.mileage}
-                        fuelType={item.fuelType}
-                        transmission={item.transmission}
-                        condition={item.condition}
-                        governorate={item.governorate}
-                        imageUrl={getImageUrl(img?.url)}
-                        listingType={item.listingType}
-                        dailyPrice={item.dailyPrice}
-                      />
-                    );
-                  }
+          ) : sortedItems.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {sortedItems.map((fav) => {
+                if (fav.entityType === 'LISTING' && fav.listing) {
                   return (
-                    <GenericFavCard
+                    <VehicleFavCard
                       key={fav.id}
-                      entityType={fav.entityType}
-                      entityId={fav.entityId}
-                      entity={fav.entity}
-                      tabIcon={TABS.find(t => t.value === fav.entityType)?.icon || 'bookmark'}
-                      tabs={TABS}
+                      item={fav}
+                      onRemove={handleRemove}
                     />
                   );
-                })}
-              </div>
-              {items.length > 6 && (
-                <div className="flex justify-center mt-4">
-                  <Link href="/listings" className="text-primary font-bold text-sm hover:underline flex items-center gap-1">
-                    <span className="material-symbols-outlined text-base">expand_more</span>
-                    {tp('viewAll')}
-                  </Link>
-                </div>
-              )}
-            </>
+                }
+                return (
+                  <GenericFavCard
+                    key={fav.id}
+                    item={fav}
+                    onRemove={handleRemove}
+                  />
+                );
+              })}
+            </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="w-20 h-20 rounded-full bg-surface-container-low flex items-center justify-center mb-6">
-                <span className="material-symbols-outlined text-4xl text-on-surface-variant/30" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
-              </div>
-              <h3 className="text-xl font-black text-on-surface mb-2">{tp('favEmptyTitle')}</h3>
-              <p className="text-on-surface-variant text-sm mb-6 text-center max-w-xs">{tp('favEmptyDesc')}</p>
-              <Link href="/listings" className="bg-primary text-on-primary px-6 py-3 rounded-xl text-sm font-black hover:brightness-110 transition-all shadow-lg flex items-center gap-2">
-                <span className="material-symbols-outlined text-base">search</span>
-                {tp('favBrowse')}
+            /* ── Empty State ── */
+            <div className="flex flex-col items-center justify-center py-24 px-4 text-center">
+              <Heart size={48} className="text-muted-foreground/30 mb-4" />
+              <h3 className="text-lg font-medium text-on-surface mb-2">قائمة المفضلة فارغة</h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                احفظ الإعلانات التي تعجبك للرجوع إليها لاحقاً
+              </p>
+              <Link
+                href="/listings"
+                className="bg-primary text-on-primary px-6 py-3 rounded-xl text-sm font-medium hover:brightness-110 transition-all"
+              >
+                تصفح الإعلانات
               </Link>
             </div>
           )}
         </main>
+
+        {/* ── Undo Toast ── */}
+        <UndoToast
+          visible={showUndo}
+          onUndo={handleUndo}
+          onDismiss={handleDismissUndo}
+        />
       </div>
       <Footer />
     </AuthGuard>

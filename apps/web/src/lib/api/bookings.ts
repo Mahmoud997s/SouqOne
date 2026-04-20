@@ -1,10 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '../auth';
 import type { ListingItem } from './listings';
+import type { BusListingItem } from './buses';
+import type { EquipmentListingItem } from './equipment';
+import type { TransportItem } from './transport';
+import type { TripItem } from './trips';
+
+export type BookingEntityType = 'CAR' | 'BUS' | 'EQUIPMENT' | 'TRANSPORT' | 'TRIP';
+
+interface BookingUser { id: string; username: string; displayName: string | null; avatarUrl: string | null; phone: string | null }
 
 export interface BookingItem {
   id: string;
-  listingId: string;
+  entityType: BookingEntityType;
+  listingId: string | null;
+  busListingId: string | null;
+  equipmentListingId: string | null;
+  transportServiceId: string | null;
+  tripServiceId: string | null;
   renterId: string;
   ownerId: string;
   startDate: string;
@@ -24,9 +37,23 @@ export interface BookingItem {
   cancelledAt: string | null;
   completedAt: string | null;
   createdAt: string;
-  listing: ListingItem;
-  renter?: { id: string; username: string; displayName: string | null; avatarUrl: string | null; phone: string | null };
-  owner?: { id: string; username: string; displayName: string | null; avatarUrl: string | null; phone: string | null };
+  listing?: ListingItem;
+  busListing?: BusListingItem;
+  equipmentListing?: EquipmentListingItem;
+  transportService?: TransportItem;
+  tripService?: TripItem;
+  renter?: BookingUser;
+  owner?: BookingUser;
+}
+
+// Helper: get the entity title/images/id from a BookingItem regardless of type
+export function getBookingEntity(b: BookingItem) {
+  if (b.entityType === 'BUS' && b.busListing) return { title: b.busListing.title, images: b.busListing.images, entityId: b.busListingId!, detailPath: `/buses/${b.busListingId}` };
+  if (b.entityType === 'EQUIPMENT' && b.equipmentListing) return { title: b.equipmentListing.title, images: b.equipmentListing.images, entityId: b.equipmentListingId!, detailPath: `/equipment/${b.equipmentListingId}` };
+  if (b.entityType === 'TRANSPORT' && b.transportService) return { title: b.transportService.title, images: b.transportService.images, entityId: b.transportServiceId!, detailPath: `/transport/${b.transportServiceId}` };
+  if (b.entityType === 'TRIP' && b.tripService) return { title: b.tripService.title, images: b.tripService.images, entityId: b.tripServiceId!, detailPath: `/trips/${b.tripServiceId}` };
+  // Default: CAR
+  return { title: b.listing?.title ?? '', images: b.listing?.images ?? [], entityId: b.listingId ?? '', detailPath: `/rentals/${b.listingId}` };
 }
 
 export interface BookingsResponse {
@@ -52,7 +79,8 @@ export function useCreateBooking() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: {
-      listingId: string;
+      entityType: BookingEntityType;
+      entityId: string;
       startDate: string;
       endDate: string;
       driverRequested?: boolean;
@@ -116,21 +144,21 @@ export function useUpdateBookingStatus() {
   });
 }
 
-export function useBookingAvailability(listingId: string) {
+export function useBookingAvailability(entityType: BookingEntityType, entityId: string) {
   return useQuery<BookingAvailability[]>({
-    queryKey: ['booking-availability', listingId],
-    queryFn: () => apiRequest<BookingAvailability[]>(`/bookings/availability/${listingId}`),
-    enabled: !!listingId,
+    queryKey: ['booking-availability', entityType, entityId],
+    queryFn: () => apiRequest<BookingAvailability[]>(`/bookings/availability/${entityType}/${entityId}`),
+    enabled: !!entityId,
   });
 }
 
-export function useCalculatePrice(listingId: string, startDate: string, endDate: string) {
-  const enabled = !!listingId && !!startDate && !!endDate;
+export function useCalculatePrice(entityType: BookingEntityType, entityId: string, startDate: string, endDate: string) {
+  const enabled = !!entityId && !!startDate && !!endDate;
   return useQuery<PriceCalculation>({
-    queryKey: ['calculate-price', listingId, startDate, endDate],
+    queryKey: ['calculate-price', entityType, entityId, startDate, endDate],
     queryFn: () =>
       apiRequest<PriceCalculation>(
-        `/bookings/calculate-price?listingId=${listingId}&startDate=${startDate}&endDate=${endDate}`,
+        `/bookings/calculate-price?entityType=${entityType}&entityId=${entityId}&startDate=${startDate}&endDate=${endDate}`,
       ),
     enabled,
   });

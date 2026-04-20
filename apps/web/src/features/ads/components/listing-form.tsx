@@ -151,6 +151,27 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
     if (initialImages) setImages(initialImages);
   }, [initialImages]);
 
+  // Auto-select brand dropdown from initialData.make once brands are loaded
+  useEffect(() => {
+    if (!initialData?.make || !brands.length || selectedBrandId) return;
+    const match = brands.find(b => b.name.toLowerCase() === initialData.make!.toLowerCase());
+    if (match) setSelectedBrandId(match.id);
+  }, [brands, initialData?.make, selectedBrandId]);
+
+  // Auto-select model dropdown from initialData.model once models are loaded
+  useEffect(() => {
+    if (!initialData?.model || !models.length || selectedModelId) return;
+    const match = models.find(m => m.name.toLowerCase() === initialData.model!.toLowerCase());
+    if (match) setSelectedModelId(match.id);
+  }, [models, initialData?.model, selectedModelId]);
+
+  // Auto-set governorate from initialData.governorate once governorateOptions are available
+  useEffect(() => {
+    if (!initialData?.governorate || selectedGov) return;
+    const match = governorateOptions.find(g => g.label === initialData.governorate);
+    if (match) setSelectedGov(match.value);
+  }, [governorateOptions, initialData?.governorate, selectedGov]);
+
   function set<K extends keyof ListingFormData>(key: K, value: ListingFormData[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -629,9 +650,10 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
             </div>
           </section>
 
-          {errorMessages.length > 0 && <FormErrorOverlay messages={errorMessages} onClose={onClearErrors} />}
         </div>
       )}
+
+      {errorMessages.length > 0 && <FormErrorOverlay messages={errorMessages} onClose={onClearErrors} />}
     </MultiStepForm>
   );
 }

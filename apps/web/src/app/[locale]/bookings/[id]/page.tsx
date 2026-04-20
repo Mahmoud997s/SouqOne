@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { AuthGuard } from '@/components/auth-guard';
-import { useBooking, useUpdateBookingStatus } from '@/lib/api';
+import { useBooking, useUpdateBookingStatus, getBookingEntity } from '@/lib/api';
 import { useAuth } from '@/providers/auth-provider';
 import { useToast } from '@/components/toast';
 import { SellerCard } from '@/components/seller-card';
@@ -104,7 +104,8 @@ function BookingDetailContent() {
     );
   }
 
-  const img = booking.listing?.images?.find((i: any) => i.isPrimary) ?? booking.listing?.images?.[0];
+  const entity = getBookingEntity(booking);
+  const entityImg = entity.images?.find((i: any) => i.isPrimary) ?? entity.images?.[0];
   const otherUser = isOwner ? booking.renter : booking.owner;
   const sc = statusConfig[booking.status] ?? statusConfig.PENDING;
 
@@ -155,8 +156,8 @@ function BookingDetailContent() {
               <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
                 <div className="flex gap-0">
                   <div className="relative w-36 md:w-44 shrink-0 bg-surface-container-low dark:bg-surface-container-high aspect-[4/3]">
-                    {getImageUrl(img?.url) ? (
-                      <Image src={getImageUrl(img?.url)!} alt="" fill className="object-cover" />
+                    {getImageUrl(entityImg?.url) ? (
+                      <Image src={getImageUrl(entityImg?.url)!} alt="" fill className="object-cover" />
                     ) : (
                       <div className="w-full aspect-[4/3] flex items-center justify-center text-on-surface-variant/30">
                         <span className="material-symbols-outlined text-5xl">directions_car</span>
@@ -164,21 +165,17 @@ function BookingDetailContent() {
                     )}
                   </div>
                   <div className="flex-1 p-5 md:p-6 flex flex-col justify-center">
-                    <Link href={`/cars/${booking.listingId}`} className="font-black text-on-surface text-base md:text-lg hover:text-primary transition-colors line-clamp-2">
-                      {booking.listing?.title ?? tp('bookingDetailCar')}
+                    <Link href={entity.detailPath} className="font-black text-on-surface text-base md:text-lg hover:text-primary transition-colors line-clamp-2">
+                      {entity.title || tp('bookingDetailCar')}
                     </Link>
-                    <p className="text-xs text-on-surface-variant mt-1.5 flex items-center gap-1.5">
-                      <span className="font-bold">{booking.listing?.make} {booking.listing?.model}</span>
-                      <span className="w-1 h-1 rounded-full bg-outline/40" />
-                      <span>{booking.listing?.year}</span>
-                    </p>
-                    {booking.listing?.governorate && (
-                      <p className="text-xs text-on-surface-variant mt-2 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm text-primary">location_on</span>
-                        {booking.listing.governorate}
+                    {booking.listing && (
+                      <p className="text-xs text-on-surface-variant mt-1.5 flex items-center gap-1.5">
+                        <span className="font-bold">{booking.listing.make} {booking.listing.model}</span>
+                        <span className="w-1 h-1 rounded-full bg-outline/40" />
+                        <span>{booking.listing.year}</span>
                       </p>
                     )}
-                    <Link href={`/cars/${booking.listingId}`} className="mt-3 inline-flex items-center gap-1 text-primary text-xs font-bold hover:underline">
+                    <Link href={entity.detailPath} className="mt-3 inline-flex items-center gap-1 text-primary text-xs font-bold hover:underline">
                       {tp('bookingDetailViewCar')}
                       <span className="material-symbols-outlined icon-flip text-sm">arrow_back</span>
                     </Link>

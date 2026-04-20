@@ -43,7 +43,10 @@ export function ChatHeader({
   const name = participant?.displayName || participant?.username || tp('chatDefaultUser');
 
   return (
-    <div className="bg-surface-container-lowest/80 backdrop-blur-xl px-4 py-3 flex items-center justify-between z-10 border-b border-outline-variant/8 shrink-0">
+    <div className="relative bg-surface-container-lowest/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between z-10 border-b border-outline-variant/10 shrink-0 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
+      {/* top accent line */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#004ac6] via-[#1d4ed8] to-[#004ac6] opacity-60" />
+
       {/* Left: back + avatar + info */}
       <div className="flex items-center gap-3 min-w-0">
         <button
@@ -56,9 +59,9 @@ export function ChatHeader({
         {/* Avatar */}
         <div className="relative shrink-0">
           {participant?.avatarUrl ? (
-            <Image src={getImageUrl(participant.avatarUrl) || ''} alt={name} width={44} height={44} className="w-11 h-11 rounded-2xl object-cover ring-2 ring-outline-variant/5" />
+            <Image src={getImageUrl(participant.avatarUrl) || ''} alt={name} width={44} height={44} className="w-11 h-11 rounded-2xl object-cover ring-2 ring-primary/10" />
           ) : (
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary font-black text-sm">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary via-[#2563eb] to-[#0B2447] flex items-center justify-center text-white font-black text-sm">
               {name[0]?.toUpperCase() || '?'}
             </div>
           )}
@@ -68,7 +71,7 @@ export function ChatHeader({
         </div>
 
         <div className="min-w-0">
-          <h3 className="font-black text-[14px] text-on-surface truncate leading-tight">{name}</h3>
+          <h3 className="font-bold text-[14px] text-on-surface truncate leading-tight">{name}</h3>
           <div className="flex items-center gap-1.5 mt-0.5">
             {isTyping ? (
               <span className="text-primary text-[11px] font-semibold flex items-center gap-1">
@@ -95,20 +98,20 @@ export function ChatHeader({
       <div className="flex items-center gap-1">
         <button
           onClick={onToggleSearch}
-          className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${searchMode ? 'bg-primary/10 text-primary' : 'hover:bg-surface-container-high text-on-surface-variant/40'}`}
+          className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${searchMode ? 'bg-primary/10 text-primary' : 'hover:bg-surface-container-high text-on-surface-variant/50'}`}
         >
           {searchMode ? <X size={17} /> : <Search size={17} />}
         </button>
         {listing && (
           <Link
             href={`/cars/${listing.id}`}
-            className="hidden md:flex items-center gap-1.5 text-primary hover:bg-primary/8 px-3 py-2 rounded-xl text-[11px] font-bold transition-all"
+            className="hidden md:flex items-center gap-1.5 text-primary bg-primary/8 hover:bg-primary/15 px-3 py-2 rounded-xl text-[11px] font-bold transition-all"
           >
             <ExternalLink size={13} />
             {tp('chatViewListing')}
           </Link>
         )}
-        <button className="w-9 h-9 rounded-xl hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant/40 transition-colors">
+        <button className="w-9 h-9 rounded-xl hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant/50 transition-colors">
           <MoreVertical size={17} />
         </button>
       </div>

@@ -104,23 +104,41 @@ export default function ConversationsSidebar() {
 
   return (
     <>
-      {/* Header */}
-      <div className="px-5 pt-5 pb-3 flex flex-col gap-3.5">
-        <div className="flex items-center justify-between">
-          <h2 className="font-headline text-xl font-black text-on-surface">{tp('sidebarTitle')}</h2>
-          <button className="w-9 h-9 rounded-xl bg-primary/8 hover:bg-primary/15 flex items-center justify-center transition-colors">
-            <span className="material-symbols-outlined text-primary text-lg">edit_square</span>
+      {/* ══ Premium Header ══ */}
+      <div className="relative bg-gradient-to-bl from-[#004ac6] via-[#1d4ed8] to-[#0B2447] overflow-hidden px-4 pt-5 pb-8">
+        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h30v30H0zm30 30h30v30H30z\' fill=\'%23fff\' fill-opacity=\'.5\'/%3E%3C/svg%3E")', backgroundSize: '30px 30px' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-surface-container-lowest to-transparent" />
+        {/* Title row */}
+        <div className="relative flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center shrink-0">
+              <MessageCircle size={18} className="text-white" />
+            </div>
+            <div>
+              <h2 className="text-[16px] font-bold text-white leading-tight">{tp('sidebarTitle')}</h2>
+              <p className="text-[10px] text-white/60">{conversations?.length ?? 0} محادثة</p>
+            </div>
+          </div>
+          <button className="w-8 h-8 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors">
+            <span className="material-symbols-outlined text-white text-base">edit_square</span>
           </button>
         </div>
-        <ConversationFilters active={filter} onChange={setFilter} />
+        {/* Filter pills */}
+        <div className="relative mt-3">
+          <ConversationFilters active={filter} onChange={setFilter} inHeader />
+        </div>
+      </div>
+
+      {/* Search bar — sits below gradient */}
+      <div className="px-4 -mt-5 mb-1 relative z-10">
         <div className="relative">
-          <Search size={15} className="absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40" />
+          <Search size={14} className="absolute end-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={tp('sidebarSearchPlaceholder')}
-            className="w-full pe-9 ps-3 py-2.5 bg-surface-container rounded-xl text-xs border-none focus:ring-2 focus:ring-primary/20 focus:outline-none placeholder:text-on-surface-variant/35 transition-shadow"
+            className="w-full pe-9 ps-3 py-2.5 bg-surface-container-lowest border border-outline-variant/20 rounded-xl text-xs shadow-[0_2px_12px_rgba(0,0,0,0.08)] focus:ring-2 focus:ring-primary/20 focus:outline-none placeholder:text-on-surface-variant/35 transition-shadow"
           />
         </div>
       </div>

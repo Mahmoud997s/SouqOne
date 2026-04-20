@@ -131,66 +131,57 @@ export default function NotificationsPage() {
     <>
       <Navbar />
 
-      {/* ═══════════ HERO SECTION ═══════════ */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#004ac6] via-[#2563eb] to-[#0B2447]" />
-        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
-        <div className="absolute top-[-20%] right-0 w-[60vw] md:w-[500px] h-[60vw] md:h-[500px] rounded-full bg-white/[0.05] blur-3xl" />
-        <div className="absolute bottom-[-20%] left-0 w-[50vw] md:w-[400px] h-[50vw] md:h-[400px] rounded-full bg-blue-300/[0.08] blur-3xl" />
-
-        <div className="relative z-10 pt-20 pb-4 sm:pt-24 sm:pb-5 md:pt-28 md:pb-6">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6">
-            {/* Title row */}
-            <div className="flex items-center justify-center gap-3 mb-1">
-              <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                <Bell size={20} className="text-white" />
-              </div>
-              <h1 className="text-xl sm:text-2xl font-black text-white drop-shadow-sm">{tp('notifTitle')}</h1>
+      {/* ══ COVER BANNER + TITLE ══ */}
+      <div className="relative bg-gradient-to-bl from-[#004ac6] via-[#1d4ed8] to-[#0B2447] overflow-hidden px-4 pt-8 pb-10">
+        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h30v30H0zm30 30h30v30H30z\' fill=\'%23fff\' fill-opacity=\'.5\'/%3E%3C/svg%3E")', backgroundSize: '30px 30px' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent" />
+        <div className="relative max-w-3xl mx-auto flex flex-col items-center text-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
+            <Bell size={22} className="text-white" />
+          </div>
+          <div>
+            <div className="flex items-center justify-center gap-2">
+              <h1 className="text-[24px] font-bold text-white leading-tight">{tp('notifTitle')}</h1>
               {unreadCount > 0 && (
-                <span className="bg-white/20 backdrop-blur-sm text-white text-[11px] font-black px-2.5 py-0.5 rounded-full border border-white/20">
+                <span className="bg-white/20 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
                   {unreadCount}
                 </span>
               )}
             </div>
-            <p className="text-white/60 text-xs text-center mb-4">
-              {unreadCount > 0
-                ? tp('notifUnreadSummary', { count: unreadCount })
-                : tp('notifAllRead')}
+            <p className="text-[12px] text-white/70 mt-0.5">
+              {unreadCount > 0 ? tp('notifUnreadSummary', { count: unreadCount }) : tp('notifAllRead')}
             </p>
-
-            {/* Filter bar */}
-            <div className="flex items-center justify-center gap-3">
-              <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl px-[10px] py-2">
-                {(['all', 'unread'] as FilterTab[]).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setFilter(tab)}
-                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
-                      filter === tab
-                        ? 'bg-white text-primary shadow-sm'
-                        : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
-                    }`}
-                  >
-                    {tab === 'all' ? tp('notifAll') : tp('notifUnread')}
-                  </button>
-                ))}
-              </div>
-              {unreadCount > 0 && (
-                <button
-                  onClick={() => markAllRead.mutate()}
-                  disabled={markAllRead.isPending}
-                  className="flex items-center gap-1 text-xs font-bold text-white/80 hover:text-white transition-colors disabled:opacity-50"
-                >
-                  <CheckCheck size={14} />
-                  {markAllRead.isPending ? tp('notifMarkingRead') : tp('notifMarkAllRead')}
-                </button>
-              )}
-            </div>
+          </div>
+          {/* Filter pills */}
+          <div className="flex items-center gap-2">
+            {(['all', 'unread'] as FilterTab[]).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setFilter(tab)}
+                className={`px-4 py-1.5 rounded-full text-[12px] font-medium transition-all ${
+                  filter === tab
+                    ? 'bg-white text-primary shadow-sm'
+                    : 'bg-white/15 text-white/80 hover:bg-white/25'
+                }`}
+              >
+                {tab === 'all' ? tp('notifAll') : tp('notifUnread')}
+              </button>
+            ))}
+            {unreadCount > 0 && (
+              <button
+                onClick={() => markAllRead.mutate()}
+                disabled={markAllRead.isPending}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-medium bg-white/15 text-white/80 hover:bg-white/25 transition-all disabled:opacity-50"
+              >
+                <CheckCheck size={13} />
+                {markAllRead.isPending ? tp('notifMarkingRead') : tp('notifMarkAllRead')}
+              </button>
+            )}
           </div>
         </div>
-      </section>
+      </div>
 
-      <main className="min-h-screen bg-background pb-16 px-4 pt-6">
+      <main className="min-h-screen bg-background pb-16 px-4 pt-5">
         <div className="max-w-3xl mx-auto space-y-4">
 
           <PushNotificationBanner />

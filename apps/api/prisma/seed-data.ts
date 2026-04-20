@@ -1,52 +1,31 @@
 /** Realistic Omani marketplace test data */
 
 export const CAR_IMGS = [
-  // Land Cruiser
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/2021_Toyota_Land_Cruiser_300_Sahara.jpg/960px-2021_Toyota_Land_Cruiser_300_Sahara.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Toyota_Land_Cruiser_300.jpg/960px-Toyota_Land_Cruiser_300.jpg',
-  // Nissan Patrol
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/2023_Nissan_Patrol_Royale_5.6_LE_V8.jpg/960px-2023_Nissan_Patrol_Royale_5.6_LE_V8.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/2024_Nissan_Patrol_Royale_3.5_V6_%281%29.jpg/960px-2024_Nissan_Patrol_Royale_3.5_V6_%281%29.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/2017_Nissan_Patrol_Royale_5.6_LE_V8_in_Pearl_White%2C_06-09-2024.jpg/960px-2017_Nissan_Patrol_Royale_5.6_LE_V8_in_Pearl_White%2C_06-09-2024.jpg',
-  // Camry
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Toyota_Camry_XV70_facelift_Sanming_01_2022-08-13.jpg/960px-Toyota_Camry_XV70_facelift_Sanming_01_2022-08-13.jpg',
-  // Lexus LX 600
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/2023_Lexus_LX_600%2C_front_6.13.24.jpg/960px-2023_Lexus_LX_600%2C_front_6.13.24.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Lexus_LX_600_F_Sport_2022_%282%29.jpg/960px-Lexus_LX_600_F_Sport_2022_%282%29.jpg',
-  // Pajero
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/2021_Mitsubishi_Pajero_Sport_%28facelift%29.jpg/960px-2021_Mitsubishi_Pajero_Sport_%28facelift%29.jpg',
-  // Hilux
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Toyota_Hilux_4x2_G_2023_%281%29.jpg/960px-Toyota_Hilux_4x2_G_2023_%281%29.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/2024_Toyota_Hilux_2.8_GR_Sport_4x4_in_Attitude_Black_Mica%2C_front_right%2C_06-27-2024.jpg/960px-2024_Toyota_Hilux_2.8_GR_Sport_4x4_in_Attitude_Black_Mica%2C_front_right%2C_06-27-2024.jpg',
-  // Hyundai Tucson
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/2024_Hyundai_Tucson_Limited%2C_rear_12.10.24.jpg/960px-2024_Hyundai_Tucson_Limited%2C_rear_12.10.24.jpg',
-  // Kia Sportage
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Moscow%2C_Kia_Sportage_black%2C_Mar_2026_01.jpg/960px-Moscow%2C_Kia_Sportage_black%2C_Mar_2026_01.jpg',
-  // Patrol Ti
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/2019_Nissan_Patrol_Ti_%2849325469561%29.jpg/960px-2019_Nissan_Patrol_Ti_%2849325469561%29.jpg',
-  // Fortuner
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Toyota_Fortuner_2.8_Q_4x2_2023.jpg/960px-Toyota_Fortuner_2.8_Q_4x2_2023.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/2024_Toyota_Fortuner_Leader_2.4_S.jpg/960px-2024_Toyota_Fortuner_Leader_2.4_S.jpg',
-  // Corolla
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Toyota_Corolla_Sedan.jpg/960px-Toyota_Corolla_Sedan.jpg',
-  // Lexus ES
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/2022_Lexus_ES_350_%28GSZ10%29_1X7A5794.jpg/960px-2022_Lexus_ES_350_%28GSZ10%29_1X7A5794.jpg',
+  'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1542362567-b07e54358753?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1471444928139-48c5bf5173f8?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1520031441872-265e4ff70366?w=960&h=640&fit=crop',
+  'https://images.unsplash.com/photo-1546614042-7df3c24c9e5d?w=960&h=640&fit=crop',
 ];
 
 export const PART_IMGS = [
-  // Engine parts
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/BMW_1.6-litre_turbo_engine_2011_WTCC_Race_of_Japan.jpg/960px-BMW_1.6-litre_turbo_engine_2011_WTCC_Race_of_Japan.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Close-up_of_an_engine_extracted_from_a_car%2C_with_many_disassembled_parts_%2851145344822%29.jpg/960px-Close-up_of_an_engine_extracted_from_a_car%2C_with_many_disassembled_parts_%2851145344822%29.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Close_view_of_an_old_car_engine_showing_various_parts_and_machinery_in_a_garage_setting.jpg/960px-Close_view_of_an_old_car_engine_showing_various_parts_and_machinery_in_a_garage_setting.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Engine_and_Speed_Parts_Collection_%281717080506%29.jpg/960px-Engine_and_Speed_Parts_Collection_%281717080506%29.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Plymouth_Satellite_engine_Leimershof_-20190907-RM-163141.jpg/960px-Plymouth_Satellite_engine_Leimershof_-20190907-RM-163141.jpg',
-  // Wheels and tires
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Damaged_car_parts_and_wrecked_vehicle_at_junkyard_in_broad_daylight_near_city_outskirts.jpg/960px-Damaged_car_parts_and_wrecked_vehicle_at_junkyard_in_broad_daylight_near_city_outskirts.jpg',
-  // Keep original Unsplash for variety
   'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&h=600&fit=crop',
   'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=600&fit=crop',
   'https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?w=800&h=600&fit=crop',
   'https://images.unsplash.com/photo-1625047509248-ec889cbff17f?w=800&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=800&h=600&fit=crop',
 ];
 
 export const SVC_IMGS = [

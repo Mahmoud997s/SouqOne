@@ -12,10 +12,10 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
   return (
     <AuthGuard>
       <Navbar />
-      <main className="h-[calc(100dvh-56px)] flex flex-col">
+      <main className="h-[calc(100dvh-56px)] flex flex-col no-bottom-pad">
         <div className="flex flex-1 min-h-0 max-w-[1440px] mx-auto w-full border-x border-outline-variant/[0.06]">
           {/* Sidebar — always visible on lg, hidden on mobile when inside a chat */}
-          <div className={`w-full lg:w-[380px] shrink-0 bg-surface-container-lowest flex flex-col border-l border-outline-variant/[0.08] ${isInChat ? 'hidden lg:flex' : 'flex'}`}>
+          <div className={`w-full lg:w-[380px] shrink-0 bg-surface-container-lowest flex flex-col border-l border-outline-variant/[0.08] ${isInChat ? 'hidden lg:flex' : 'flex pb-[80px] lg:pb-0'}`}>
             <ConversationsSidebar />
           </div>
 

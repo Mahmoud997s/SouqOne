@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { AuthGuard } from '@/components/auth-guard';
-import { VehicleCard } from '@/features/ads/components/vehicle-card';
-import { GenericListingCard } from '@/components/generic-listing-card';
 import { useMyListings, useDeleteListing } from '@/lib/api';
 import { useMyBusListings, useDeleteBusListing } from '@/lib/api/buses';
 import { useMyEquipmentListings, useDeleteEquipmentListing, useMyOperatorListings, useDeleteOperatorListing } from '@/lib/api/equipment';
@@ -17,10 +16,12 @@ import { useMyTransportServices, useDeleteTransportService } from '@/lib/api/tra
 import { useMyTrips, useDeleteTrip } from '@/lib/api/trips';
 import { useCreateFeaturedPayment } from '@/lib/api/payments';
 import { getImageUrl } from '@/lib/image-utils';
+import { relativeTimeT } from '@/lib/time-utils';
 import { useToast } from '@/components/toast';
 import { useTranslations, useLocale } from 'next-intl';
+import { MoreVertical, Plus, PlusCircle, Pencil, RefreshCw, Pause, Trash2 } from 'lucide-react';
 
-type StatusFilter = 'ALL' | 'ACTIVE' | 'DRAFT' | 'SOLD';
+type StatusFilter = 'ALL' | 'ACTIVE' | 'PENDING' | 'EXPIRED' | 'DRAFT';
 
 const SECTION_TABS = [
   { key: 'cars', icon: 'directions_car', labelKey: 'sectionCars' },
@@ -36,11 +37,84 @@ const SECTION_TABS = [
 
 type SectionKey = typeof SECTION_TABS[number]['key'];
 
+const SECTION_LABEL_MAP: Record<SectionKey, string> = {
+  cars: 'sectionCars', buses: 'sectionBuses', equipment: 'sectionEquipment',
+  operators: 'sectionOperators', parts: 'sectionParts', services: 'sectionServices',
+  transport: 'sectionTransport', trips: 'sectionTrips', jobs: 'sectionJobs',
+};
+
+// ─── Dropdown menu component ───
+function ActionMenu({ itemId: _itemId, isActive, isExpired, onEdit, onRenew, onPause, onDelete, tp }: {
+  itemId: string; isActive: boolean; isExpired: boolean;
+  onEdit: () => void; onRenew: () => void; onPause: () => void; onDelete: () => void;
+  tp: (key: string) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    if (open) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative flex-shrink-0">
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
+        className="w-8 h-8 rounded-full hover:bg-surface-container-high flex items-center justify-center flex-shrink-0 cursor-pointer transition-colors"
+      >
+        <MoreVertical size={16} className="text-on-surface-variant" />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full mt-1 z-50 min-w-[180px] bg-surface-container-lowest border border-outline-variant/20 rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.10)] overflow-hidden">
+          <button
+            onClick={() => { setOpen(false); onEdit(); }}
+            className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-on-surface hover:bg-surface-container-low transition-colors"
+          >
+            <Pencil size={15} className="text-on-surface-variant" />
+            {tp('myListingsEditListing')}
+          </button>
+          {isExpired && (
+            <button
+              onClick={() => { setOpen(false); onRenew(); }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-on-surface hover:bg-surface-container-low transition-colors"
+            >
+              <RefreshCw size={15} className="text-on-surface-variant" />
+              {tp('myListingsRenew')}
+            </button>
+          )}
+          {isActive && (
+            <button
+              onClick={() => { setOpen(false); onPause(); }}
+              className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-on-surface hover:bg-surface-container-low transition-colors"
+            >
+              <Pause size={15} className="text-on-surface-variant" />
+              {tp('myListingsPause')}
+            </button>
+          )}
+          <div className="h-px bg-outline-variant/20 mx-3" />
+          <button
+            onClick={() => { setOpen(false); onDelete(); }}
+            className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+          >
+            <Trash2 size={15} />
+            {tp('myListingsDeleteListing')}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function MyListingsPage() {
   const [activeSection, setActiveSection] = useState<SectionKey>('cars');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const { addToast } = useToast();
   const tp = useTranslations('pages');
+  const tt = useTranslations('time');
   const locale = useLocale();
 
   // ─── Car listings ───
@@ -68,18 +142,20 @@ export default function MyListingsPage() {
   const deleteTrip = useDeleteTrip();
   const featureMut = useCreateFeaturedPayment();
 
-  const statusFilters: { key: StatusFilter; label: string; icon: string }[] = [
-    { key: 'ALL', label: tp('myListingsFilterAll'), icon: 'list' },
-    { key: 'ACTIVE', label: tp('myListingsFilterActive'), icon: 'check_circle' },
-    { key: 'DRAFT', label: tp('myListingsFilterDraft'), icon: 'edit_note' },
-    { key: 'SOLD', label: tp('myListingsFilterSold'), icon: 'sell' },
+  const statusFilters: { key: StatusFilter; label: string }[] = [
+    { key: 'ALL', label: tp('myListingsFilterAll') },
+    { key: 'ACTIVE', label: tp('myListingsFilterActive') },
+    { key: 'PENDING', label: tp('myListingsFilterPending') },
+    { key: 'EXPIRED', label: tp('myListingsFilterExpired') },
+    { key: 'DRAFT', label: tp('myListingsFilterDraft') },
   ];
 
-  const statusLabels: Record<string, { label: string; cls: string }> = {
-    ACTIVE: { label: tp('myListingsFilterActive'), cls: 'bg-brand-green/90 text-white' },
-    DRAFT: { label: tp('myListingsFilterDraft'), cls: 'bg-amber-500/90 text-white' },
-    SOLD: { label: tp('myListingsFilterSold'), cls: 'bg-outline/80 text-white' },
-    EXPIRED: { label: tp('myListingsFilterExpired'), cls: 'bg-error/80 text-white' },
+  const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
+    ACTIVE:  { label: tp('myListingsFilterActive'),  cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
+    PENDING: { label: tp('myListingsFilterPending'), cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+    EXPIRED: { label: tp('myListingsFilterExpired'), cls: 'bg-gray-100 text-gray-600 dark:bg-gray-800/40 dark:text-gray-400' },
+    DRAFT:   { label: tp('myListingsFilterDraft'),   cls: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+    SOLD:    { label: tp('myListingsFilterSold'),    cls: 'bg-gray-100 text-gray-600 dark:bg-gray-800/40 dark:text-gray-400' },
   };
 
   // ─── Section data mapping ───
@@ -144,204 +220,241 @@ export default function MyListingsPage() {
       ? sectionData.items
       : sectionData.items.filter((item: any) => item.status === statusFilter);
 
+  // ─── Stats ───
+  const stats = useMemo(() => {
+    const all = sectionData.items;
+    const activeCount = all.filter((i: any) => i.status === 'ACTIVE').length;
+    const expiredCount = all.filter((i: any) => i.status === 'EXPIRED' || i.status === 'SOLD').length;
+    const totalViews = all.reduce((sum: number, i: any) => sum + (i.viewCount || 0), 0);
+    return { activeCount, expiredCount, totalViews };
+  }, [sectionData.items]);
+
+  // ─── Helpers ───
+  function getItemImage(item: any): string | null {
+    if (activeSection === 'cars') {
+      const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
+      return getImageUrl(img?.url) || null;
+    }
+    return getImageUrl(item.images?.[0]?.url || item.imageUrl) || null;
+  }
+
+  function getItemPrice(item: any): string | null {
+    const p = item.price || item.salary || item.priceFrom || item.basePrice || item.pricePerTrip || item.dailyPrice;
+    if (!p) return null;
+    return `${Number(p).toLocaleString('en-US')} ${item.currency || 'OMR'}`;
+  }
+
+  function getItemMeta(item: any): string {
+    const parts: string[] = [];
+    parts.push(tp(SECTION_LABEL_MAP[activeSection]));
+    if (item.governorate) parts.push(item.governorate);
+    if (item.createdAt) parts.push(relativeTimeT(item.createdAt, tt, locale));
+    return parts.join(' · ');
+  }
+
   return (
     <AuthGuard>
       <Navbar />
-      <div className="min-h-screen bg-background pt-28 pb-24 lg:pb-16">
-        <main className="max-w-6xl mx-auto px-4 md:px-8">
+      <div className="min-h-screen bg-background pb-24 lg:pb-16">
 
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        {/* ══ COVER BANNER + TITLE ══ */}
+        <div className="relative bg-gradient-to-bl from-[#004ac6] via-[#1d4ed8] to-[#0B2447] overflow-hidden px-4 pt-8 pb-10">
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h30v30H0zm30 30h30v30H30z\' fill=\'%23fff\' fill-opacity=\'.5\'/%3E%3C/svg%3E")', backgroundSize: '30px 30px' }} />
+          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent" />
+          <div className="relative max-w-3xl mx-auto flex flex-col items-center text-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
+              <span className="material-symbols-outlined text-white text-2xl">storefront</span>
+            </div>
             <div>
-              <h1 className="text-2xl font-black text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-3xl">inventory_2</span>
+              <h1 className="text-[24px] font-bold text-white leading-tight">
                 {tp('myListingsTitle')}
               </h1>
-              <p className="text-sm text-on-surface-variant mt-1">
-                {tp('myListingsCount', { count: filteredItems.length })}
+              <p className="text-[12px] text-white/70 mt-0.5">
+                {stats.activeCount} {tp('myListingsStatsActive')} · {stats.totalViews.toLocaleString('en-US')} {tp('myListingsStatsTotalViews')}
               </p>
             </div>
-            <Link
-              href="/add-listing"
-              className="btn-success px-6 py-2.5 text-sm font-black flex items-center gap-2 hover:brightness-110 transition-all shadow-ambient"
+          </div>
+        </div>
+
+        {/* ═══ A) PAGE HEADER ═══ */}
+        <div className="px-4 pb-4 max-w-3xl mx-auto mt-4">
+
+          {/* Stats row */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-surface-container-lowest rounded-2xl p-4 text-center border border-outline-variant/15 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+              <div className="text-[22px] font-semibold text-on-surface">{stats.activeCount}</div>
+              <div className="text-[11px] text-on-surface-variant mt-1 uppercase tracking-wide">{tp('myListingsStatsActive')}</div>
+            </div>
+            <div className="bg-surface-container-lowest rounded-2xl p-4 text-center border border-outline-variant/15 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+              <div className="text-[22px] font-semibold text-on-surface">{stats.expiredCount}</div>
+              <div className="text-[11px] text-on-surface-variant mt-1 uppercase tracking-wide">{tp('myListingsStatsExpired')}</div>
+            </div>
+            <div className="bg-surface-container-lowest rounded-2xl p-4 text-center border border-outline-variant/15 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+              <div className="text-[22px] font-semibold text-on-surface">{stats.totalViews.toLocaleString('en-US')}</div>
+              <div className="text-[11px] text-on-surface-variant mt-1 uppercase tracking-wide">{tp('myListingsStatsTotalViews')}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section Tabs */}
+        <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2 px-4 pb-2 max-w-3xl mx-auto">
+          {SECTION_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveSection(tab.key)}
+              className={`flex flex-col items-center gap-1 px-2 py-2.5 text-[11px] font-medium rounded-2xl transition-all ${
+                activeSection === tab.key
+                  ? 'bg-primary text-on-primary shadow-sm shadow-primary/20'
+                  : 'border border-outline-variant/20 text-on-surface-variant hover:text-on-surface hover:border-primary/30 bg-surface-container-lowest'
+              }`}
             >
-              <span className="material-symbols-outlined text-lg">add</span>
-              {tp('myListingsAdd')}
-            </Link>
-          </div>
+              <span className="material-symbols-outlined text-[20px]">{tab.icon}</span>
+              <span className="leading-tight text-center">{tp(tab.labelKey)}</span>
+            </button>
+          ))}
+        </div>
 
-          {/* Section Tabs */}
-          <div className="flex gap-1 mb-4 overflow-x-auto no-scrollbar pb-1">
-            {SECTION_TABS.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveSection(tab.key)}
-                className={`flex items-center gap-2 px-4 py-2 text-xs font-black rounded-full transition-all whitespace-nowrap ${
-                  activeSection === tab.key
-                    ? 'bg-primary text-on-primary shadow-sm'
-                    : 'text-on-surface-variant hover:text-on-surface bg-surface-container-low/50 dark:bg-surface-container-high/30 hover:bg-surface-container-low dark:hover:bg-surface-container-high/50'
-                }`}
-              >
-                <span className="material-symbols-outlined text-base">{tab.icon}</span>
-                {tp(tab.labelKey)}
-              </button>
-            ))}
-          </div>
+        {/* ═══ B) STATUS FILTER TABS ═══ */}
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide px-4 pb-2 mt-3 max-w-3xl mx-auto">
+          {statusFilters.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setStatusFilter(f.key)}
+              className={`px-3.5 py-1.5 text-[12px] font-medium rounded-full transition-all whitespace-nowrap ${
+                statusFilter === f.key
+                  ? 'bg-on-surface text-surface-container-lowest dark:bg-on-surface dark:text-background'
+                  : 'border border-outline-variant/25 text-on-surface-variant hover:text-on-surface hover:border-outline-variant/50 bg-surface-container-lowest'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
 
-          {/* Status Filter Tabs */}
-          <div className="flex gap-1 mb-6 overflow-x-auto no-scrollbar">
-            {statusFilters.map((f) => (
-              <button
-                key={f.key}
-                onClick={() => setStatusFilter(f.key)}
-                className={`flex items-center gap-2 px-5 py-2.5 text-sm font-black transition-all whitespace-nowrap ${
-                  statusFilter === f.key
-                    ? 'bg-surface-container-lowest dark:bg-surface-container text-primary shadow-sm border border-outline-variant/10 dark:border-outline-variant/20'
-                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/30'
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg">{f.icon}</span>
-                {f.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Content */}
+        {/* ═══ C) LISTINGS LIST ═══ */}
+        <main className="max-w-3xl mx-auto mt-4">
           {sectionData.isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="animate-pulse bg-surface-container-high aspect-[4/3] rounded-lg" />
+            <div className="flex flex-col gap-3 px-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4 p-4 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest">
+                  <div className="w-20 h-20 rounded-xl bg-surface-container-high animate-pulse flex-shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-3/4 bg-surface-container-high animate-pulse rounded-full" />
+                    <div className="h-3 w-1/2 bg-surface-container-high animate-pulse rounded-full" />
+                    <div className="h-3 w-1/3 bg-surface-container-high animate-pulse rounded-full" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : filteredItems.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+            <div className="flex flex-col gap-3 px-4">
               {filteredItems.map((item: any) => {
-                const st = statusLabels[item.status] ?? { label: item.status, cls: 'bg-outline/60 text-white' };
+                const badge = STATUS_BADGE[item.status] ?? { label: item.status, cls: 'bg-gray-100 text-gray-600' };
                 const entityType = ENTITY_TYPE_MAP[activeSection];
+                const imgSrc = getItemImage(item);
+                const price = getItemPrice(item);
+                const meta = getItemMeta(item);
 
-                const actionBar = (
-                  <div className="flex -mx-3 -mb-1.5">
-                    <Link
-                      href={getEditRoute(item.id)}
-                      className="flex-1 py-2.5 text-center text-xs font-black text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-1.5"
-                    >
-                      <span className="material-symbols-outlined text-sm">edit</span>
-                      {tp('myListingsEdit')}
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 p-3 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest hover:border-outline-variant/30 hover:shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all"
+                  >
+                    {/* Image */}
+                    <Link href={getEditRoute(item.id)} className="flex-shrink-0">
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-surface-container-high relative">
+                        {imgSrc ? (
+                          <Image
+                            src={imgSrc}
+                            alt={item.title || ''}
+                            fill
+                            sizes="64px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-on-surface-variant/30">
+                            <span className="material-symbols-outlined text-2xl">image</span>
+                          </div>
+                        )}
+                      </div>
                     </Link>
-                    <div className="w-px bg-outline-variant/10 dark:bg-outline-variant/20" />
-                    <button
-                      onClick={async () => {
+
+                    {/* Middle section */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-[13px] font-medium text-on-surface line-clamp-1">{item.title}</h3>
+                      <p className="text-[11px] text-on-surface-variant mt-0.5">{meta}</p>
+                      {price && (
+                        <p className="text-[13px] font-semibold text-primary mt-0.5">{price}</p>
+                      )}
+                      <span className={`inline-block text-[10px] font-medium px-2 py-0.5 rounded-full mt-1.5 ${badge.cls}`}>
+                        {badge.label}
+                      </span>
+                    </div>
+
+                    {/* Actions menu */}
+                    <ActionMenu
+                      itemId={item.id}
+                      isActive={item.status === 'ACTIVE'}
+                      isExpired={item.status === 'EXPIRED' || item.status === 'SOLD'}
+                      tp={tp}
+                      onEdit={() => {
+                        window.location.href = `/${locale}${getEditRoute(item.id)}`;
+                      }}
+                      onRenew={async () => {
                         try {
                           const res = await featureMut.mutateAsync({ entityType, entityId: item.id });
                           window.location.href = res.checkoutUrl;
-                        } catch (err: any) { addToast('error', err?.message || tp('myListingsFeatureError')); }
+                        } catch (err: any) {
+                          addToast('error', err?.message || tp('myListingsFeatureError'));
+                        }
                       }}
-                      disabled={featureMut.isPending || item.isPremium}
-                      className={`flex-1 py-2.5 text-center text-xs font-black transition-all flex items-center justify-center gap-1.5 ${item.isPremium ? 'text-amber-500 bg-amber-50 dark:bg-amber-900/10' : 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/10'}`}
-                    >
-                      <span className="material-symbols-outlined text-sm">workspace_premium</span>
-                      {item.isPremium ? tp('myListingsFeatured') : tp('myListingsFeature')}
-                    </button>
-                    <div className="w-px bg-outline-variant/10 dark:bg-outline-variant/20" />
-                    <button
-                      onClick={() => {
+                      onPause={() => {
+                        // Pause not yet implemented in API — placeholder
+                        addToast('info', tp('myListingsPause'));
+                      }}
+                      onDelete={() => {
                         if (confirm(tp('myListingsDeleteConfirm'))) {
                           deleteFn?.(item.id, { onSuccess: () => sectionData.refetch() });
                         }
                       }}
-                      className="flex-1 py-2.5 text-center text-xs font-black text-on-surface-variant hover:text-error hover:bg-error/5 transition-all flex items-center justify-center gap-1.5"
-                    >
-                      <span className="material-symbols-outlined text-sm">delete</span>
-                      {tp('myListingsDelete')}
-                    </button>
+                    />
                   </div>
-                );
-
-                if (activeSection === 'cars') {
-                  const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
-                  return (
-                    <div
-                      key={item.id}
-                      className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden group hover:shadow-lg dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all"
-                    >
-                      <div className="relative">
-                        <VehicleCard
-                          id={item.id}
-                          title={item.title}
-                          make={item.make}
-                          model={item.model}
-                          year={item.year}
-                          price={item.price}
-                          currency={item.currency}
-                          mileage={item.mileage}
-                          fuelType={item.fuelType}
-                          imageUrl={getImageUrl(img?.url)}
-                          listingType={item.listingType}
-                          dailyPrice={item.dailyPrice}
-                        />
-                        <div className="absolute top-2 left-2">
-                          <span className={`text-[10px] font-black px-2 py-1 ${st.cls}`}>
-                            {st.label}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="px-3 py-2 flex items-center gap-3 text-[11px] text-on-surface-variant border-t border-outline-variant/10 dark:border-outline-variant/20">
-                        <span className="flex items-center gap-0.5">
-                          <span className="material-symbols-outlined text-xs">visibility</span>
-                          {item.viewCount || 0}
-                        </span>
-                        <span className="flex items-center gap-0.5">
-                          <span className="material-symbols-outlined text-xs">schedule</span>
-                          {new Date(item.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')}
-                        </span>
-                      </div>
-                      <div className="flex border-t border-outline-variant/10 dark:border-outline-variant/20">
-                        {actionBar}
-                      </div>
-                    </div>
-                  );
-                }
-
-                // Generic card for all other sections
-                const imgUrl = item.images?.[0]?.url || item.imageUrl || null;
-                return (
-                  <GenericListingCard
-                    key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    sectionType={entityType}
-                    price={item.price || item.salary || item.priceFrom || item.basePrice || item.pricePerTrip}
-                    currency={item.currency || 'OMR'}
-                    governorate={item.governorate}
-                    imageUrl={imgUrl}
-                    status={item.status}
-                    createdAt={item.createdAt}
-                    description={item.description}
-                    showBadge={false}
-                    actions={actionBar}
-                  />
                 );
               })}
             </div>
           ) : (
-            <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 p-12 md:p-16 text-center">
-              <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-primary/10 dark:bg-primary/15 flex items-center justify-center">
-                <span className="material-symbols-outlined text-4xl text-primary">inventory_2</span>
+            /* ═══ D) EMPTY STATE ═══ */
+            <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <PlusCircle size={28} className="text-primary" />
               </div>
-              <h3 className="text-lg font-black text-on-surface mb-2">
-                {statusFilter === 'ALL' ? tp('myListingsEmptyAll') : tp('myListingsEmptyFiltered', { filter: statusFilters.find(f => f.key === statusFilter)?.label ?? '' })}
+              <h3 className="text-[15px] font-medium text-on-surface mb-2">
+                {statusFilter === 'ALL'
+                  ? tp('myListingsEmptyAll')
+                  : tp('myListingsEmptyFiltered', { filter: statusFilters.find(f => f.key === statusFilter)?.label ?? '' })}
               </h3>
-              <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">{tp('myListingsEmptyDesc')}</p>
+              <p className="text-[13px] text-on-surface-variant mb-6 max-w-xs">{tp('myListingsEmptyDesc')}</p>
               <Link
                 href="/add-listing"
-                className="inline-flex items-center gap-2 btn-primary px-8 py-3 text-sm font-black hover:brightness-110 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-on-primary text-[13px] font-medium hover:bg-primary/90 active:scale-[0.98] transition-all shadow-sm shadow-primary/20"
               >
-                <span className="material-symbols-outlined text-lg">add</span>
-                {tp('myListingsAddFirst')}
+                <Plus size={16} />
+                {tp('myListingsAddNew')}
               </Link>
             </div>
           )}
         </main>
+
+        {/* ═══ E) FLOATING ADD BUTTON ═══ */}
+        <div className="fixed bottom-6 left-4 z-40 lg:hidden">
+          <Link
+            href="/add-listing"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-primary text-on-primary shadow-lg shadow-primary/30 text-[13px] font-medium hover:bg-primary/90 active:scale-[0.98] transition-all"
+          >
+            <Plus size={18} />
+            {tp('myListingsAddListing')}
+          </Link>
+        </div>
       </div>
       <Footer />
     </AuthGuard>

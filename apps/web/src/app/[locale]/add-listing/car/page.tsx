@@ -47,11 +47,15 @@ function AddCarContent() {
             formData.append('file', img.file);
             formData.append('isPrimary', String(img.isPrimary));
 
-            await fetch(`${API_BASE}/api/v1/uploads/listings/${listing.id}/images`, {
+            const res = await fetch(`${API_BASE}/api/v1/uploads/listings/${listing.id}/images`, {
               method: 'POST',
               headers: token ? { Authorization: `Bearer ${token}` } : {},
               body: formData,
             });
+            if (!res.ok) {
+              const err = await res.json().catch(() => null);
+              throw new Error(err?.message || tp('errUploadFailed'));
+            }
           }
         }
         setUploading(false);

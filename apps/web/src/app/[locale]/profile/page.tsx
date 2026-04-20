@@ -6,7 +6,6 @@ import { Link } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { AuthGuard } from '@/components/auth-guard';
-import { VehicleCard } from '@/features/ads/components/vehicle-card';
 import { ErrorState } from '@/components/error-state';
 import { useMe, useListings, useFavorites, useUpdateProfile, useChangePassword, useDeleteListing, useUploadImage } from '@/lib/api';
 import { getGovernorates } from '@/lib/location-data';
@@ -14,25 +13,40 @@ import { inputCls, labelCls } from '@/lib/constants/form-styles';
 import { getImageUrl } from '@/lib/image-utils';
 import { VerifiedBadge } from '@/components/verified-badge';
 import { useTranslations, useLocale } from 'next-intl';
+import { useAuth } from '@/providers/auth-provider';
+import { useRouter } from '@/i18n/navigation';
 
-type Tab = 'listings' | 'favorites' | 'settings';
+type Tab = 'listings' | 'favorites';
+type Section = 'personal' | 'contact' | 'security' | null;
 
 export default function ProfilePage() {
   const { data: user, isLoading: userLoading, isError: userError, refetch: refetchUser } = useMe();
   const { data: myListings, isLoading: listingsLoading } = useListings(user ? { sellerId: user.id, limit: '50' } : {});
   const { data: favorites, isLoading: favsLoading } = useFavorites();
+  const { logout } = useAuth();
+  const router = useRouter();
 
   const [tab, setTab] = useState<Tab>('listings');
-  const [editMode, setEditMode] = useState(false);
+  const [openSection, setOpenSection] = useState<Section>(null);
+  const [editSection, setEditSection] = useState<Section>(null);
+
+  /* ── Personal info edit state ── */
   const [displayName, setDisplayName] = useState('');
-  const [phone, setPhone] = useState('');
   const [bio, setBio] = useState('');
   const [governorate, setGovernorate] = useState('');
+  const [profileMsg, setProfileMsg] = useState('');
 
+  /* ── Contact edit state ── */
+  const [phone, setPhone] = useState('');
+  const [contactMsg, setContactMsg] = useState('');
+
+  /* ── Password state ── */
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [pwMsg, setPwMsg] = useState('');
-  const [profileMsg, setProfileMsg] = useState('');
+
+  /* ── Delete account confirm ── */
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
 
   const updateProfile = useUpdateProfile();
   const changePassword = useChangePassword();
@@ -42,6 +56,7 @@ export default function ProfilePage() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const tp = useTranslations('pages');
   const locale = useLocale();
+  const govOptions = getGovernorates('OM', locale);
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -59,32 +74,61 @@ export default function ProfilePage() {
     }
   }
 
-  function startEdit() {
+  function openEdit(section: Section) {
     if (!user) return;
-    setDisplayName(user.displayName || '');
-    setPhone(user.phone || '');
-    setBio(user.bio || '');
-    setGovernorate(user.governorate || '');
-    setEditMode(true);
-    setTab('settings');
-    setProfileMsg('');
+    setOpenSection(section);
+    setEditSection(section);
+    if (section === 'personal') {
+      setDisplayName(user.displayName || '');
+      setBio(user.bio || '');
+      setGovernorate(user.governorate || '');
+      setProfileMsg('');
+    }
+    if (section === 'contact') {
+      setPhone(user.phone || '');
+      setContactMsg('');
+    }
+    if (section === 'security') {
+      setCurrentPassword('');
+      setNewPassword('');
+      setPwMsg('');
+    }
   }
 
-  async function saveProfile(e: React.FormEvent) {
+  function cancelEdit() {
+    setEditSection(null);
+    setProfileMsg('');
+    setContactMsg('');
+    setPwMsg('');
+  }
+
+  async function savePersonal(e: React.FormEvent) {
     e.preventDefault();
     setProfileMsg('');
     try {
       await updateProfile.mutateAsync({
         displayName: displayName || undefined,
-        phone: phone || undefined,
         bio: bio || undefined,
         governorate: governorate || undefined,
       });
-      setEditMode(false);
-      setProfileMsg(tp('profileSaved'));
+      setEditSection(null);
+      setProfileMsg('تم حفظ المعلومات بنجاح');
       refetchUser();
     } catch (err) {
       setProfileMsg(err instanceof Error ? err.message : tp('profileError'));
+    }
+  }
+
+  async function saveContact(e: React.FormEvent) {
+    e.preventDefault();
+    setContactMsg('');
+    try {
+      await updateProfile.mutateAsync({ phone: phone || undefined });
+      setEditSection(null);
+      setContactMsg('تم حفظ بيانات التواصل');
+      refetchUser();
+    } catch (err) {
+      setContactMsg(err instanceof Error ? err.message : tp('profileError'));
     }
   }
 
@@ -96,9 +140,20 @@ export default function ProfilePage() {
       setPwMsg(tp('profilePasswordChanged'));
       setCurrentPassword('');
       setNewPassword('');
+      setEditSection(null);
     } catch (err) {
       setPwMsg(err instanceof Error ? err.message : tp('profileError'));
     }
+  }
+
+  function handleLogout() {
+    logout();
+    router.push('/');
+  }
+
+  function toggleSection(s: Section) {
+    setOpenSection(prev => prev === s ? null : s);
+    if (editSection === s) cancelEdit();
   }
 
   /* ── Loading skeleton ── */
@@ -106,19 +161,14 @@ export default function ProfilePage() {
     return (
       <AuthGuard>
         <Navbar />
-        <div className="min-h-screen bg-background">
-          <div className="h-48 md:h-56 bg-gradient-to-bl from-[#004ac6] via-[#2563eb] to-[#0B2447] animate-pulse" />
-          <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-20">
-            <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 p-6 md:p-8 animate-pulse">
-              <div className="flex items-center gap-5">
-                <div className="w-20 h-20 rounded-full bg-surface-container-high shrink-0" />
-                <div className="flex-1 space-y-3">
-                  <div className="h-6 bg-surface-container-high rounded-full w-48" />
-                  <div className="h-4 bg-surface-container-high rounded-full w-32" />
-                </div>
-              </div>
+        <div className="min-h-screen bg-background flex flex-col">
+          <div className="flex-1 max-w-lg mx-auto w-full px-4 pt-20 pb-10">
+            <div className="animate-pulse space-y-4">
+              <div className="w-[88px] h-[88px] rounded-full bg-surface-container-high mx-auto" />
+              <div className="h-5 bg-surface-container-high rounded-full w-36 mx-auto" />
+              <div className="h-3 bg-surface-container-high rounded-full w-24 mx-auto" />
             </div>
-          </main>
+          </div>
         </div>
       </AuthGuard>
     );
@@ -136,430 +186,536 @@ export default function ProfilePage() {
 
   const activeCount = myListings?.items?.length ?? 0;
   const favsCount = favorites?.items?.length ?? 0;
-  const totalViews = myListings?.items?.reduce((s, i) => s + (i.viewCount || 0), 0) ?? 0;
-  const memberSince = new Date(user.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US', { year: 'numeric', month: 'long' });
+  const memberYear = new Date(user.createdAt).getFullYear();
   const initial = (user.displayName || user.username)[0]?.toUpperCase();
-  const govOptions = getGovernorates('OM', locale);
-
-  const tabs: { key: Tab; label: string; icon: string; count?: number }[] = [
-    { key: 'listings', label: tp('profileTabListings'), icon: 'directions_car', count: activeCount },
-    { key: 'favorites', label: tp('profileTabFavorites'), icon: 'favorite', count: favsCount },
-    { key: 'settings', label: tp('profileTabSettings'), icon: 'settings' },
-  ];
 
   return (
     <AuthGuard>
       <Navbar />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-16">
 
-        {/* ══════════════════════════════════════
-            Cover Gradient
-           ══════════════════════════════════════ */}
-        <div className="relative h-48 md:h-56 bg-gradient-to-bl from-[#004ac6] via-[#2563eb] to-[#0B2447] overflow-hidden">
-          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
+        {/* ══ COVER BANNER ══ */}
+        <div className="relative h-36 bg-gradient-to-bl from-[#004ac6] via-[#1d4ed8] to-[#0B2447] overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h30v30H0zm30 30h30v30H30z\' fill=\'%23fff\' fill-opacity=\'.5\'/%3E%3C/svg%3E")', backgroundSize: '30px 30px' }} />
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent" />
         </div>
 
-        {/* ══════════════════════════════════════
-            Profile Card (overlapping cover)
-           ══════════════════════════════════════ */}
-        <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-24 md:-mt-28 relative z-10 pb-16">
+        {/* ══ A) PROFILE HERO ══ */}
+        <div className="relative max-w-lg mx-auto px-4 -mt-12">
 
-          <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.3)] overflow-hidden mb-6">
-
-            {/* ── Top section: Avatar + Info + Actions ── */}
-            <div className="p-4 sm:p-5 md:p-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5">
-                {/* Avatar with upload */}
-                <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={avatarUploading}
-                  className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full shrink-0 ring-4 ring-surface-container-lowest dark:ring-surface-container shadow-lg group overflow-hidden"
-                >
-                  {user.avatarUrl ? (
-                    <Image src={getImageUrl(user.avatarUrl) || ''} alt={user.displayName || user.username} fill className="object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-black text-2xl sm:text-3xl md:text-4xl">
-                      {initial}
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    {avatarUploading ? (
-                      <span className="material-symbols-outlined text-white text-lg animate-spin">progress_activity</span>
-                    ) : (
-                      <span className="material-symbols-outlined text-white text-lg">photo_camera</span>
-                    )}
-                  </div>
-                </button>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2.5 mb-1 flex-wrap">
-                    <h1 className="text-base sm:text-xl md:text-2xl font-black text-on-surface truncate">{user.displayName || user.username}</h1>
-                    {user.isVerified && <VerifiedBadge />}
-                  </div>
-                  <p className="text-sm text-on-surface-variant font-medium mb-2">@{user.username}</p>
-                  <div className="flex items-center gap-4 flex-wrap text-xs text-on-surface-variant">
-                    {user.governorate && (
-                      <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm">location_on</span>
-                        {user.governorate}
-                      </span>
-                    )}
-                    <span className="flex items-center gap-1">
-                      <span className="material-symbols-outlined text-sm">calendar_month</span>
-                      {tp('profileMemberSince', { date: memberSince })}
-                    </span>
-                  </div>
-                  {user.bio && (
-                    <p className="text-sm text-on-surface-variant mt-2.5 leading-relaxed line-clamp-2">{user.bio}</p>
-                  )}
+          {/* Avatar — floats above card, z-10 so it layers over cover + card top edge */}
+          <div className="flex justify-center relative z-10 mb-0">
+            <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarUploading}
+              className="relative w-[96px] h-[96px] rounded-full border-4 border-background shadow-xl overflow-hidden block group flex-shrink-0"
+            >
+              {user.avatarUrl ? (
+                <Image src={getImageUrl(user.avatarUrl) || ''} alt={user.displayName || user.username} fill className="object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-primary via-[#2563eb] to-[#0B2447] flex items-center justify-center text-white font-bold text-4xl select-none">
+                  {initial}
                 </div>
-
-                {/* Quick actions */}
-                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 self-start sm:self-center">
-                  <button onClick={startEdit} className="h-8 sm:h-10 px-3 sm:px-5 bg-primary text-on-primary text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 hover:brightness-110 transition-all rounded-lg">
-                    <span className="material-symbols-outlined text-base sm:text-lg">edit</span>
-                    <span className="hidden sm:inline">{tp('profileEdit')}</span>
-                  </button>
-                  <Link href="/add-listing" className="h-8 sm:h-10 px-3 sm:px-5 btn-success text-xs sm:text-sm font-black flex items-center gap-1.5 sm:gap-2 hover:brightness-105 transition-all rounded-lg">
-                    <span className="material-symbols-outlined text-base sm:text-lg">add</span>
-                    <span className="hidden sm:inline">{tp('profileAddListing')}</span>
-                  </Link>
-                </div>
+              )}
+              <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                {avatarUploading
+                  ? <span className="material-symbols-outlined text-white text-xl animate-spin">progress_activity</span>
+                  : <span className="material-symbols-outlined text-white text-xl">photo_camera</span>
+                }
               </div>
-            </div>
-
-            {/* ── Stats Bar ── */}
-            <div className="border-t border-outline-variant/10 dark:border-outline-variant/20 grid grid-cols-3 divide-x divide-outline-variant/10 dark:divide-outline-variant/20">
-              <button onClick={() => setTab('listings')} className="py-3 sm:py-4 px-2 sm:px-3 text-center hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/30 transition-colors group">
-                <p className="text-lg sm:text-xl md:text-2xl font-black text-on-surface group-hover:text-primary transition-colors">{activeCount}</p>
-                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">{tp('profileStatsListings')}</p>
-              </button>
-              <button onClick={() => setTab('favorites')} className="py-3 sm:py-4 px-2 sm:px-3 text-center hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/30 transition-colors group">
-                <p className="text-lg sm:text-xl md:text-2xl font-black text-on-surface group-hover:text-error transition-colors">{favsCount}</p>
-                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">{tp('profileStatsFavorites')}</p>
-              </button>
-              <div className="py-3 sm:py-4 px-2 sm:px-3 text-center">
-                <p className="text-lg sm:text-xl md:text-2xl font-black text-on-surface">{totalViews}</p>
-                <p className="text-[10px] sm:text-[11px] md:text-xs text-on-surface-variant font-bold">{tp('profileStatsViews')}</p>
-              </div>
-            </div>
+            </button>
           </div>
 
-          {/* ══════════════════════════════════════
-              Tabs
-             ══════════════════════════════════════ */}
-          <div className="flex gap-1 mb-6 overflow-x-auto no-scrollbar">
-            {tabs.map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className={`relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-black transition-all whitespace-nowrap ${
-                  tab === t.key
-                    ? 'bg-surface-container-lowest dark:bg-surface-container text-primary shadow-sm border border-outline-variant/10 dark:border-outline-variant/20'
-                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low/50 dark:hover:bg-surface-container-high/30'
-                }`}
-              >
-                <span className="material-symbols-outlined text-lg">{t.icon}</span>
+          {/* Hero Card — sits below avatar, uses negative margin to tuck under avatar */}
+          <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/15 shadow-[0_4px_32px_rgba(0,0,0,0.10)] overflow-hidden -mt-12">
+
+            {/* Info area — pt-14 to clear the avatar overlap */}
+            <div className="px-5 pt-14 pb-4 flex flex-col items-center text-center">
+
+              {/* Name + verified */}
+              <div className="flex items-center justify-center gap-1.5">
+                <h1 className="text-[20px] font-semibold text-on-surface tracking-tight">{user.displayName || user.username}</h1>
+                {user.isVerified && <VerifiedBadge />}
+              </div>
+              <p className="text-[12px] text-on-surface-variant mt-0.5">@{user.username} · عضو منذ {memberYear}</p>
+
+              {user.governorate && (
+                <p className="flex items-center gap-1 text-[11px] text-on-surface-variant mt-1">
+                  <span className="material-symbols-outlined text-xs">location_on</span>
+                  {user.governorate}
+                </p>
+              )}
+            </div>
+
+            {/* Stats bar */}
+            <div className="grid grid-cols-3 border-t border-outline-variant/15">
+              <button onClick={() => setTab('listings')}
+                className="py-3.5 text-center hover:bg-surface-container-low/60 transition-colors group">
+                <p className="text-[18px] font-semibold text-on-surface group-hover:text-primary transition-colors">{activeCount}</p>
+                <p className="text-[10px] text-on-surface-variant mt-0.5 uppercase tracking-wide">{tp('profileStatsListings')}</p>
+              </button>
+              <button onClick={() => setTab('favorites')}
+                className="py-3.5 text-center border-x border-outline-variant/15 hover:bg-surface-container-low/60 transition-colors group">
+                <p className="text-[18px] font-semibold text-on-surface group-hover:text-primary transition-colors">{favsCount}</p>
+                <p className="text-[10px] text-on-surface-variant mt-0.5 uppercase tracking-wide">{tp('profileStatsFavorites')}</p>
+              </button>
+              <div className="py-3.5 text-center">
+                <p className="text-[18px] font-semibold text-on-surface">
+                  {user.isVerified
+                    ? <span className="text-[15px] text-green-600 font-semibold">موثّق ✓</span>
+                    : <span className="text-on-surface-variant">—</span>
+                  }
+                </p>
+                <p className="text-[10px] text-on-surface-variant mt-0.5 uppercase tracking-wide">الحالة</p>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="px-5 py-4 border-t border-outline-variant/15">
+              <Link href="/add-listing"
+                className="w-full h-10 rounded-xl bg-primary text-on-primary text-[13px] font-medium flex items-center justify-center gap-1.5 hover:bg-primary/90 active:scale-[0.98] transition-all shadow-sm shadow-primary/20">
+                <span className="material-symbols-outlined text-base">add</span>
+                {tp('profileAddListing')}
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* ══ B) VERIFICATION BADGES ══ */}
+        <div className="flex gap-2 justify-center flex-wrap px-4 mt-4 mb-6 max-w-lg mx-auto">
+          {user.phone ? (
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200 text-[11px] font-medium dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
+              <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+              رقم الجوال مُفعَّل
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-on-surface-variant border border-outline-variant/30 text-[11px] font-medium cursor-pointer hover:border-primary/40 transition-colors"
+              onClick={() => openEdit('contact')}>
+              <span className="material-symbols-outlined text-xs">radio_button_unchecked</span>
+              أضف رقم الجوال
+            </span>
+          )}
+          {user.isVerified ? (
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200 text-[11px] font-medium dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
+              <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+              حساب موثّق
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-on-surface-variant border border-outline-variant/30 text-[11px] font-medium">
+              <span className="material-symbols-outlined text-xs">radio_button_unchecked</span>
+              تحقق من البريد الإلكتروني
+            </span>
+          )}
+          {user.governorate && (
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200 text-[11px] font-medium dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
+              <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+              {user.governorate}
+            </span>
+          )}
+        </div>
+
+        {/* ══ CONTENT TABS ══ */}
+        <div className="max-w-lg mx-auto px-4 mb-4">
+          <div className="flex gap-1 border-b border-outline-variant/20 bg-surface-container-lowest rounded-t-xl overflow-hidden">
+            {([
+              { key: 'listings' as Tab, label: tp('profileTabListings'), count: activeCount },
+              { key: 'favorites' as Tab, label: tp('profileTabFavorites'), count: favsCount },
+            ]).map(t => (
+              <button key={t.key} onClick={() => setTab(t.key)}
+                className={`flex items-center gap-1.5 px-4 py-2.5 text-[13px] font-medium border-b-2 transition-colors -mb-px ${
+                  tab === t.key ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-surface'
+                }`}>
                 {t.label}
-                {t.count !== undefined && t.count > 0 && (
-                  <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full min-w-[20px] text-center ${
-                    tab === t.key ? 'bg-primary/10 text-primary' : 'bg-surface-container-high dark:bg-surface-container-highest text-on-surface-variant'
-                  }`}>
+                {t.count > 0 && (
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${tab === t.key ? 'bg-primary/10 text-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
                     {t.count}
                   </span>
                 )}
               </button>
             ))}
           </div>
+        </div>
 
-          {/* ══════════════════════════════════════
-              Tab Content
-             ══════════════════════════════════════ */}
-
-          {/* ── Listings Tab ── */}
-          {tab === 'listings' && (
-            <>
-              {listingsLoading ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="animate-pulse bg-surface-container-high aspect-[4/3]" />
-                  ))}
-                </div>
-              ) : myListings && myListings.items.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-                  {/* Add New */}
-                  <Link
-                    href="/add-listing"
-                    className="bg-surface-container-lowest dark:bg-surface-container border-2 border-dashed border-outline-variant/25 dark:border-outline-variant/40 aspect-[4/3] flex flex-col items-center justify-center gap-3 text-on-surface-variant hover:border-primary/40 hover:bg-primary/[0.02] dark:hover:bg-primary/[0.05] transition-all group"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-primary/10 dark:bg-primary/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <span className="material-symbols-outlined text-3xl text-primary">add</span>
-                    </div>
-                    <span className="font-black text-sm group-hover:text-primary transition-colors">{tp('profileAddNewListing')}</span>
-                  </Link>
-
-                  {myListings.items.map((item) => {
-                    const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];
-                    return (
-                      <div key={item.id} className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden group hover:shadow-lg dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all">
-                        {/* Status badge */}
-                        <div className="relative">
-                          <VehicleCard
-                            id={item.id}
-                            title={item.title}
-                            make={item.make}
-                            model={item.model}
-                            year={item.year}
-                            price={item.price}
-                            currency={item.currency}
-                            mileage={item.mileage}
-                            fuelType={item.fuelType}
-                            imageUrl={getImageUrl(img?.url)}
-                            listingType={item.listingType}
-                            dailyPrice={item.dailyPrice}
-                          />
-                          <div className="absolute top-2 left-2">
-                            <span className={`text-[10px] font-black px-2 py-1 ${
-                              item.status === 'ACTIVE'
-                                ? 'bg-brand-green/90 text-white'
-                                : 'bg-surface-container-high/90 text-on-surface-variant'
-                            }`}>
-                              {item.status === 'ACTIVE' ? tp('profileStatusActive') : item.status}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Mini stats */}
-                        <div className="px-3 py-2 flex items-center gap-3 text-[11px] text-on-surface-variant border-t border-outline-variant/10 dark:border-outline-variant/20">
+        {/* ── Listings Tab ── */}
+        {tab === 'listings' && (
+          <div className="max-w-lg mx-auto px-4 mb-6">
+            {listingsLoading ? (
+              <div className="space-y-3">
+                {[1,2,3].map(i => <div key={i} className="h-20 bg-surface-container-high rounded-2xl animate-pulse" />)}
+              </div>
+            ) : myListings && myListings.items.length > 0 ? (
+              <div className="space-y-3">
+                <Link href="/add-listing"
+                  className="flex items-center gap-3 p-4 rounded-2xl border-2 border-dashed border-outline-variant/30 text-on-surface-variant hover:border-primary/40 hover:text-primary transition-all group">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
+                    <span className="material-symbols-outlined text-primary text-lg">add</span>
+                  </div>
+                  <span className="text-[13px] font-medium">{tp('profileAddNewListing')}</span>
+                </Link>
+                {myListings.items.map((item) => {
+                  const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];
+                  return (
+                    <div key={item.id} className="flex items-center gap-3 p-3 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest hover:border-outline-variant/30 transition-all">
+                      <div className="w-14 h-14 rounded-xl overflow-hidden bg-surface-container-high flex-shrink-0">
+                        {img?.url
+                          ? <Image src={getImageUrl(img.url) || ''} alt={item.title} width={56} height={56} className="object-cover w-full h-full" />
+                          : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-on-surface-variant/40 text-2xl">image</span></div>
+                        }
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-medium text-on-surface truncate">{item.title}</p>
+                        <div className="flex items-center gap-2 mt-0.5 text-[11px] text-on-surface-variant">
+                          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${item.status === 'ACTIVE' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-surface-container-high text-on-surface-variant'}`}>
+                            {item.status === 'ACTIVE' ? tp('profileStatusActive') : item.status}
+                          </span>
                           <span className="flex items-center gap-0.5">
                             <span className="material-symbols-outlined text-xs">visibility</span>
                             {item.viewCount || 0}
                           </span>
-                          <span className="flex items-center gap-0.5">
-                            <span className="material-symbols-outlined text-xs">schedule</span>
-                            {new Date(item.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')}
-                          </span>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex border-t border-outline-variant/10 dark:border-outline-variant/20">
-                          <Link href={`/edit-listing/${item.id}`} className="flex-1 py-2.5 text-center text-xs font-black text-on-surface-variant hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-1.5">
-                            <span className="material-symbols-outlined text-sm">edit</span>
-                            {tp('profileEditAction')}
-                          </Link>
-                          <div className="w-px bg-outline-variant/10 dark:bg-outline-variant/20" />
-                          <button
-                            onClick={() => { if (confirm(tp('profileDeleteConfirm'))) deleteListing.mutate(item.id); }}
-                            className="flex-1 py-2.5 text-center text-xs font-black text-on-surface-variant hover:text-error hover:bg-error/5 transition-all flex items-center justify-center gap-1.5"
-                          >
-                            <span className="material-symbols-outlined text-sm">delete</span>
-                            {tp('profileDeleteAction')}
-                          </button>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 p-12 md:p-16 text-center">
-                  <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-primary/10 dark:bg-primary/15 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-4xl text-primary">inventory_2</span>
-                  </div>
-                  <h3 className="text-lg font-black text-on-surface mb-2">{tp('profileNoListings')}</h3>
-                  <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">{tp('profileNoListingsDesc')}</p>
-                  <Link href="/add-listing" className="inline-flex items-center gap-2 btn-primary px-8 py-3 text-sm font-black hover:brightness-110 transition-all">
-                    <span className="material-symbols-outlined text-lg">add</span>
-                    {tp('profileAddFirst')}
-                  </Link>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* ── Favorites Tab ── */}
-          {tab === 'favorites' && (
-            <>
-              {favsLoading ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="animate-pulse bg-surface-container-high aspect-[4/3]" />
-                  ))}
-                </div>
-              ) : favorites && favorites.items?.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-                  {favorites.items.map((fav: any) => {
-                    const item = fav.listing;
-                    if (!item) return null;
-                    const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
-                    return (
-                      <div key={fav.id} className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden hover:shadow-lg dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all">
-                        <VehicleCard
-                          id={item.id}
-                          title={item.title}
-                          make={item.make}
-                          model={item.model}
-                          year={item.year}
-                          price={item.price}
-                          currency={item.currency}
-                          mileage={item.mileage}
-                          fuelType={item.fuelType}
-                          imageUrl={getImageUrl(img?.url)}
-                          listingType={item.listingType}
-                          dailyPrice={item.dailyPrice}
-                        />
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Link href={`/edit-listing/${item.id}`}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/8 transition-all">
+                          <span className="material-symbols-outlined text-base">edit</span>
+                        </Link>
+                        <button onClick={() => { if (confirm(tp('profileDeleteConfirm'))) deleteListing.mutate(item.id); }}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error/8 transition-all">
+                          <span className="material-symbols-outlined text-base">delete</span>
+                        </button>
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 p-12 md:p-16 text-center">
-                  <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-error/10 dark:bg-error/15 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-4xl text-error">favorite</span>
-                  </div>
-                  <h3 className="text-lg font-black text-on-surface mb-2">{tp('profileNoFavorites')}</h3>
-                  <p className="text-sm text-on-surface-variant mb-6 max-w-xs mx-auto">{tp('profileNoFavoritesDesc')}</p>
-                  <Link href="/listings" className="inline-flex items-center gap-2 btn-primary px-8 py-3 text-sm font-black hover:brightness-110 transition-all">
-                    <span className="material-symbols-outlined text-lg">search</span>
-                    {tp('profileBrowseListings')}
-                  </Link>
-                </div>
-              )}
-            </>
-          )}
-
-          {/* ── Settings Tab ── */}
-          {tab === 'settings' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-              {/* Personal Info */}
-              {editMode ? (
-                <form onSubmit={saveProfile} className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden lg:col-span-2">
-                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-primary">person</span>
-                      <h3 className="text-base font-black">{tp('profileEditTitle')}</h3>
                     </div>
-                    <button type="button" onClick={() => setEditMode(false)} className="text-on-surface-variant hover:text-on-surface transition-colors">
-                      <span className="material-symbols-outlined text-xl">close</span>
-                    </button>
-                  </div>
-                  <div className="p-6 space-y-5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <div>
-                        <label className={labelCls}>{tp('profileDisplayNameLabel')}</label>
-                        <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder={tp('profileDisplayNamePlaceholder')} className={inputCls} />
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-3xl text-primary">inventory_2</span>
+                </div>
+                <p className="text-[14px] font-medium text-on-surface mb-1">{tp('profileNoListings')}</p>
+                <p className="text-[12px] text-on-surface-variant mb-5">{tp('profileNoListingsDesc')}</p>
+                <Link href="/add-listing" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-[13px] font-medium hover:bg-primary/90 transition-colors">
+                  <span className="material-symbols-outlined text-base">add</span>
+                  {tp('profileAddFirst')}
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Favorites Tab ── */}
+        {tab === 'favorites' && (
+          <div className="max-w-lg mx-auto px-4 mb-6">
+            {favsLoading ? (
+              <div className="space-y-3">
+                {[1,2,3].map(i => <div key={i} className="h-20 bg-surface-container-high rounded-2xl animate-pulse" />)}
+              </div>
+            ) : favorites && favorites.items?.length > 0 ? (
+              <div className="space-y-3">
+                {favorites.items.map((fav: any) => {
+                  const item = fav.listing;
+                  if (!item) return null;
+                  const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
+                  return (
+                    <Link key={fav.id} href={`/listings/${item.id}`}
+                      className="flex items-center gap-3 p-3 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest hover:border-outline-variant/30 transition-all">
+                      <div className="w-14 h-14 rounded-xl overflow-hidden bg-surface-container-high flex-shrink-0">
+                        {img?.url
+                          ? <Image src={getImageUrl(img.url) || ''} alt={item.title} width={56} height={56} className="object-cover w-full h-full" />
+                          : <div className="w-full h-full flex items-center justify-center"><span className="material-symbols-outlined text-on-surface-variant/40 text-2xl">image</span></div>
+                        }
                       </div>
-                      <div>
-                        <label className={labelCls}>{tp('profilePhoneLabel')}</label>
-                        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+968 9XXX XXXX" className={inputCls} dir="ltr" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-medium text-on-surface truncate">{item.title}</p>
+                        <p className="text-[11px] text-on-surface-variant mt-0.5">
+                          {item.price ? `${Number(item.price).toLocaleString()} ${item.currency}` : item.dailyPrice ? `${Number(item.dailyPrice).toLocaleString()} ${item.currency}/يوم` : ''}
+                        </p>
                       </div>
+                      <span className="material-symbols-outlined text-on-surface-variant/40 text-base flex-shrink-0">chevron_left</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-error/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-3xl text-error">favorite</span>
+                </div>
+                <p className="text-[14px] font-medium text-on-surface mb-1">{tp('profileNoFavorites')}</p>
+                <p className="text-[12px] text-on-surface-variant mb-5">{tp('profileNoFavoritesDesc')}</p>
+                <Link href="/listings" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-[13px] font-medium hover:bg-primary/90 transition-colors">
+                  <span className="material-symbols-outlined text-base">search</span>
+                  {tp('profileBrowseListings')}
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══ C) PROFILE SECTIONS (accordion) ══ */}
+        <div className="max-w-lg mx-auto space-y-0">
+
+          {/* ─ 1. المعلومات الشخصية ─ */}
+          <div className={`mx-4 mb-3 rounded-2xl border overflow-hidden bg-surface-container-lowest transition-all duration-200 ${
+            openSection === 'personal'
+              ? 'border-primary/30 shadow-[0_2px_16px_rgba(0,74,198,0.08)]'
+              : 'border-outline-variant/20'
+          }`}>
+            <button
+              onClick={() => toggleSection('personal')}
+              className="w-full flex items-center justify-between p-4 cursor-pointer hover:bg-surface-container-low/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary text-base">person</span>
+                </div>
+                <span className="text-[14px] font-medium text-on-surface">{tp('profilePersonalInfo')}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {openSection === 'personal' && editSection !== 'personal' && (
+                  <button onClick={(e) => { e.stopPropagation(); openEdit('personal'); }}
+                    className="text-[12px] text-primary font-medium hover:underline">تعديل</button>
+                )}
+                <span className={`material-symbols-outlined transition-transform duration-200 ${openSection === 'personal' ? 'text-primary rotate-180' : 'text-on-surface-variant'}`}>
+                  expand_more
+                </span>
+              </div>
+            </button>
+
+            {openSection === 'personal' && (
+              <div className="border-t border-primary/10 p-4 bg-gradient-to-b from-primary/[0.02] to-transparent">
+                {editSection === 'personal' ? (
+                  <form onSubmit={savePersonal} className="space-y-4">
+                    <div>
+                      <label className={labelCls}>{tp('profileDisplayNameLabel')}</label>
+                      <input type="text" value={displayName} onChange={e => setDisplayName(e.target.value)}
+                        placeholder={tp('profileDisplayNamePlaceholder')} className={inputCls} />
                     </div>
                     <div>
                       <label className={labelCls}>{tp('profileGovernorateLabel')}</label>
-                      <select value={governorate} onChange={(e) => setGovernorate(e.target.value)} className={inputCls}>
+                      <select value={governorate} onChange={e => setGovernorate(e.target.value)} className={inputCls}>
                         <option value="">{tp('profileGovernoratePlaceholder')}</option>
-                        {govOptions.map((g) => <option key={g.value} value={g.label}>{g.label}</option>)}
+                        {govOptions.map(g => <option key={g.value} value={g.label}>{g.label}</option>)}
                       </select>
                     </div>
                     <div>
                       <label className={labelCls}>{tp('profileBioLabel')}</label>
-                      <textarea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder={tp('profileBioPlaceholder')} className={inputCls + ' resize-none'} />
+                      <textarea rows={3} value={bio} onChange={e => setBio(e.target.value)}
+                        placeholder={tp('profileBioPlaceholder')} className={inputCls + ' resize-none'} />
                     </div>
                     {profileMsg && (
-                      <div className={`flex items-center gap-2 p-3 text-sm font-bold ${profileMsg.includes(tp('profileError')) ? 'bg-error/10 text-error' : 'bg-brand-green/10 text-brand-green'}`}>
-                        <span className="material-symbols-outlined text-base">{profileMsg.includes(tp('profileError')) ? 'error' : 'check_circle'}</span>
-                        {profileMsg}
-                      </div>
+                      <p className={`text-[12px] font-medium ${profileMsg.includes('خطأ') || profileMsg.includes('Error') ? 'text-error' : 'text-brand-green'}`}>{profileMsg}</p>
                     )}
-                    <div className="flex gap-3 pt-2">
-                      <button type="submit" disabled={updateProfile.isPending} className="btn-primary flex-1 py-3 text-sm font-black hover:brightness-110 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
-                        {updateProfile.isPending ? (
-                          <><span className="material-symbols-outlined text-base animate-spin">progress_activity</span> {tp('profileSaving')}</>
-                        ) : (
-                          <><span className="material-symbols-outlined text-base">save</span> {tp('profileSaveChanges')}</>
-                        )}
+                    <div className="flex gap-2 pt-1">
+                      <button type="submit" disabled={updateProfile.isPending}
+                        className="flex-1 h-10 rounded-xl bg-primary text-on-primary text-[13px] font-medium hover:bg-primary/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-1.5">
+                        {updateProfile.isPending && <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>}
+                        {tp('profileSaveChanges')}
                       </button>
-                      <button type="button" onClick={() => setEditMode(false)} className="px-6 py-3 text-sm font-black text-on-surface-variant border border-outline-variant/15 dark:border-outline-variant/30 hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-all">
+                      <button type="button" onClick={cancelEdit}
+                        className="px-4 h-10 rounded-xl border border-outline-variant/30 text-[13px] text-on-surface-variant hover:bg-surface-container transition-colors">
                         {tp('profileCancel')}
                       </button>
                     </div>
-                  </div>
-                </form>
-              ) : (
-                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-primary">person</span>
-                      <h3 className="text-base font-black">{tp('profilePersonalInfo')}</h3>
-                    </div>
-                    <button onClick={startEdit} className="text-primary text-xs font-black hover:underline flex items-center gap-1">
-                      <span className="material-symbols-outlined text-sm">edit</span>
-                      {tp('profileEdit')}
-                    </button>
-                  </div>
-                  <div className="p-6">
-                    <div className="space-y-4">
-                      {[
-                        { icon: 'badge', label: tp('profileInfoName'), value: user.displayName || '—' },
-                        { icon: 'alternate_email', label: tp('profileInfoUsername'), value: `@${user.username}` },
-                        { icon: 'mail', label: tp('profileInfoEmail'), value: user.email },
-                        { icon: 'phone', label: tp('profileInfoPhone'), value: user.phone || '—' },
-                        { icon: 'location_on', label: tp('profileInfoGovernorate'), value: user.governorate || '—' },
-                      ].map((row) => (
-                        <div key={row.label} className="flex items-center gap-3">
-                          <span className="material-symbols-outlined text-lg text-on-surface-variant/50 shrink-0">{row.icon}</span>
-                          <span className="text-xs text-on-surface-variant w-20 shrink-0">{row.label}</span>
-                          <span className="text-sm font-medium text-on-surface truncate">{row.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {profileMsg && !editMode && (
-                      <div className="mt-4 flex items-center gap-2 p-3 text-sm font-bold bg-brand-green/10 text-brand-green">
-                        <span className="material-symbols-outlined text-base">check_circle</span>
-                        {profileMsg}
+                  </form>
+                ) : (
+                  <div className="space-y-3">
+                    {[
+                      { label: tp('profileInfoName'), value: user.displayName || '—' },
+                      { label: 'اسم المستخدم', value: `@${user.username}` },
+                      { label: tp('profileInfoGovernorate'), value: user.governorate || '—' },
+                    ].map(row => (
+                      <div key={row.label} className="flex justify-between items-center py-1 border-b border-outline-variant/10 last:border-0">
+                        <span className="text-[12px] text-on-surface-variant">{row.label}</span>
+                        <span className="text-[13px] font-medium text-on-surface">{row.value}</span>
                       </div>
+                    ))}
+                    {user.bio && <p className="text-[12px] text-on-surface-variant pt-1 leading-relaxed">{user.bio}</p>}
+                    {profileMsg && (
+                      <p className="text-[12px] text-brand-green font-medium">{profileMsg}</p>
                     )}
+                    <button onClick={() => openEdit('personal')}
+                      className="text-[12px] text-primary font-medium hover:underline mt-1">تعديل المعلومات</button>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+            )}
+          </div>
 
-              {/* Change Password */}
-              <form onSubmit={handleChangePassword} className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden self-start">
-                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">lock</span>
-                    <h3 className="text-base font-black">{tp('profileChangePassword')}</h3>
-                  </div>
+          {/* ─ 2. بيانات التواصل ─ */}
+          <div className={`mx-4 mb-3 rounded-2xl border overflow-hidden bg-surface-container-lowest transition-all duration-200 ${
+            openSection === 'contact'
+              ? 'border-primary/30 shadow-[0_2px_16px_rgba(0,74,198,0.08)]'
+              : 'border-outline-variant/20'
+          }`}>
+            <button
+              onClick={() => toggleSection('contact')}
+              className="w-full flex items-center justify-between p-4 cursor-pointer hover:bg-surface-container-low/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary text-base">contact_phone</span>
                 </div>
-                <div className="p-6 space-y-5">
-                  <div>
-                    <label className={labelCls}>{tp('profileCurrentPassword')}</label>
-                    <input type="password" required value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className={inputCls} />
-                  </div>
-                  <div>
-                    <label className={labelCls}>{tp('profileNewPassword')}</label>
-                    <input type="password" required minLength={8} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={inputCls} />
-                  </div>
-                  {pwMsg && (
-                    <div className={`flex items-center gap-2 p-3 text-sm font-bold ${pwMsg.includes(tp('profileError')) ? 'bg-error/10 text-error' : 'bg-brand-green/10 text-brand-green'}`}>
-                      <span className="material-symbols-outlined text-base">{pwMsg.includes(tp('profileError')) ? 'error' : 'check_circle'}</span>
-                      {pwMsg}
+                <span className="text-[14px] font-medium text-on-surface">بيانات التواصل</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {openSection === 'contact' && editSection !== 'contact' && (
+                  <button onClick={(e) => { e.stopPropagation(); openEdit('contact'); }}
+                    className="text-[12px] text-primary font-medium hover:underline">تعديل</button>
+                )}
+                <span className={`material-symbols-outlined transition-transform duration-200 ${openSection === 'contact' ? 'text-primary rotate-180' : 'text-on-surface-variant'}`}>
+                  expand_more
+                </span>
+              </div>
+            </button>
+
+            {openSection === 'contact' && (
+              <div className="border-t border-primary/10 p-4 bg-gradient-to-b from-primary/[0.02] to-transparent">
+                {editSection === 'contact' ? (
+                  <form onSubmit={saveContact} className="space-y-4">
+                    <div>
+                      <label className={labelCls}>{tp('profilePhoneLabel')}</label>
+                      <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+                        placeholder="+968 9XXX XXXX" className={inputCls} dir="ltr" />
                     </div>
-                  )}
-                  <button type="submit" disabled={changePassword.isPending} className="btn-primary w-full py-3 text-sm font-black hover:brightness-110 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
-                    {changePassword.isPending ? (
-                      <><span className="material-symbols-outlined text-base animate-spin">progress_activity</span> {tp('profileChangingPassword')}</>
-                    ) : (
-                      <><span className="material-symbols-outlined text-base">lock_reset</span> {tp('profileChangePasswordBtn')}</>
+                    {contactMsg && (
+                      <p className={`text-[12px] font-medium ${contactMsg.includes('خطأ') || contactMsg.includes('Error') ? 'text-error' : 'text-brand-green'}`}>{contactMsg}</p>
                     )}
-                  </button>
+                    <div className="flex gap-2 pt-1">
+                      <button type="submit" disabled={updateProfile.isPending}
+                        className="flex-1 h-10 rounded-xl bg-primary text-on-primary text-[13px] font-medium hover:bg-primary/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-1.5">
+                        {updateProfile.isPending && <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>}
+                        {tp('profileSaveChanges')}
+                      </button>
+                      <button type="button" onClick={cancelEdit}
+                        className="px-4 h-10 rounded-xl border border-outline-variant/30 text-[13px] text-on-surface-variant hover:bg-surface-container transition-colors">
+                        {tp('profileCancel')}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="space-y-3">
+                    {[
+                      { label: tp('profileInfoEmail'), value: user.email, verified: user.isVerified },
+                      { label: tp('profileInfoPhone'), value: user.phone || '—', verified: !!user.phone },
+                    ].map(row => (
+                      <div key={row.label} className="flex justify-between items-center py-1 border-b border-outline-variant/10 last:border-0">
+                        <span className="text-[12px] text-on-surface-variant">{row.label}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[13px] font-medium text-on-surface">{row.value}</span>
+                          {row.verified
+                            ? <span className="material-symbols-outlined text-green-600 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                            : <span className="material-symbols-outlined text-on-surface-variant/40 text-sm">radio_button_unchecked</span>
+                          }
+                        </div>
+                      </div>
+                    ))}
+                    {contactMsg && <p className="text-[12px] text-brand-green font-medium">{contactMsg}</p>}
+                    <button onClick={() => openEdit('contact')}
+                      className="text-[12px] text-primary font-medium hover:underline mt-1">تعديل بيانات التواصل</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ─ 3. الأمان ─ */}
+          <div className={`mx-4 mb-3 rounded-2xl border overflow-hidden bg-surface-container-lowest transition-all duration-200 ${
+            openSection === 'security'
+              ? 'border-primary/30 shadow-[0_2px_16px_rgba(0,74,198,0.08)]'
+              : 'border-outline-variant/20'
+          }`}>
+            <button
+              onClick={() => toggleSection('security')}
+              className="w-full flex items-center justify-between p-4 cursor-pointer hover:bg-surface-container-low/50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary text-base">lock</span>
                 </div>
-              </form>
-            </div>
-          )}
-        </main>
+                <span className="text-[14px] font-medium text-on-surface">{tp('profileChangePassword')}</span>
+              </div>
+              <span className={`material-symbols-outlined transition-transform duration-200 ${openSection === 'security' ? 'text-primary rotate-180' : 'text-on-surface-variant'}`}>
+                expand_more
+              </span>
+            </button>
+
+            {openSection === 'security' && (
+              <div className="border-t border-primary/10 p-4 bg-gradient-to-b from-primary/[0.02] to-transparent">
+                {editSection === 'security' ? (
+                  <form onSubmit={handleChangePassword} className="space-y-4">
+                    <div>
+                      <label className={labelCls}>{tp('profileCurrentPassword')}</label>
+                      <input type="password" required value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>{tp('profileNewPassword')}</label>
+                      <input type="password" required minLength={8} value={newPassword} onChange={e => setNewPassword(e.target.value)} className={inputCls} />
+                    </div>
+                    {pwMsg && (
+                      <p className={`text-[12px] font-medium ${pwMsg.includes('خطأ') || pwMsg.includes('Error') ? 'text-error' : 'text-brand-green'}`}>{pwMsg}</p>
+                    )}
+                    <div className="flex gap-2 pt-1">
+                      <button type="submit" disabled={changePassword.isPending}
+                        className="flex-1 h-10 rounded-xl bg-primary text-on-primary text-[13px] font-medium hover:bg-primary/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-1.5">
+                        {changePassword.isPending && <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>}
+                        {tp('profileChangePasswordBtn')}
+                      </button>
+                      <button type="button" onClick={cancelEdit}
+                        className="px-4 h-10 rounded-xl border border-outline-variant/30 text-[13px] text-on-surface-variant hover:bg-surface-container transition-colors">
+                        {tp('profileCancel')}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="space-y-3">
+                    <button onClick={() => openEdit('security')}
+                      className="w-full h-10 rounded-xl border border-outline-variant/25 text-[13px] text-on-surface font-medium hover:bg-surface-container transition-colors flex items-center justify-center gap-2">
+                      <span className="material-symbols-outlined text-base text-on-surface-variant">lock_reset</span>
+                      {tp('profileChangePasswordBtn')}
+                    </button>
+
+                    <div className="pt-1 border-t border-outline-variant/10">
+                      {!deleteConfirm ? (
+                        <button onClick={() => setDeleteConfirm(true)}
+                          className="w-full h-10 rounded-xl text-[13px] text-error font-medium hover:bg-error/5 transition-colors flex items-center justify-center gap-2">
+                          <span className="material-symbols-outlined text-base">person_remove</span>
+                          حذف الحساب
+                        </button>
+                      ) : (
+                        <div className="bg-error/5 rounded-xl p-3 space-y-2">
+                          <p className="text-[12px] text-error font-medium text-center">هل أنت متأكد؟ لا يمكن التراجع عن هذا الإجراء.</p>
+                          <div className="flex gap-2">
+                            <button className="flex-1 h-9 rounded-xl bg-error text-white text-[12px] font-medium hover:bg-error/90 transition-colors">
+                              نعم، احذف حسابي
+                            </button>
+                            <button onClick={() => setDeleteConfirm(false)}
+                              className="flex-1 h-9 rounded-xl border border-outline-variant/30 text-[12px] text-on-surface-variant hover:bg-surface-container transition-colors">
+                              إلغاء
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {pwMsg && <p className="text-[12px] text-brand-green font-medium">{pwMsg}</p>}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ══ E) LOGOUT ══ */}
+        <div className="max-w-lg mx-auto px-4 mt-2 mb-10">
+          <button onClick={handleLogout}
+            className="w-full h-11 rounded-xl border border-outline-variant/20 bg-surface-container-lowest text-[13px] text-on-surface-variant hover:text-error hover:border-error/30 hover:bg-error/5 transition-all flex items-center justify-center gap-2">
+            <span className="material-symbols-outlined text-base">logout</span>
+            تسجيل الخروج
+          </button>
+        </div>
+
       </div>
       <Footer />
     </AuthGuard>
