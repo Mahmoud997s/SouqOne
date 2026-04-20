@@ -10,6 +10,7 @@ const SELLER_SELECT = {
   governorate: true,
   isVerified: true,
   createdAt: true,
+  phone: true,
 };
 
 const DEFAULT_INCLUDE = {
