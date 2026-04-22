@@ -135,7 +135,7 @@ export default function NearbyListings({ listings, maxItems = 6 }: NearbyListing
         {withDistance.map((item) => (
           <Link
             key={item.id}
-            href={`/cars/${item.id}`}
+            href={`/sale/car/${item.id}`}
             className="bg-surface-container-lowest rounded-2xl overflow-hidden hover:shadow-xl transition-all group"
           >
             <div className="aspect-video relative overflow-hidden">

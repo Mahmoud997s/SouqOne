@@ -238,6 +238,18 @@ export class FavoritesService {
           const r = await this.prisma.insuranceOffer.findUnique({ where: { id: entityId }, select: { title: true } });
           return r?.title || null;
         }
+        case 'BUS_LISTING': {
+          const r = await this.prisma.busListing.findUnique({ where: { id: entityId }, select: { title: true } });
+          return r?.title || null;
+        }
+        case 'EQUIPMENT_LISTING': {
+          const r = await this.prisma.equipmentListing.findUnique({ where: { id: entityId }, select: { title: true } });
+          return r?.title || null;
+        }
+        case 'OPERATOR_LISTING': {
+          const r = await this.prisma.operatorListing.findUnique({ where: { id: entityId }, select: { title: true } });
+          return r?.title || null;
+        }
         default:
           return null;
       }
@@ -284,6 +296,27 @@ export class FavoritesService {
         case 'INSURANCE': {
           const r = await this.prisma.insuranceOffer.findUnique({ where: { id: entityId }, select: { id: true, title: true } });
           return r ? { id: r.id, title: r.title, image: null } : null;
+        }
+        case 'BUS_LISTING': {
+          const r = await this.prisma.busListing.findUnique({
+            where: { id: entityId },
+            select: { id: true, title: true, images: { take: 1, orderBy: { order: 'asc' } } },
+          });
+          return r ? { id: r.id, title: r.title, image: (r.images as any)?.[0]?.url || null } : null;
+        }
+        case 'EQUIPMENT_LISTING': {
+          const r = await this.prisma.equipmentListing.findUnique({
+            where: { id: entityId },
+            select: { id: true, title: true, images: { take: 1, orderBy: { order: 'asc' } } },
+          });
+          return r ? { id: r.id, title: r.title, image: (r.images as any)?.[0]?.url || null } : null;
+        }
+        case 'OPERATOR_LISTING': {
+          const r = await this.prisma.operatorListing.findUnique({
+            where: { id: entityId },
+            select: { id: true, title: true, images: { take: 1, orderBy: { order: 'asc' } } },
+          });
+          return r ? { id: r.id, title: r.title, image: (r.images as any)?.[0]?.url || null } : null;
         }
         default:
           return null;

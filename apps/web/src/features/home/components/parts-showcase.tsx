@@ -75,7 +75,7 @@ export function PartsShowcase({ items, isLoading }: PartsShowcaseProps) {
               const imgUrl = getImageUrl(img?.url);
               const cur = part.currency === 'OMR' ? tl('currency') : part.currency;
               return (
-                <Link key={part.id} href={`/parts/${part.id}`} className="group h-full flex flex-col bg-surface-container-lowest dark:bg-surface-container rounded-xl overflow-hidden border border-outline-variant/10 hover:border-primary/20 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300">
+                <Link key={part.id} href={`/sale/part/${part.id}`} className="group h-full flex flex-col bg-surface-container-lowest dark:bg-surface-container rounded-xl overflow-hidden border border-outline-variant/10 hover:border-primary/20 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300">
                   {/* ── Image ── */}
                   <div className="relative aspect-[16/10] bg-surface-container-low overflow-hidden">
                     {imgUrl ? (

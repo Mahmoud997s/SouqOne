@@ -11,6 +11,8 @@ export type EntityType =
   | 'TRIP'
   | 'BUS_LISTING'
   | 'EQUIPMENT_LISTING'
+  | 'INSURANCE'
+  | 'OPERATOR_LISTING'
 ;
 
 export interface FavoriteEntity {

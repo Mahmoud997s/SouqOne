@@ -65,7 +65,7 @@ function PartCard({ part, badges, t, tl }: { part: any; badges: any; t: any; tl:
 
   return (
     <article className="h-full rounded-xl overflow-hidden bg-surface-container-lowest group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300 border border-outline-variant/10">
-      <Link href={`/parts/${part.id}`} className="h-full flex flex-col">
+      <Link href={`/sale/part/${part.id}`} className="h-full flex flex-col">
         <div className="relative aspect-[16/10] overflow-hidden bg-surface-container-low">
           {imgUrl ? (
             <Image src={imgUrl} alt={part.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width:640px) 50vw, 25vw" />

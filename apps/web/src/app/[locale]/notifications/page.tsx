@@ -123,7 +123,7 @@ export default function NotificationsPage() {
     } else if (n.type.startsWith('JOB') && n.data?.jobId) {
       router.push(`/jobs/${n.data.jobId}`);
     } else if (n.type === 'LISTING_FAVORITED' && n.data?.listingId) {
-      router.push(`/cars/${n.data.listingId}`);
+      router.push(`/sale/car/${n.data.listingId}`);
     }
   };
 

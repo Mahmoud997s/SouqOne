@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl';
 import { CalendarDays, Loader2, MessageCircle } from 'lucide-react';
 import { useCreateBooking, useBookingAvailability } from '@/lib/api';
 import type { BookingEntityType } from '@/lib/api';
-import { useAuth } from '@/providers/auth-provider';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
 
@@ -45,7 +44,6 @@ export function BookingCard({
 }: BookingCardProps) {
   const tp = useTranslations('pages');
   const router = useRouter();
-  const { user } = useAuth();
   const requireAuth = useRequireAuth();
   const { addToast } = useToast();
   const createBooking = useCreateBooking();
@@ -121,7 +119,7 @@ export function BookingCard({
           startDate: toYMD(checkIn),
           endDate: toYMD(checkOut),
         });
-        addToast('success', tp('bookingCardSuccess'));
+        addToast('success', `${tp('bookingCardSuccess')} — ${title}`);
         router.push(`/bookings/${booking.id}`);
       } catch (err) {
         addToast('error', err instanceof Error ? err.message : tp('bookingCardError'));

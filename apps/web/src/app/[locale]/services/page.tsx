@@ -49,7 +49,7 @@ export default function ServicesPage() {
       emptyTitle={t('servicesEmpty')}
       emptyDescription={tl('tryDifferentSearch')}
       renderCard={(svc) => (
-        <Link key={svc.id} href={`/services/${svc.id}`} className="glass-card rounded-xl overflow-hidden group">
+        <Link key={svc.id} href={`/sale/service/${svc.id}`} className="glass-card rounded-xl overflow-hidden group">
           <div className="aspect-[16/9] bg-surface-container-low relative overflow-hidden">
             {svc.images?.[0] ? (
               <Image src={getImageUrl(svc.images[0].url) || ''} alt={svc.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />

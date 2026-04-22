@@ -154,7 +154,7 @@ function AddServiceContent() {
       }
 
       addToast('success', tp('svcSuccess'));
-      router.push(`/services/${svc.id}`);
+      router.push(`/sale/service/${svc.id}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : tp('svcError');
       setErrorMessages(msg.split('\n').filter(Boolean));

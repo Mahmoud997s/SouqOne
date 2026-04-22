@@ -160,7 +160,7 @@ export default function ListingsMap({ listings, height = 'h-[500px]', userLocati
                       {Number(listing.price).toLocaleString('en-US')} {listing.currency}
                     </span>
                     <Link
-                      href={`/cars/${listing.id}`}
+                      href={`/sale/car/${listing.id}`}
                       className="bg-primary text-white px-3 py-1.5 rounded-lg text-[11px] font-bold hover:bg-primary/90 transition-all"
                     >
                       {tp('listingsMapView')}

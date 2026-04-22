@@ -1,6 +1,6 @@
 import {
   IsString, IsOptional, IsEnum, IsInt, IsBoolean,
-  IsNumber, IsArray, Min, Max, MinLength,
+  IsNumber, IsArray, Min, Max, MinLength, IsDateString,
 } from 'class-validator';
 
 /**
@@ -75,6 +75,24 @@ export class UpdateEquipmentListingDto {
 
   @IsOptional() @IsInt() @Min(1)
   minRentalDays?: number;
+
+  @IsOptional() @IsNumber() @Min(0)
+  depositAmount?: number;
+
+  @IsOptional() @IsInt() @Min(0)
+  kmLimitPerDay?: number;
+
+  @IsOptional() @IsBoolean()
+  insuranceIncluded?: boolean;
+
+  @IsOptional() @IsString()
+  cancellationPolicy?: string;
+
+  @IsOptional() @IsDateString()
+  availableFrom?: string;
+
+  @IsOptional() @IsDateString()
+  availableTo?: string;
 
   @IsOptional() @IsString()
   governorate?: string;

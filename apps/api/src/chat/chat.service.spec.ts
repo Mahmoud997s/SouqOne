@@ -66,7 +66,7 @@ describe('ChatService', () => {
       mockPrisma.conversation.findFirst.mockResolvedValue(null);
       mockPrisma.conversation.create.mockResolvedValue(mockConversation);
 
-      const result = await service.createOrGetConversation({ listingId: 'listing-1' }, 'buyer-1');
+      const result = await service.createOrGetConversation({ entityType: 'LISTING', entityId: 'listing-1' }, 'buyer-1');
 
       expect(result.id).toBe('conv-1');
       expect(mockPrisma.conversation.create).toHaveBeenCalledTimes(1);
@@ -76,7 +76,7 @@ describe('ChatService', () => {
       mockPrisma.listing.findUnique.mockResolvedValue({ id: 'listing-1', sellerId: 'seller-1', title: 'Car' });
       mockPrisma.conversation.findFirst.mockResolvedValue(mockConversation);
 
-      const result = await service.createOrGetConversation({ listingId: 'listing-1' }, 'buyer-1');
+      const result = await service.createOrGetConversation({ entityType: 'LISTING', entityId: 'listing-1' }, 'buyer-1');
 
       expect(result.id).toBe('conv-1');
       expect(mockPrisma.conversation.create).not.toHaveBeenCalled();
@@ -86,7 +86,7 @@ describe('ChatService', () => {
       mockPrisma.listing.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.createOrGetConversation({ listingId: 'nonexistent' }, 'buyer-1'),
+        service.createOrGetConversation({ entityType: 'LISTING', entityId: 'nonexistent' }, 'buyer-1'),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -94,7 +94,7 @@ describe('ChatService', () => {
       mockPrisma.listing.findUnique.mockResolvedValue({ id: 'listing-1', sellerId: 'seller-1', title: 'Car' });
 
       await expect(
-        service.createOrGetConversation({ listingId: 'listing-1' }, 'seller-1'),
+        service.createOrGetConversation({ entityType: 'LISTING', entityId: 'listing-1' }, 'seller-1'),
       ).rejects.toThrow(BadRequestException);
     });
   });

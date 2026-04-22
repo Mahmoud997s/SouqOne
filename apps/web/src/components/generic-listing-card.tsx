@@ -7,12 +7,12 @@ import { relativeTimeT } from '@/lib/time-utils';
 import { useTranslations, useLocale } from 'next-intl';
 
 const SECTION_ROUTES: Record<string, string> = {
-  LISTING: '/cars',
-  BUS_LISTING: '/buses',
-  EQUIPMENT_LISTING: '/equipment',
+  LISTING: '/sale/car',
+  BUS_LISTING: '/sale/bus',
+  EQUIPMENT_LISTING: '/sale/equipment',
   OPERATOR_LISTING: '/equipment/operators',
-  SPARE_PART: '/parts',
-  CAR_SERVICE: '/services',
+  SPARE_PART: '/sale/part',
+  CAR_SERVICE: '/sale/service',
   TRANSPORT: '/transport',
   TRIP: '/trips',
   JOB: '/jobs',

@@ -20,12 +20,6 @@ function formatShortDate(dateStr: string, locale: string): string {
     day: 'numeric', month: 'short',
   });
 }
-function formatFullDate(dateStr: string, locale: string): string {
-  return new Date(dateStr).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US', {
-    day: 'numeric', month: 'short', year: 'numeric',
-  });
-}
-
 // ─── Status badge config ───
 const STATUS_BADGE_CLS: Record<string, string> = {
   PENDING:   'bg-amber-100 text-amber-800 border border-amber-200',

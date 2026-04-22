@@ -25,10 +25,10 @@ import { ActiveFilters, buildActiveFilters, type ActiveFilter } from './_compone
 
 // ─── Entity config ───
 const ENTITY_CFG: Record<string, { labelKey: string; icon: string; color: string; href: (h: SearchHit) => string }> = {
-  listings:    { labelKey: 'cars',      icon: 'directions_car',          color: 'bg-blue-500',    href: h => `/listings/${h.slug || h.id}` },
-  parts:       { labelKey: 'parts',     icon: 'settings',                color: 'bg-orange-500',  href: h => `/parts/${h.slug || h.id}` },
-  buses:       { labelKey: 'buses',     icon: 'directions_bus',          color: 'bg-green-500',   href: h => `/buses/${h.slug || h.id}` },
-  services:    { labelKey: 'services',  icon: 'home_repair_service',     color: 'bg-violet-500',  href: h => `/services/${h.slug || h.id}` },
+  listings:    { labelKey: 'cars',      icon: 'directions_car',          color: 'bg-blue-500',    href: h => `/sale/car/${h.id}` },
+  parts:       { labelKey: 'parts',     icon: 'settings',                color: 'bg-orange-500',  href: h => `/sale/part/${h.id}` },
+  buses:       { labelKey: 'buses',     icon: 'directions_bus',          color: 'bg-green-500',   href: h => `/sale/bus/${h.id}` },
+  services:    { labelKey: 'services',  icon: 'home_repair_service',     color: 'bg-violet-500',  href: h => `/sale/service/${h.id}` },
   jobs:        { labelKey: 'jobs',      icon: 'work',                    color: 'bg-teal-500',    href: h => `/jobs/${h.slug || h.id}` },
   transport:   { labelKey: 'transport', icon: 'local_shipping',          color: 'bg-sky-500',     href: h => `/transport/${h.slug || h.id}` },
   trips:       { labelKey: 'trips',     icon: 'route',                   color: 'bg-emerald-500', href: h => `/trips/${h.slug || h.id}` },

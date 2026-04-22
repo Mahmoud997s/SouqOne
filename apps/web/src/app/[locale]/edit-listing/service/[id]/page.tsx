@@ -41,7 +41,7 @@ export default function EditServicePage() {
       fields={fields}
       updateFn={(payload) => update.mutateAsync({ id, data: payload })}
       isUpdating={update.isPending}
-      redirectPath={`/services/${id}`}
+      redirectPath={`/sale/service/${id}`}
       uploadEndpoint={`/api/v1/uploads/services/${id}/images`}
       deleteImageFn={(imageId) => removeServiceImage.mutateAsync(imageId)}
     />

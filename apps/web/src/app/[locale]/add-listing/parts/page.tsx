@@ -146,7 +146,7 @@ function AddPartContent() {
       }
 
       addToast('success', tp('partSuccess'));
-      router.push(`/parts/${part.id}`);
+      router.push(`/sale/part/${part.id}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : tp('partError');
       setErrorMessages(msg.split('\n').filter(Boolean));

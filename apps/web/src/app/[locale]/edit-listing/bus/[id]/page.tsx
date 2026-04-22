@@ -41,7 +41,7 @@ export default function EditBusPage() {
       fields={fields}
       updateFn={(payload) => update.mutateAsync({ id, data: payload })}
       isUpdating={update.isPending}
-      redirectPath={`/buses/${id}`}
+      redirectPath={`/sale/bus/${id}`}
       uploadEndpoint={`/api/v1/uploads/buses/${id}/images`}
       deleteImageFn={(imageId) => removeBusImage.mutateAsync(imageId)}
     />

@@ -224,7 +224,7 @@ function AddBusContent() {
       }
 
       addToast('success', tp('busSuccess'));
-      router.push(`/buses/${bus.id}`);
+      router.push(`/sale/bus/${bus.id}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : tp('busError');
       setErrorMessages(msg.split('\n').filter(Boolean));
