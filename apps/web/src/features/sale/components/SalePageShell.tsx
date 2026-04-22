@@ -12,7 +12,8 @@ import dynamic from 'next/dynamic';
 import { Share2, Heart, MessageCircle, Phone } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { haversineDistance } from '@/lib/geo-utils';
-import { useCreateConversation, useToggleFavorite, useFavoriteIds } from '@/lib/api';
+import { useCreateConversation } from '@/lib/api';
+import { useFavContext } from '@/providers/favorites-provider';
 import type { EntityType } from '@/lib/api/favorites';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
@@ -130,8 +131,7 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
   const locale = useLocale();
   const requireAuth = useRequireAuth();
   const createConv = useCreateConversation();
-  const toggleFav = useToggleFavorite();
-  const { data: favIds } = useFavoriteIds();
+  const { isFav: checkFav, toggleFav } = useFavContext();
 
   // ─── Favorite entity type mapping ──────────────────────────────────────────
   const favEntityType: EntityType = (() => {
@@ -144,7 +144,7 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
       default: return 'LISTING';
     }
   })();
-  const saved = favIds?.includes(`${favEntityType}:${listing.id}`) ?? false;
+  const saved = checkFav(`${favEntityType}:${listing.id}`);
 
   // ─── User location for distance calc ──────────────────────────────────────
   const [userLat, setUserLat] = useState<number | null>(null);

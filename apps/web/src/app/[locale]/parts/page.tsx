@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
-import { useParts, useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useParts } from '@/lib/api';
+import { useFavContext } from '@/providers/favorites-provider';
 import { getImageUrl } from '@/lib/image-utils';
 import { partConditionBadge } from '@/lib/constants/mappings';
 import { ListingPageShell } from '@/components/listing-page-shell';
@@ -56,9 +57,8 @@ export default function PartsPage() {
 
 function PartCard({ part, badges, t, tl }: { part: any; badges: any; t: any; tl: any }) {
   const { isAuthenticated } = useAuth();
-  const { data: favIds } = useFavoriteIds();
-  const toggleFav = useToggleFavorite();
-  const isFav = favIds?.includes(`SPARE_PART:${part.id}`) ?? false;
+  const { isFav: checkFav, toggleFav } = useFavContext();
+  const isFav = checkFav(`SPARE_PART:${part.id}`);
   const imgUrl = getImageUrl(part.images?.[0]?.url);
   const cond = badges[part.condition];
   const priceText = part.price ? `${parseFloat(part.price).toFixed(3)} ${tl('currency')}` : null;

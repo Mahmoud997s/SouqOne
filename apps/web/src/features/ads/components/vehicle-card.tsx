@@ -5,7 +5,7 @@ import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/image-utils';
 import { conditionBadge } from '@/lib/constants/mappings';
-import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useFavContext } from '@/providers/favorites-provider';
 import { useAuth } from '@/providers/auth-provider';
 import { useTranslations, useLocale } from 'next-intl';
 import { relativeTimeT } from '@/lib/time-utils';
@@ -56,9 +56,8 @@ export function VehicleCard(props: VehicleCardProps) {
   const badges = conditionBadge(tm);
   const badge = props.condition ? badges[props.condition] : null;
   const { isAuthenticated } = useAuth();
-  const { data: favIds } = useFavoriteIds();
-  const toggleFav = useToggleFavorite();
-  const serverFav = favIds?.includes(`LISTING:${props.id}`) ?? false;
+  const { isFav: checkFav, toggleFav } = useFavContext();
+  const serverFav = checkFav(`LISTING:${props.id}`);
   const [localFav, setLocalFav] = useState(serverFav);
   const [animating, setAnimating] = useState(false);
 

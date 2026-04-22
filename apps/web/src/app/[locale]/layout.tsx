@@ -13,6 +13,7 @@ import { AuthModalProvider } from '@/providers/auth-modal-provider';
 import { AuthOverlay } from '@/components/auth/auth-overlay';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { SearchProvider } from '@/providers/search-provider';
+import { FavoritesProvider } from '@/providers/favorites-provider';
 import { PageTransition } from '@/components/page-transition';
 
 const almarai = Almarai({
@@ -116,6 +117,7 @@ export default async function LocaleLayout({
           <ThemeProvider>
             <QueryProvider>
               <AuthProvider>
+                <FavoritesProvider>
                 <AuthModalProvider>
                   <ToastProvider>
                     <SearchProvider>
@@ -127,6 +129,7 @@ export default async function LocaleLayout({
                   </ToastProvider>
                   <AuthOverlay />
                 </AuthModalProvider>
+                </FavoritesProvider>
               </AuthProvider>
             </QueryProvider>
           </ThemeProvider>

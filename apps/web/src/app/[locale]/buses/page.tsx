@@ -8,7 +8,7 @@ import { Footer } from '@/components/layout/footer';
 import { getGovernorates } from '@/lib/location-data';
 import { relativeTimeT } from '@/lib/time-utils';
 import { useTranslations, useLocale } from 'next-intl';
-import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useFavContext } from '@/providers/favorites-provider';
 import { useAuth } from '@/providers/auth-provider';
 import { useBusListings, type BusListingItem } from '@/lib/api/buses';
 
@@ -128,9 +128,8 @@ function BusCard({ bus }: { bus: BusListingItem }) {
   const tt = useTranslations('time');
   const locale = useLocale();
   const { isAuthenticated } = useAuth();
-  const { data: favIds } = useFavoriteIds();
-  const toggleFav = useToggleFavorite();
-  const isFav = favIds?.includes(`BUS_LISTING:${bus.id}`) ?? false;
+  const { isFav: checkFav, toggleFav } = useFavContext();
+  const isFav = checkFav(`BUS_LISTING:${bus.id}`);
 
   const TYPE_LABELS: Record<string, string> = {
     BUS_SALE: t('busesTypeSale'), BUS_SALE_WITH_CONTRACT: t('busesTypeSaleContract'),

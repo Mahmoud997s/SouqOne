@@ -13,9 +13,8 @@ import { haversineDistance } from '@/lib/geo-utils';
 import {
   useCreateConversation,
   useReviewSummary,
-  useToggleFavorite,
-  useFavoriteIds,
 } from '@/lib/api';
+import { useFavContext } from '@/providers/favorites-provider';
 import type { EntityType } from '@/lib/api/favorites';
 import { useAuth } from '@/providers/auth-provider';
 import { useRequireAuth } from '@/hooks/use-require-auth';
@@ -195,8 +194,7 @@ export function RentalPageShell({ listing, config, unavailableDates, onBook, isB
   const { data: reviewSummary } = useReviewSummary(listing.seller.id);
 
   const isOwner = !!(user && listing.seller.id === user.id);
-  const toggleFav = useToggleFavorite();
-  const { data: favIds } = useFavoriteIds();
+  const { isFav: checkFav, toggleFav } = useFavContext();
 
   // ─── Favorite entity type mapping ──────────────────────────────────────────
   const favEntityType: EntityType = (() => {
@@ -207,7 +205,7 @@ export function RentalPageShell({ listing, config, unavailableDates, onBook, isB
       default: return 'LISTING';
     }
   })();
-  const saved = favIds?.includes(`${favEntityType}:${listing.id}`) ?? false;
+  const saved = checkFav(`${favEntityType}:${listing.id}`);
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
   const [showAllFeatures, setShowAllFeatures] = useState(false);

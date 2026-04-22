@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
-import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useFavContext } from '@/providers/favorites-provider';
 import { useAuth } from '@/providers/auth-provider';
 import type { SparePartItem } from '@/lib/api/parts';
 
@@ -20,9 +20,8 @@ const CONDITION_DOT: Record<string, string> = {
 
 function PartFavButton({ id }: { id: string }) {
   const { isAuthenticated } = useAuth();
-  const { data: favIds } = useFavoriteIds();
-  const toggleFav = useToggleFavorite();
-  const isFav = favIds?.includes(`SPARE_PART:${id}`) ?? false;
+  const { isFav: checkFav, toggleFav } = useFavContext();
+  const isFav = checkFav(`SPARE_PART:${id}`);
   if (!isAuthenticated) return null;
   return (
     <button

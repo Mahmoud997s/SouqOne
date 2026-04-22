@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
-import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useFavContext } from '@/providers/favorites-provider';
 import { useAuth } from '@/providers/auth-provider';
 import type { EquipmentListingItem } from '@/lib/api/equipment';
 
@@ -20,9 +20,8 @@ const CONDITION_DOT: Record<string, string> = {
 
 function EqFavButton({ id }: { id: string }) {
   const { isAuthenticated } = useAuth();
-  const { data: favIds } = useFavoriteIds();
-  const toggleFav = useToggleFavorite();
-  const isFav = favIds?.includes(`EQUIPMENT_LISTING:${id}`) ?? false;
+  const { isFav: checkFav, toggleFav } = useFavContext();
+  const isFav = checkFav(`EQUIPMENT_LISTING:${id}`);
   if (!isAuthenticated) return null;
   return (
     <button

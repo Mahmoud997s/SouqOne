@@ -10,7 +10,7 @@ import type { EquipmentListingItem, EquipmentRequestItem, OperatorListingItem } 
 import { getGovernorates, type LocationOption } from '@/lib/location-data';
 import { relativeTimeT } from '@/lib/time-utils';
 import { useTranslations, useLocale } from 'next-intl';
-import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useFavContext } from '@/providers/favorites-provider';
 import { useAuth } from '@/providers/auth-provider';
 
 const EQUIP_TYPE_ICONS: Record<string, string> = {
@@ -39,9 +39,8 @@ function EquipmentCard({ item }: { item: EquipmentListingItem }) {
   const tt = useTranslations('time');
   const locale = useLocale();
   const { isAuthenticated } = useAuth();
-  const { data: favIds } = useFavoriteIds();
-  const toggleFav = useToggleFavorite();
-  const isFav = favIds?.includes(`EQUIPMENT_LISTING:${item.id}`) ?? false;
+  const { isFav: checkFav, toggleFav } = useFavContext();
+  const isFav = checkFav(`EQUIPMENT_LISTING:${item.id}`);
 
   const listingLabel = item.listingType === 'EQUIPMENT_SALE' ? tl('typeSale') : tl('typeRental');
   const img = item.images?.[0]?.url;
