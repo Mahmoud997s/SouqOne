@@ -1,30 +1,39 @@
-'use client';
-
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { WelcomeModal } from '@/components/welcome-modal';
-import { useListings, useJobs } from '@/lib/api';
-import { useBusListings } from '@/lib/api/buses';
-import { useParts } from '@/lib/api/parts';
-import { useEquipmentListings } from '@/lib/api/equipment';
+import { serverFetch } from '@/lib/server-fetch';
+import type { ListingsResponse } from '@/lib/api/listings';
+import type { BusListingItem } from '@/lib/api/buses';
+import type { SparePartItem } from '@/lib/api/parts';
+import type { EquipmentListingItem } from '@/lib/api/equipment';
+import type { JobsResponse } from '@/lib/api/jobs';
 import {
   HeroSection,
   CategoriesSection,
   FeaturedShowroom,
-  BusesShowcase,
-  PartsShowcase,
-  EquipmentShowcase,
   QuickServicesGrid,
-  JobsSection,
   NewsletterCta,
 } from '@/features/home';
+import { LazyBuses, LazyParts, LazyEquipment, LazyJobs } from '@/features/home/lazy';
 
-export default function Home() {
-  const { data: featuredData, isLoading: featuredLoading } = useListings({ page: '1', limit: '4' });
-  const { data: busesData, isLoading: busesLoading } = useBusListings({ page: '1', limit: '4' });
-  const { data: partsData, isLoading: partsLoading } = useParts({ page: '1', limit: '4' });
-  const { data: equipmentData, isLoading: equipmentLoading } = useEquipmentListings({ page: '1', limit: '4' });
-  const { data: jobsData, isLoading: jobsLoading } = useJobs({ limit: '6' });
+interface Paginated<T> {
+  items: T[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+async function getHomeData() {
+  const [featured, buses, parts, equipment, jobs] = await Promise.all([
+    serverFetch<ListingsResponse>('/listings?page=1&limit=4', { revalidate: 60, tags: ['listings'] }).catch(() => null),
+    serverFetch<Paginated<BusListingItem>>('/buses?page=1&limit=4', { revalidate: 60, tags: ['buses'] }).catch(() => null),
+    serverFetch<Paginated<SparePartItem>>('/parts?page=1&limit=4', { revalidate: 60, tags: ['parts'] }).catch(() => null),
+    serverFetch<Paginated<EquipmentListingItem>>('/equipment?page=1&limit=4', { revalidate: 60, tags: ['equipment'] }).catch(() => null),
+    serverFetch<JobsResponse>('/jobs?limit=6', { revalidate: 60, tags: ['jobs'] }).catch(() => null),
+  ]);
+  return { featured, buses, parts, equipment, jobs };
+}
+
+export default async function Home() {
+  const { featured, buses, parts, equipment, jobs } = await getHomeData();
 
   return (
     <>
@@ -35,44 +44,31 @@ export default function Home() {
         {/* 1. Hero + integrated search */}
         <HeroSection />
 
-        {/* 2. Browse categories — 7 main sections */}
+        {/* 2. Browse categories */}
         <CategoriesSection />
 
         {/* 3. Quick services */}
         <QuickServicesGrid />
 
-        {/* 4. Featured cars (sale + rental) */}
+        {/* 4. Featured cars (sale + rental) — above fold, render immediately */}
         <FeaturedShowroom
-          items={featuredData?.items ?? []}
-          isLoading={featuredLoading}
+          items={featured?.items ?? []}
+          isLoading={false}
         />
 
-        {/* 5. Latest buses */}
-        <BusesShowcase
-          items={busesData?.items ?? []}
-          isLoading={busesLoading}
-        />
+        {/* 5. Latest buses — lazy loaded */}
+        <LazyBuses items={buses?.items ?? []} />
 
-        {/* 6. Latest spare parts */}
-        <PartsShowcase
-          items={partsData?.items ?? []}
-          isLoading={partsLoading}
-        />
+        {/* 6. Latest spare parts — lazy loaded */}
+        <LazyParts items={parts?.items ?? []} />
 
-        {/* 7. Latest equipment */}
-        <EquipmentShowcase
-          items={equipmentData?.items ?? []}
-          isLoading={equipmentLoading}
-        />
+        {/* 7. Latest equipment — lazy loaded */}
+        <LazyEquipment items={equipment?.items ?? []} />
 
+        {/* 8. Driver jobs — lazy loaded */}
+        <LazyJobs items={jobs?.items ?? []} />
 
-        {/* 9. Driver jobs */}
-        <JobsSection
-          items={jobsData?.items ?? []}
-          isLoading={jobsLoading}
-        />
-
-        {/* 10. Newsletter CTA */}
+        {/* 9. Newsletter CTA */}
         <NewsletterCta />
       </main>
 

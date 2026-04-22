@@ -9,7 +9,7 @@ import { memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart } from 'lucide-react';
-import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useFavContext } from '@/providers/favorites-provider';
 import { useAuth } from '@/providers/auth-provider';
 import { useTranslations } from 'next-intl';
 import type { SaleEntityType } from '../types/unified.types';
@@ -76,10 +76,9 @@ function getImageUrl(item: SaleItem): string | undefined {
 export const SaleCard = memo(function SaleCard({ type, item }: SaleCardProps) {
   const ts = useTranslations('sale');
   const { isAuthenticated } = useAuth();
-  const { data: favIds } = useFavoriteIds();
-  const toggleFav = useToggleFavorite();
+  const { isFav: checkFav, toggleFav } = useFavContext();
 
-  const isFav = favIds?.includes(`${type.toUpperCase()}:${item.id}`) ?? false;
+  const isFav = checkFav(`${type.toUpperCase()}:${item.id}`);
 
   const priceFormatted = formatPrice(item.price);
   const subtitle = getSubtitle(item, type);

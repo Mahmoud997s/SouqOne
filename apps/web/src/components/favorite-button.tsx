@@ -1,6 +1,7 @@
 'use client';
 
-import { useToggleFavorite, useFavoriteIds, type EntityType } from '@/lib/api';
+import type { EntityType } from '@/lib/api/favorites';
+import { useFavContext } from '@/providers/favorites-provider';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useTranslations } from 'next-intl';
 
@@ -12,12 +13,11 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ entityType, entityId, className }: FavoriteButtonProps) {
   const requireAuth = useRequireAuth();
-  const { data: favoriteIds } = useFavoriteIds();
-  const toggleFav = useToggleFavorite();
+  const { isFav, toggleFav } = useFavContext();
   const tp = useTranslations('pages');
 
   const key = `${entityType}:${entityId}`;
-  const isFavorite = favoriteIds?.includes(key) ?? false;
+  const isFavorite = isFav(key);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();

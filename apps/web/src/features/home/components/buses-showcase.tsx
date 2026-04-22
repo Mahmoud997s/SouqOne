@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
 import { conditionBadge } from '@/lib/constants/mappings';
-import { useFavoriteIds, useToggleFavorite } from '@/lib/api';
+import { useFavContext } from '@/providers/favorites-provider';
 import { useAuth } from '@/providers/auth-provider';
 import type { BusListingItem } from '@/lib/api/buses';
 
@@ -22,9 +22,8 @@ const CONDITION_DOT: Record<string, string> = {
 
 function BusFavButton({ id }: { id: string }) {
   const { isAuthenticated } = useAuth();
-  const { data: favIds } = useFavoriteIds();
-  const toggleFav = useToggleFavorite();
-  const isFav = favIds?.includes(`BUS_LISTING:${id}`) ?? false;
+  const { isFav: checkFav, toggleFav } = useFavContext();
+  const isFav = checkFav(`BUS_LISTING:${id}`);
   if (!isAuthenticated) return null;
   return (
     <button
