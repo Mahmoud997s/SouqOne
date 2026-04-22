@@ -47,7 +47,7 @@ export function CategoriesSection() {
   }, []);
 
   return (
-    <section className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
+    <section className="max-w-7xl mx-auto px-3 sm:px-6 pt-6 sm:pt-10 pb-2 sm:pb-3">
       <div className="flex items-center gap-2 sm:gap-3 mb-5 sm:mb-8">
         <div className="h-6 sm:h-8 w-1 rounded-full bg-primary" />
         <h2 className="text-sm sm:text-xl md:text-3xl font-black tracking-tight whitespace-nowrap">{t('browseCategories')}</h2>

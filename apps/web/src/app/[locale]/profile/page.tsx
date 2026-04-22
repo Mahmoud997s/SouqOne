@@ -419,7 +419,7 @@ export default function ProfilePage() {
                   if (!item) return null;
                   const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
                   return (
-                    <Link key={fav.id} href={`/listings/${item.id}`}
+                    <Link key={fav.id} href={`/sale/car/${item.id}`}
                       className="flex items-center gap-3 p-3 rounded-2xl border border-outline-variant/15 bg-surface-container-lowest hover:border-outline-variant/30 transition-all">
                       <div className="w-14 h-14 rounded-xl overflow-hidden bg-surface-container-high flex-shrink-0">
                         {img?.url

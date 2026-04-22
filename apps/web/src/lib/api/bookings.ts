@@ -47,13 +47,14 @@ export interface BookingItem {
 }
 
 // Helper: get the entity title/images/id from a BookingItem regardless of type
+// Bookings are always for rental listings → paths use /rental/[type]/[id]
 export function getBookingEntity(b: BookingItem) {
-  if (b.entityType === 'BUS' && b.busListing) return { title: b.busListing.title, images: b.busListing.images, entityId: b.busListingId!, detailPath: `/buses/${b.busListingId}` };
-  if (b.entityType === 'EQUIPMENT' && b.equipmentListing) return { title: b.equipmentListing.title, images: b.equipmentListing.images, entityId: b.equipmentListingId!, detailPath: `/equipment/${b.equipmentListingId}` };
+  if (b.entityType === 'BUS' && b.busListing) return { title: b.busListing.title, images: b.busListing.images, entityId: b.busListingId!, detailPath: `/rental/bus/${b.busListingId}` };
+  if (b.entityType === 'EQUIPMENT' && b.equipmentListing) return { title: b.equipmentListing.title, images: b.equipmentListing.images, entityId: b.equipmentListingId!, detailPath: `/rental/equipment/${b.equipmentListingId}` };
   if (b.entityType === 'TRANSPORT' && b.transportService) return { title: b.transportService.title, images: b.transportService.images, entityId: b.transportServiceId!, detailPath: `/transport/${b.transportServiceId}` };
   if (b.entityType === 'TRIP' && b.tripService) return { title: b.tripService.title, images: b.tripService.images, entityId: b.tripServiceId!, detailPath: `/trips/${b.tripServiceId}` };
-  // Default: CAR
-  return { title: b.listing?.title ?? '', images: b.listing?.images ?? [], entityId: b.listingId ?? '', detailPath: `/rentals/${b.listingId}` };
+  // Default: CAR rental
+  return { title: b.listing?.title ?? '', images: b.listing?.images ?? [], entityId: b.listingId ?? '', detailPath: `/rental/car/${b.listingId}` };
 }
 
 export interface BookingsResponse {

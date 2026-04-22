@@ -38,6 +38,7 @@ interface VehicleCardProps {
   dailyPrice?: string | number | null;
   monthlyPrice?: string | number | null;
   isPremium?: boolean;
+  href?: string;
 }
 
 function formatPrice(price: string | number, currencyLabel: string, suffix?: string) {
@@ -86,7 +87,7 @@ export function VehicleCard(props: VehicleCardProps) {
       className="h-full rounded-xl overflow-hidden bg-surface-container-lowest group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300 border border-outline-variant/10"
       data-testid="listing-card"
     >
-      <Link href={`/cars/${props.id}`} className="h-full flex flex-col">
+      <Link href={props.href || `/sale/car/${props.id}`} className="h-full flex flex-col">
 
         {/* ── Image ── */}
         <div className="relative aspect-[16/10] overflow-hidden bg-surface-container-low">

@@ -146,6 +146,34 @@ export class UpdateBusListingDto {
   @IsBoolean()
   deliveryAvailable?: boolean;
 
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @Min(0)
+  depositAmount?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @Min(0)
+  kmLimitPerDay?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  insuranceIncluded?: boolean;
+
+  @IsOptional()
+  @IsString()
+  cancellationPolicy?: string;
+
+  @IsOptional()
+  @IsDateString()
+  availableFrom?: string;
+
+  @IsOptional()
+  @IsDateString()
+  availableTo?: string;
+
   // ── Contract request ──
   @IsOptional()
   @IsNumber()

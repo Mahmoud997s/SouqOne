@@ -77,7 +77,7 @@ export default function EditListingPage() {
       initialImageIdsRef.current = images.filter(img => img.id).map(img => img.id as string);
 
       addToast('success', tp('editListingSaved'));
-      router.push(`/cars/${id}`);
+      router.push(`/sale/car/${id}`);
     } catch (err) {
       setUploading(false);
       const msg = err instanceof Error ? err.message : tp('editListingError');

@@ -90,7 +90,7 @@ export function BusesShowcase({ items, isLoading }: BusesShowcaseProps) {
               const cond = bus.condition ? badges[bus.condition] : null;
               const pt = priceText(bus);
               return (
-                <Link key={bus.id} href={`/buses/${bus.id}`} className="group h-full flex flex-col bg-surface-container-lowest dark:bg-surface-container rounded-xl overflow-hidden border border-outline-variant/10 hover:border-primary/20 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300">
+                <Link key={bus.id} href={`/sale/bus/${bus.id}`} className="group h-full flex flex-col bg-surface-container-lowest dark:bg-surface-container rounded-xl overflow-hidden border border-outline-variant/10 hover:border-primary/20 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300">
                   {/* ── Image ── */}
                   <div className="relative aspect-[16/10] bg-surface-container-low overflow-hidden">
                     {imgUrl ? (

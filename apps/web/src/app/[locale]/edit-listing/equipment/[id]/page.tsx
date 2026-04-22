@@ -50,7 +50,7 @@ export default function EditEquipmentPage() {
       fields={fields}
       updateFn={(payload) => update.mutateAsync({ id, data: payload })}
       isUpdating={update.isPending}
-      redirectPath={`/equipment/${id}`}
+      redirectPath={`/sale/equipment/${id}`}
       uploadEndpoint={`/api/v1/uploads/equipment/${id}/images`}
       deleteImageFn={(imageId) => removeEquipImage.mutateAsync(imageId)}
     />

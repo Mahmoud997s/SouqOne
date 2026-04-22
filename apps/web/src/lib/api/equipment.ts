@@ -30,6 +30,12 @@ export interface EquipmentListingItem {
   withOperator: boolean;
   deliveryAvailable: boolean;
   minRentalDays?: number;
+  depositAmount?: string;
+  kmLimitPerDay?: number;
+  insuranceIncluded: boolean;
+  cancellationPolicy?: string;
+  availableFrom?: string;
+  availableTo?: string;
   governorate?: string;
   city?: string;
   latitude?: number;

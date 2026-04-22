@@ -21,7 +21,7 @@ const QL_META = [
 export function QuickServicesGrid() {
   const t = useTranslations('home');
   return (
-    <section className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
+    <section className="max-w-7xl mx-auto px-3 sm:px-6 pt-2 sm:pt-3 pb-6 sm:pb-10">
       <div className="flex items-center justify-between mb-5 sm:mb-8">
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="h-6 sm:h-8 w-1 rounded-full bg-primary" />

@@ -86,6 +86,7 @@ export default function ChatRoomPage() {
       <ChatHeader
         participant={otherParticipant}
         listing={convInfo?.listing ?? null}
+        entityType={convInfo?.entityType}
         isOnline={otherOnline}
         isTyping={isTyping}
         searchMode={searchMode}

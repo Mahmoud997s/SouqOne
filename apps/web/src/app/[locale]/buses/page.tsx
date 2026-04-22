@@ -145,7 +145,7 @@ function BusCard({ bus }: { bus: BusListingItem }) {
 
   return (
     <article className="h-full rounded-xl overflow-hidden bg-surface-container-lowest group hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300 border border-outline-variant/10">
-      <Link href={`/buses/${bus.id}`} className="h-full flex flex-col">
+      <Link href={`/sale/bus/${bus.id}`} className="h-full flex flex-col">
         <div className="relative aspect-[16/10] overflow-hidden bg-surface-container-low">
           {img ? (
             <Image src={img} alt={bus.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="(max-width:640px) 50vw, 25vw" />

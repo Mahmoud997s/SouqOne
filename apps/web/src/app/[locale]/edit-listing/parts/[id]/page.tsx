@@ -48,7 +48,7 @@ export default function EditPartPage() {
       fields={fields}
       updateFn={(payload) => update.mutateAsync({ id, data: payload })}
       isUpdating={update.isPending}
-      redirectPath={`/parts/${id}`}
+      redirectPath={`/sale/part/${id}`}
       uploadEndpoint={`/api/v1/uploads/parts/${id}/images`}
       deleteImageFn={(imageId) => removePartImage.mutateAsync(imageId)}
     />

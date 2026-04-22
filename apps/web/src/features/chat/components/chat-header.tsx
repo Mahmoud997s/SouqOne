@@ -21,9 +21,18 @@ interface ListingInfo {
   images?: { url: string }[];
 }
 
+const ENTITY_SALE_TYPE: Record<string, string> = {
+  LISTING: 'car',
+  BUS_LISTING: 'bus',
+  EQUIPMENT_LISTING: 'equipment',
+  SPARE_PART: 'part',
+  CAR_SERVICE: 'service',
+};
+
 interface ChatHeaderProps {
   participant: Participant | null;
   listing: ListingInfo | null;
+  entityType?: string;
   isOnline: boolean;
   isTyping: boolean;
   searchMode: boolean;
@@ -33,6 +42,7 @@ interface ChatHeaderProps {
 export function ChatHeader({
   participant,
   listing,
+  entityType,
   isOnline,
   isTyping,
   searchMode,
@@ -104,7 +114,7 @@ export function ChatHeader({
         </button>
         {listing && (
           <Link
-            href={`/cars/${listing.id}`}
+            href={`/sale/${ENTITY_SALE_TYPE[entityType || 'LISTING'] || 'car'}/${listing.id}`}
             className="hidden md:flex items-center gap-1.5 text-primary bg-primary/8 hover:bg-primary/15 px-3 py-2 rounded-xl text-[11px] font-bold transition-all"
           >
             <ExternalLink size={13} />

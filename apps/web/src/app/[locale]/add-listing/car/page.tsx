@@ -62,7 +62,7 @@ function AddCarContent() {
       }
 
       addToast('success', tp('addCarSuccess'));
-      router.push(`/cars/${listing.id}`);
+      router.push(`/sale/car/${listing.id}`);
     } catch (err) {
       setUploading(false);
       const msg = err instanceof Error ? err.message : tp('addCarError');

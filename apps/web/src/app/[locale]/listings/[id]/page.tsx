@@ -6,7 +6,7 @@ import { useRouter } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 
 /**
- * Legacy route — redirects to /cars/[id] which is the canonical detail page.
+ * Legacy route — redirects to /sale/car/[id] which is the canonical detail page.
  */
 export default function ListingDetailRedirect() {
   const params = useParams();
@@ -14,7 +14,7 @@ export default function ListingDetailRedirect() {
   const tp = useTranslations('pages');
 
   useEffect(() => {
-    router.replace(`/cars/${params.id}`);
+    router.replace(`/sale/car/${params.id}`);
   }, [params.id, router]);
 
   return (

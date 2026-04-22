@@ -52,7 +52,7 @@ export function RentalCard(props: RentalCardProps) {
       className="h-full rounded-xl overflow-hidden bg-surface-container-lowest border-t-[3px] border-t-emerald-500 group hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(15,23,42,0.06)] transition-all duration-300"
       data-testid="rental-card"
     >
-      <Link href={`/cars/${props.id}`} className="h-full flex flex-col">
+      <Link href={`/rental/car/${props.id}`} className="h-full flex flex-col">
 
         {/* ── Image ── */}
         <div className="relative aspect-[16/10] overflow-hidden bg-surface-container-low">

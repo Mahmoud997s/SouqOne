@@ -100,7 +100,7 @@ describe('ListingsService', () => {
     it('should return paginated listings', async () => {
       mockRepo.findMany.mockResolvedValueOnce([[mockListing], 1]);
 
-      const result = await service.findAll({ page: 1, limit: 10 });
+      const result = await service.findAll({ page: 1, limit: 10 }) as { items: unknown[]; meta: { total: number; page: number } };
 
       expect(result.items).toHaveLength(1);
       expect(result.meta.total).toBe(1);
@@ -122,7 +122,7 @@ describe('ListingsService', () => {
     it('should return a listing by id', async () => {
       mockRepo.findById.mockResolvedValue(mockListing);
 
-      const result = await service.findOne('listing-1');
+      const result = await service.findOne('listing-1') as { id: string };
       expect(result.id).toBe('listing-1');
     });
 

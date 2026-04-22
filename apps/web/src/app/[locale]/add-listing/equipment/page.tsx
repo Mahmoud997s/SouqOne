@@ -141,7 +141,7 @@ export default function AddEquipmentPage() {
       }
 
       addToast('success', tp('eqSuccess'));
-      router.push(`/equipment/${result.id}`);
+      router.push(`/sale/equipment/${result.id}`);
     } catch (e: any) {
       addToast('error', e?.message || tp('eqError'));
     }
