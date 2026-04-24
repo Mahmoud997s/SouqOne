@@ -180,18 +180,6 @@ export class FavoritesService {
           const r = await this.prisma.carService.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
           return r ? { ownerId: r.userId, title: r.title } : null;
         }
-        case 'TRANSPORT': {
-          const r = await this.prisma.transportService.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
-          return r ? { ownerId: r.userId, title: r.title } : null;
-        }
-        case 'TRIP': {
-          const r = await this.prisma.tripService.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
-          return r ? { ownerId: r.userId, title: r.title } : null;
-        }
-        case 'INSURANCE': {
-          const r = await this.prisma.insuranceOffer.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
-          return r ? { ownerId: r.userId, title: r.title } : null;
-        }
         case 'JOB': {
           const r = await this.prisma.driverJob.findUnique({ where: { id: entityId }, select: { userId: true, title: true } });
           return r ? { ownerId: r.userId, title: r.title } : null;
@@ -224,18 +212,6 @@ export class FavoritesService {
         }
         case 'CAR_SERVICE': {
           const r = await this.prisma.carService.findUnique({ where: { id: entityId }, select: { title: true } });
-          return r?.title || null;
-        }
-        case 'TRANSPORT': {
-          const r = await this.prisma.transportService.findUnique({ where: { id: entityId }, select: { title: true } });
-          return r?.title || null;
-        }
-        case 'TRIP': {
-          const r = await this.prisma.tripService.findUnique({ where: { id: entityId }, select: { title: true } });
-          return r?.title || null;
-        }
-        case 'INSURANCE': {
-          const r = await this.prisma.insuranceOffer.findUnique({ where: { id: entityId }, select: { title: true } });
           return r?.title || null;
         }
         case 'BUS_LISTING': {
@@ -282,21 +258,6 @@ export class FavoritesService {
           });
           return r ? { id: r.id, title: r.title, image: (r.images as any)?.[0]?.url || null } : null;
         }
-        case 'TRANSPORT': {
-          const r = await this.prisma.transportService.findUnique({
-            where: { id: entityId },
-            select: { id: true, title: true, images: { take: 1, orderBy: { order: 'asc' } } },
-          });
-          return r ? { id: r.id, title: r.title, image: (r.images as any)?.[0]?.url || null } : null;
-        }
-        case 'TRIP': {
-          const r = await this.prisma.tripService.findUnique({ where: { id: entityId }, select: { id: true, title: true } });
-          return r ? { id: r.id, title: r.title, image: null } : null;
-        }
-        case 'INSURANCE': {
-          const r = await this.prisma.insuranceOffer.findUnique({ where: { id: entityId }, select: { id: true, title: true } });
-          return r ? { id: r.id, title: r.title, image: null } : null;
-        }
         case 'BUS_LISTING': {
           const r = await this.prisma.busListing.findUnique({
             where: { id: entityId },
@@ -314,9 +275,9 @@ export class FavoritesService {
         case 'OPERATOR_LISTING': {
           const r = await this.prisma.operatorListing.findUnique({
             where: { id: entityId },
-            select: { id: true, title: true, images: { take: 1, orderBy: { order: 'asc' } } },
+            select: { id: true, title: true },
           });
-          return r ? { id: r.id, title: r.title, image: (r.images as any)?.[0]?.url || null } : null;
+          return r ? { id: r.id, title: r.title, image: null } : null;
         }
         default:
           return null;
