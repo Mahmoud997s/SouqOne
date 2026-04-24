@@ -9,7 +9,6 @@ import { useFavContext } from '@/providers/favorites-provider';
 import { useAuth } from '@/providers/auth-provider';
 import { useTranslations, useLocale } from 'next-intl';
 import { relativeTimeT } from '@/lib/time-utils';
-import { ListingBadge } from '@/components/listing-badge';
 
 const CONDITION_DOT: Record<string, string> = {
   NEW: 'bg-emerald-500', LIKE_NEW: 'bg-teal-500', USED: 'bg-slate-400',
@@ -129,7 +128,8 @@ export function VehicleCard(props: VehicleCardProps) {
 
           {/* ── Top-right: WANTED wins, else condition (neutral + dot) ── */}
           {isWanted ? (
-            <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-orange-500 text-white">
+            <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 inline-flex items-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-orange-500 text-white">
+              <span className="w-1.5 h-1.5 rounded-full bg-white/80 shrink-0" />
               {t('wanted')}
             </span>
           ) : badge && (
@@ -164,19 +164,20 @@ export function VehicleCard(props: VehicleCardProps) {
           <h3 dir="auto" className="text-[10px] sm:text-[13px] font-black leading-snug line-clamp-2 sm:line-clamp-1">{props.title}</h3>
 
           {/* listing type · date · location */}
-          <div className="flex items-center gap-1.5 text-[11px] text-on-surface-variant">
+          <div className="flex items-center gap-1 flex-wrap text-[8px] sm:text-[10px] text-on-surface-variant">
             {props.listingType && (
-              <ListingBadge type={props.listingType} />
+              <span className={`shrink-0 font-bold ${props.listingType === 'RENTAL' ? 'text-teal-500' : props.listingType === 'WANTED' ? 'text-orange-500' : 'text-primary'}`}>
+                {props.listingType === 'RENTAL' ? t('typeRental') : props.listingType === 'WANTED' ? t('wanted') : t('typeSale')}
+              </span>
             )}
             {props.listingType && props.createdAt && <span className="text-outline/40">·</span>}
             {props.createdAt && (
-              <span className="shrink-0">
-                {relativeTimeT(props.createdAt, tt, locale)}
-              </span>
+              <span className="shrink-0">{relativeTimeT(props.createdAt, tt, locale)}</span>
             )}
-            {props.governorate && (props.listingType || props.createdAt) && <span className="text-outline/40">·</span>}
+            {props.createdAt && props.governorate && <span className="text-outline/40">·</span>}
             {props.governorate && (
-              <span className="shrink-0">
+              <span className="flex items-center gap-px shrink-0">
+                <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
                 {props.governorate}
               </span>
             )}
