@@ -267,10 +267,10 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
   const handleDelete = useCallback(async () => {
     try {
       await deleteListing.mutateAsync(listing.id);
-      addToast('success', ts('myListingsDeleteSuccess'));
+      addToast('success', ts('deleteSuccessToast'));
       router.push('/my-listings');
     } catch (err) {
-      addToast('error', err instanceof Error ? err.message : ts('myListingsDeleteFailed'));
+      addToast('error', err instanceof Error ? err.message : ts('deleteErrorToast'));
     }
   }, [deleteListing, listing.id, addToast, router, ts]);
 
@@ -583,27 +583,59 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
 
       {/* ══ DELETE CONFIRMATION MODAL ══ */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-surface-container-lowest rounded-2xl p-6 max-w-sm w-full">
-            <h3 className="text-lg font-semibold text-on-surface mb-2">
-              {ts('deleteListing')}
-            </h3>
-            <p className="text-sm text-on-surface-variant mb-6">
-              {ts('myListingsDeleteConfirm')}
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 h-10 rounded-xl border border-outline-variant/30 text-on-surface text-[13px] font-medium hover:border-primary hover:text-primary transition-colors"
-              >
-                {ts('cancel')}
-              </button>
-              <button
-                onClick={handleDelete}
-                className="flex-1 h-10 rounded-xl bg-error text-on-error text-[13px] font-medium hover:bg-error/90 transition-colors"
-              >
-                {ts('delete')}
-              </button>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-surface-container-lowest rounded-3xl border border-outline-variant/20 shadow-2xl max-w-md w-full overflow-hidden animate-in slide-in-from-bottom-4 duration-200">
+            {/* Header with warning icon */}
+            <div className="bg-error/5 px-6 py-5 border-b border-outline-variant/10">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center flex-shrink-0">
+                  <Trash2 size={24} className="text-error" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-on-surface">
+                    {ts('deleteConfirmTitle')}
+                  </h3>
+                  <p className="text-sm text-on-surface-variant mt-0.5">
+                    {ts('deleteListing')}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Message body */}
+            <div className="px-6 py-5">
+              <p className="text-sm text-on-surface-variant leading-relaxed">
+                {ts('deleteConfirmMessage')}
+              </p>
+            </div>
+            
+            {/* Actions */}
+            <div className="px-6 py-4 bg-surface-container-highest/30 border-t border-outline-variant/10">
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 h-11 rounded-xl border border-outline-variant/30 text-on-surface text-[14px] font-medium hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-150"
+                >
+                  {ts('cancel')}
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleteListing.isPending}
+                  className="flex-1 h-11 rounded-xl bg-error text-on-error text-[14px] font-medium hover:bg-error/90 active:scale-[0.98] transition-all duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center justify-center gap-2"
+                >
+                  {deleteListing.isPending ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-on-error/30 border-t-on-error rounded-full animate-spin" />
+                      {ts('delete')}
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={18} />
+                      {ts('delete')}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
