@@ -1,5 +1,8 @@
 {
   "common": {
+    "rental": "For Rent",
+    "wanted": "Wanted",
+    "sale": "For Sale",
     "home": "Home",
     "cars": "Cars",
     "carsForSale": "Cars for Sale",
