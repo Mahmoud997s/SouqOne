@@ -8,6 +8,7 @@ import { getCountries, getGovernorates, getCities } from '@/lib/location-data';
 import { fuelLabels as fuelLabelsT, transmissionLabels as transLabelsT, conditionLabels as condLabelsT, cancelLabels as cancelLabelsT, exteriorColors as exteriorColorsT, interiorColors as interiorColorsT, BODY_OPTIONS, DRIVE_OPTIONS, CANCEL_OPTIONS } from '@/lib/constants/mappings';
 import { MultiStepForm } from '@/components/ui/multi-step-form';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
+import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls, checkboxLabelCls, checkboxCls, checkboxTextCls } from '@/lib/constants/form-styles';
 import { useTranslations, useLocale } from 'next-intl';
 
 const LocationPicker = dynamic(() => import('@/components/map/location-picker'), { ssr: false });
@@ -227,8 +228,6 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
 
   const [step, setStep] = useState(0);
 
-  const inputCls = 'w-full bg-surface-container-low dark:bg-surface-container-high/50 border border-outline-variant/10 dark:border-outline-variant/20 rounded-xl py-3 px-4 focus:bg-surface-container-lowest dark:focus:bg-surface-container focus:border-primary/40 focus:ring-2 focus:ring-primary/10 outline-none text-sm transition-all placeholder:text-on-surface-variant/40';
-  const labelCls = 'text-xs font-bold text-on-surface-variant block mb-2';
 
   const steps = [
     { label: tp('lfStep1') },
@@ -257,10 +256,8 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
       {step === 0 && (
         <div className="space-y-8">
           {/* Listing Type Toggle */}
-          <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-4">
-              <h2 className="text-lg font-extrabold">{tp('lfSectionLabel')}</h2>
-            </div>
+          <section className={sectionCls}>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">sell</span>{tp('lfSectionLabel')}</h2>
             <div className="flex items-center gap-3 bg-surface-container-low rounded-xl px-4 py-3">
               <span className="text-primary text-lg">🚗</span>
               <span className="text-sm text-on-surface-variant">{tp('lfCategoryName')}</span>
@@ -291,19 +288,15 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           </section>
 
           {/* Images */}
-          <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">{tp('lfUploadTitle')}</h2>
-            </div>
+          <section className={sectionCls}>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">add_photo_alternate</span>{tp('lfUploadTitle')}</h2>
             <ImageUploader images={images} onChange={setImages} disabled={isLoading} />
             <p className="text-xs text-on-surface-variant mt-3">{tp('lfUploadHint')}</p>
           </section>
 
           {/* Basic Info */}
-          <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">{tp('lfBasicInfoTitle')}</h2>
-            </div>
+          <section className={sectionCls}>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">directions_car</span>{tp('lfBasicInfoTitle')}</h2>
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -347,7 +340,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
                   <div className="flex gap-3">
                     {condOptions.map((c) => (
                       <button key={c} type="button" onClick={() => set('condition', c)}
-                        className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all ${form.condition === c ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'}`}>
+                        className={chipCls(form.condition === c) + ' flex-1'}>
                         {condLabels[c]}
                       </button>
                     ))}
@@ -366,10 +359,8 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
       {/* ═══ Step 2: تفاصيل السيارة والملكية ═══ */}
       {step === 1 && (
         <div className="space-y-8">
-          <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">{tp('lfCarDetailsTitle')}</h2>
-            </div>
+          <section className={sectionCls}>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">tune</span>{tp('lfCarDetailsTitle')}</h2>
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -450,12 +441,9 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           </section>
 
           {/* Features / Amenities */}
-          <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">{tp('lfFeaturesTitle')}</h2>
-              <span className="text-xs text-on-surface-variant">({tp('lfFeaturesCount', { count: form.features.length })})</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
+          <section className={sectionCls}>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">star</span>{tp('lfFeaturesTitle')} <span className="text-xs font-normal text-on-surface-variant ms-1">({tp('lfFeaturesCount', { count: form.features.length })})</span></h2>
+            <div className="flex flex-wrap gap-2.5">
               {CAR_FEATURE_KEYS.map((key) => {
                 const label = tp(key);
                 const selected = form.features.includes(label);
@@ -471,11 +459,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
                           : [...prev.features, label],
                       }));
                     }}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-                      selected
-                        ? 'bg-primary text-white shadow-md'
-                        : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                    }`}
+                    className={chipCls(selected)}
                   >
                     {selected && <span className="ms-1">✓</span>} {label}
                   </button>
@@ -486,10 +470,8 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
 
           {/* Rental-specific fields */}
           {form.listingType === 'RENTAL' && (
-            <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
-              <div className="flex items-center gap-2 mb-6">
-                <h2 className="text-lg font-extrabold">{tp('lfRentalDetailsTitle')}</h2>
-              </div>
+            <section className={sectionCls}>
+              <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">car_rental</span>{tp('lfRentalDetailsTitle')}</h2>
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
@@ -509,17 +491,17 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <label className="flex items-center gap-3 cursor-pointer bg-surface-container-low rounded-xl p-3">
-                    <input type="checkbox" checked={form.withDriver} onChange={(e) => set('withDriver', e.target.checked)} className="w-5 h-5 accent-primary" />
-                    <span className="text-sm font-medium text-on-surface">{tp('lfWithDriver')}</span>
+                  <label className={`${checkboxLabelCls} bg-surface-container-low dark:bg-surface-container-high/30 rounded-xl p-3`}>
+                    <input type="checkbox" checked={form.withDriver} onChange={(e) => set('withDriver', e.target.checked)} className={checkboxCls} />
+                    <span className={checkboxTextCls}>{tp('lfWithDriver')}</span>
                   </label>
-                  <label className="flex items-center gap-3 cursor-pointer bg-surface-container-low rounded-xl p-3">
-                    <input type="checkbox" checked={form.deliveryAvailable} onChange={(e) => set('deliveryAvailable', e.target.checked)} className="w-5 h-5 accent-primary" />
-                    <span className="text-sm font-medium text-on-surface">{tp('lfDeliveryAvailable')}</span>
+                  <label className={`${checkboxLabelCls} bg-surface-container-low dark:bg-surface-container-high/30 rounded-xl p-3`}>
+                    <input type="checkbox" checked={form.deliveryAvailable} onChange={(e) => set('deliveryAvailable', e.target.checked)} className={checkboxCls} />
+                    <span className={checkboxTextCls}>{tp('lfDeliveryAvailable')}</span>
                   </label>
-                  <label className="flex items-center gap-3 cursor-pointer bg-surface-container-low rounded-xl p-3">
-                    <input type="checkbox" checked={form.insuranceIncluded} onChange={(e) => set('insuranceIncluded', e.target.checked)} className="w-5 h-5 accent-primary" />
-                    <span className="text-sm font-medium text-on-surface">{tp('lfInsuranceIncluded')}</span>
+                  <label className={`${checkboxLabelCls} bg-surface-container-low dark:bg-surface-container-high/30 rounded-xl p-3`}>
+                    <input type="checkbox" checked={form.insuranceIncluded} onChange={(e) => set('insuranceIncluded', e.target.checked)} className={checkboxCls} />
+                    <span className={checkboxTextCls}>{tp('lfInsuranceIncluded')}</span>
                   </label>
                 </div>
               </div>
@@ -531,10 +513,8 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
       {/* ═══ Step 3: تفاصيل الإعلان وبيانات الاتصال ═══ */}
       {step === 2 && (
         <div className="space-y-8">
-          <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">{tp('lfAdDetailsTitle')}</h2>
-            </div>
+          <section className={sectionCls}>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">edit_note</span>{tp('lfAdDetailsTitle')}</h2>
             <div className="space-y-5">
               <div>
                 <label className={labelCls}>{tp('lfAdTitle')}</label>
@@ -548,10 +528,8 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           </section>
 
           {/* Pricing */}
-          <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">{form.listingType === 'RENTAL' ? tp('lfPricingRental') : form.listingType === 'WANTED' ? tp('lfPricingWanted') : tp('lfPricingSale')}</h2>
-            </div>
+          <section className={sectionCls}>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">payments</span>{form.listingType === 'RENTAL' ? tp('lfPricingRental') : form.listingType === 'WANTED' ? tp('lfPricingWanted') : tp('lfPricingSale')}</h2>
             {form.listingType === 'WANTED' ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -570,9 +548,9 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
                     <input type="number" required step="0.01" value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="0.000" className={inputCls} />
                   </div>
                 </div>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" checked={form.isPriceNegotiable} onChange={(e) => set('isPriceNegotiable', e.target.checked)} className="w-5 h-5 accent-primary" />
-                  <span className="text-sm font-medium text-on-surface">{tp('lfNegotiable')}</span>
+                <label className={checkboxLabelCls}>
+                  <input type="checkbox" checked={form.isPriceNegotiable} onChange={(e) => set('isPriceNegotiable', e.target.checked)} className={checkboxCls} />
+                  <span className={checkboxTextCls}>{tp('lfNegotiable')}</span>
                 </label>
               </div>
             ) : (
@@ -600,10 +578,8 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           </section>
 
           {/* Location */}
-          <section className="bg-surface-container-lowest rounded-3xl p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6">
-              <h2 className="text-lg font-extrabold">{tp('lfLocationTitle')}</h2>
-            </div>
+          <section className={sectionCls}>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>{tp('lfLocationTitle')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className={labelCls}>{tp('lfCountry')}</label>

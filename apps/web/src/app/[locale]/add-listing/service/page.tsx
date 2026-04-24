@@ -14,7 +14,7 @@ import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
 import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
-import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls } from '@/lib/constants/form-styles';
+import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls, checkboxLabelCls, checkboxCls, checkboxTextCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
 import { useTranslations, useLocale } from 'next-intl';
 
@@ -213,7 +213,7 @@ function AddServiceContent() {
                     <div className="flex gap-3 flex-wrap">
                       {PROVIDER_TYPES.map(p => (
                         <button key={p.value} type="button" onClick={() => set('providerType', p.value)}
-                          className={chipCls(form.providerType === p.value) + ' px-4'}>
+                          className={chipCls(form.providerType === p.value)}>
                           {tp(p.key)}
                         </button>
                       ))}
@@ -243,9 +243,9 @@ function AddServiceContent() {
                       <input type="number" step="0.01" value={form.priceTo} onChange={e => set('priceTo', e.target.value)} placeholder="50.000" className={inputCls} />
                     </div>
                   </div>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" checked={form.isHomeService} onChange={e => set('isHomeService', e.target.checked)} className="w-5 h-5 accent-primary" />
-                    <span className="text-sm font-medium text-on-surface">{tp('svcLabelHomeService')}</span>
+                  <label className={checkboxLabelCls}>
+                    <input type="checkbox" checked={form.isHomeService} onChange={e => set('isHomeService', e.target.checked)} className={checkboxCls} />
+                    <span className={checkboxTextCls}>{tp('svcLabelHomeService')}</span>
                   </label>
                 </div>
               </section>
@@ -268,7 +268,7 @@ function AddServiceContent() {
                     <div className="flex flex-wrap gap-2">
                       {DAYS.map(d => (
                         <button key={d.value} type="button" onClick={() => set('workingDays', form.workingDays.includes(d.value) ? form.workingDays.filter(x => x !== d.value) : [...form.workingDays, d.value])}
-                          className={chipCls(form.workingDays.includes(d.value)) + ' px-3 text-xs'}>
+                          className={chipCls(form.workingDays.includes(d.value))}>
                           {tp(d.key)}
                         </button>
                       ))}

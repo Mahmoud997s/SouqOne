@@ -13,7 +13,7 @@ import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
 import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
-import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls } from '@/lib/constants/form-styles';
+import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls, checkboxLabelCls, checkboxCls, checkboxTextCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
 import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
@@ -434,9 +434,9 @@ function AddBusContent() {
                       <input type="number" className={inputCls} value={form.price} onChange={e => set('price', e.target.value)} placeholder="8000" />
                     </div>
                     <div className="flex items-end">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={form.isPriceNegotiable} onChange={e => set('isPriceNegotiable', e.target.checked)} className="w-4 h-4 rounded accent-primary" />
-                        <span className="text-sm text-on-surface">{tp('busLabelNegotiable')}</span>
+                      <label className={checkboxLabelCls}>
+                        <input type="checkbox" checked={form.isPriceNegotiable} onChange={e => set('isPriceNegotiable', e.target.checked)} className={checkboxCls} />
+                        <span className={checkboxTextCls}>{tp('busLabelNegotiable')}</span>
                       </label>
                     </div>
                   </div>
@@ -494,13 +494,13 @@ function AddBusContent() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-4 mt-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" checked={form.withDriver} onChange={e => set('withDriver', e.target.checked)} className="w-4 h-4 rounded accent-primary" />
-                      <span className="text-sm text-on-surface">{tp('busLabelWithDriver')}</span>
+                    <label className={checkboxLabelCls}>
+                      <input type="checkbox" checked={form.withDriver} onChange={e => set('withDriver', e.target.checked)} className={checkboxCls} />
+                      <span className={checkboxTextCls}>{tp('busLabelWithDriver')}</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" checked={form.deliveryAvailable} onChange={e => set('deliveryAvailable', e.target.checked)} className="w-4 h-4 rounded accent-primary" />
-                      <span className="text-sm text-on-surface">{tp('busLabelDelivery')}</span>
+                    <label className={checkboxLabelCls}>
+                      <input type="checkbox" checked={form.deliveryAvailable} onChange={e => set('deliveryAvailable', e.target.checked)} className={checkboxCls} />
+                      <span className={checkboxTextCls}>{tp('busLabelDelivery')}</span>
                     </label>
                   </div>
                 </section>

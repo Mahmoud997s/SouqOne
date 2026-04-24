@@ -9,6 +9,7 @@ import { FormErrorOverlay } from '@/components/form-error-overlay';
 import { useCreateOperatorListing } from '@/lib/api/equipment';
 import { useToast } from '@/components/toast';
 import { getGovernorates, type LocationOption } from '@/lib/location-data';
+import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls, checkboxLabelCls, checkboxCls, checkboxTextCls } from '@/lib/constants/form-styles';
 import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 
@@ -30,9 +31,6 @@ const EQUIP_TYPES = [
   { value: 'WATER_TANKER', key: 'opWaterTanker' }, { value: 'LIGHT_EQUIPMENT', key: 'opLightEquip' },
 ];
 
-const sectionCls = 'bg-surface-container-lowest dark:bg-surface-container rounded-2xl p-5 border border-outline-variant/10';
-const labelCls = 'block text-sm font-bold text-on-surface mb-1.5';
-const inputCls = 'w-full bg-surface-container-low dark:bg-surface-container-highest border border-outline-variant/20 rounded-xl px-4 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all';
 
 export default function AddOperatorPage() {
   const tp = useTranslations('pages');
@@ -126,7 +124,7 @@ export default function AddOperatorPage() {
           {/* Step 0 */}
           {step === 0 && (
             <section className={sectionCls}>
-              <h3 className="font-black text-base text-on-surface mb-4">{tp('opLabelServiceType')}</h3>
+              <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">engineering</span>{tp('opLabelServiceType')}</h2>
               <div className="grid grid-cols-2 gap-3">
                 {OPERATOR_TYPES.map(t => (
                   <button key={t.value} type="button" onClick={() => setOperatorType(t.value)}
@@ -144,7 +142,7 @@ export default function AddOperatorPage() {
           {step === 1 && (
             <div className="space-y-6">
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">{tp('opLabelBasicInfo')}</h3>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">edit_note</span>{tp('opLabelBasicInfo')}</h2>
                 <div className="space-y-4">
                   <div><label className={labelCls}>{tp('opLabelTitle')}</label><input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} placeholder={tp('opPlaceholderTitle')} /></div>
                   <div><label className={labelCls}>{tp('opLabelDesc')}</label><textarea className={`${inputCls} min-h-[100px]`} value={description} onChange={e => setDescription(e.target.value)} placeholder={tp('opPlaceholderDesc')} /></div>
@@ -156,11 +154,11 @@ export default function AddOperatorPage() {
                 </div>
               </section>
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">{tp('opLabelEquipTypes')}</h3>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">construction</span>{tp('opLabelEquipTypes')}</h2>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                   {EQUIP_TYPES.map(t => (
                     <button key={t.value} type="button" onClick={() => toggleEquipType(t.value)}
-                      className={`px-3 py-2 rounded-xl border-2 text-xs font-bold text-center transition-all ${equipmentTypes.includes(t.value) ? 'border-primary bg-primary/5 text-primary' : 'border-outline-variant/10 hover:border-primary/30'}`}>
+                      className={chipCls(equipmentTypes.includes(t.value))}>
                       {tp(t.key)}
                     </button>
                   ))}
@@ -173,15 +171,15 @@ export default function AddOperatorPage() {
           {step === 2 && (
             <div className="space-y-6">
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">{tp('opLabelPrices')}</h3>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">payments</span>{tp('opLabelPrices')}</h2>
                 <div className="grid grid-cols-2 gap-4 mb-3">
                   <div><label className={labelCls}>{tp('opLabelDailyRate')}</label><input type="number" className={inputCls} value={dailyRate} onChange={e => setDailyRate(e.target.value)} /></div>
                   <div><label className={labelCls}>{tp('opLabelHourlyRate')}</label><input type="number" className={inputCls} value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} /></div>
                 </div>
-                <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={isPriceNegotiable} onChange={e => setIsPriceNegotiable(e.target.checked)} className="w-4 h-4 rounded" /><span className="text-sm font-bold">{tp('opLabelNegotiable')}</span></label>
+                <label className={checkboxLabelCls}><input type="checkbox" checked={isPriceNegotiable} onChange={e => setIsPriceNegotiable(e.target.checked)} className={checkboxCls} /><span className={checkboxTextCls}>{tp('opLabelNegotiable')}</span></label>
               </section>
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">{tp('opLabelLocationContact')}</h3>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>{tp('opLabelLocationContact')}</h2>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className={labelCls}>{tp('opLabelGov')}</label>
