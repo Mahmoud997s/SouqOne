@@ -9,13 +9,14 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { Share2, Heart, MessageCircle, Phone } from 'lucide-react';
+import { Share2, Heart, MessageCircle, Phone, Trash2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { haversineDistance } from '@/lib/geo-utils';
-import { useCreateConversation } from '@/lib/api';
+import { useCreateConversation, useDeleteListing } from '@/lib/api';
 import { useFavContext } from '@/providers/favorites-provider';
 import type { EntityType } from '@/lib/api/favorites';
 import { useRequireAuth } from '@/hooks/use-require-auth';
+import { useAuth } from '@/providers/auth-provider';
 import { useToast } from '@/components/toast';
 import { PhotoGallery } from '@/components/shared/PhotoGallery';
 import { ListingBadge } from '@/components/listing-badge';
@@ -25,6 +26,7 @@ import type { SectionConfig } from '../types/config.types';
 import { Highlights } from './Highlights';
 import { SpecsGrid } from './SpecsGrid';
 import { DetailsTable } from './DetailsTable';
+import { ContractDetails } from './ContractDetails';
 import { PriceCard } from './PriceCard';
 import { SimilarItems } from './SimilarItems';
 import { SellerRow } from './SellerRow';
@@ -60,9 +62,10 @@ function Divider() {
  */
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="text-[15px] font-bold text-on-surface mb-3 flex items-center gap-2">
-      {children}
-    </h2>
+    <div className="mb-4">
+      <h2 className="text-[15px] font-semibold text-on-surface tracking-tight">{children}</h2>
+      <div className="mt-1 h-[3px] w-8 rounded-full bg-primary" />
+    </div>
   );
 }
 
@@ -99,11 +102,11 @@ function ExpandableText({ text, expandLabel, collapseLabel }: { text: string; ex
  */
 function Breadcrumb({ listing, config, homeLabel }: { listing: UnifiedListing; config: SectionConfig; homeLabel: string }) {
   const listPaths: Record<string, string> = {
-    car: '/listings',
-    bus: '/buses',
-    equipment: '/equipment',
-    part: '/parts',
-    service: '/services',
+    car: '/browse/cars',
+    bus: '/browse/buses',
+    equipment: '/browse/equipment',
+    part: '/browse/parts',
+    service: '/browse/services',
   };
 
   return (
@@ -124,14 +127,30 @@ function Breadcrumb({ listing, config, homeLabel }: { listing: UnifiedListing; c
 /**
  * Main sale page shell component.
  */
+/** Get the edit route for a given listing type + id */
+function getEditRoute(type: string, id: string): string {
+  const map: Record<string, string> = {
+    car: `/edit-listing/car/${id}`,
+    bus: `/edit-listing/bus/${id}`,
+    equipment: `/edit-listing/equipment/${id}`,
+    part: `/edit-listing/parts/${id}`,
+    service: `/edit-listing/service/${id}`,
+  };
+  return map[type] || `/edit-listing/car/${id}`;
+}
+
 export function SalePageShell({ listing, config }: SalePageShellProps) {
   const router = useRouter();
   const { addToast } = useToast();
   const ts = useTranslations('sale');
+  const deleteListing = useDeleteListing();
   const locale = useLocale();
   const requireAuth = useRequireAuth();
   const createConv = useCreateConversation();
+  const { user } = useAuth();
   const { isFav: checkFav, toggleFav } = useFavContext();
+
+  const isOwner = !!(user && listing.seller.id === user.id);
 
   // ─── Favorite entity type mapping ──────────────────────────────────────────
   const favEntityType: EntityType = (() => {
@@ -149,6 +168,7 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
   // ─── User location for distance calc ──────────────────────────────────────
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     const lat = sessionStorage.getItem('userLat');
@@ -244,6 +264,16 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
     addToast('info', ts('reportComingSoon'));
   }, [addToast]);
 
+  const handleDelete = useCallback(async () => {
+    try {
+      await deleteListing.mutateAsync(listing.id);
+      addToast('success', ts('myListingsDeleteSuccess'));
+      router.push('/my-listings');
+    } catch (err) {
+      addToast('error', err instanceof Error ? err.message : ts('myListingsDeleteFailed'));
+    }
+  }, [deleteListing, listing.id, addToast, router, ts]);
+
   // ─── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -306,51 +336,72 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
         </div>
 
         {/* ══ MOBILE/TABLET CTA BUTTONS — Below Gallery ══ */}
-        <div className="lg:hidden grid grid-cols-3 gap-2 mb-5">
-          <button
-            onClick={handleMessage}
-            className="h-10 rounded-xl bg-primary text-on-primary text-[12px] font-medium flex items-center justify-center gap-1"
-          >
-            <MessageCircle size={14} />
-            {ts('contact')}
-          </button>
-          {listing.seller.phone ? (
-            <button
-              onClick={handleCall}
-              className="h-10 rounded-xl border border-outline-variant/30 text-on-surface text-[12px] font-medium flex items-center justify-center gap-1 hover:border-primary hover:text-primary transition-colors"
-            >
-              <Phone size={14} />
-              {ts('call')}
-            </button>
+        <div className="lg:hidden mb-5">
+          {isOwner ? (
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                href={getEditRoute(listing.type, listing.id)}
+                className="h-12 rounded-xl bg-primary text-on-primary text-[14px] font-medium flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] transition-all shadow-sm"
+              >
+                <span className="material-symbols-outlined text-lg">edit</span>
+                {ts('editListing')}
+              </Link>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="h-12 rounded-xl bg-error text-on-error text-[14px] font-medium flex items-center justify-center gap-2 hover:bg-error/90 active:scale-[0.98] transition-all shadow-sm"
+              >
+                <Trash2 size={18} />
+                {ts('deleteListing')}
+              </button>
+            </div>
           ) : (
-            <button
-              disabled
-              className="h-10 rounded-xl border border-outline-variant/20 text-on-surface-variant/40 text-[12px] font-medium flex items-center justify-center gap-1 cursor-not-allowed bg-surface-container-low"
-            >
-              <Phone size={14} />
-              {ts('call')}
-            </button>
-          )}
-          {listing.seller.whatsapp ? (
-            <button
-              onClick={handleWhatsApp}
-              className="h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-[12px] font-medium flex items-center justify-center gap-1 hover:bg-emerald-100 transition-colors"
-            >
-              <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
-              {ts('whatsapp')}
-            </button>
-          ) : (
-            <button
-              disabled
-              className="h-10 rounded-xl border border-outline-variant/20 text-on-surface-variant/40 text-[12px] font-medium flex items-center justify-center gap-1 cursor-not-allowed bg-surface-container-low"
-            >
-              <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.141.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
-              {ts('whatsapp')}
-            </button>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={handleMessage}
+                className="h-10 rounded-xl bg-primary text-on-primary text-[12px] font-medium flex items-center justify-center gap-1"
+              >
+                <MessageCircle size={14} />
+                {ts('contact')}
+              </button>
+              {listing.seller.phone ? (
+                <button
+                  onClick={handleCall}
+                  className="h-10 rounded-xl border border-outline-variant/30 text-on-surface text-[12px] font-medium flex items-center justify-center gap-1 hover:border-primary hover:text-primary transition-colors"
+                >
+                  <Phone size={14} />
+                  {ts('call')}
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="h-10 rounded-xl border border-outline-variant/20 text-on-surface-variant/40 text-[12px] font-medium flex items-center justify-center gap-1 cursor-not-allowed bg-surface-container-low"
+                >
+                  <Phone size={14} />
+                  {ts('call')}
+                </button>
+              )}
+              {listing.seller.whatsapp ? (
+                <button
+                  onClick={handleWhatsApp}
+                  className="h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-[12px] font-medium flex items-center justify-center gap-1 hover:bg-emerald-100 transition-colors"
+                >
+                  <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                  </svg>
+                  {ts('whatsapp')}
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="h-10 rounded-xl border border-outline-variant/20 text-on-surface-variant/40 text-[12px] font-medium flex items-center justify-center gap-1 cursor-not-allowed bg-surface-container-low"
+                >
+                  <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.141.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                  </svg>
+                  {ts('whatsapp')}
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -360,9 +411,10 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
           <div>
             {/* Seller Row */}
             <SellerRow seller={listing.seller} />
+            <div className="h-[2px] w-50 rounded-full bg-primary mt-1 mx-auto" />
 
             {/* Mobile stats — views + date (desktop shows these in PriceCard) */}
-            <div className="lg:hidden flex items-center gap-4 text-[11px] text-on-surface-variant mb-4 mt-1">
+            <div className="lg:hidden flex items-center gap-4 text-[11px] text-on-surface-variant mb-4 mt-3">
               <span className="flex items-center gap-1">
                 <span className="material-symbols-outlined text-xs">visibility</span>
                 {ts('views', { count: listing.views.toLocaleString('en-US') })}
@@ -376,40 +428,52 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
                 {listing.status === 'SOLD' ? ts('statusSoldShort') : ts('statusActive')}
               </span>
             </div>
-            <Divider />
 
-            {/* Info Cards */}
-            <div className="grid grid-cols-2 gap-3 mb-5">
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-blue-50/50 border border-blue-100">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-blue-600 text-xl">verified</span>
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[12px] font-bold text-on-surface truncate">{ts('conditionState', { condition: listing.condition })}</p>
-                  <p className="text-[10px] text-on-surface-variant mt-0.5 leading-tight">
-                    {listing.condition === 'NEW' ? ts('conditionNew') : listing.condition === 'USED' ? ts('conditionUsed') : ts('conditionSeeDetails')}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-blue-50/50 border border-blue-100">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <span className="material-symbols-outlined text-blue-600 text-xl">schedule</span>
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[12px] font-bold text-on-surface truncate">{listing.negotiable ? ts('negotiableLabel') : ts('fixedPriceLabel')}</p>
-                  <p className="text-[10px] text-on-surface-variant mt-0.5 leading-tight">
-                    {listing.negotiable ? ts('negotiableSub') : ts('fixedPriceSub')}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <Divider />
 
             {/* Description */}
-            <div>
-              <SectionTitle>{ts('descriptionTitle')}</SectionTitle>
-              <ExpandableText text={listing.description || ts('noDescription')} expandLabel={ts('expand')} collapseLabel={ts('collapse')} />
-            </div>
-            <Divider />
+            {listing.description && (
+              <>
+                <div>
+                  <SectionTitle>{ts('descriptionTitle')}</SectionTitle>
+                  <ExpandableText text={listing.description} expandLabel={ts('expand')} collapseLabel={ts('collapse')} />
+                </div>
+                <Divider />
+              </>
+            )}
+
+            {/* Contract Details Section */}
+            <ContractDetails listing={listing} />
+
+            {/* Highlights */}
+            {config.highlightFields?.length > 0 && (
+              <>
+                <Highlights listing={listing} fields={config.highlightFields} />
+                <Divider />
+              </>
+            )}
+
+
+            {/* Specs Grid */}
+            {config.specsFields?.length > 0 && (
+              <>
+                <div>
+                  <SectionTitle>{ts('specsTitle')}</SectionTitle>
+                  <SpecsGrid listing={listing} fields={config.specsFields} />
+                </div>
+                <Divider />
+              </>
+            )}
+
+            {/* Details Table */}
+            {config.tableFields?.length > 0 && (
+              <>
+                <div>
+                  <SectionTitle>{ts('detailsTitle', { type: config.displayName })}</SectionTitle>
+                  <DetailsTable listing={listing} fields={config.tableFields} />
+                </div>
+              </>
+            )}
 
             {/* Features / الكماليات */}
             {(() => {
@@ -422,6 +486,7 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
               if (features.length === 0) return null;
               return (
                 <>
+                  <Divider />
                   <div>
                     <SectionTitle>{ts('featuresTitle')}</SectionTitle>
                     <div className="flex flex-wrap gap-2">
@@ -438,32 +503,14 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
                       ))}
                     </div>
                   </div>
-                  <Divider />
                 </>
               );
             })()}
 
-            {/* Highlights */}
-            <Highlights listing={listing} fields={config.highlightFields} />
-            <Divider />
-
-            {/* Specs Grid */}
-            <div>
-              <SectionTitle>{ts('specsTitle')}</SectionTitle>
-              <SpecsGrid listing={listing} fields={config.specsFields} />
-            </div>
-            <Divider />
-
-            {/* Details Table */}
-            <div>
-              <SectionTitle>{ts('detailsTitle', { type: config.displayName })}</SectionTitle>
-              <DetailsTable listing={listing} fields={config.tableFields} />
-            </div>
-            <Divider />
-
             {/* Location Map */}
             {listing.location && (
               <>
+                <Divider />
                 <div>
                   <SectionTitle>{ts('locationTitle')}</SectionTitle>
                   <p className="text-[12px] text-on-surface-variant mb-3 flex items-center gap-1.5">
@@ -508,7 +555,6 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
                     </a>
                   </div>
                 </div>
-                <Divider />
               </>
             )}
 
@@ -517,10 +563,13 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
           {/* ════ RIGHT COLUMN — Price Card ════ */}
           <PriceCard
             listing={listing}
+            isOwner={isOwner}
+            editRoute={getEditRoute(listing.type, listing.id)}
             onMessage={handleMessage}
             onWhatsApp={handleWhatsApp}
             onCall={listing.seller.phone ? handleCall : undefined}
             onReport={handleReport}
+            onDelete={isOwner ? () => setShowDeleteConfirm(true) : undefined}
           />
         </div>
 
@@ -531,6 +580,34 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
           governorate={listing.governorate}
         />
       </main>
+
+      {/* ══ DELETE CONFIRMATION MODAL ══ */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface-container-lowest rounded-2xl p-6 max-w-sm w-full">
+            <h3 className="text-lg font-semibold text-on-surface mb-2">
+              {ts('deleteListing')}
+            </h3>
+            <p className="text-sm text-on-surface-variant mb-6">
+              {ts('myListingsDeleteConfirm')}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 h-10 rounded-xl border border-outline-variant/30 text-on-surface text-[13px] font-medium hover:border-primary hover:text-primary transition-colors"
+              >
+                {ts('cancel')}
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex-1 h-10 rounded-xl bg-error text-on-error text-[13px] font-medium hover:bg-error/90 transition-colors"
+              >
+                {ts('delete')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
