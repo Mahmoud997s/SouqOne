@@ -371,26 +371,28 @@ function AddBusContent() {
 
                   <section className={sectionCls}>
                     <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">tune</span>{tp('busLabelSpecs')}</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className={labelCls}>{tp('busLabelFuel')}</label>
-                        <div className="flex flex-wrap gap-2">
-                          {FUEL_TYPE_KEYS.map(f => (
-                            <button key={f.value} type="button" onClick={() => set('fuelType', f.value)}
-                              className={chipCls(form.fuelType === f.value)}>{tp(f.labelKey)}</button>
-                          ))}
+                    <div className="space-y-5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                          <label className={labelCls}>{tp('busLabelFuel')}</label>
+                          <div className="flex flex-wrap gap-2">
+                            {FUEL_TYPE_KEYS.map(f => (
+                              <button key={f.value} type="button" onClick={() => set('fuelType', f.value)}
+                                className={chipCls(form.fuelType === f.value)}>{tp(f.labelKey)}</button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className={labelCls}>{tp('busLabelTransmission')}</label>
+                          <div className="flex flex-wrap gap-2">
+                            {[{ value: 'AUTOMATIC', labelKey: 'busTransAutomatic' as const }, { value: 'MANUAL', labelKey: 'busTransManual' as const }].map(t => (
+                              <button key={t.value} type="button" onClick={() => set('transmission', t.value)}
+                                className={chipCls(form.transmission === t.value)}>{tp(t.labelKey)}</button>
+                            ))}
+                          </div>
                         </div>
                       </div>
                       <div>
-                        <label className={labelCls}>{tp('busLabelTransmission')}</label>
-                        <div className="flex gap-2">
-                          {[{ value: 'AUTOMATIC', labelKey: 'busTransAutomatic' as const }, { value: 'MANUAL', labelKey: 'busTransManual' as const }].map(t => (
-                            <button key={t.value} type="button" onClick={() => set('transmission', t.value)}
-                              className={chipCls(form.transmission === t.value)}>{tp(t.labelKey)}</button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="sm:col-span-2">
                         <label className={labelCls}>{tp('busLabelCondition')}</label>
                         <div className="flex flex-wrap gap-2">
                           {CONDITION_KEYS.map(c => (
@@ -404,7 +406,7 @@ function AddBusContent() {
 
                   <section className={sectionCls}>
                     <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">star</span>{tp('busLabelFeatures')}</h2>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2.5">
                       {BUS_FEATURE_KEYS.map(key => {
                         const label = tp(key);
                         return (
