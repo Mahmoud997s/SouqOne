@@ -445,7 +445,7 @@ export default function ProfilePage() {
                 </div>
                 <p className="text-[14px] font-medium text-on-surface mb-1">{tp('profileNoFavorites')}</p>
                 <p className="text-[12px] text-on-surface-variant mb-5">{tp('profileNoFavoritesDesc')}</p>
-                <Link href="/listings" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-[13px] font-medium hover:bg-primary/90 transition-colors">
+                <Link href="/browse/cars" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-[13px] font-medium hover:bg-primary/90 transition-colors">
                   <span className="material-symbols-outlined text-base">search</span>
                   {tp('profileBrowseListings')}
                 </Link>

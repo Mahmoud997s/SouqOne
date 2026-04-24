@@ -44,7 +44,7 @@ export function RentalSection({ items, isLoading }: RentalSectionProps) {
             </div>
             <p className="text-on-surface-variant text-xs sm:text-sm">{tp('rentalSubtitle')}</p>
           </div>
-          <Link href="/rentals" className="text-primary font-bold text-xs sm:text-sm hover:underline transition-colors shrink-0">
+          <Link href="/browse/cars?listingType=RENTAL" className="text-primary font-bold text-xs sm:text-sm hover:underline transition-colors shrink-0">
             {tp('rentalViewAll')}
           </Link>
         </div>

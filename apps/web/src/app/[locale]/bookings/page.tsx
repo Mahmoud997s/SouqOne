@@ -599,7 +599,7 @@ function BookingsContent() {
                 </p>
                 {activeTab === 'my' && (
                   <Link
-                    href="/rentals"
+                    href="/browse/cars?listingType=RENTAL"
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-on-primary text-[13px] font-black hover:brightness-110 transition-all"
                   >
                     {tp('bookingsBrowseRentals')}

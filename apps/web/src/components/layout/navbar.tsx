@@ -30,29 +30,29 @@ function useNavLinks() {
   const navLinks: NavLinkItem[] = [
     { href: '/', label: t('home') },
     {
-      href: '/listings', label: t('cars'),
+      href: '/browse/cars', label: t('cars'),
       children: [
-        { href: '/listings', label: t('carsForSale'), icon: 'directions_car', desc: tn('browseNewUsedCars') },
-        { href: '/listings?listingType=RENTAL', label: t('carsForRent'), icon: 'car_rental', desc: tn('dailyMonthlyRental') },
-        { href: '/parts', label: t('spareParts'), icon: 'settings', desc: tn('originalAlternativeParts') },
-        { href: '/services', label: t('carServices'), icon: 'build', desc: tn('maintenanceInspection') },
+        { href: '/browse/cars', label: t('carsForSale'), icon: 'directions_car', desc: tn('browseNewUsedCars') },
+        { href: '/browse/cars?listingType=RENTAL', label: t('carsForRent'), icon: 'car_rental', desc: tn('dailyMonthlyRental') },
+        { href: '/browse/parts', label: t('spareParts'), icon: 'settings', desc: tn('originalAlternativeParts') },
+        { href: '/browse/services', label: t('carServices'), icon: 'build', desc: tn('maintenanceInspection') },
       ],
     },
     {
-      href: '/buses', label: t('buses'),
+      href: '/browse/buses', label: t('buses'),
       children: [
-        { href: '/buses', label: t('allBuses'), icon: 'directions_bus', desc: tn('busesSaleRentalContracts') },
-        { href: '/buses?type=SALE', label: t('busesForSale'), icon: 'sell', desc: tn('busesForSaleDesc') },
-        { href: '/buses?type=RENTAL', label: t('busRental'), icon: 'car_rental', desc: tn('busRentalDesc') },
-        { href: '/buses?type=CONTRACT', label: t('transportRequests'), icon: 'request_quote', desc: tn('transportRequestsDesc') },
+        { href: '/browse/buses', label: t('allBuses'), icon: 'directions_bus', desc: tn('busesSaleRentalContracts') },
+        { href: '/browse/buses?type=SALE', label: t('busesForSale'), icon: 'sell', desc: tn('busesForSaleDesc') },
+        { href: '/browse/buses?type=RENTAL', label: t('busRental'), icon: 'car_rental', desc: tn('busRentalDesc') },
+        { href: '/browse/buses?type=CONTRACT', label: t('transportRequests'), icon: 'request_quote', desc: tn('transportRequestsDesc') },
       ],
     },
     {
-      href: '/equipment', label: t('equipment'),
+      href: '/browse/equipment', label: t('equipment'),
       children: [
-        { href: '/equipment', label: t('allEquipment'), icon: 'construction', desc: tn('equipmentSaleRental') },
-        { href: '/equipment?listingType=SALE', label: t('sellEquipment'), icon: 'sell', desc: tn('equipmentForSaleDesc') },
-        { href: '/equipment?listingType=RENTAL', label: t('rentEquipment'), icon: 'car_rental', desc: tn('equipmentRentalDesc') },
+        { href: '/browse/equipment', label: t('allEquipment'), icon: 'construction', desc: tn('equipmentSaleRental') },
+        { href: '/browse/equipment?listingType=SALE', label: t('sellEquipment'), icon: 'sell', desc: tn('equipmentForSaleDesc') },
+        { href: '/browse/equipment?listingType=RENTAL', label: t('rentEquipment'), icon: 'car_rental', desc: tn('equipmentRentalDesc') },
         { href: '/equipment/requests', label: t('requestEquipment'), icon: 'assignment_add', desc: tn('equipmentRequestsDesc') },
         { href: '/equipment/operators', label: t('operators'), icon: 'engineering', desc: tn('equipmentOperatorsDesc') },
       ],
@@ -68,11 +68,11 @@ function useNavLinks() {
 
   const flatNavLinks = [
     { href: '/', label: t('home') },
-    { href: '/listings', label: t('cars') },
-    { href: '/parts', label: t('spareParts') },
-    { href: '/services', label: t('carServices') },
-    { href: '/buses', label: t('buses') },
-    { href: '/equipment', label: t('equipment') },
+    { href: '/browse/cars', label: t('cars') },
+    { href: '/browse/parts', label: t('spareParts') },
+    { href: '/browse/services', label: t('carServices') },
+    { href: '/browse/buses', label: t('buses') },
+    { href: '/browse/equipment', label: t('equipment') },
     { href: '/jobs', label: t('jobs') },
   ];
 

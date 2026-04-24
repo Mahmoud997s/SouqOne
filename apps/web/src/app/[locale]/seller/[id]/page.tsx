@@ -255,7 +255,7 @@ export default function SellerPage() {
           </div>
           {sectionData.items.length > 6 && (
             <div className="flex justify-center mt-4">
-              <Link href="/listings" className="text-primary font-bold text-sm hover:underline flex items-center gap-1">
+              <Link href="/browse/cars" className="text-primary font-bold text-sm hover:underline flex items-center gap-1">
                 <span className="material-symbols-outlined text-base">expand_more</span>
                 {tp('viewAll')}
               </Link>

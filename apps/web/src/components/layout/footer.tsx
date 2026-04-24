@@ -34,14 +34,14 @@ export function Footer() {
 
   const quickLinks = [
     { label: t('home'), href: '/' },
-    { label: t('carsForSale'), href: '/listings' },
-    { label: t('carsForRent'), href: '/listings?listingType=RENTAL' },
-    { label: t('spareParts'), href: '/parts' },
+    { label: t('carsForSale'), href: '/browse/cars' },
+    { label: t('carsForRent'), href: '/browse/cars?listingType=RENTAL' },
+    { label: t('spareParts'), href: '/browse/parts' },
     { label: tf('driverJobs'), href: '/jobs' },
   ];
 
   const servicesLinks = [
-    { label: t('carServices'), href: '/services' },
+    { label: t('carServices'), href: '/browse/services' },
     { label: t('addListing'), href: '/add-listing' },
   ];
 
