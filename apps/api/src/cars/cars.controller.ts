@@ -2,6 +2,7 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { CarsService } from './cars.service';
 import { CarFilterDto } from './dto/car-filter.dto';
 import { BrandSearchDto } from './dto/brand-search.dto';
+import { SEED_BRANDS } from './data/seed-brands-v2';
 
 @Controller('cars')
 export class CarsController {
@@ -63,5 +64,81 @@ export class CarsController {
   @Get('stats')
   async getStats() {
     return this.carsService.getStats();
+  }
+
+  /* ═══════════════════════════════════════════
+     Static endpoints — serve from seed data (no DB required)
+  ═══════════════════════════════════════════ */
+
+  /**
+   * GET /cars/static/brands
+   * Query: ?popular=true
+   */
+  @Get('static/brands')
+  getStaticBrands(@Query('popular') popular?: string) {
+    let brands = SEED_BRANDS;
+    if (popular === 'true') brands = brands.filter((b) => b.isPopular);
+    if (popular === 'false') brands = brands.filter((b) => !b.isPopular);
+    return brands.map((b) => ({
+      id: b.slug,
+      name: b.name,
+      nameAr: b.nameAr,
+      slug: b.slug,
+      isPopular: b.isPopular,
+      modelCount: b.models.length,
+    }));
+  }
+
+  /**
+   * GET /cars/static/brands/:slug/models
+   */
+  @Get('static/brands/:slug/models')
+  getStaticModels(@Param('slug') slug: string) {
+    const brand = SEED_BRANDS.find((b) => b.slug === slug);
+    if (!brand) return [];
+    return brand.models.map((m) => ({
+      id: `${slug}--${m.name.toLowerCase().replace(/\s+/g, '-')}`,
+      name: m.name,
+      nameAr: m.nameAr,
+      slug: m.name.toLowerCase().replace(/\s+/g, '-'),
+      yearCount: m.years.length,
+    }));
+  }
+
+  /**
+   * GET /cars/static/brands/:slug/models/:modelSlug/years
+   */
+  @Get('static/brands/:slug/models/:modelSlug/years')
+  getStaticYears(@Param('slug') slug: string, @Param('modelSlug') modelSlug: string) {
+    const brand = SEED_BRANDS.find((b) => b.slug === slug);
+    if (!brand) return [];
+    const model = brand.models.find(
+      (m) => m.name.toLowerCase().replace(/\s+/g, '-') === modelSlug,
+    );
+    if (!model) return [];
+    return model.years.map((y) => ({ id: `${slug}--${modelSlug}--${y}`, year: y })).reverse();
+  }
+
+  /**
+   * GET /cars/static/full — Full brand → model → year tree
+   */
+  @Get('static/full')
+  getStaticFullTree() {
+    return SEED_BRANDS
+      .sort((a, b) => (a.isPopular === b.isPopular ? a.name.localeCompare(b.name) : a.isPopular ? -1 : 1))
+      .map((b) => ({
+        id: b.slug,
+        name: b.name,
+        nameAr: b.nameAr,
+        slug: b.slug,
+        isPopular: b.isPopular,
+        models: b.models.map((m) => ({
+          id: `${b.slug}--${m.name.toLowerCase().replace(/\s+/g, '-')}`,
+          name: m.name,
+          nameAr: m.nameAr,
+          slug: m.name.toLowerCase().replace(/\s+/g, '-'),
+          years: [...m.years].reverse().map((y) => ({ id: `${b.slug}--${m.name.toLowerCase().replace(/\s+/g, '-')}--${y}`, year: y })),
+        })),
+      }));
   }
 }
