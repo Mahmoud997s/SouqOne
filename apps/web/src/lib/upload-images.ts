@@ -1,0 +1,39 @@
+import { getAuthToken } from '@/lib/auth';
+import { API_BASE } from '@/lib/config';
+import type { UploadedImage } from '@/features/ads/components/image-uploader';
+
+/**
+ * Upload images to a listing entity.
+ *
+ * @param uploadEndpoint - Base endpoint (e.g. '/uploads/buses')
+ * @param entityId       - The created entity ID
+ * @param images         - Array of UploadedImage (only those with .file are uploaded)
+ */
+export async function uploadImages(
+  uploadEndpoint: string,
+  entityId: string,
+  images: UploadedImage[],
+): Promise<void> {
+  const token = getAuthToken();
+  const filesToUpload = images.filter((img) => img.file);
+
+  for (const img of filesToUpload) {
+    const fd = new FormData();
+    fd.append('file', img.file!);
+    fd.append('isPrimary', String(img.isPrimary));
+
+    const res = await fetch(
+      `${API_BASE}/api/v1${uploadEndpoint}/${entityId}/images`,
+      {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: fd,
+      },
+    );
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => null);
+      throw new Error(err?.message || 'Image upload failed');
+    }
+  }
+}

@@ -55,6 +55,11 @@ export interface BusSpecificData {
   brand?: string;
   year?: number;
   features?: string[];
+  contractClient?: string;
+  contractDuration?: number;
+  profitMargin?: number;
+  contractMonthly?: string;
+  contractExpiry?: string;
 }
 
 /** Equipment-specific data fields */
@@ -87,6 +92,7 @@ export interface ServiceSpecificData {
   homeService?: boolean;
   workingHours?: string;
   features?: string[];
+  priceTo?: number;
 }
 
 /**
