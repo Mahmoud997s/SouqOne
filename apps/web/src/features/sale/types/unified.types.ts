@@ -60,6 +60,10 @@ export interface BusSpecificData {
   profitMargin?: number;
   contractMonthly?: string;
   contractExpiry?: string;
+  plateNumber?: string;
+  requestPassengers?: number;
+  requestRoute?: string;
+  requestSchedule?: string;
 }
 
 /** Equipment-specific data fields */
@@ -93,6 +97,10 @@ export interface ServiceSpecificData {
   workingHours?: string;
   features?: string[];
   priceTo?: number;
+  providerName?: string;
+  workingDays?: string[];
+  address?: string;
+  website?: string;
 }
 
 /**
@@ -111,6 +119,7 @@ export interface UnifiedListing {
   condition: string;
   governorate: string;
   city?: string;
+  isPremium?: boolean;
   images: string[];
   seller: UnifiedSeller;
   location?: UnifiedLocation;

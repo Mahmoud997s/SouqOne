@@ -128,8 +128,8 @@ export function VehicleCard(props: VehicleCardProps) {
 
           {/* ── Top-right: WANTED wins, else condition (neutral + dot) ── */}
           {isWanted ? (
-            <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 inline-flex items-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-orange-500 text-white">
-              <span className="w-1.5 h-1.5 rounded-full bg-white/80 shrink-0" />
+            <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 inline-flex items-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0" />
               {t('wanted')}
             </span>
           ) : badge && (
@@ -148,9 +148,8 @@ export function VehicleCard(props: VehicleCardProps) {
 
           {/* ── Price (bottom-right on image) ── */}
           <div className="absolute bottom-1.5 right-1.5 sm:bottom-2 sm:right-2">
-            <span className={`px-1.5 sm:px-2 py-px sm:py-0.5 rounded text-[9px] sm:text-xs font-black tracking-tight shadow-sm ${
-              isWanted ? 'bg-orange-500 text-white' : 'bg-primary text-on-primary'
-            }`}>
+            <span className="inline-flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-px sm:py-0.5 rounded text-[9px] sm:text-xs font-black tracking-tight bg-black/55 backdrop-blur-sm text-white">
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isWanted ? 'bg-orange-500' : 'bg-primary'}`} />
               {priceText}
             </span>
           </div>

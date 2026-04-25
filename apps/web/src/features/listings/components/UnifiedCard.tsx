@@ -86,11 +86,11 @@ export function UnifiedCard({ item, onSave, isSaved = false }: UnifiedCardProps)
 
         {/* Primary badge (top-right) - listing type */}
         {item.primaryBadge && (
-          <span className="absolute top-2.5 right-2.5
-                           flex items-center gap-1.5
-                           px-2 py-1 rounded-md
-                           bg-black/60 backdrop-blur-sm
-                           text-white text-[11px] font-medium
+          <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2
+                           inline-flex items-center gap-0.5 sm:gap-1
+                           px-1 sm:px-2 py-px sm:py-0.5 rounded
+                           bg-black/55 backdrop-blur-sm
+                           text-white text-[7px] sm:text-[10px] font-bold
                            select-none">
             <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
               BADGE_DOT[item.primaryBadge.color] ?? 'bg-gray-400'
@@ -101,11 +101,11 @@ export function UnifiedCard({ item, onSave, isSaved = false }: UnifiedCardProps)
 
         {/* Secondary badge (top-left) - condition */}
         {item.secondaryBadge && (
-          <span className="absolute top-2.5 left-2.5
-                           flex items-center gap-1.5
-                           px-2 py-1 rounded-md
-                           bg-black/60 backdrop-blur-sm
-                           text-white text-[11px] font-medium
+          <span className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2
+                           inline-flex items-center gap-0.5 sm:gap-1
+                           px-1 sm:px-2 py-px sm:py-0.5 rounded
+                           bg-black/55 backdrop-blur-sm
+                           text-white text-[7px] sm:text-[10px] font-bold
                            select-none">
             <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
               BADGE_DOT[item.secondaryBadge.color] ?? 'bg-gray-400'

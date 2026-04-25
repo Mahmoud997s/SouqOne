@@ -70,11 +70,15 @@ export const SellerRow = memo(function SellerRow({ seller }: SellerRowProps) {
             ),
           })}
         </p>
-        {memberSince && (
-          <p className="text-[11px] text-on-surface-variant mt-0.5">
-            {ts('memberSince', { date: memberSince })}
-          </p>
-        )}
+        <p className="text-[11px] text-on-surface-variant mt-0.5 flex items-center gap-1 flex-wrap">
+          {memberSince && <span>{ts('memberSince', { date: memberSince })}</span>}
+          {seller.listingCount !== undefined && seller.listingCount > 0 && (
+            <>
+              {memberSince && <span className="text-outline-variant/40">·</span>}
+              <span>{ts('listingCount', { count: seller.listingCount })}</span>
+            </>
+          )}
+        </p>
       </div>
     </div>
   );

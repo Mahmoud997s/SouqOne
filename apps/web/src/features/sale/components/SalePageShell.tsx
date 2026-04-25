@@ -9,7 +9,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from '@/i18n/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { Share2, Heart, MessageCircle, Phone, Trash2 } from 'lucide-react';
+import { Share2, Heart, MessageCircle, Phone, Trash2, Star } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { haversineDistance } from '@/lib/geo-utils';
 import { useCreateConversation, useDeleteListing } from '@/lib/api';
@@ -308,13 +308,23 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
 
         {/* ══ B — TITLE SECTION ══ */}
         <div className="mb-4">
-          <h1 className="text-[24px] font-bold text-on-surface mb-2 leading-tight tracking-tight">
-            {listing.title}
-          </h1>
+          <div className="flex items-center gap-2 flex-wrap mb-2">
+            <h1 className="text-[24px] font-bold text-on-surface leading-tight tracking-tight">
+              {listing.title}
+            </h1>
+            {listing.isPremium && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800">
+                <Star size={10} className="fill-amber-500 text-amber-500" />
+                {ts('premiumListing')}
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2 flex-wrap">
-            {listing.governorate && (
+            {(listing.city || listing.governorate) && (
               <>
-                <span className="text-[12px] text-on-surface-variant">{listing.governorate}، {ts('country')}</span>
+                <span className="text-[12px] text-on-surface-variant">
+                  {[listing.city, listing.governorate, ts('country')].filter(Boolean).join('، ')}
+                </span>
                 <span className="w-1 h-1 rounded-full bg-outline-variant inline-block" />
               </>
             )}
@@ -515,7 +525,7 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
                   <SectionTitle>{ts('locationTitle')}</SectionTitle>
                   <p className="text-[12px] text-on-surface-variant mb-3 flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-sm text-primary">location_on</span>
-                    {listing.governorate}، {ts('country')}
+                    {[listing.city, listing.governorate, ts('country')].filter(Boolean).join('، ')}
                     {distance !== null && (
                       <span className="flex items-center gap-1.5 text-[11px] text-on-surface-variant ms-1">
                         {distance < 1

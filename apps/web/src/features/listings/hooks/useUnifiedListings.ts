@@ -148,7 +148,7 @@ function getBusTypeBadge(busType: string, t: T): Badge {
 function getConditionBadge(condition: string, t: T): Badge {
   const map: Record<string, Badge> = {
     NEW:         { label: t('new'),                  color: 'green' },
-    USED:        { label: t('conditionUsed'),        color: 'gray' },
+    USED:        { label: t('conditionUsed'),        color: 'blue' },
     LIKE_NEW:    { label: t('conditionLikeNew'),     color: 'blue' },
     GOOD:        { label: t('conditionGood'),        color: 'blue' },
     FAIR:        { label: t('conditionFair'),        color: 'orange' },
@@ -493,7 +493,7 @@ function transformPart(raw: SparePartItem, t: T): UnifiedListingItem {
     createdAt:           raw.createdAt,
     viewCount:           raw.viewCount,
     primaryBadge:        raw.condition ? getConditionBadge(raw.condition, t) : null,
-    secondaryBadge:      raw.isOriginal ? { label: t('oem'), color: 'blue' } : { label: t('aftermarket'), color: 'gray' },
+    secondaryBadge:      raw.isOriginal ? { label: t('oem'), color: 'green' } : { label: t('aftermarket'), color: 'orange' },
     details:             details.slice(0, 5),
     href:                `/sale/part/${raw.id}`,
     phoneNumber:         raw.contactPhone ?? raw.seller?.phone ?? null,

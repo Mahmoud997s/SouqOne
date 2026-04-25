@@ -23,10 +23,10 @@ import { Footer } from '@/components/layout/footer'
 import { FilterSidebar } from './FilterSidebar'
 import { FilterSheet } from './FilterSheet'
 import { ActiveFilters } from './ActiveFilters'
-import { UnifiedCard } from './UnifiedCard'
-import { UnifiedCardSkeleton } from './UnifiedCardSkeleton'
 import { ListingCard } from './ListingCard'
 import { ListingCardSkeleton } from './ListingCardSkeleton'
+import { VehicleCard } from '@/features/ads/components/vehicle-card'
+import { CardSkeleton } from '@/components/loading-skeleton'
 
 // ── Icons ────────────────────────────────────────────────────────────────────
 
@@ -279,8 +279,8 @@ function ShellContent({ category }: { category: ListingCategory }) {
             </div>
           )}
           {isLoading && viewMode === 'grid' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {Array.from({ length: 8 }).map((_, i) => <UnifiedCardSkeleton key={i} />)}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
+              {Array.from({ length: 8 }).map((_, i) => <CardSkeleton key={i} />)}
             </div>
           )}
 
@@ -339,8 +339,32 @@ function ShellContent({ category }: { category: ListingCategory }) {
                   {items.map(item => <ListingCard key={item.id} item={item} onSave={handleSave} />)}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {items.map(item => <UnifiedCard key={item.id} item={item} onSave={handleSave} />)}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
+                  {items.map(item => (
+                    <VehicleCard
+                      key={item.id}
+                      id={item.id}
+                      title={item.title}
+                      make={item.attributes?.make || ''}
+                      model={item.attributes?.model || ''}
+                      year={item.attributes?.year || 0}
+                      price={item.price || 0}
+                      currency={item.currency}
+                      mileage={item.attributes?.mileage}
+                      fuelType={item.attributes?.fuelType}
+                      transmission={item.attributes?.transmission}
+                      condition={item.attributes?.condition}
+                      governorate={item.governorate}
+                      imageUrl={item.images[0]}
+                      createdAt={item.createdAt}
+                      isVerified={item.sellerVerified}
+                      isPriceNegotiable={item.isPriceNegotiable}
+                      listingType={item.attributes?.listingType}
+                      dailyPrice={item.attributes?.dailyPrice}
+                      monthlyPrice={item.attributes?.monthlyPrice}
+                      href={item.href}
+                    />
+                  ))}
                 </div>
               )}
 

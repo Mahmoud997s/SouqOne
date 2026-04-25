@@ -65,7 +65,7 @@ const BUS_FEATURE_KEYS = [
 
 export default function AddBusPage() {
   return (
-    <Suspense fallback={<><Navbar /><main className="pt-28 pb-16 max-w-[900px] mx-auto px-4"><div className="animate-pulse bg-surface-container-low h-96 rounded-3xl" /></main></>}>
+    <Suspense fallback={<><Navbar /><main className="pt-[75px] pb-16 max-w-[900px] mx-auto px-4"><div className="animate-pulse bg-surface-container-low h-96 rounded-3xl" /></main></>}>
       <AddBusContent />
     </Suspense>
   );
@@ -236,7 +236,7 @@ function AddBusContent() {
   return (
     <AuthGuard>
       <Navbar />
-      <main className="pt-28 pb-8 max-w-[900px] mx-auto px-4 md:px-8">
+      <main className="pt-[75px] pb-8 max-w-[900px] mx-auto px-4 md:px-8">
         <MultiStepForm
           steps={steps}
           currentStep={step}

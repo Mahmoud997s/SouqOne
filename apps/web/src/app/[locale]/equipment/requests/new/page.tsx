@@ -16,11 +16,11 @@ const LocationPicker = dynamic(() => import('@/components/map/location-picker'),
 
 const EQUIP_TYPES = [
   { value: 'EXCAVATOR', key: 'eqrTypeExcavator', icon: 'precision_manufacturing' },
-  { value: 'CRANE', key: 'eqrTypeCrane', icon: 'crane' },
+  { value: 'CRANE', key: 'eqrTypeCrane', icon: 'switch_access_2' },
   { value: 'LOADER', key: 'eqrTypeLoader', icon: 'front_loader' },
   { value: 'BULLDOZER', key: 'eqrTypeBulldozer', icon: 'agriculture' },
   { value: 'FORKLIFT', key: 'eqrTypeForklift', icon: 'forklift' },
-  { value: 'CONCRETE_MIXER', key: 'eqrTypeConcreteMixer', icon: 'concrete' },
+  { value: 'CONCRETE_MIXER', key: 'eqrTypeConcreteMixer', icon: 'blender' },
   { value: 'GENERATOR', key: 'eqrTypeGenerator', icon: 'bolt' },
   { value: 'COMPRESSOR', key: 'eqrTypeCompressor', icon: 'air' },
   { value: 'SCAFFOLDING', key: 'eqrTypeScaffolding', icon: 'construction' },

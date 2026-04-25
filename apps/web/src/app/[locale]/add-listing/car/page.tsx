@@ -16,7 +16,7 @@ import { useTranslations } from 'next-intl';
 
 export default function AddCarListingPage() {
   return (
-    <Suspense fallback={<><Navbar /><main className="pt-28 pb-16 max-w-[900px] mx-auto px-4"><div className="animate-pulse bg-surface-container-low h-96 rounded-3xl" /></main></>}>
+    <Suspense fallback={<><Navbar /><main className="pt-[75px] pb-16 max-w-[900px] mx-auto px-4"><div className="animate-pulse bg-surface-container-low h-96 rounded-3xl" /></main></>}>
       <AddCarContent />
     </Suspense>
   );
@@ -75,7 +75,7 @@ function AddCarContent() {
   return (
     <AuthGuard>
       <Navbar />
-      <main className="pt-28 pb-8 max-w-[900px] mx-auto px-4 md:px-8">
+      <main className="pt-[75px] pb-8 max-w-[900px] mx-auto px-4 md:px-8">
         <ListingForm
           initialData={{ listingType }}
           onSubmit={handleSubmit}

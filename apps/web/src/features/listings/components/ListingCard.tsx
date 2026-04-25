@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from '@/i18n/navigation'
 import { MapPin, Heart, MessageCircle, Phone, BadgeCheck, Tag as TagIcon, Star } from 'lucide-react'
@@ -10,6 +11,8 @@ import {
   CalendarDays, Route, Tag, Fuel,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useFavContext } from '@/providers/favorites-provider'
+import { useAuth } from '@/providers/auth-provider'
 import type { UnifiedListingItem, BadgeColor } from '../types/unified-item.types'
 import type { ListingCategory } from '../types/category.types'
 import { formatRelativeTime } from '../utils/filter-helpers'
@@ -40,9 +43,9 @@ function DetailIcon({ name, size = 11 }: { name: string; size?: number }) {
 
 const BADGE_BG: Record<BadgeColor, string> = {
   green:  'bg-emerald-500',
-  blue:   'bg-sky-500',
-  orange: 'bg-amber-500',
-  purple: 'bg-violet-500',
+  blue:   'bg-blue-500',
+  orange: 'bg-red-500',
+  purple: 'bg-blue-600',
   gray:   'bg-slate-400',
   red:    'bg-red-500',
 }
@@ -57,9 +60,28 @@ interface ListingCardProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function ListingCard({ item, onSave, isSaved = false }: ListingCardProps) {
+export function ListingCard({ item }: ListingCardProps) {
   const t = useTranslations('listings')
   const router = useRouter()
+  const { isAuthenticated } = useAuth()
+  const { isFav: checkFav, toggleFav } = useFavContext()
+  const entityKey = `${item.favoriteEntityType}:${item.id}`
+  const serverFav = checkFav(entityKey)
+  const [localFav, setLocalFav] = useState(serverFav)
+  const [animating, setAnimating] = useState(false)
+
+  useEffect(() => { setLocalFav(serverFav) }, [serverFav])
+
+  const handleFav = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!isAuthenticated) return
+    setLocalFav(!localFav)
+    setAnimating(true)
+    setTimeout(() => setAnimating(false), 350)
+    toggleFav.mutate({ entityType: item.favoriteEntityType as any, entityId: item.id })
+  }
+
   const CategoryIcon = CATEGORY_ICON[item.category]
   const thumbnails = item.images.length >= 3 ? item.images.slice(1, 4) : []
 
@@ -100,13 +122,15 @@ export function ListingCard({ item, onSave, isSaved = false }: ListingCardProps)
           )}
 
           {/* Save button — top end (left in RTL) */}
-          <button
-            onClick={e => { e.stopPropagation(); onSave?.(item.id) }}
-            aria-label={isSaved ? t('removeFromFavorites') : t('addToFavorites')}
-            className="absolute top-2 end-2 w-7 h-7 rounded-full bg-white/90 shadow-sm flex items-center justify-center hover:scale-110 transition-transform"
-          >
-            <Heart size={13} className={isSaved ? "fill-red-500 text-red-500" : "text-slate-400"} />
-          </button>
+          {isAuthenticated && (
+            <button
+              onClick={handleFav}
+              aria-label={localFav ? t('removeFromFavorites') : t('addToFavorites')}
+              className="absolute top-2 end-2 w-7 h-7 rounded-full bg-white/90 shadow-sm flex items-center justify-center hover:scale-110 transition-transform"
+            >
+              <Heart size={13} className={`transition-all duration-200 ${localFav ? 'fill-red-500 text-red-500' : 'text-slate-400'} ${animating ? 'animate-[heartPop_0.35s_ease-out]' : ''}`} />
+            </button>
+          )}
         </div>
 
         {/* Thumbnails strip */}

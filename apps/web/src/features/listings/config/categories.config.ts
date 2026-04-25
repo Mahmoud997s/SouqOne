@@ -36,10 +36,10 @@ export function normalizeCar(raw: any): UnifiedListingItem {
     GOOD: 'جيد', FAIR: 'مقبول', POOR: 'يحتاج صيانة',
   }
   const conditionColorMap: Record<string, Badge['color']> = {
-    NEW: 'green', LIKE_NEW: 'blue', USED: 'gray', GOOD: 'blue', FAIR: 'orange', POOR: 'red',
+    NEW: 'green', LIKE_NEW: 'blue', USED: 'blue', GOOD: 'blue', FAIR: 'orange', POOR: 'red',
   }
   const secondaryBadge: Badge | null = raw.condition
-    ? { label: conditionMap[raw.condition] ?? raw.condition, color: conditionColorMap[raw.condition] ?? 'gray' }
+    ? { label: conditionMap[raw.condition] ?? raw.condition, color: conditionColorMap[raw.condition] ?? 'blue' }
     : null
 
   const details = []
@@ -132,8 +132,11 @@ export function normalizeEquipment(raw: any): UnifiedListingItem {
   const conditionMap: Record<string, string> = {
     NEW: 'جديد', LIKE_NEW: 'شبه جديد', USED: 'مستعمل', GOOD: 'جيد', FAIR: 'مقبول',
   }
+  const conditionColorMap2: Record<string, Badge['color']> = {
+    NEW: 'green', LIKE_NEW: 'blue', USED: 'blue', GOOD: 'blue', FAIR: 'orange', POOR: 'red',
+  }
   const secondaryBadge: Badge | null = raw.condition
-    ? { label: conditionMap[raw.condition] ?? raw.condition, color: 'gray' }
+    ? { label: conditionMap[raw.condition] ?? raw.condition, color: conditionColorMap2[raw.condition] ?? 'blue' }
     : null
 
   const details = []
@@ -180,7 +183,7 @@ export function normalizePart(raw: any): UnifiedListingItem {
   const secondaryBadge: Badge | null = raw.isOriginal
     ? { label: 'قطعة أصلية', color: 'green' }
     : raw.condition
-    ? { label: PART_COND_AR[raw.condition] ?? raw.condition, color: 'gray' }
+    ? { label: PART_COND_AR[raw.condition] ?? raw.condition, color: 'blue' }
     : null
 
   const details = []

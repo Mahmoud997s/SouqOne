@@ -21,11 +21,11 @@ const LocationPicker = dynamic(() => import('@/components/map/location-picker'),
 
 const EQUIP_TYPE_KEYS = [
   { value: 'EXCAVATOR', labelKey: 'eqExcavator', icon: 'precision_manufacturing' },
-  { value: 'CRANE', labelKey: 'eqCrane', icon: 'crane' },
+  { value: 'CRANE', labelKey: 'eqCrane', icon: 'switch_access_2' },
   { value: 'LOADER', labelKey: 'eqLoader', icon: 'front_loader' },
   { value: 'BULLDOZER', labelKey: 'eqBulldozer', icon: 'agriculture' },
   { value: 'FORKLIFT', labelKey: 'eqForklift', icon: 'forklift' },
-  { value: 'CONCRETE_MIXER', labelKey: 'eqConcreteMixer', icon: 'concrete' },
+  { value: 'CONCRETE_MIXER', labelKey: 'eqConcreteMixer', icon: 'blender' },
   { value: 'GENERATOR', labelKey: 'eqGenerator', icon: 'bolt' },
   { value: 'COMPRESSOR', labelKey: 'eqCompressor', icon: 'air' },
   { value: 'SCAFFOLDING', labelKey: 'eqScaffolding', icon: 'construction' },
@@ -150,7 +150,7 @@ export default function AddEquipmentPage() {
   return (
     <AuthGuard>
       <Navbar />
-      <main className="pt-28 pb-8 max-w-[900px] mx-auto px-4 md:px-8">
+      <main className="pt-[75px] pb-8 max-w-[900px] mx-auto px-4 md:px-8">
         <MultiStepForm
           steps={steps}
           currentStep={step}

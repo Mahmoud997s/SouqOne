@@ -58,6 +58,9 @@ function normalizeSeller(
   const phone = contactOverride?.phone || (s?.phone as string) || undefined;
   const whatsapp = contactOverride?.whatsapp || contactOverride?.phone || (s?.whatsapp as string) || (s?.phone as string) || undefined;
 
+  const countObj = s?._count as Record<string, number> | undefined;
+  const listingCount = countObj?.listings ?? countObj?.listing ?? (s?.listingCount as number) ?? undefined;
+
   return {
     id: (s?.id as string) || '',
     name,
@@ -67,6 +70,7 @@ function normalizeSeller(
     governorate,
     verified: Boolean(s?.isVerified),
     memberSince: createdAt || new Date().toISOString(),
+    listingCount,
   };
 }
 
@@ -120,6 +124,7 @@ function transformCar(raw: ListingItem): UnifiedListing {
     condition: raw.condition || '',
     governorate: raw.governorate || '',
     city: raw.city ?? undefined,
+    isPremium: (raw as any).isPremium ?? false,
     images,
     seller,
     location:
@@ -143,6 +148,10 @@ function transformBus(raw: BusListingItem): UnifiedListing {
     brand: raw.make,
     year: raw.year,
     features: raw.features.length > 0 ? raw.features : undefined,
+    plateNumber: raw.plateNumber ?? undefined,
+    requestPassengers: raw.requestPassengers ?? undefined,
+    requestRoute: raw.requestRoute ?? undefined,
+    requestSchedule: raw.requestSchedule ?? undefined,
   };
 
   const seller = normalizeSeller(raw.user, raw.governorate, { phone: raw.contactPhone, whatsapp: raw.whatsapp });
@@ -262,6 +271,11 @@ function transformService(raw: CarServiceItem): UnifiedListing {
       ? `${raw.workingHoursOpen} - ${raw.workingHoursClose}`
       : undefined,
     features: raw.specializations.length > 0 ? raw.specializations : undefined,
+    priceTo: raw.priceTo ? parsePrice(raw.priceTo) : undefined,
+    providerName: raw.providerName ?? undefined,
+    workingDays: raw.workingDays?.length > 0 ? raw.workingDays : undefined,
+    address: raw.address ?? undefined,
+    website: raw.website ?? undefined,
   };
 
   const seller = normalizeSeller(raw.user, raw.governorate, { phone: raw.contactPhone, whatsapp: raw.whatsapp });
@@ -281,7 +295,7 @@ function transformService(raw: CarServiceItem): UnifiedListing {
     price,
     currency: raw.currency,
     negotiable: true, // Services are generally negotiable
-    condition: 'متاح', // Services don't have a condition field
+    condition: raw.status === 'ACTIVE' ? 'متاح' : 'غير متاح',
     governorate: raw.governorate,
     city: raw.city ?? undefined,
     images,

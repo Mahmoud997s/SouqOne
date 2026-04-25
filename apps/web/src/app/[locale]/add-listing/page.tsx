@@ -9,12 +9,12 @@ import { getMainCategories } from '@/lib/constants/categories';
 import { useTranslations } from 'next-intl';
 
 const CATEGORY_STYLE: Record<string, { icon: string; bg: string; text: string }> = {
-  'vehicles-parts': { icon: 'garage_home', bg: 'bg-sky-50 dark:bg-sky-950/40', text: 'text-sky-600 dark:text-sky-400' },
-  'jobs': { icon: 'badge', bg: 'bg-violet-50 dark:bg-violet-950/40', text: 'text-violet-600 dark:text-violet-400' },
-  'car-services': { icon: 'home_repair_service', bg: 'bg-orange-50 dark:bg-orange-950/40', text: 'text-orange-600 dark:text-orange-400' },
+  'vehicles-parts': { icon: 'directions_car', bg: 'bg-sky-50 dark:bg-sky-950/40', text: 'text-sky-600 dark:text-sky-400' },
+  'jobs': { icon: 'work', bg: 'bg-violet-50 dark:bg-violet-950/40', text: 'text-violet-600 dark:text-violet-400' },
+  'car-services': { icon: 'car_repair', bg: 'bg-orange-50 dark:bg-orange-950/40', text: 'text-orange-600 dark:text-orange-400' },
   'motorcycles': { icon: 'two_wheeler', bg: 'bg-rose-50 dark:bg-rose-950/40', text: 'text-rose-600 dark:text-rose-400' },
-  'marine': { icon: 'directions_boat', bg: 'bg-teal-50 dark:bg-teal-950/40', text: 'text-teal-600 dark:text-teal-400' },
-  'heavy-equipment': { icon: 'front_loader', bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-600 dark:text-amber-400' },
+  'marine': { icon: 'sailing', bg: 'bg-teal-50 dark:bg-teal-950/40', text: 'text-teal-600 dark:text-teal-400' },
+  'heavy-equipment': { icon: 'precision_manufacturing', bg: 'bg-amber-50 dark:bg-amber-950/40', text: 'text-amber-600 dark:text-amber-400' },
 };
 
 const DEFAULT_STYLE = { icon: 'category', bg: 'bg-slate-50 dark:bg-slate-950/40', text: 'text-slate-600 dark:text-slate-400' };
@@ -67,11 +67,11 @@ export default function AddListingPage() {
                 className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
                 {/* Category Header */}
-                <div className="flex items-center gap-4 p-5 md:p-6">
+                <div className="flex flex-col items-center gap-2 p-5 md:p-6">
                   <div className={`w-14 h-14 rounded-2xl ${style.bg} flex items-center justify-center shrink-0`}>
                     <span className={`material-symbols-outlined text-2xl ${style.text}`}>{style.icon}</span>
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="text-center">
                     <h2 className="font-black text-on-surface text-base md:text-lg">{cat.label}</h2>
                     <p className="text-xs text-on-surface-variant mt-0.5">{tp('addListingAvailableCount', { count: availableSubs.length })}</p>
                   </div>
@@ -84,10 +84,10 @@ export default function AddListingPage() {
                       <button
                         key={sub.value}
                         onClick={() => router.push(sub.route)}
-                        className="group flex items-center justify-start gap-2 px-3 sm:px-4 py-3 sm:py-3.5 rounded-xl bg-surface-container-low/50 dark:bg-surface-container-high/30 border border-transparent hover:border-primary/20 hover:bg-primary/5 dark:hover:bg-primary/10 transition-all h-full"
+                        className="group flex items-center justify-center gap-2 px-3 sm:px-4 py-3 sm:py-3.5 rounded-xl bg-surface-container-low/50 dark:bg-surface-container-high/30 border border-transparent hover:border-primary/20 hover:bg-primary/5 dark:hover:bg-primary/10 transition-all h-full"
                       >
                         <span className="material-symbols-outlined text-base shrink-0 text-on-surface-variant group-hover:text-primary transition-colors">add_circle</span>
-                        <span className="text-xs sm:text-sm font-bold text-on-surface group-hover:text-primary transition-colors leading-tight text-start">{sub.label}</span>
+                        <span className="text-xs sm:text-sm font-bold text-on-surface group-hover:text-primary transition-colors leading-tight text-center">{sub.label}</span>
                       </button>
                     ))}
                   </div>
