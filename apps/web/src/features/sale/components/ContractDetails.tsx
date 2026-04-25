@@ -7,7 +7,7 @@
 
 import { memo } from 'react';
 import { FileText, Users, Calendar, TrendingUp, Clock, Building2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import type { UnifiedListing } from '../types/unified.types';
 
 interface ContractDetailsProps {
@@ -17,6 +17,7 @@ interface ContractDetailsProps {
 export const ContractDetails = memo(function ContractDetails({ listing }: ContractDetailsProps) {
   const t = useTranslations('sale');
   const tc = useTranslations('common');
+  const locale = useLocale();
 
   // Helper to get translated contract type
   const getContractTypeLabel = (type: string | undefined): string => {
@@ -90,7 +91,7 @@ export const ContractDetails = memo(function ContractDetails({ listing }: Contra
       icon: Clock,
       label: t('contractExpiryDate'),
       value: busData.contractExpiry
-        ? new Date(busData.contractExpiry).toLocaleDateString('ar-OM')
+        ? new Date(busData.contractExpiry).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')
         : notSpecified,
       color: 'text-red-600',
       bgColor: 'bg-red-50',

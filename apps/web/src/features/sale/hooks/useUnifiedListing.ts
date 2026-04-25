@@ -128,7 +128,7 @@ function transformCar(raw: ListingItem): UnifiedListing {
     images,
     seller,
     location:
-      raw.latitude && raw.longitude
+      raw.latitude !== undefined && raw.latitude !== null && raw.longitude !== undefined && raw.longitude !== null
         ? { lat: raw.latitude, lng: raw.longitude }
         : undefined,
     views: raw.viewCount,
@@ -145,6 +145,10 @@ function transformBus(raw: BusListingItem): UnifiedListing {
     busType: raw.busType,
     capacity: raw.capacity,
     contractType: raw.contractType,
+    contractClient: raw.contractClient ?? undefined,
+    contractMonthly: raw.contractMonthly ?? undefined,
+    contractDuration: raw.contractDuration ?? undefined,
+    contractExpiry: raw.contractExpiry ?? undefined,
     brand: raw.make,
     year: raw.year,
     features: raw.features.length > 0 ? raw.features : undefined,
@@ -171,7 +175,7 @@ function transformBus(raw: BusListingItem): UnifiedListing {
     images,
     seller,
     location:
-      raw.latitude && raw.longitude
+      raw.latitude !== undefined && raw.latitude !== null && raw.longitude !== undefined && raw.longitude !== null
         ? { lat: raw.latitude, lng: raw.longitude }
         : undefined,
     views: raw.viewCount,
@@ -210,7 +214,7 @@ function transformEquipment(raw: EquipmentListingItem): UnifiedListing {
     images,
     seller,
     location:
-      raw.latitude && raw.longitude
+      raw.latitude !== undefined && raw.latitude !== null && raw.longitude !== undefined && raw.longitude !== null
         ? { lat: raw.latitude, lng: raw.longitude }
         : undefined,
     views: raw.viewCount,
@@ -250,7 +254,7 @@ function transformPart(raw: SparePartItem): UnifiedListing {
     images,
     seller,
     location:
-      raw.latitude && raw.longitude
+      raw.latitude !== undefined && raw.latitude !== null && raw.longitude !== undefined && raw.longitude !== null
         ? { lat: raw.latitude, lng: raw.longitude }
         : undefined,
     views: raw.viewCount,
@@ -295,13 +299,13 @@ function transformService(raw: CarServiceItem): UnifiedListing {
     price,
     currency: raw.currency,
     negotiable: true, // Services are generally negotiable
-    condition: raw.status === 'ACTIVE' ? 'متاح' : 'غير متاح',
+    condition: raw.status === 'ACTIVE' ? 'AVAILABLE' : 'UNAVAILABLE',
     governorate: raw.governorate,
     city: raw.city ?? undefined,
     images,
     seller,
     location:
-      raw.latitude && raw.longitude
+      raw.latitude !== undefined && raw.latitude !== null && raw.longitude !== undefined && raw.longitude !== null
         ? { lat: raw.latitude, lng: raw.longitude }
         : undefined,
     views: raw.viewCount,

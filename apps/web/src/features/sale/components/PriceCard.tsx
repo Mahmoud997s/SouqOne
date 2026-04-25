@@ -28,12 +28,10 @@ function formatRelativeTime(dateString: string, locale: string): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return locale === 'ar' ? 'اليوم' : 'Today';
-  if (diffDays === 1) return locale === 'ar' ? 'أمس' : 'Yesterday';
-  if (diffDays < 7) return locale === 'ar' ? `منذ ${diffDays} أيام` : `${diffDays} days ago`;
-  if (diffDays < 30) return locale === 'ar' ? `منذ ${Math.floor(diffDays / 7)} أسابيع` : `${Math.floor(diffDays / 7)} weeks ago`;
-  return locale === 'ar' ? `منذ ${Math.floor(diffDays / 30)} شهر` : `${Math.floor(diffDays / 30)} months ago`;
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+  if (diffDays < 7) return rtf.format(-diffDays, 'day');
+  if (diffDays < 30) return rtf.format(-Math.floor(diffDays / 7), 'week');
+  return rtf.format(-Math.floor(diffDays / 30), 'month');
 }
 
 export const PriceCard = memo(function PriceCard({

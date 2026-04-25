@@ -12,6 +12,7 @@ export * from './uploads';
 export * from './cars';
 export * from './bookings';
 export * from './jobs';
+export * from './buses';
 export * from './parts';
 export * from './services';
 export * from './search';

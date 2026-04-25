@@ -12,7 +12,14 @@ import dynamic from 'next/dynamic';
 import { Share2, Heart, MessageCircle, Phone, Trash2, Star } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { haversineDistance } from '@/lib/geo-utils';
-import { useCreateConversation, useDeleteListing } from '@/lib/api';
+import {
+  useCreateConversation,
+  useDeleteListing,
+  useDeleteBusListing,
+  useDeleteEquipmentListing,
+  useDeletePart,
+  useDeleteCarService,
+} from '@/lib/api';
 import { useFavContext } from '@/providers/favorites-provider';
 import type { EntityType } from '@/lib/api/favorites';
 import { useRequireAuth } from '@/hooks/use-require-auth';
@@ -43,11 +50,10 @@ function formatRelativeTime(dateString: string, locale: string): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  if (diffDays === 0) return locale === 'ar' ? 'اليوم' : 'Today';
-  if (diffDays === 1) return locale === 'ar' ? 'أمس' : 'Yesterday';
-  if (diffDays < 7) return locale === 'ar' ? `منذ ${diffDays} أيام` : `${diffDays} days ago`;
-  if (diffDays < 30) return locale === 'ar' ? `منذ ${Math.floor(diffDays / 7)} أسابيع` : `${Math.floor(diffDays / 7)} weeks ago`;
-  return locale === 'ar' ? `منذ ${Math.floor(diffDays / 30)} شهر` : `${Math.floor(diffDays / 30)} months ago`;
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+  if (diffDays < 7) return rtf.format(-diffDays, 'day');
+  if (diffDays < 30) return rtf.format(-Math.floor(diffDays / 7), 'week');
+  return rtf.format(-Math.floor(diffDays / 30), 'month');
 }
 
 /**
@@ -144,6 +150,10 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
   const { addToast } = useToast();
   const ts = useTranslations('sale');
   const deleteListing = useDeleteListing();
+  const deleteBusListing = useDeleteBusListing();
+  const deleteEquipmentListing = useDeleteEquipmentListing();
+  const deletePart = useDeletePart();
+  const deleteCarService = useDeleteCarService();
   const locale = useLocale();
   const requireAuth = useRequireAuth();
   const createConv = useCreateConversation();
@@ -151,6 +161,13 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
   const { isFav: checkFav, toggleFav } = useFavContext();
 
   const isOwner = !!(user && listing.seller.id === user.id);
+  const deleteMutation = {
+    car: deleteListing,
+    bus: deleteBusListing,
+    equipment: deleteEquipmentListing,
+    part: deletePart,
+    service: deleteCarService,
+  }[listing.type];
 
   // ─── Favorite entity type mapping ──────────────────────────────────────────
   const favEntityType: EntityType = (() => {
@@ -191,7 +208,7 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
   }, []);
 
   const distance =
-    userLat && userLng && listing.location
+    userLat !== null && userLng !== null && listing.location
       ? haversineDistance(userLat, userLng, listing.location.lat, listing.location.lng)
       : null;
 
@@ -266,13 +283,13 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
 
   const handleDelete = useCallback(async () => {
     try {
-      await deleteListing.mutateAsync(listing.id);
+      await deleteMutation.mutateAsync(listing.id);
       addToast('success', ts('deleteSuccessToast'));
       router.push('/my-listings');
     } catch (err) {
       addToast('error', err instanceof Error ? err.message : ts('deleteErrorToast'));
     }
-  }, [deleteListing, listing.id, addToast, router, ts]);
+  }, [deleteMutation, listing.id, addToast, router, ts]);
 
   // ─── Render ─────────────────────────────────────────────────────────────────
 
@@ -630,10 +647,10 @@ export function SalePageShell({ listing, config }: SalePageShellProps) {
                 </button>
                 <button
                   onClick={handleDelete}
-                  disabled={deleteListing.isPending}
+                  disabled={deleteMutation.isPending}
                   className="flex-1 h-11 rounded-xl bg-error text-on-error text-[14px] font-medium hover:bg-error/90 active:scale-[0.98] transition-all duration-150 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center justify-center gap-2"
                 >
-                  {deleteListing.isPending ? (
+                  {deleteMutation.isPending ? (
                     <>
                       <div className="w-4 h-4 border-2 border-on-error/30 border-t-on-error rounded-full animate-spin" />
                       {ts('delete')}
