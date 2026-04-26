@@ -12,6 +12,20 @@ import { CreateListingDto } from './dto/create-listing.dto';
 import { QueryListingsDto } from './dto/query-listings.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 
+const GOVERNORATE_ALIASES: Record<string, string[]> = {
+  OM_MUS: ['OM_MUS', 'مسقط', 'Muscat'],
+  OM_DHO: ['OM_DHO', 'ظفار', 'Dhofar'],
+  OM_MSM: ['OM_MSM', 'مسندم', 'Musandam'],
+  OM_BUR: ['OM_BUR', 'البريمي', 'Al Buraymi'],
+  OM_DAX: ['OM_DAX', 'الداخلية', 'Ad Dakhiliyah'],
+  OM_BAT: ['OM_BAT', 'شمال الباطنة', 'North Al Batinah'],
+  OM_BAS: ['OM_BAS', 'جنوب الباطنة', 'South Al Batinah'],
+  OM_SHS: ['OM_SHS', 'جنوب الشرقية', 'South Ash Sharqiyah'],
+  OM_SHN: ['OM_SHN', 'شمال الشرقية', 'North Ash Sharqiyah'],
+  OM_ZAH: ['OM_ZAH', 'الظاهرة', 'Ad Dhahirah'],
+  OM_WUS: ['OM_WUS', 'الوسطى', 'Al Wusta'],
+};
+
 @Injectable()
 export class ListingsService {
   constructor(
@@ -149,7 +163,15 @@ export class ListingsService {
     if (query.transmission) where.transmission = query.transmission;
     if (query.condition) where.condition = query.condition;
     if (query.bodyType) where.bodyType = query.bodyType;
-    if (query.governorate) where.governorate = query.governorate;
+    if (query.governorate) {
+      const aliases = GOVERNORATE_ALIASES[query.governorate];
+      if (aliases) {
+        where.governorate = { in: aliases };
+      } else {
+        where.governorate = query.governorate;
+      }
+    }
+    if (query.city) where.city = query.city;
     if (query.sellerId) where.sellerId = query.sellerId;
     if (query.listingType) where.listingType = query.listingType;
     where.status = query.status ?? 'ACTIVE';

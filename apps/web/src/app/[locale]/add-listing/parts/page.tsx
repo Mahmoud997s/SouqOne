@@ -13,7 +13,7 @@ import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
 import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
-import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls } from '@/lib/constants/form-styles';
+import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls, checkboxLabelCls, checkboxCls, checkboxTextCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
 import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
@@ -42,7 +42,7 @@ const PART_CONDITIONS = [
 
 export default function AddPartPage() {
   return (
-    <Suspense fallback={<><Navbar /><main className="pt-28 pb-16 max-w-[900px] mx-auto px-4"><div className="animate-pulse bg-surface-container-low h-96 rounded-3xl" /></main></>}>
+    <Suspense fallback={<><Navbar /><main className="pt-[75px] pb-16 max-w-[900px] mx-auto px-4"><div className="animate-pulse bg-surface-container-low h-96 rounded-3xl" /></main></>}>
       <AddPartContent />
     </Suspense>
   );
@@ -158,7 +158,7 @@ function AddPartContent() {
   return (
     <AuthGuard>
       <Navbar />
-      <main className="pt-28 pb-8 max-w-[900px] mx-auto px-4 md:px-8">
+      <main className="pt-[75px] pb-8 max-w-[900px] mx-auto px-4 md:px-8">
         <MultiStepForm
           steps={steps}
           currentStep={step}
@@ -245,9 +245,9 @@ function AddPartContent() {
                       <input type="number" value={form.yearTo} onChange={e => set('yearTo', e.target.value)} placeholder="2023" className={inputCls} />
                     </div>
                   </div>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" checked={form.isOriginal} onChange={e => set('isOriginal', e.target.checked)} className="w-5 h-5 accent-primary" />
-                    <span className="text-sm font-medium text-on-surface">{tp('partLabelOriginal')}</span>
+                  <label className={checkboxLabelCls}>
+                    <input type="checkbox" checked={form.isOriginal} onChange={e => set('isOriginal', e.target.checked)} className={checkboxCls} />
+                    <span className={checkboxTextCls}>{tp('partLabelOriginal')}</span>
                   </label>
                   <div>
                     <label className={labelCls}>{tp('partLabelDesc')}</label>
@@ -267,9 +267,9 @@ function AddPartContent() {
                     <label className={labelCls}>{tp('partLabelPriceOMR')}</label>
                     <input type="number" step="0.01" value={form.price} onChange={e => set('price', e.target.value)} placeholder="0.000" className={inputCls} />
                   </div>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" checked={form.isPriceNegotiable} onChange={e => set('isPriceNegotiable', e.target.checked)} className="w-5 h-5 accent-primary" />
-                    <span className="text-sm font-medium text-on-surface">{tp('partLabelNegotiable')}</span>
+                  <label className={checkboxLabelCls}>
+                    <input type="checkbox" checked={form.isPriceNegotiable} onChange={e => set('isPriceNegotiable', e.target.checked)} className={checkboxCls} />
+                    <span className={checkboxTextCls}>{tp('partLabelNegotiable')}</span>
                   </label>
                 </div>
               </section>

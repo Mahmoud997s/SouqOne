@@ -46,6 +46,7 @@ export function getSaleConfig(t: (key: string, values?: Record<string, string | 
         { key: 'carData.seats', label: t('specSeats'), icon: 'Users', hideIfEmpty: true },
         { key: 'condition', label: t('specCondition'), icon: 'Star' },
         { key: 'governorate', label: t('specGovernorate'), icon: 'MapPin' },
+        { key: 'city', label: t('specCity'), icon: 'Building2', hideIfEmpty: true },
       ],
       highlightFields: [
         {
@@ -76,8 +77,13 @@ export function getSaleConfig(t: (key: string, values?: Record<string, string | 
         { key: 'busData.contractType', label: t('specContractType'), icon: 'FileText' },
         { key: 'busData.brand', label: t('specBrand'), icon: 'Tag' },
         { key: 'busData.year', label: t('specYear'), icon: 'Calendar' },
+        { key: 'busData.plateNumber', label: t('specPlateNumber'), icon: 'Hash', hideIfEmpty: true },
         { key: 'condition', label: t('specCondition'), icon: 'Star' },
         { key: 'governorate', label: t('specGovernorate'), icon: 'MapPin' },
+        { key: 'city', label: t('specCity'), icon: 'Building2', hideIfEmpty: true },
+        { key: 'busData.requestPassengers', label: t('specRequestPassengers'), icon: 'Users', hideIfEmpty: true },
+        { key: 'busData.requestRoute', label: t('specRequestRoute'), icon: 'Route', hideIfEmpty: true },
+        { key: 'busData.requestSchedule', label: t('specRequestSchedule'), icon: 'Clock', hideIfEmpty: true },
       ],
       highlightFields: [
         {
@@ -117,12 +123,18 @@ export function getSaleConfig(t: (key: string, values?: Record<string, string | 
         { key: 'equipmentData.warranty', label: t('specWarranty'), icon: 'Shield', hideIfEmpty: true },
         { key: 'condition', label: t('specCondition'), icon: 'Star' },
         { key: 'governorate', label: t('specGovernorate'), icon: 'MapPin' },
+        { key: 'city', label: t('specCity'), icon: 'Building2', hideIfEmpty: true },
       ],
       highlightFields: [
         {
           icon: 'ShieldCheck',
           getTitle: (d) => t('highlightCondition', { condition: d.condition }),
-          getSub: () => t('highlightEquipmentChecked'),
+          getSub: (d) =>
+            d.condition === 'جديد' || d.condition === 'NEW'
+              ? t('highlightEquipmentNew')
+              : d.equipmentData?.hoursUsed
+                ? t('highlightHoursUsed', { hours: d.equipmentData.hoursUsed })
+                : t('highlightEquipmentUsed'),
         },
         {
           icon: 'BadgePercent',
@@ -131,8 +143,14 @@ export function getSaleConfig(t: (key: string, values?: Record<string, string | 
         },
         {
           icon: 'Wrench',
-          getTitle: (d) => (d.equipmentData?.warranty ? t('highlightWithWarranty') : t('highlightNoWarranty')),
-          getSub: (d) => d.equipmentData?.warranty ?? t('highlightContactSeller'),
+          getTitle: (d) =>
+            d.equipmentData?.brand
+              ? t('highlightBrand', { brand: d.equipmentData.brand })
+              : t('highlightContactForSpecs'),
+          getSub: (d) =>
+            d.equipmentData?.model
+              ? t('highlightModel', { model: d.equipmentData.model })
+              : t('highlightSeeDescription'),
         },
       ],
       badgeColor: 'teal',
@@ -144,13 +162,12 @@ export function getSaleConfig(t: (key: string, values?: Record<string, string | 
       icon: 'Settings',
       specsFields: [
         { key: 'partData.category', label: t('specCategory'), icon: 'Grid', format: 'text' },
-        { key: 'partData.brand', label: t('specBrand'), icon: 'Tag', format: 'text', hideIfEmpty: true },
+        { key: 'partData.isOriginal', label: t('specIsOriginal'), icon: 'BadgeCheck', format: 'boolean', hideIfEmpty: true },
         { key: 'partData.partNumber', label: t('specPartNumber'), icon: 'Hash', format: 'text', hideIfEmpty: true },
         { key: 'condition', label: t('specCondition'), icon: 'Star', format: 'text' },
       ],
       tableFields: [
         { key: 'partData.partNumber', label: t('specPartNumber'), icon: 'Hash', hideIfEmpty: true },
-        { key: 'partData.brand', label: t('specBrand'), icon: 'Tag', hideIfEmpty: true },
         { key: 'partData.category', label: t('specCategory'), icon: 'Grid' },
         { key: 'partData.isOriginal', label: t('specIsOriginal'), icon: 'BadgeCheck', format: 'boolean' },
         { key: 'partData.compatibility', label: t('specCompatibility'), icon: 'Car', hideIfEmpty: true },
@@ -158,6 +175,7 @@ export function getSaleConfig(t: (key: string, values?: Record<string, string | 
         { key: 'partData.yearRange', label: t('specYearRange'), icon: 'Calendar', hideIfEmpty: true },
         { key: 'condition', label: t('specCondition'), icon: 'Star' },
         { key: 'governorate', label: t('specGovernorate'), icon: 'MapPin' },
+        { key: 'city', label: t('specCity'), icon: 'Building2', hideIfEmpty: true },
       ],
       highlightFields: [
         {
@@ -187,9 +205,14 @@ export function getSaleConfig(t: (key: string, values?: Record<string, string | 
       tableFields: [
         { key: 'serviceData.serviceType', label: t('specServiceType'), icon: 'Briefcase' },
         { key: 'serviceData.providerType', label: t('specProviderType'), icon: 'User', hideIfEmpty: true },
+        { key: 'serviceData.providerName', label: t('specProviderName'), icon: 'Store', hideIfEmpty: true },
         { key: 'serviceData.workingHours', label: t('specWorkingHours'), icon: 'Clock', hideIfEmpty: true },
-        { key: 'serviceData.homeService', label: t('specHomeService'), icon: 'Home' },
+        { key: 'serviceData.workingDays', label: t('specWorkingDays'), icon: 'CalendarDays', hideIfEmpty: true, format: 'array' },
+        { key: 'serviceData.homeService', label: t('specHomeService'), icon: 'Home', format: 'boolean' },
+        { key: 'serviceData.address', label: t('specAddress'), icon: 'MapPin', hideIfEmpty: true },
+        { key: 'serviceData.website', label: t('specWebsite'), icon: 'Globe', hideIfEmpty: true, format: 'link' },
         { key: 'governorate', label: t('specGovernorate'), icon: 'MapPin' },
+        { key: 'city', label: t('specCity'), icon: 'Building2', hideIfEmpty: true },
       ],
       highlightFields: [
         {

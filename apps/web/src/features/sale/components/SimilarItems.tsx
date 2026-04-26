@@ -31,7 +31,7 @@ function useSimilarListings(type: SaleEntityType, governorate: string, currentId
   // Use the appropriate hook based on type
   const carQuery = useListings(type === 'car' ? params : {}, type === 'car');
   const busQuery = useBusListings(type === 'bus' ? params : {}, type === 'bus');
-  const equipmentQuery = useEquipmentListings(type === 'equipment' ? params : {});
+  const equipmentQuery = useEquipmentListings(type === 'equipment' ? params : {}, type === 'equipment');
   const partQuery = useParts(type === 'part' ? params : {}, type === 'part');
   const serviceQuery = useCarServices(type === 'service' ? params : {}, type === 'service');
 
@@ -83,7 +83,7 @@ export const SimilarItems = memo(function SimilarItems({
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-lg font-bold text-on-surface">{ts('similarTitle')}</h2>
         <a
-          href={`/${type === 'car' ? 'listings' : type === 'bus' ? 'buses' : type === 'equipment' ? 'equipment' : type === 'part' ? 'parts' : 'services'}?governorate=${governorate}`}
+          href={`/browse/${type === 'car' ? 'cars' : type === 'part' ? 'parts' : type === 'service' ? 'services' : type}?governorate=${encodeURIComponent(governorate)}`}
           className="text-[12px] font-medium text-primary hover:underline underline-offset-2"
         >
           {ts('viewAll')}

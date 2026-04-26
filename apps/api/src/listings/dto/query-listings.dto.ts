@@ -68,6 +68,10 @@ export class QueryListingsDto {
   governorate?: string;
 
   @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
   @IsEnum(ListingStatus)
   status?: ListingStatus;
 

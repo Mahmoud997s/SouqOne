@@ -13,7 +13,7 @@ import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
 import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
-import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls } from '@/lib/constants/form-styles';
+import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls, checkboxLabelCls, checkboxCls, checkboxTextCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
 import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
@@ -65,7 +65,7 @@ const BUS_FEATURE_KEYS = [
 
 export default function AddBusPage() {
   return (
-    <Suspense fallback={<><Navbar /><main className="pt-28 pb-16 max-w-[900px] mx-auto px-4"><div className="animate-pulse bg-surface-container-low h-96 rounded-3xl" /></main></>}>
+    <Suspense fallback={<><Navbar /><main className="pt-[75px] pb-16 max-w-[900px] mx-auto px-4"><div className="animate-pulse bg-surface-container-low h-96 rounded-3xl" /></main></>}>
       <AddBusContent />
     </Suspense>
   );
@@ -236,7 +236,7 @@ function AddBusContent() {
   return (
     <AuthGuard>
       <Navbar />
-      <main className="pt-28 pb-8 max-w-[900px] mx-auto px-4 md:px-8">
+      <main className="pt-[75px] pb-8 max-w-[900px] mx-auto px-4 md:px-8">
         <MultiStepForm
           steps={steps}
           currentStep={step}
@@ -371,26 +371,28 @@ function AddBusContent() {
 
                   <section className={sectionCls}>
                     <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">tune</span>{tp('busLabelSpecs')}</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className={labelCls}>{tp('busLabelFuel')}</label>
-                        <div className="flex flex-wrap gap-2">
-                          {FUEL_TYPE_KEYS.map(f => (
-                            <button key={f.value} type="button" onClick={() => set('fuelType', f.value)}
-                              className={chipCls(form.fuelType === f.value)}>{tp(f.labelKey)}</button>
-                          ))}
+                    <div className="space-y-5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                          <label className={labelCls}>{tp('busLabelFuel')}</label>
+                          <div className="flex flex-wrap gap-2">
+                            {FUEL_TYPE_KEYS.map(f => (
+                              <button key={f.value} type="button" onClick={() => set('fuelType', f.value)}
+                                className={chipCls(form.fuelType === f.value)}>{tp(f.labelKey)}</button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className={labelCls}>{tp('busLabelTransmission')}</label>
+                          <div className="flex flex-wrap gap-2">
+                            {[{ value: 'AUTOMATIC', labelKey: 'busTransAutomatic' as const }, { value: 'MANUAL', labelKey: 'busTransManual' as const }].map(t => (
+                              <button key={t.value} type="button" onClick={() => set('transmission', t.value)}
+                                className={chipCls(form.transmission === t.value)}>{tp(t.labelKey)}</button>
+                            ))}
+                          </div>
                         </div>
                       </div>
                       <div>
-                        <label className={labelCls}>{tp('busLabelTransmission')}</label>
-                        <div className="flex gap-2">
-                          {[{ value: 'AUTOMATIC', labelKey: 'busTransAutomatic' as const }, { value: 'MANUAL', labelKey: 'busTransManual' as const }].map(t => (
-                            <button key={t.value} type="button" onClick={() => set('transmission', t.value)}
-                              className={chipCls(form.transmission === t.value)}>{tp(t.labelKey)}</button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="sm:col-span-2">
                         <label className={labelCls}>{tp('busLabelCondition')}</label>
                         <div className="flex flex-wrap gap-2">
                           {CONDITION_KEYS.map(c => (
@@ -404,7 +406,7 @@ function AddBusContent() {
 
                   <section className={sectionCls}>
                     <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">star</span>{tp('busLabelFeatures')}</h2>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2.5">
                       {BUS_FEATURE_KEYS.map(key => {
                         const label = tp(key);
                         return (
@@ -432,9 +434,9 @@ function AddBusContent() {
                       <input type="number" className={inputCls} value={form.price} onChange={e => set('price', e.target.value)} placeholder="8000" />
                     </div>
                     <div className="flex items-end">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={form.isPriceNegotiable} onChange={e => set('isPriceNegotiable', e.target.checked)} className="w-4 h-4 rounded accent-primary" />
-                        <span className="text-sm text-on-surface">{tp('busLabelNegotiable')}</span>
+                      <label className={checkboxLabelCls}>
+                        <input type="checkbox" checked={form.isPriceNegotiable} onChange={e => set('isPriceNegotiable', e.target.checked)} className={checkboxCls} />
+                        <span className={checkboxTextCls}>{tp('busLabelNegotiable')}</span>
                       </label>
                     </div>
                   </div>
@@ -492,13 +494,13 @@ function AddBusContent() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-4 mt-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" checked={form.withDriver} onChange={e => set('withDriver', e.target.checked)} className="w-4 h-4 rounded accent-primary" />
-                      <span className="text-sm text-on-surface">{tp('busLabelWithDriver')}</span>
+                    <label className={checkboxLabelCls}>
+                      <input type="checkbox" checked={form.withDriver} onChange={e => set('withDriver', e.target.checked)} className={checkboxCls} />
+                      <span className={checkboxTextCls}>{tp('busLabelWithDriver')}</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" checked={form.deliveryAvailable} onChange={e => set('deliveryAvailable', e.target.checked)} className="w-4 h-4 rounded accent-primary" />
-                      <span className="text-sm text-on-surface">{tp('busLabelDelivery')}</span>
+                    <label className={checkboxLabelCls}>
+                      <input type="checkbox" checked={form.deliveryAvailable} onChange={e => set('deliveryAvailable', e.target.checked)} className={checkboxCls} />
+                      <span className={checkboxTextCls}>{tp('busLabelDelivery')}</span>
                     </label>
                   </div>
                 </section>

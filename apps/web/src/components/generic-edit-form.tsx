@@ -160,7 +160,7 @@ export function GenericEditForm({
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Main fields */}
           <div className={sectionCls}>
-            <h2 className={sectionTitleCls}>{tp('editListingBasicInfo')}</h2>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">edit_note</span>{tp('editListingBasicInfo')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {fields.map((field) => {
                 if (field.name === 'governorate') {
@@ -229,7 +229,7 @@ export function GenericEditForm({
           {/* Images */}
           {uploadEndpoint && (
             <div className={sectionCls}>
-              <h2 className={sectionTitleCls}>{tp('editListingImages')}</h2>
+              <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">add_photo_alternate</span>{tp('editListingImages')}</h2>
               <ImageUploader images={images} onChange={setImages} maxImages={10} />
             </div>
           )}
@@ -238,9 +238,13 @@ export function GenericEditForm({
           <button
             type="submit"
             disabled={isBusy}
-            className="w-full btn-primary py-3 text-sm font-black hover:brightness-110 transition-all disabled:opacity-50"
+            className="w-full bg-primary text-on-primary py-3.5 rounded-2xl text-sm font-black hover:brightness-110 transition-all disabled:opacity-50 shadow-lg"
           >
-            {isBusy ? tp('editListingUploading') : tp('editListingSave')}
+            {isBusy ? (
+              <span className="flex items-center justify-center gap-2"><span className="material-symbols-outlined animate-spin text-base">progress_activity</span>{tp('editListingUploading')}</span>
+            ) : (
+              <span className="flex items-center justify-center gap-2"><span className="material-symbols-outlined text-base">save</span>{tp('editListingSave')}</span>
+            )}
           </button>
         </form>
       </main>

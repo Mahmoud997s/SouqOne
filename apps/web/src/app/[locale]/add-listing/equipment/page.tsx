@@ -13,6 +13,7 @@ import { useToast } from '@/components/toast';
 import { getGovernorates, type LocationOption } from '@/lib/location-data';
 import { getAuthToken } from '@/lib/auth';
 import { API_BASE } from '@/lib/config';
+import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls, checkboxLabelCls, checkboxCls, checkboxTextCls } from '@/lib/constants/form-styles';
 import { useTranslations, useLocale } from 'next-intl';
 import dynamic from 'next/dynamic';
 
@@ -20,11 +21,11 @@ const LocationPicker = dynamic(() => import('@/components/map/location-picker'),
 
 const EQUIP_TYPE_KEYS = [
   { value: 'EXCAVATOR', labelKey: 'eqExcavator', icon: 'precision_manufacturing' },
-  { value: 'CRANE', labelKey: 'eqCrane', icon: 'crane' },
+  { value: 'CRANE', labelKey: 'eqCrane', icon: 'switch_access_2' },
   { value: 'LOADER', labelKey: 'eqLoader', icon: 'front_loader' },
   { value: 'BULLDOZER', labelKey: 'eqBulldozer', icon: 'agriculture' },
   { value: 'FORKLIFT', labelKey: 'eqForklift', icon: 'forklift' },
-  { value: 'CONCRETE_MIXER', labelKey: 'eqConcreteMixer', icon: 'concrete' },
+  { value: 'CONCRETE_MIXER', labelKey: 'eqConcreteMixer', icon: 'blender' },
   { value: 'GENERATOR', labelKey: 'eqGenerator', icon: 'bolt' },
   { value: 'COMPRESSOR', labelKey: 'eqCompressor', icon: 'air' },
   { value: 'SCAFFOLDING', labelKey: 'eqScaffolding', icon: 'construction' },
@@ -42,9 +43,6 @@ const CONDITION_KEYS = [
   { value: 'FAIR', labelKey: 'eqCondFair' },
 ] as const;
 
-const sectionCls = 'bg-surface-container-lowest dark:bg-surface-container rounded-2xl p-5 border border-outline-variant/10';
-const labelCls = 'block text-sm font-bold text-on-surface mb-1.5';
-const inputCls = 'w-full bg-surface-container-low dark:bg-surface-container-highest border border-outline-variant/20 rounded-xl px-4 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all';
 
 export default function AddEquipmentPage() {
   const tp = useTranslations('pages');
@@ -152,7 +150,7 @@ export default function AddEquipmentPage() {
   return (
     <AuthGuard>
       <Navbar />
-      <main className="pt-28 pb-8 max-w-[900px] mx-auto px-4 md:px-8">
+      <main className="pt-[75px] pb-8 max-w-[900px] mx-auto px-4 md:px-8">
         <MultiStepForm
           steps={steps}
           currentStep={step}
@@ -168,7 +166,7 @@ export default function AddEquipmentPage() {
           {step === 0 && (
             <div className="space-y-8">
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelAdType')}</h3>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">category</span>{tp('eqLabelAdType')}</h2>
                 <div className="grid grid-cols-2 gap-3">
                   {[{ v: 'EQUIPMENT_SALE', lKey: 'eqTypeSale' as const, i: 'sell', dKey: 'eqTypeSaleDesc' as const }, { v: 'EQUIPMENT_RENT', lKey: 'eqTypeRent' as const, i: 'car_rental', dKey: 'eqTypeRentDesc' as const }].map(opt => (
                     <button key={opt.v} type="button" onClick={() => setListingType(opt.v)}
@@ -181,7 +179,7 @@ export default function AddEquipmentPage() {
                 </div>
               </section>
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelEquipType')}</h3>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">construction</span>{tp('eqLabelEquipType')}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
                   {EQUIP_TYPE_KEYS.map(t => (
                     <button key={t.value} type="button" onClick={() => setEquipmentType(t.value)}
@@ -199,23 +197,26 @@ export default function AddEquipmentPage() {
           {step === 1 && (
             <div className="space-y-6">
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelBasicInfo')}</h3>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">edit_note</span>{tp('eqLabelBasicInfo')}</h2>
                 <div className="space-y-4">
                   <div><label className={labelCls}>{tp('eqLabelTitle')}</label><input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} placeholder={tp('eqPlaceholderTitle')} /></div>
                   <div><label className={labelCls}>{tp('eqLabelDesc')}</label><textarea className={`${inputCls} min-h-[100px]`} value={description} onChange={e => setDescription(e.target.value)} placeholder={tp('eqPlaceholderDesc')} /></div>
                 </div>
               </section>
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelTechSpecs')}</h3>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">settings</span>{tp('eqLabelTechSpecs')}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div><label className={labelCls}>{tp('eqLabelBrand')}</label><input className={inputCls} value={make} onChange={e => setMake(e.target.value)} placeholder="Caterpillar" /></div>
                   <div><label className={labelCls}>{tp('eqLabelModel')}</label><input className={inputCls} value={model} onChange={e => setModel(e.target.value)} placeholder="320D" /></div>
                   <div><label className={labelCls}>{tp('eqLabelYear')}</label><input type="number" className={inputCls} value={year} onChange={e => setYear(e.target.value)} placeholder="2020" /></div>
                   <div>
                     <label className={labelCls}>{tp('eqLabelCondition')}</label>
-                    <select className={inputCls} value={condition} onChange={e => setCondition(e.target.value)}>
-                      {CONDITION_KEYS.map(c => <option key={c.value} value={c.value}>{tp(c.labelKey)}</option>)}
-                    </select>
+                    <div className="flex flex-wrap gap-2">
+                      {CONDITION_KEYS.map(c => (
+                        <button key={c.value} type="button" onClick={() => setCondition(c.value)}
+                          className={chipCls(condition === c.value)}>{tp(c.labelKey)}</button>
+                      ))}
+                    </div>
                   </div>
                   <div><label className={labelCls}>{tp('eqLabelCapacity')}</label><input className={inputCls} value={capacity} onChange={e => setCapacity(e.target.value)} placeholder="20 ton" /></div>
                   <div><label className={labelCls}>{tp('eqLabelPower')}</label><input className={inputCls} value={power} onChange={e => setPower(e.target.value)} placeholder="150 HP" /></div>
@@ -230,7 +231,7 @@ export default function AddEquipmentPage() {
           {step === 2 && (
             <div className="space-y-6">
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelPrice')}</h3>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">payments</span>{tp('eqLabelPrice')}</h2>
                 <div className="space-y-4">
                   {listingType === 'EQUIPMENT_SALE' ? (
                     <div><label className={labelCls}>{tp('eqLabelSalePrice')}</label><input type="number" className={inputCls} value={price} onChange={e => setPrice(e.target.value)} placeholder="0.000" /></div>
@@ -241,10 +242,10 @@ export default function AddEquipmentPage() {
                       <div><label className={labelCls}>{tp('eqLabelMonthly')}</label><input type="number" className={inputCls} value={monthlyPrice} onChange={e => setMonthlyPrice(e.target.value)} /></div>
                     </div>
                   )}
-                  <div className="flex flex-wrap gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={isPriceNegotiable} onChange={e => setIsPriceNegotiable(e.target.checked)} className="w-4 h-4 rounded" /><span className="text-sm font-bold">{tp('eqLabelNegotiable')}</span></label>
-                    <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={withOperator} onChange={e => setWithOperator(e.target.checked)} className="w-4 h-4 rounded" /><span className="text-sm font-bold">{tp('eqLabelWithOperator')}</span></label>
-                    <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={deliveryAvailable} onChange={e => setDeliveryAvailable(e.target.checked)} className="w-4 h-4 rounded" /><span className="text-sm font-bold">{tp('eqLabelDelivery')}</span></label>
+                  <div className="flex flex-wrap gap-5">
+                    <label className={checkboxLabelCls}><input type="checkbox" checked={isPriceNegotiable} onChange={e => setIsPriceNegotiable(e.target.checked)} className={checkboxCls} /><span className={checkboxTextCls}>{tp('eqLabelNegotiable')}</span></label>
+                    <label className={checkboxLabelCls}><input type="checkbox" checked={withOperator} onChange={e => setWithOperator(e.target.checked)} className={checkboxCls} /><span className={checkboxTextCls}>{tp('eqLabelWithOperator')}</span></label>
+                    <label className={checkboxLabelCls}><input type="checkbox" checked={deliveryAvailable} onChange={e => setDeliveryAvailable(e.target.checked)} className={checkboxCls} /><span className={checkboxTextCls}>{tp('eqLabelDelivery')}</span></label>
                   </div>
                   {listingType === 'EQUIPMENT_RENT' && (
                     <div><label className={labelCls}>{tp('eqLabelMinRental')}</label><input type="number" className={inputCls} value={minRentalDays} onChange={e => setMinRentalDays(e.target.value)} /></div>
@@ -252,7 +253,7 @@ export default function AddEquipmentPage() {
                 </div>
               </section>
               <section className={sectionCls}>
-                <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelLocationContact')}</h3>
+                <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>{tp('eqLabelLocationContact')}</h2>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className={labelCls}>{tp('eqLabelGovernorate')}</label>
@@ -273,7 +274,7 @@ export default function AddEquipmentPage() {
           {/* ── Step 3: Images ── */}
           {step === 3 && (
             <section className={sectionCls}>
-              <h3 className="font-black text-base text-on-surface mb-4">{tp('eqLabelPhotos')}</h3>
+              <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">add_photo_alternate</span>{tp('eqLabelPhotos')}</h2>
               <ImageUploader images={images} onChange={setImages} />
             </section>
           )}

@@ -165,7 +165,7 @@ export function HeroSection() {
                 {t('heroAddCta')}
               </Link>
               <Link
-                href="/listings"
+                href="/browse/cars"
                 className="shrink-0 flex items-center gap-0.5 sm:gap-1.5 px-1.5 sm:px-5 lg:px-7 py-0.5 sm:py-2.5 lg:py-3 text-[7px] sm:text-sm lg:text-base font-bold rounded-md sm:rounded-xl border border-white/30 text-white hover:bg-white/10 transition-all"
               >
                 <span className="material-symbols-outlined text-[8px] sm:text-sm lg:text-base">explore</span>

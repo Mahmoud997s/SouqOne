@@ -72,7 +72,7 @@ export function BusesShowcase({ items, isLoading }: BusesShowcaseProps) {
             </div>
             <p className="text-on-surface-variant text-xs sm:text-sm">{t('latestBusesDesc')}</p>
           </div>
-          <Link href="/buses" className="text-primary font-bold text-xs sm:text-sm hover:underline transition-colors">
+          <Link href="/browse/buses" className="text-primary font-bold text-xs sm:text-sm hover:underline transition-colors">
             {t('viewAll')}
           </Link>
         </div>

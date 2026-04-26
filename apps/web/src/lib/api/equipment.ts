@@ -152,11 +152,12 @@ interface Paginated<T> {
 // Equipment Listings
 // ═══════════════════════════════════════
 
-export function useEquipmentListings(params?: Record<string, string>) {
+export function useEquipmentListings(params?: Record<string, string>, enabled = true) {
   const qs = new URLSearchParams(params).toString();
   return useQuery<Paginated<EquipmentListingItem>>({
     queryKey: ['equipment', params],
     queryFn: () => apiRequest(`/equipment${qs ? `?${qs}` : ''}`),
+    enabled,
   });
 }
 

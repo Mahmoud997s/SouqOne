@@ -1,7 +1,7 @@
 'use client';
 
 import { Link } from '@/i18n/navigation';
-import { RentalCard } from '@/features/rentals/components/rental-card';
+import { VehicleCard } from '@/features/ads/components/vehicle-card';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
 import { useTranslations } from 'next-intl';
@@ -44,7 +44,7 @@ export function RentalSection({ items, isLoading }: RentalSectionProps) {
             </div>
             <p className="text-on-surface-variant text-xs sm:text-sm">{tp('rentalSubtitle')}</p>
           </div>
-          <Link href="/rentals" className="text-primary font-bold text-xs sm:text-sm hover:underline transition-colors shrink-0">
+          <Link href="/browse/cars?listingType=RENTAL" className="text-primary font-bold text-xs sm:text-sm hover:underline transition-colors shrink-0">
             {tp('rentalViewAll')}
           </Link>
         </div>
@@ -58,15 +58,15 @@ export function RentalSection({ items, isLoading }: RentalSectionProps) {
             {items.map((item) => {
               const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];
               return (
-                <RentalCard
+                <VehicleCard
                   key={item.id}
                   id={item.id}
                   title={item.title}
                   make={item.make}
                   model={item.model}
                   year={item.year}
+                  price={item.dailyPrice || 0}
                   dailyPrice={item.dailyPrice}
-                  weeklyPrice={item.weeklyPrice}
                   monthlyPrice={item.monthlyPrice}
                   currency={item.currency}
                   mileage={item.mileage}
@@ -74,9 +74,8 @@ export function RentalSection({ items, isLoading }: RentalSectionProps) {
                   transmission={item.transmission}
                   governorate={item.governorate}
                   imageUrl={getImageUrl(img?.url)}
-                  withDriver={item.withDriver}
-                  insuranceIncluded={item.insuranceIncluded}
-                  deliveryAvailable={item.deliveryAvailable}
+                  listingType="RENTAL"
+                  href={`/rental/car/${item.id}`}
                 />
               );
             })}

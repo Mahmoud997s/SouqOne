@@ -8,6 +8,7 @@
 import { memo } from 'react';
 import { useTranslations } from 'next-intl';
 import * as Icons from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import type { UnifiedListing } from '../types/unified.types';
 import type { SpecField } from '../types/config.types';
 import { getNestedValue } from '../config/specs.config';
@@ -20,11 +21,31 @@ interface DetailsTableProps {
 /**
  * Format a value for display in the table.
  */
-function formatTableValue(value: unknown, format?: string, boolYes?: string, boolNo?: string): string {
+function formatTableValue(value: unknown, format?: string, boolYes?: string, boolNo?: string): React.ReactNode {
   if (value === null || value === undefined || value === '') return '—';
 
   if (format === 'boolean') {
     return value === true || value === 'true' ? (boolYes ?? 'Yes') : (boolNo ?? 'No');
+  }
+
+  if (format === 'array' && Array.isArray(value)) {
+    return value.join('، ');
+  }
+
+  if (format === 'link') {
+    const href = String(value).startsWith('http') ? String(value) : `https://${String(value)}`;
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary hover:underline flex items-center gap-1"
+        onClick={e => e.stopPropagation()}
+      >
+        {String(value)}
+        <ExternalLink size={11} />
+      </a>
+    );
   }
 
   if (Array.isArray(value)) {

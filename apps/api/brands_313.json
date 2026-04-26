@@ -1,0 +1,1254 @@
+[
+  {
+    "name": "Toyota",
+    "nameAr": "تويوتا"
+  },
+  {
+    "name": "Nissan",
+    "nameAr": "نيسان"
+  },
+  {
+    "name": "Honda",
+    "nameAr": "هوندا"
+  },
+  {
+    "name": "Mazda",
+    "nameAr": "مازدا"
+  },
+  {
+    "name": "Subaru",
+    "nameAr": "سوبارو"
+  },
+  {
+    "name": "Suzuki",
+    "nameAr": "سوزوكي"
+  },
+  {
+    "name": "Mitsubishi",
+    "nameAr": "ميتسوبيشي"
+  },
+  {
+    "name": "Lexus",
+    "nameAr": "لكزس"
+  },
+  {
+    "name": "Infiniti",
+    "nameAr": "إنفينيتي"
+  },
+  {
+    "name": "Acura",
+    "nameAr": "أكيورا"
+  },
+  {
+    "name": "Daihatsu",
+    "nameAr": "دايهاتسو"
+  },
+  {
+    "name": "Isuzu",
+    "nameAr": "إيسوزو"
+  },
+  {
+    "name": "Hino",
+    "nameAr": "هينو"
+  },
+  {
+    "name": "Datsun",
+    "nameAr": "داتسون"
+  },
+  {
+    "name": "Scion",
+    "nameAr": "سايون"
+  },
+  {
+    "name": "Hyundai",
+    "nameAr": "هيونداي"
+  },
+  {
+    "name": "Kia",
+    "nameAr": "كيا"
+  },
+  {
+    "name": "Genesis",
+    "nameAr": "جينيسيس"
+  },
+  {
+    "name": "SsangYong",
+    "nameAr": "سانغ يونغ"
+  },
+  {
+    "name": "Daewoo",
+    "nameAr": "دايو"
+  },
+  {
+    "name": "Samsung Motors",
+    "nameAr": "سامسونغ موتورز"
+  },
+  {
+    "name": "Renault Samsung",
+    "nameAr": "رينو سامسونغ"
+  },
+  {
+    "name": "Asia Motors",
+    "nameAr": "آسيا موتورز"
+  },
+  {
+    "name": "GM Daewoo",
+    "nameAr": "جي إم دايو"
+  },
+  {
+    "name": "Hyundai Ioniq",
+    "nameAr": "هيونداي أيونيك"
+  },
+  {
+    "name": "BMW",
+    "nameAr": "بي إم دبليو"
+  },
+  {
+    "name": "Mercedes-Benz",
+    "nameAr": "مرسيدس بنز"
+  },
+  {
+    "name": "Audi",
+    "nameAr": "أودي"
+  },
+  {
+    "name": "Volkswagen",
+    "nameAr": "فولكس فاجن"
+  },
+  {
+    "name": "Porsche",
+    "nameAr": "بورشه"
+  },
+  {
+    "name": "Opel",
+    "nameAr": "أوبل"
+  },
+  {
+    "name": "Smart",
+    "nameAr": "سمارت"
+  },
+  {
+    "name": "Alpina",
+    "nameAr": "ألبينا"
+  },
+  {
+    "name": "Brabus",
+    "nameAr": "برابوس"
+  },
+  {
+    "name": "RUF",
+    "nameAr": "روف"
+  },
+  {
+    "name": "Gumpert",
+    "nameAr": "غمبرت"
+  },
+  {
+    "name": "Isdera",
+    "nameAr": "إزديرا"
+  },
+  {
+    "name": "Wiesmann",
+    "nameAr": "فيزمان"
+  },
+  {
+    "name": "Artega",
+    "nameAr": "أرتيغا"
+  },
+  {
+    "name": "Borgward",
+    "nameAr": "بورغوارد"
+  },
+  {
+    "name": "Ford",
+    "nameAr": "فورد"
+  },
+  {
+    "name": "Chevrolet",
+    "nameAr": "شيفروليه"
+  },
+  {
+    "name": "GMC",
+    "nameAr": "جي إم سي"
+  },
+  {
+    "name": "Dodge",
+    "nameAr": "دودج"
+  },
+  {
+    "name": "Ram",
+    "nameAr": "رام"
+  },
+  {
+    "name": "Jeep",
+    "nameAr": "جيب"
+  },
+  {
+    "name": "Chrysler",
+    "nameAr": "كرايسلر"
+  },
+  {
+    "name": "Buick",
+    "nameAr": "بويك"
+  },
+  {
+    "name": "Cadillac",
+    "nameAr": "كاديلاك"
+  },
+  {
+    "name": "Lincoln",
+    "nameAr": "لينكولن"
+  },
+  {
+    "name": "Mercury",
+    "nameAr": "ميركوري"
+  },
+  {
+    "name": "Oldsmobile",
+    "nameAr": "أولدزموبيل"
+  },
+  {
+    "name": "Plymouth",
+    "nameAr": "بليموث"
+  },
+  {
+    "name": "Pontiac",
+    "nameAr": "بونتياك"
+  },
+  {
+    "name": "Saturn",
+    "nameAr": "ساتورن"
+  },
+  {
+    "name": "Tesla",
+    "nameAr": "تسلا"
+  },
+  {
+    "name": "Rivian",
+    "nameAr": "ريفيان"
+  },
+  {
+    "name": "Lucid",
+    "nameAr": "لوسيد"
+  },
+  {
+    "name": "Fisker",
+    "nameAr": "فيسكر"
+  },
+  {
+    "name": "Karma",
+    "nameAr": "كارما"
+  },
+  {
+    "name": "Saleen",
+    "nameAr": "سالين"
+  },
+  {
+    "name": "Shelby",
+    "nameAr": "شيلبي"
+  },
+  {
+    "name": "Vector",
+    "nameAr": "فيكتور"
+  },
+  {
+    "name": "Hennessey",
+    "nameAr": "هينيسي"
+  },
+  {
+    "name": "Hummer",
+    "nameAr": "هامر"
+  },
+  {
+    "name": "DeLorean",
+    "nameAr": "ديلوريان"
+  },
+  {
+    "name": "AMC",
+    "nameAr": "إيه إم سي"
+  },
+  {
+    "name": "Imperial",
+    "nameAr": "إمبريال"
+  },
+  {
+    "name": "Eagle",
+    "nameAr": "إيغل"
+  },
+  {
+    "name": "Panoz",
+    "nameAr": "بانوز"
+  },
+  {
+    "name": "Jaguar",
+    "nameAr": "جاكوار"
+  },
+  {
+    "name": "Land Rover",
+    "nameAr": "لاند روفر"
+  },
+  {
+    "name": "Bentley",
+    "nameAr": "بنتلي"
+  },
+  {
+    "name": "Rolls-Royce",
+    "nameAr": "رولز رويس"
+  },
+  {
+    "name": "Aston Martin",
+    "nameAr": "أستون مارتن"
+  },
+  {
+    "name": "McLaren",
+    "nameAr": "ماكلارين"
+  },
+  {
+    "name": "Lotus",
+    "nameAr": "لوتس"
+  },
+  {
+    "name": "MG",
+    "nameAr": "إم جي"
+  },
+  {
+    "name": "Mini",
+    "nameAr": "ميني"
+  },
+  {
+    "name": "TVR",
+    "nameAr": "تي في آر"
+  },
+  {
+    "name": "Caterham",
+    "nameAr": "كاترهام"
+  },
+  {
+    "name": "Ariel",
+    "nameAr": "أريل"
+  },
+  {
+    "name": "BAC",
+    "nameAr": "بي إيه سي"
+  },
+  {
+    "name": "Morgan",
+    "nameAr": "مورغان"
+  },
+  {
+    "name": "Noble",
+    "nameAr": "نوبل"
+  },
+  {
+    "name": "Vauxhall",
+    "nameAr": "فوكسهول"
+  },
+  {
+    "name": "Rover",
+    "nameAr": "روفر"
+  },
+  {
+    "name": "Austin",
+    "nameAr": "أوستن"
+  },
+  {
+    "name": "Austin-Healey",
+    "nameAr": "أوستن هيلي"
+  },
+  {
+    "name": "Triumph",
+    "nameAr": "ترايمف"
+  },
+  {
+    "name": "Morris",
+    "nameAr": "موريس"
+  },
+  {
+    "name": "Riley",
+    "nameAr": "رايلي"
+  },
+  {
+    "name": "Wolseley",
+    "nameAr": "وولزلي"
+  },
+  {
+    "name": "Sunbeam",
+    "nameAr": "صنبيم"
+  },
+  {
+    "name": "Singer",
+    "nameAr": "سينغر"
+  },
+  {
+    "name": "Hillman",
+    "nameAr": "هيلمان"
+  },
+  {
+    "name": "Humber",
+    "nameAr": "همبر"
+  },
+  {
+    "name": "Standard",
+    "nameAr": "ستاندرد"
+  },
+  {
+    "name": "Bristol",
+    "nameAr": "بريستول"
+  },
+  {
+    "name": "Jensen",
+    "nameAr": "جينسن"
+  },
+  {
+    "name": "Ferrari",
+    "nameAr": "فيراري"
+  },
+  {
+    "name": "Lamborghini",
+    "nameAr": "لامبورغيني"
+  },
+  {
+    "name": "Maserati",
+    "nameAr": "مازيراتي"
+  },
+  {
+    "name": "Alfa Romeo",
+    "nameAr": "ألفا روميو"
+  },
+  {
+    "name": "Fiat",
+    "nameAr": "فيات"
+  },
+  {
+    "name": "Lancia",
+    "nameAr": "لانشيا"
+  },
+  {
+    "name": "Abarth",
+    "nameAr": "أبارث"
+  },
+  {
+    "name": "Pagani",
+    "nameAr": "باغاني"
+  },
+  {
+    "name": "De Tomaso",
+    "nameAr": "دي توماسو"
+  },
+  {
+    "name": "Bizzarrini",
+    "nameAr": "بيزاريني"
+  },
+  {
+    "name": "Iso",
+    "nameAr": "إيزو"
+  },
+  {
+    "name": "Mazzanti",
+    "nameAr": "مازانتي"
+  },
+  {
+    "name": "Pininfarina",
+    "nameAr": "بينينفارينا"
+  },
+  {
+    "name": "Bertone",
+    "nameAr": "بيرتوني"
+  },
+  {
+    "name": "Giugiaro",
+    "nameAr": "جيوجيارو"
+  },
+  {
+    "name": "Peugeot",
+    "nameAr": "بيجو"
+  },
+  {
+    "name": "Renault",
+    "nameAr": "رينو"
+  },
+  {
+    "name": "Citroen",
+    "nameAr": "سيتروين"
+  },
+  {
+    "name": "DS",
+    "nameAr": "دي إس"
+  },
+  {
+    "name": "Alpine",
+    "nameAr": "ألبين"
+  },
+  {
+    "name": "Bugatti",
+    "nameAr": "بوجاتي"
+  },
+  {
+    "name": "Venturi",
+    "nameAr": "فينتوري"
+  },
+  {
+    "name": "Matra",
+    "nameAr": "ماترا"
+  },
+  {
+    "name": "Simca",
+    "nameAr": "سيمكا"
+  },
+  {
+    "name": "Panhard",
+    "nameAr": "بانار"
+  },
+  {
+    "name": "Facel Vega",
+    "nameAr": "فاسيل فيغا"
+  },
+  {
+    "name": "Ligier",
+    "nameAr": "ليجيه"
+  },
+  {
+    "name": "Microcar",
+    "nameAr": "ميكروكار"
+  },
+  {
+    "name": "Aixam",
+    "nameAr": "إيكسام"
+  },
+  {
+    "name": "Dacia",
+    "nameAr": "داتشيا"
+  },
+  {
+    "name": "Volvo",
+    "nameAr": "فولفو"
+  },
+  {
+    "name": "Saab",
+    "nameAr": "ساب"
+  },
+  {
+    "name": "Polestar",
+    "nameAr": "بولستار"
+  },
+  {
+    "name": "Koenigsegg",
+    "nameAr": "كونيغسيغ"
+  },
+  {
+    "name": "Scania",
+    "nameAr": "سكانيا"
+  },
+  {
+    "name": "Husqvarna",
+    "nameAr": "هاسكفارنا"
+  },
+  {
+    "name": "Uniti",
+    "nameAr": "يونيتي"
+  },
+  {
+    "name": "Nevs",
+    "nameAr": "نيفز"
+  },
+  {
+    "name": "Volta Trucks",
+    "nameAr": "فولتا تراكس"
+  },
+  {
+    "name": "Zenvo",
+    "nameAr": "زينفو"
+  },
+  {
+    "name": "Seat",
+    "nameAr": "سيات"
+  },
+  {
+    "name": "Skoda",
+    "nameAr": "سكودا"
+  },
+  {
+    "name": "Cupra",
+    "nameAr": "كوبرا"
+  },
+  {
+    "name": "Tatra",
+    "nameAr": "تاترا"
+  },
+  {
+    "name": "Rimac",
+    "nameAr": "ريماك"
+  },
+  {
+    "name": "Spyker",
+    "nameAr": "سبايكر"
+  },
+  {
+    "name": "Donkervoort",
+    "nameAr": "دونكرفورت"
+  },
+  {
+    "name": "DAF",
+    "nameAr": "داف"
+  },
+  {
+    "name": "Tramontana",
+    "nameAr": "ترامونتانا"
+  },
+  {
+    "name": "GTA",
+    "nameAr": "جي تي إيه"
+  },
+  {
+    "name": "Tauro",
+    "nameAr": "تاورو"
+  },
+  {
+    "name": "Aspid",
+    "nameAr": "أسبيد"
+  },
+  {
+    "name": "Fornasari",
+    "nameAr": "فورناساري"
+  },
+  {
+    "name": "Gillet",
+    "nameAr": "جيليه"
+  },
+  {
+    "name": "Ascari",
+    "nameAr": "أسكاري"
+  },
+  {
+    "name": "BYD",
+    "nameAr": "بي واي دي"
+  },
+  {
+    "name": "Changan",
+    "nameAr": "شانجان"
+  },
+  {
+    "name": "Chery",
+    "nameAr": "شيري"
+  },
+  {
+    "name": "Geely",
+    "nameAr": "جيلي"
+  },
+  {
+    "name": "Great Wall",
+    "nameAr": "جريت وول"
+  },
+  {
+    "name": "Haval",
+    "nameAr": "هافال"
+  },
+  {
+    "name": "Sehol",
+    "nameAr": "سيهول"
+  },
+  {
+    "name": "GAC",
+    "nameAr": "جي أي سي"
+  },
+  {
+    "name": "NIO",
+    "nameAr": "نيو"
+  },
+  {
+    "name": "Xpeng",
+    "nameAr": "إكس بنغ"
+  },
+  {
+    "name": "Li Auto",
+    "nameAr": "لي أوتو"
+  },
+  {
+    "name": "Hongqi",
+    "nameAr": "هونغتشي"
+  },
+  {
+    "name": "FAW",
+    "nameAr": "فاو"
+  },
+  {
+    "name": "SAIC",
+    "nameAr": "سايك"
+  },
+  {
+    "name": "Dongfeng",
+    "nameAr": "دونغ فينغ"
+  },
+  {
+    "name": "Foton",
+    "nameAr": "فوتون"
+  },
+  {
+    "name": "Brilliance",
+    "nameAr": "بريليانس"
+  },
+  {
+    "name": "Roewe",
+    "nameAr": "رووي"
+  },
+  {
+    "name": "Jetour",
+    "nameAr": "جيتور"
+  },
+  {
+    "name": "Tank",
+    "nameAr": "تانك"
+  },
+  {
+    "name": "BAIC",
+    "nameAr": "بايك"
+  },
+  {
+    "name": "Bestune",
+    "nameAr": "بيستون"
+  },
+  {
+    "name": "Maxus",
+    "nameAr": "ماكسوس"
+  },
+  {
+    "name": "Haima",
+    "nameAr": "هايما"
+  },
+  {
+    "name": "Zotye",
+    "nameAr": "زوتي"
+  },
+  {
+    "name": "Lifan",
+    "nameAr": "ليفان"
+  },
+  {
+    "name": "Wuling",
+    "nameAr": "وولينغ"
+  },
+  {
+    "name": "JAC",
+    "nameAr": "جاك"
+  },
+  {
+    "name": "Landwind",
+    "nameAr": "لاندويند"
+  },
+  {
+    "name": "Qoros",
+    "nameAr": "كوروس"
+  },
+  {
+    "name": "Lynk & Co",
+    "nameAr": "لينك أند كو"
+  },
+  {
+    "name": "Zeekr",
+    "nameAr": "زيكر"
+  },
+  {
+    "name": "Ora",
+    "nameAr": "أورا"
+  },
+  {
+    "name": "WEY",
+    "nameAr": "وي"
+  },
+  {
+    "name": "Leopaard",
+    "nameAr": "ليوبارد"
+  },
+  {
+    "name": "Voyah",
+    "nameAr": "فوياه"
+  },
+  {
+    "name": "Avatr",
+    "nameAr": "أفاتر"
+  },
+  {
+    "name": "Rising Auto",
+    "nameAr": "رايزنغ أوتو"
+  },
+  {
+    "name": "Leapmotor",
+    "nameAr": "ليب موتور"
+  },
+  {
+    "name": "Aion",
+    "nameAr": "آيون"
+  },
+  {
+    "name": "Tata",
+    "nameAr": "تاتا"
+  },
+  {
+    "name": "Mahindra",
+    "nameAr": "ماهيندرا"
+  },
+  {
+    "name": "Maruti Suzuki",
+    "nameAr": "ماروتي سوزوكي"
+  },
+  {
+    "name": "Ashok Leyland",
+    "nameAr": "أشوك ليلاند"
+  },
+  {
+    "name": "Force Motors",
+    "nameAr": "فورس موتورز"
+  },
+  {
+    "name": "Hindustan",
+    "nameAr": "هندوستان"
+  },
+  {
+    "name": "Perodua",
+    "nameAr": "بيرودوا"
+  },
+  {
+    "name": "Proton",
+    "nameAr": "بروتون"
+  },
+  {
+    "name": "VinFast",
+    "nameAr": "فين فاست"
+  },
+  {
+    "name": "Naza",
+    "nameAr": "نازا"
+  },
+  {
+    "name": "Bufori",
+    "nameAr": "بوفوري"
+  },
+  {
+    "name": "Inokom",
+    "nameAr": "إينوكوم"
+  },
+  {
+    "name": "Thaco",
+    "nameAr": "ثاكو"
+  },
+  {
+    "name": "Esemka",
+    "nameAr": "إسيمكا"
+  },
+  {
+    "name": "Wuling Indonesia",
+    "nameAr": "وولينغ إندونيسيا"
+  },
+  {
+    "name": "Lada",
+    "nameAr": "لادا"
+  },
+  {
+    "name": "UAZ",
+    "nameAr": "يو إيه زد"
+  },
+  {
+    "name": "GAZ",
+    "nameAr": "غاز"
+  },
+  {
+    "name": "ZIL",
+    "nameAr": "زيل"
+  },
+  {
+    "name": "Moskvitch",
+    "nameAr": "موسكفيتش"
+  },
+  {
+    "name": "Trabant",
+    "nameAr": "ترابانت"
+  },
+  {
+    "name": "Wartburg",
+    "nameAr": "فارتبورغ"
+  },
+  {
+    "name": "Skoda Auto",
+    "nameAr": "سكودا أوتو"
+  },
+  {
+    "name": "Oka",
+    "nameAr": "أوكا"
+  },
+  {
+    "name": "TagAZ",
+    "nameAr": "تاغاز"
+  },
+  {
+    "name": "Derways",
+    "nameAr": "ديرويز"
+  },
+  {
+    "name": "Izh",
+    "nameAr": "إيجه"
+  },
+  {
+    "name": "Yugo",
+    "nameAr": "يوغو"
+  },
+  {
+    "name": "Zastava",
+    "nameAr": "زاستافا"
+  },
+  {
+    "name": "Dacia Romania",
+    "nameAr": "داتشيا رومانيا"
+  },
+  {
+    "name": "MAN",
+    "nameAr": "مان"
+  },
+  {
+    "name": "Scania Trucks",
+    "nameAr": "سكانيا تراكس"
+  },
+  {
+    "name": "DAF Trucks",
+    "nameAr": "داف تراكس"
+  },
+  {
+    "name": "Volvo Trucks",
+    "nameAr": "فولفو تراكس"
+  },
+  {
+    "name": "Mercedes-Benz Trucks",
+    "nameAr": "مرسيدس بنز تراكس"
+  },
+  {
+    "name": "Iveco",
+    "nameAr": "إيفيكو"
+  },
+  {
+    "name": "PACCAR",
+    "nameAr": "باكار"
+  },
+  {
+    "name": "Kenworth",
+    "nameAr": "كينوورث"
+  },
+  {
+    "name": "Peterbilt",
+    "nameAr": "بيتربيلت"
+  },
+  {
+    "name": "Freightliner",
+    "nameAr": "فريتلاينر"
+  },
+  {
+    "name": "Western Star",
+    "nameAr": "ويسترن ستار"
+  },
+  {
+    "name": "Mack",
+    "nameAr": "ماك"
+  },
+  {
+    "name": "Navistar",
+    "nameAr": "نافيستار"
+  },
+  {
+    "name": "Oshkosh",
+    "nameAr": "أوشكوش"
+  },
+  {
+    "name": "Mitsubishi Fuso",
+    "nameAr": "ميتسوبيشي فوسو"
+  },
+  {
+    "name": "UD Trucks",
+    "nameAr": "يو دي تراكس"
+  },
+  {
+    "name": "Hino Trucks",
+    "nameAr": "هينو تراكس"
+  },
+  {
+    "name": "JMC",
+    "nameAr": "جيه إم سي"
+  },
+  {
+    "name": "Dongfeng Trucks",
+    "nameAr": "دونغ فينغ تراكس"
+  },
+  {
+    "name": "Autocar",
+    "nameAr": "أوتوكار"
+  },
+  {
+    "name": "Aiways",
+    "nameAr": "آيوايز"
+  },
+  {
+    "name": "Byton",
+    "nameAr": "بايتون"
+  },
+  {
+    "name": "Faraday Future",
+    "nameAr": "فاراداي فيوتشر"
+  },
+  {
+    "name": "Lordstown",
+    "nameAr": "لوردستاون"
+  },
+  {
+    "name": "Workhorse",
+    "nameAr": "ووركهورس"
+  },
+  {
+    "name": "Canoo",
+    "nameAr": "كانو"
+  },
+  {
+    "name": "Nikola",
+    "nameAr": "نيكولا"
+  },
+  {
+    "name": "Bollinger",
+    "nameAr": "بولينجر"
+  },
+  {
+    "name": "Sono Motors",
+    "nameAr": "سونو موتورز"
+  },
+  {
+    "name": "Arrival",
+    "nameAr": "أرايفال"
+  },
+  {
+    "name": "REE",
+    "nameAr": "ري"
+  },
+  {
+    "name": "Fisker Inc",
+    "nameAr": "فيسكر إنك"
+  },
+  {
+    "name": "Mullen",
+    "nameAr": "مولين"
+  },
+  {
+    "name": "Aptera",
+    "nameAr": "أبتيرا"
+  },
+  {
+    "name": "Polestar EV",
+    "nameAr": "بولستار إي في"
+  },
+  {
+    "name": "Elaris",
+    "nameAr": "إيلاريس"
+  },
+  {
+    "name": "Seres",
+    "nameAr": "سيريس"
+  },
+  {
+    "name": "XEV",
+    "nameAr": "إكس إي في"
+  },
+  {
+    "name": "Microlino",
+    "nameAr": "ميكرولينو"
+  },
+  {
+    "name": "Togg",
+    "nameAr": "توغ"
+  },
+  {
+    "name": "SSC",
+    "nameAr": "إس إس سي"
+  },
+  {
+    "name": "Ultima",
+    "nameAr": "ألتيما"
+  },
+  {
+    "name": "Radical",
+    "nameAr": "راديكال"
+  },
+  {
+    "name": "KTM",
+    "nameAr": "كي تي إم"
+  },
+  {
+    "name": "Westfield",
+    "nameAr": "ويستفيلد"
+  },
+  {
+    "name": "Dax",
+    "nameAr": "داكس"
+  },
+  {
+    "name": "Ginetta",
+    "nameAr": "جينيتا"
+  },
+  {
+    "name": "Marcos",
+    "nameAr": "ماركوس"
+  },
+  {
+    "name": "Lister",
+    "nameAr": "ليستر"
+  },
+  {
+    "name": "Caparo",
+    "nameAr": "كابارو"
+  },
+  {
+    "name": "Hulme",
+    "nameAr": "هولم"
+  },
+  {
+    "name": "Joss",
+    "nameAr": "جوس"
+  },
+  {
+    "name": "Superformance",
+    "nameAr": "سوبرفورمانس"
+  },
+  {
+    "name": "Studiotorino",
+    "nameAr": "ستوديو تورينو"
+  },
+  {
+    "name": "Tushek",
+    "nameAr": "توشيك"
+  },
+  {
+    "name": "Vanderhall",
+    "nameAr": "فاندرهال"
+  },
+  {
+    "name": "Veritas",
+    "nameAr": "فيريتاس"
+  },
+  {
+    "name": "Stola",
+    "nameAr": "ستولا"
+  },
+  {
+    "name": "Rinspeed",
+    "nameAr": "رينسبيد"
+  },
+  {
+    "name": "Qvale",
+    "nameAr": "كفالي"
+  },
+  {
+    "name": "Callaway",
+    "nameAr": "كالاواي"
+  },
+  {
+    "name": "Apollo",
+    "nameAr": "أبولو"
+  },
+  {
+    "name": "Aspark",
+    "nameAr": "أسبارك"
+  },
+  {
+    "name": "Zagato",
+    "nameAr": "زاغاتو"
+  },
+  {
+    "name": "Campagna",
+    "nameAr": "كامبانيا"
+  },
+  {
+    "name": "Packard",
+    "nameAr": "باكارد"
+  },
+  {
+    "name": "Studebaker",
+    "nameAr": "ستوديبيكر"
+  },
+  {
+    "name": "DeSoto",
+    "nameAr": "ديسوتو"
+  },
+  {
+    "name": "Nash",
+    "nameAr": "ناش"
+  },
+  {
+    "name": "Hudson",
+    "nameAr": "هدسون"
+  },
+  {
+    "name": "Kaiser",
+    "nameAr": "كايزر"
+  },
+  {
+    "name": "Willys",
+    "nameAr": "ويليز"
+  },
+  {
+    "name": "Crosley",
+    "nameAr": "كروسلي"
+  },
+  {
+    "name": "Edsel",
+    "nameAr": "إدسل"
+  },
+  {
+    "name": "Tucker",
+    "nameAr": "تاكر"
+  },
+  {
+    "name": "Merkur",
+    "nameAr": "ميركور"
+  },
+  {
+    "name": "Talbot",
+    "nameAr": "تالبوت"
+  },
+  {
+    "name": "Jowett",
+    "nameAr": "جويت"
+  },
+  {
+    "name": "Reliant",
+    "nameAr": "ريلاينت"
+  },
+  {
+    "name": "Rochdale",
+    "nameAr": "روشديل"
+  },
+  {
+    "name": "Carbodies",
+    "nameAr": "كاربوديز"
+  },
+  {
+    "name": "Monteverdi",
+    "nameAr": "مونتيفيردي"
+  },
+  {
+    "name": "Bitter",
+    "nameAr": "بيتر"
+  },
+  {
+    "name": "Panther",
+    "nameAr": "بانثر"
+  },
+  {
+    "name": "Ghia",
+    "nameAr": "غيا"
+  },
+  {
+    "name": "Vignale",
+    "nameAr": "فينيالي"
+  },
+  {
+    "name": "Touring",
+    "nameAr": "تورينغ"
+  },
+  {
+    "name": "Ravon",
+    "nameAr": "رافون"
+  }
+]

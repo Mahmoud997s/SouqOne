@@ -12,7 +12,7 @@ import { useJob, useUpdateJob } from '@/lib/api/jobs';
 import { useToast } from '@/components/toast';
 import { getGovernorates } from '@/lib/location-data';
 import { employmentOptionsT } from '@/lib/constants/jobs';
-import { inputCls, labelCls, sectionCls, sectionTitleCls } from '@/lib/constants/form-styles';
+import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls, checkboxLabelCls, checkboxCls, checkboxTextCls } from '@/lib/constants/form-styles';
 import { useTranslations, useLocale } from 'next-intl';
 
 const LICENSE_OPTIONS = [
@@ -182,7 +182,7 @@ export default function EditJobPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Job Type */}
           <div className={sectionCls}>
-            <h2 className={sectionTitleCls}>{tp('jnTypeLabel')}</h2>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">work</span>{tp('jnTypeLabel')}</h2>
             <div className="flex gap-3">
               {(['OFFERING', 'HIRING'] as const).map((type) => (
                 <button
@@ -206,7 +206,7 @@ export default function EditJobPage() {
 
           {/* Basic Info */}
           <div className={sectionCls}>
-            <h2 className={sectionTitleCls}>{tp('jnBasicTitle')}</h2>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">edit_note</span>{tp('jnBasicTitle')}</h2>
             <div className="space-y-4">
               <div>
                 <label className={labelCls}>{tp('jnLabelTitle')}</label>
@@ -244,7 +244,7 @@ export default function EditJobPage() {
 
           {/* Salary */}
           <div className={sectionCls}>
-            <h2 className={sectionTitleCls}>{tp('jnSalaryTitle')}</h2>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">payments</span>{tp('jnSalaryTitle')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>{tp('jnLabelSalary')}</label>
@@ -261,14 +261,14 @@ export default function EditJobPage() {
 
           {/* Requirements */}
           <div className={sectionCls}>
-            <h2 className={sectionTitleCls}>{tp('jnRequirementsTitle')}</h2>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">checklist</span>{tp('jnRequirementsTitle')}</h2>
             <div className="space-y-4">
               <div>
                 <label className={labelCls}>{tp('jnLabelLicense')}</label>
                 <div className="flex flex-wrap gap-2">
                   {LICENSE_OPTIONS.map((o) => (
                     <button key={o.value} type="button" onClick={() => toggleArrayItem('licenseTypes', o.value)}
-                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${form.licenseTypes.includes(o.value) ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
+                      className={chipCls(form.licenseTypes.includes(o.value))}>
                       {tp(o.key)}
                     </button>
                   ))}
@@ -293,7 +293,7 @@ export default function EditJobPage() {
                 <div className="flex flex-wrap gap-2">
                   {LANGUAGE_OPTIONS.map((lang) => (
                     <button key={lang.value} type="button" onClick={() => toggleArrayItem('languages', lang.value)}
-                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${form.languages.includes(lang.value) ? 'bg-primary text-on-primary' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
+                      className={chipCls(form.languages.includes(lang.value))}>
                       {tp(lang.key)}
                     </button>
                   ))}
@@ -304,22 +304,22 @@ export default function EditJobPage() {
                 <div className="flex flex-wrap gap-2">
                   {VEHICLE_TYPE_OPTIONS.map((vt) => (
                     <button key={vt.value} type="button" onClick={() => toggleArrayItem('vehicleTypes', vt.value)}
-                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${form.vehicleTypes.includes(vt.value) ? 'bg-primary text-on-primary shadow-ambient' : 'bg-surface border border-outline text-on-surface hover:border-primary'}`}>
+                      className={chipCls(form.vehicleTypes.includes(vt.value))}>
                       {tp(vt.key)}
                     </button>
                   ))}
                 </div>
               </div>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" checked={form.hasOwnVehicle} onChange={(e) => updateField('hasOwnVehicle', e.target.checked)} className="w-5 h-5 rounded accent-primary" />
-                <span className="text-sm font-bold">{tp('jnHasOwnVehicle')}</span>
+              <label className={checkboxLabelCls}>
+                <input type="checkbox" checked={form.hasOwnVehicle} onChange={(e) => updateField('hasOwnVehicle', e.target.checked)} className={checkboxCls} />
+                <span className={checkboxTextCls}>{tp('jnHasOwnVehicle')}</span>
               </label>
             </div>
           </div>
 
           {/* Contact */}
           <div className={sectionCls}>
-            <h2 className={sectionTitleCls}>{tp('jnContactTitle')}</h2>
+            <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">contact_phone</span>{tp('jnContactTitle')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>{tp('jnLabelPhone')}</label>
@@ -339,11 +339,15 @@ export default function EditJobPage() {
           {/* Submit */}
           <div className="flex gap-3">
             <button type="submit" disabled={update.isPending}
-              className="btn-primary flex-1 py-4 text-base font-bold disabled:opacity-50 hover:brightness-110 transition-all">
-              {update.isPending ? tp('editListingUploading') : tp('editListingSave')}
+              className="flex-1 bg-primary text-on-primary py-3.5 rounded-2xl text-sm font-black hover:brightness-110 transition-all disabled:opacity-50 shadow-lg">
+              {update.isPending ? (
+                <span className="flex items-center justify-center gap-2"><span className="material-symbols-outlined animate-spin text-base">progress_activity</span>{tp('editListingUploading')}</span>
+              ) : (
+                <span className="flex items-center justify-center gap-2"><span className="material-symbols-outlined text-base">save</span>{tp('editListingSave')}</span>
+              )}
             </button>
             <button type="button" onClick={() => router.back()}
-              className="bg-surface border border-outline text-on-surface-variant rounded-lg px-8 py-4 font-bold hover:border-primary transition-colors">
+              className="bg-surface-container-low border border-outline-variant/20 text-on-surface-variant rounded-2xl px-8 py-3.5 text-sm font-bold hover:border-primary/40 transition-colors">
               {tp('jnCancel')}
             </button>
           </div>

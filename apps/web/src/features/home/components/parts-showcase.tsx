@@ -58,7 +58,7 @@ export function PartsShowcase({ items, isLoading }: PartsShowcaseProps) {
             </div>
             <p className="text-on-surface-variant text-xs sm:text-sm">{t('latestPartsDesc')}</p>
           </div>
-          <Link href="/parts" className="text-primary font-bold text-xs sm:text-sm hover:underline transition-colors">
+          <Link href="/browse/parts" className="text-primary font-bold text-xs sm:text-sm hover:underline transition-colors">
             {t('viewAll')}
           </Link>
         </div>
