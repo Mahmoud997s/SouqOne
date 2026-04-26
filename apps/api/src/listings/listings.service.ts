@@ -47,6 +47,40 @@ export class ListingsService {
     return `${base}-${suffix}`;
   }
 
+  async getSuggestions(query: string) {
+    const q = query.toLowerCase();
+    
+    // Simple fast query matching start of title, make, or model
+    const listings = await this.prisma.listing.findMany({
+      where: {
+        OR: [
+          { title: { contains: q, mode: 'insensitive' } },
+          { make: { contains: q, mode: 'insensitive' } },
+          { model: { contains: q, mode: 'insensitive' } },
+        ],
+        status: 'ACTIVE',
+      },
+      select: {
+        title: true,
+        make: true,
+        model: true,
+      },
+      take: 20,
+    });
+
+    // Extract unique words or phrases that match
+    const suggestions = new Set<string>();
+    for (const item of listings) {
+      if (item.make && item.make.toLowerCase().includes(q)) suggestions.add(item.make);
+      if (item.model && item.model.toLowerCase().includes(q)) suggestions.add(item.model);
+      if (item.title && item.title.toLowerCase().includes(q)) {
+        if (item.title.length < 30) suggestions.add(item.title);
+      }
+    }
+
+    return Array.from(suggestions).slice(0, 5);
+  }
+
   async create(dto: CreateListingDto, sellerId: string) {
     const slug = this.generateSlug(`${dto.make}-${dto.model}-${dto.year}-${dto.title}`);
 

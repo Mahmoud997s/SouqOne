@@ -64,4 +64,10 @@ export class ListingsController {
     const user = req.user as JwtPayload;
     return this.listingsService.remove(id, user.sub);
   }
+
+  @Get('search/suggestions')
+  async getSuggestions(@Query('q') q?: string) {
+    if (!q || q.length < 2) return [];
+    return this.listingsService.getSuggestions(q);
+  }
 }
