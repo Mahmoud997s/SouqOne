@@ -6,9 +6,9 @@ import { useRouter } from '@/i18n/navigation'
 import { MapPin, Heart, MessageCircle, Phone, BadgeCheck, Tag as TagIcon, Star } from 'lucide-react'
 import { clsx } from 'clsx'
 import {
-  Car, Bus, Wrench, Settings, Truck,
+  Car, Bus, Wrench, Settings, Truck, Briefcase,
   Calendar, Gauge, Settings2, Users, Building2,
-  CalendarDays, Route, Tag, Fuel,
+  CalendarDays, Route, Tag, Fuel
 } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 import { resolveLocationLabel } from '@/lib/location-data'
@@ -34,6 +34,7 @@ const CATEGORY_ICON: Record<ListingCategory, LucideIcon> = {
   equipment: Wrench,
   parts:     Settings,
   services:  Wrench,
+  jobs:      Briefcase,
 }
 
 function DetailIcon({ name, size = 11 }: { name: string; size?: number }) {
@@ -149,8 +150,19 @@ export function ListingCard({ item }: ListingCardProps) {
               className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-surface-container">
-              <CategoryIcon size={32} className="text-on-surface-variant/20" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 via-surface-container-low to-surface-container border-e border-outline-variant/10 relative overflow-hidden group-hover:from-primary/10 transition-colors">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 rounded-full blur-[20px] -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-20 h-20 bg-secondary/10 rounded-full blur-[20px] translate-y-1/2 -translate-x-1/2" />
+              
+              <div className="w-16 h-16 rounded-[1.25rem] bg-surface-container-lowest shadow-sm flex items-center justify-center z-10 border border-outline-variant/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                <CategoryIcon size={32} className="text-primary/60" />
+              </div>
+              
+              <div className="mt-3 px-3 py-1 bg-surface-container-lowest/80 backdrop-blur-sm rounded-full border border-outline-variant/20 z-10 shadow-sm">
+                <span className="text-[10px] font-bold text-on-surface-variant tracking-wider">
+                  {item.category === 'jobs' ? 'فرصة عمل' : 'بدون صورة'}
+                </span>
+              </div>
             </div>
           )}
 

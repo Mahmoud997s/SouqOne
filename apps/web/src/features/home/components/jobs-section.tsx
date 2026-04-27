@@ -2,7 +2,8 @@
 
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
-import { JobCard } from '@/features/jobs/components/job-card';
+import { VehicleCard } from '@/features/ads/components/vehicle-card';
+import { mapJobToVehicleCard } from '@/features/ads/utils/vehicle-card-adapter';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import type { JobItem } from '@/lib/api';
 
@@ -36,7 +37,7 @@ export function JobsSection({ items, isLoading }: JobsSectionProps) {
         ) : items.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {items.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <VehicleCard key={job.id} {...mapJobToVehicleCard(job)} />
             ))}
           </div>
         ) : (

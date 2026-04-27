@@ -7,8 +7,6 @@ export type EntityType =
   | 'JOB'
   | 'SPARE_PART'
   | 'CAR_SERVICE'
-  | 'TRANSPORT'
-  | 'TRIP'
   | 'BUS_LISTING'
   | 'EQUIPMENT_LISTING'
   | 'INSURANCE'

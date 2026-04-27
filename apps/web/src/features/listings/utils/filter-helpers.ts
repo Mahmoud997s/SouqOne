@@ -153,6 +153,7 @@ export function getAddListingHref(category: ListingCategory): string {
     equipment: '/add-listing/equipment',
     parts:     '/add-listing/parts',
     services:  '/add-listing/service',
+    jobs:      '/jobs/new',
   }
   return map[category]
 }

@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useRouter } from '@/i18n/navigation'
 import { MapPin, Heart } from 'lucide-react'
 import {
-  Car, Bus, Wrench, Settings, Truck,
+  Car, Bus, Wrench, Settings, Truck, Briefcase,
   Calendar, Gauge, Settings2, Users, Building2,
   CalendarDays, Route, Tag, Fuel,
 } from 'lucide-react'
@@ -29,6 +29,7 @@ const CATEGORY_ICON: Record<ListingCategory, LucideIcon> = {
   equipment: Wrench,
   parts:     Settings,
   services:  Wrench,
+  jobs:      Briefcase,
 }
 
 function DetailIcon({ name, size = 11 }: { name: string; size?: number }) {

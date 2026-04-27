@@ -12,6 +12,8 @@ import { useParts } from '@/lib/api/parts'
 import type { SparePartItem } from '@/lib/api/parts'
 import { useCarServices } from '@/lib/api/services'
 import type { CarServiceItem } from '@/lib/api/services'
+import { useJobs } from '@/lib/api/jobs'
+import type { JobItem } from '@/lib/api/jobs'
 import { getImageUrl } from '@/lib/image-utils'
 import { resolveLocationLabel } from '@/lib/location-data'
 
@@ -57,6 +59,7 @@ export function useUnifiedListings(
   const equipmentQuery = useEquipmentListings(category === 'equipment' ? p : undefined)
   const partsQuery     = useParts(p,       category === 'parts')
   const servicesQuery  = useCarServices(p, category === 'services')
+  const jobsQuery      = useJobs(p,        category === 'jobs')
 
   const raw = {
     cars:      carsQuery.data,
@@ -64,6 +67,7 @@ export function useUnifiedListings(
     equipment: equipmentQuery.data,
     parts:     partsQuery.data,
     services:  servicesQuery.data,
+    jobs:      jobsQuery.data,
   }[category]
 
   const isLoading = {
@@ -72,6 +76,7 @@ export function useUnifiedListings(
     equipment: equipmentQuery.isLoading,
     parts:     partsQuery.isLoading,
     services:  servicesQuery.isLoading,
+    jobs:      jobsQuery.isLoading,
   }[category]
 
   const isFetching = {
@@ -80,6 +85,7 @@ export function useUnifiedListings(
     equipment: equipmentQuery.isFetching,
     parts:     partsQuery.isFetching,
     services:  servicesQuery.isFetching,
+    jobs:      jobsQuery.isFetching,
   }[category]
 
   const error = {
@@ -88,6 +94,7 @@ export function useUnifiedListings(
     equipment: equipmentQuery.error,
     parts:     partsQuery.error,
     services:  servicesQuery.error,
+    jobs:      jobsQuery.error,
   }[category] as Error | null
 
   const items = useMemo<UnifiedListingItem[]>(() => {
@@ -115,6 +122,7 @@ function transformToUnified(category: ListingCategory, item: unknown, t: T, loca
     case 'equipment': return transformEquipment(item as EquipmentListingItem, t)
     case 'parts':     return transformPart(item as SparePartItem, t, locale)
     case 'services':  return transformService(item as CarServiceItem, t, locale)
+    case 'jobs':      return transformJob(item as JobItem, t)
   }
 }
 
@@ -521,6 +529,79 @@ function transformPart(raw: SparePartItem, t: T, locale: string): UnifiedListing
       latitude: raw.latitude,
       longitude: raw.longitude,
       status: raw.status,
+    },
+  }
+}
+
+function transformJob(raw: JobItem, _t: T): UnifiedListingItem {
+  const employmentLabel: Record<string, string> = {
+    FULL_TIME: 'دوام كامل',
+    PART_TIME: 'دوام جزئي',
+    TEMPORARY: 'مؤقت',
+    CONTRACT:  'عقد',
+  }
+
+  const details: DetailItem[] = [
+    raw.employmentType ? { icon: 'Tag',     value: employmentLabel[raw.employmentType] ?? raw.employmentType } : null,
+    raw.experienceYears != null
+      ? { icon: 'Calendar', value: `${raw.experienceYears} سنوات خبرة` } : null,
+    raw.licenseTypes?.length
+      ? { icon: 'Tag',      value: raw.licenseTypes.join('، ') }                                                 : null,
+    raw.hasOwnVehicle
+      ? { icon: 'Car',      value: 'يملك سيارة' }                                                                : null,
+  ].filter(Boolean) as DetailItem[]
+
+  const salaryNum = raw.salary ? Number(raw.salary) : null
+  const price = salaryNum && salaryNum > 0 ? salaryNum : null
+
+  const periodLabel: Record<string, string> = {
+    DAILY:      '/يوم',
+    MONTHLY:    '/شهر',
+    YEARLY:     '/سنة',
+    NEGOTIABLE: 'قابل للتفاوض',
+  }
+
+  return {
+    id:                  raw.id,
+    category:            'jobs',
+    title:               raw.title,
+    price,
+    priceLabel:          raw.salaryPeriod ? (periodLabel[raw.salaryPeriod] ?? null) : null,
+    currency:            raw.currency || 'OMR',
+    images:              [],
+    governorate:         raw.governorate ?? null,
+    createdAt:           raw.createdAt,
+    viewCount:           raw.viewCount,
+    primaryBadge:        raw.jobType === 'OFFERING'
+      ? { label: 'باحث عن عمل', color: 'blue' }
+      : { label: 'مطلوب موظف',  color: 'green' },
+    secondaryBadge:      raw.employmentType
+      ? { label: employmentLabel[raw.employmentType] ?? raw.employmentType, color: 'gray' }
+      : null,
+    details:             details.slice(0, 5),
+    href:                `/jobs/${raw.id}`,
+    phoneNumber:         raw.contactPhone ?? raw.user?.phone ?? null,
+    whatsappNumber:      raw.whatsapp ?? null,
+    sellerVerified:      false,
+    favoriteEntityType:  'JOB',
+    attributes: {
+      slug:           raw.slug,
+      description:    raw.description,
+      jobType:        raw.jobType,
+      employmentType: raw.employmentType,
+      salary:         raw.salary,
+      salaryPeriod:   raw.salaryPeriod,
+      currency:       raw.currency,
+      licenseTypes:   raw.licenseTypes,
+      experienceYears: raw.experienceYears,
+      minAge:         raw.minAge,
+      maxAge:         raw.maxAge,
+      languages:      raw.languages,
+      nationality:    raw.nationality,
+      vehicleTypes:   raw.vehicleTypes,
+      hasOwnVehicle:  raw.hasOwnVehicle,
+      city:           raw.city,
+      status:         raw.status,
     },
   }
 }

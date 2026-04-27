@@ -1,154 +1,95 @@
 /**
- * Unified Sale Detail Page
+ * Unified Sale Detail Page — Server Component
  * Dynamic route: /sale/[type]/[id]
  * Supports: car, bus, equipment, part, service
+ * Provides OG metadata for WhatsApp / social sharing.
  */
 
-'use client';
+import type { Metadata } from 'next';
+import { serverFetch } from '@/lib/server-fetch';
+import { getImageUrl } from '@/lib/image-utils';
+import SaleDetailClient from './sale-detail-client';
 
-import { useEffect } from 'react';
-import { notFound, useParams } from 'next/navigation';
-import { useRouter } from '@/i18n/navigation';
-import { Navbar } from '@/components/layout/navbar';
-import { Footer } from '@/components/layout/footer';
-import { ErrorState } from '@/components/error-state';
-import { useUnifiedListing } from '@/features/sale/hooks/useUnifiedListing';
-import { getSaleConfig } from '@/features/sale/config/specs.config';
-import { SalePageShell } from '@/features/sale/components/SalePageShell';
-import type { SaleEntityType } from '@/features/sale/types/unified.types';
-import { useTranslations } from 'next-intl';
-import { useEnumTranslations } from '@/lib/enum-translations';
+const API_PATHS: Record<string, string> = {
+  car: '/listings',
+  bus: '/buses',
+  equipment: '/equipment',
+  part: '/parts',
+  service: '/services',
+};
 
-const VALID_TYPES: SaleEntityType[] = ['car', 'bus', 'equipment', 'part', 'service'];
+const TYPE_LABELS: Record<string, string> = {
+  car: 'سيارة',
+  bus: 'باص',
+  equipment: 'معدات',
+  part: 'قطع غيار',
+  service: 'خدمة سيارات',
+};
 
-/**
- * Page skeleton for loading state.
- * Matches the visual structure of the actual page.
- */
-function SalePageSkeleton() {
-  return (
-    <>
-      <Navbar />
-      <div className="max-w-5xl mx-auto px-4 md:px-8 pt-16 pb-28 lg:pb-16 animate-pulse">
-        {/* Breadcrumb */}
-        <div className="h-4 w-48 bg-surface-container-high rounded mb-5" />
-
-        {/* Title */}
-        <div className="h-7 w-96 bg-surface-container-high rounded mb-3" />
-        <div className="h-4 w-64 bg-surface-container-high rounded mb-6" />
-
-        {/* Photo Grid */}
-        <div
-          className="grid gap-1 rounded-2xl overflow-hidden mb-8"
-          style={{ gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '185px 185px' }}
-        >
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className={`bg-surface-container-high ${i === 0 ? 'row-span-2' : ''}`}
-            />
-          ))}
-        </div>
-
-        {/* Two Column */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
-          {/* Left */}
-          <div className="space-y-4">
-            {/* Seller */}
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-surface-container-high" />
-              <div className="space-y-2">
-                <div className="h-4 w-32 bg-surface-container-high rounded" />
-                <div className="h-3 w-24 bg-surface-container-high rounded" />
-              </div>
-            </div>
-
-            {/* Highlights */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {Array.from({ length: 2 }).map((_, i) => (
-                <div key={i} className="h-16 bg-surface-container-high rounded-2xl" />
-              ))}
-            </div>
-
-            {/* Specs */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-20 bg-surface-container-high rounded-2xl" />
-              ))}
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <div className="h-4 w-full bg-surface-container-high rounded" />
-              <div className="h-4 w-full bg-surface-container-high rounded" />
-              <div className="h-4 w-3/4 bg-surface-container-high rounded" />
-            </div>
-          </div>
-
-          {/* Right */}
-          <div className="h-96 bg-surface-container-high rounded-2xl" />
-        </div>
-      </div>
-      <Footer />
-    </>
-  );
+interface OgData {
+  title?: string;
+  description?: string;
+  price?: string | number;
+  currency?: string;
+  governorate?: string;
+  images?: { url: string; isPrimary?: boolean }[];
 }
 
-/**
- * Main sale page component.
- * Validates type param, fetches unified data, and renders the shell.
- */
+function getPrimaryImage(images?: { url: string; isPrimary?: boolean }[]): string | null {
+  if (!images || images.length === 0) return null;
+  const primary = images.find((img) => img.isPrimary) ?? images[0];
+  return getImageUrl(primary?.url) ?? null;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; type: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, type, id } = await params;
+  const apiPath = API_PATHS[type];
+
+  if (!apiPath) {
+    return { title: 'غير موجود | سوق ون' };
+  }
+
+  try {
+    const data = await serverFetch<OgData>(`${apiPath}/${id}`, { revalidate: 60 });
+
+    const title = data.title || TYPE_LABELS[type] || 'إعلان';
+    const price = data.price ? `${Number(data.price).toLocaleString()} ${data.currency || 'OMR'}` : '';
+    const location = data.governorate || '';
+    const descParts = [price, location, TYPE_LABELS[type]].filter(Boolean);
+    const description = descParts.join(' · ') || title;
+    const image = getPrimaryImage(data.images);
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://souqone.com';
+    const pageUrl = `${appUrl}/${locale}/sale/${type}/${id}`;
+
+    return {
+      title: `${title} | سوق ون`,
+      description,
+      openGraph: {
+        type: 'article',
+        title,
+        description,
+        url: pageUrl,
+        siteName: 'سوق ون - SouqOne',
+        locale: locale === 'ar' ? 'ar_OM' : 'en_OM',
+        ...(image ? { images: [{ url: image, width: 800, height: 600, alt: title }] } : {}),
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        ...(image ? { images: [image] } : {}),
+      },
+    };
+  } catch {
+    return { title: `${TYPE_LABELS[type] || 'إعلان'} | سوق ون` };
+  }
+}
+
 export default function SalePage() {
-  const params = useParams<{ type: string; id: string }>();
-  const { type: typeParam, id } = params;
-
-  // Validate type
-  if (!VALID_TYPES.includes(typeParam as SaleEntityType)) {
-    notFound();
-  }
-  const type = typeParam as SaleEntityType;
-
-  const router = useRouter();
-  const ts = useTranslations('sale');
-  const enumT = useEnumTranslations();
-
-  // Fetch unified listing data
-  const { listing, isLoading, isError, error, refetch, redirectTo } = useUnifiedListing(type, id);
-
-  useEffect(() => {
-    if (redirectTo) router.replace(redirectTo);
-  }, [redirectTo, router]);
-
-  // Loading state
-  if (isLoading || redirectTo) {
-    return <SalePageSkeleton />;
-  }
-
-  // Error / not found
-  if (isError || !listing) {
-    return (
-      <>
-        <Navbar />
-        <div className="min-h-screen pt-28">
-          <main className="max-w-5xl mx-auto px-4 md:px-8">
-            <ErrorState
-              onRetry={() => refetch()}
-              message={error?.message || ts('notFound')}
-            />
-          </main>
-        </div>
-        <Footer />
-      </>
-    );
-  }
-
-  const config = getSaleConfig(ts, enumT)[type];
-
-  return (
-    <>
-      <Navbar />
-      <SalePageShell listing={listing} config={config} />
-      <Footer />
-    </>
-  );
+  return <SaleDetailClient />;
 }

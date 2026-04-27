@@ -18,6 +18,5 @@ export { DetailsTable } from './components/DetailsTable';
 export { Highlights } from './components/Highlights';
 export { PriceCard } from './components/PriceCard';
 export { SimilarItems } from './components/SimilarItems';
-export { SaleCard } from './components/SaleCard';
 export { SellerRow } from './components/SellerRow';
 export { MobileCTABar } from './components/MobileCTABar';

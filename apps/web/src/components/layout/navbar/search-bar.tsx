@@ -13,15 +13,13 @@ function saveRecent(q: string) { const r = getRecent().filter(s => s !== q); r.u
 function useSearchCategories() {
   const ts = useTranslations('search');
   return [
-    { value: 'all',       label: ts('all'),       placeholder: ts('navPlaceholder'),         route: '/search' },
-    { value: 'cars',      label: ts('cars'),      placeholder: ts('navCarsPlaceholder'),      route: '/listings' },
-    { value: 'buses',     label: ts('buses'),     placeholder: ts('navBusesPlaceholder'),     route: '/buses' },
-    { value: 'equipment', label: ts('equipment'), placeholder: ts('navEquipmentPlaceholder'), route: '/equipment' },
-    { value: 'parts',     label: ts('parts'),     placeholder: ts('navPartsPlaceholder'),     route: '/parts' },
-    { value: 'services',  label: ts('services'),  placeholder: ts('navServicesPlaceholder'),  route: '/services' },
-    { value: 'transport', label: ts('transport'), placeholder: ts('navTransportPlaceholder'), route: '/transport' },
-    { value: 'trips',     label: ts('trips'),     placeholder: ts('navTripsPlaceholder'),     route: '/trips' },
-    { value: 'jobs',      label: ts('jobs'),      placeholder: ts('navJobsPlaceholder'),      route: '/jobs' },
+    { value: 'all',       label: ts('all'),       placeholder: ts('navPlaceholder'),         route: '/browse' },
+    { value: 'cars',      label: ts('cars'),      placeholder: ts('navCarsPlaceholder'),      route: '/browse/cars' },
+    { value: 'buses',     label: ts('buses'),     placeholder: ts('navBusesPlaceholder'),     route: '/browse/buses' },
+    { value: 'equipment', label: ts('equipment'), placeholder: ts('navEquipmentPlaceholder'), route: '/browse/equipment' },
+    { value: 'parts',     label: ts('parts'),     placeholder: ts('navPartsPlaceholder'),     route: '/browse/parts' },
+    { value: 'services',  label: ts('services'),  placeholder: ts('navServicesPlaceholder'),  route: '/browse/services' },
+    { value: 'jobs',      label: ts('jobs'),      placeholder: ts('navJobsPlaceholder'),      route: '/browse/jobs' },
   ];
 }
 
@@ -67,8 +65,7 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
     e?.preventDefault();
     if (!searchQuery.trim()) return;
     saveRecent(searchQuery.trim());
-    const paramKey = activeCat.route === '/search' ? 'q' : 'search';
-    router.push(`${activeCat.route}?${paramKey}=${encodeURIComponent(searchQuery.trim())}`);
+    router.push(`${activeCat.route}?q=${encodeURIComponent(searchQuery.trim())}`);
     onSearchOpenChange(false);
     setShowSuggestions(false);
     onCloseMobile?.();
@@ -77,8 +74,7 @@ export function NavSearchBar({ searchOpen, onSearchOpenChange, onCloseMobile, he
   function handleSuggestionClick(title: string) {
     setSearchQuery(title);
     saveRecent(title);
-    const paramKey = activeCat.route === '/search' ? 'q' : 'search';
-    router.push(`${activeCat.route}?${paramKey}=${encodeURIComponent(title)}`);
+    router.push(`${activeCat.route}?q=${encodeURIComponent(title)}`);
     onSearchOpenChange(false);
     setShowSuggestions(false);
     onCloseMobile?.();

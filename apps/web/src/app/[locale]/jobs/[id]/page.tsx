@@ -1,406 +1,68 @@
-'use client';
+﻿/**
+ * Job Detail Page  Server Component
+ * Provides OG metadata for WhatsApp / social sharing.
+ */
 
-import { useState } from 'react';
-import { useParams } from 'next/navigation';
-import { Link, useRouter } from '@/i18n/navigation';
-import { Navbar } from '@/components/layout/navbar';
-import { Footer } from '@/components/layout/footer';
-import { useJob, useApplyToJob, useDeleteJob, useCreateConversation } from '@/lib/api';
-import { useAuth } from '@/providers/auth-provider';
-import { useRequireJobProfile } from '@/hooks/use-require-job-profile';
-import { useToast } from '@/components/toast';
-import { SellerCard } from '@/components/seller-card';
-import { employmentLabelsT } from '@/lib/constants/jobs';
-import { useTranslations, useLocale } from 'next-intl';
-import { resolveLocationLabel, resolveCityLabel } from '@/lib/location-data';
+import type { Metadata } from 'next';
+import { serverFetch } from '@/lib/server-fetch';
+import JobDetailClient from './job-detail-client';
+
+interface JobOgData {
+  title?: string;
+  description?: string;
+  salary?: string | number;
+  salaryPeriod?: string;
+  governorate?: string;
+  jobType?: string;
+}
+
+const JOB_TYPE_LABELS: Record<string, string> = {
+  OFFERING: 'يبحث عن عمل',
+  HIRING: 'مطلوب للتوظيف',
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, id } = await params;
+
+  try {
+    const data = await serverFetch<JobOgData>(`/jobs/${id}`, { revalidate: 60 });
+
+    const title = data.title || 'وظيفة';
+    const jobTypeLabel = JOB_TYPE_LABELS[data.jobType || ''] || '';
+    const salary = data.salary ? `${Number(data.salary).toLocaleString()} OMR` : '';
+    const location = data.governorate || '';
+    const descParts = [jobTypeLabel, salary, location].filter(Boolean);
+    const description = descParts.join(' · ') || title;
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://souqone.com';
+    const pageUrl = `${appUrl}/${locale}/jobs/${id}`;
+
+    return {
+      title: `${title} | سوق ون`,
+      description,
+      openGraph: {
+        type: 'article',
+        title,
+        description,
+        url: pageUrl,
+        siteName: 'سوق ون - SouqOne',
+        locale: locale === 'ar' ? 'ar_OM' : 'en_OM',
+      },
+      twitter: {
+        card: 'summary',
+        title,
+        description,
+      },
+    };
+  } catch {
+    return { title: 'وظيفة | سوق ون' };
+  }
+}
 
 export default function JobDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const router = useRouter();
-  const { user } = useAuth();
-  const { requireProfile } = useRequireJobProfile();
-  const { addToast } = useToast();
-  const tp = useTranslations('pages');
-  const tj = useTranslations('jobs');
-  const locale = useLocale();
-
-  const jobTypeLabels: Record<string, { label: string; color: string }> = {
-    OFFERING: { label: tp('jobDetailOffering'), color: 'bg-brand-green/10 text-brand-green' },
-    HIRING: { label: tp('jobDetailHiring'), color: 'bg-primary/10 text-primary' },
-  };
-  const salaryPeriodLabels: Record<string, string> = {
-    DAILY: tp('jobDetailPerDay'), MONTHLY: tp('jobDetailPerMonth'), YEARLY: tp('jobDetailPerYear'), NEGOTIABLE: tp('jobDetailNegotiable'),
-  };
-  const licenseLabels: Record<string, string> = {
-    LIGHT: tp('jobDetailLicLight'), HEAVY: tp('jobDetailLicHeavy'), TRANSPORT: tp('jobDetailLicTransport'), BUS: tp('jobDetailLicBus'), MOTORCYCLE: tp('jobDetailLicMotorcycle'),
-  };
-
-  const { data: job, isLoading, isError } = useJob(id);
-  const applyMutation = useApplyToJob();
-  const deleteMutation = useDeleteJob();
-  const createConv = useCreateConversation();
-
-  const [showApplyModal, setShowApplyModal] = useState(false);
-  const [applyMessage, setApplyMessage] = useState('');
-
-  const isOwner = user && job?.user.id === user.id;
-
-  function handleMessage() {
-    requireProfile('any', async () => {
-      if (!job) return;
-      try {
-        const conv = await createConv.mutateAsync({ entityType: 'JOB', entityId: job.id });
-        router.push(`/messages/${conv.id}`);
-      } catch (err) {
-        addToast('error', err instanceof Error ? err.message : tp('jobDetailErrorConversation'));
-      }
-    });
-  }
-
-  function handleApply() {
-    requireProfile('driver', async () => {
-      try {
-        await applyMutation.mutateAsync({ jobId: id, message: applyMessage || undefined });
-        addToast('success', tp('jobDetailApplySuccess'));
-        setShowApplyModal(false);
-        setApplyMessage('');
-      } catch (err: any) {
-        addToast('error', err?.message || tp('jobDetailApplyFail'));
-      }
-    });
-  }
-
-  async function handleDelete() {
-    if (!confirm(tp('jobDetailDeleteConfirm'))) return;
-    try {
-      await deleteMutation.mutateAsync(id);
-      addToast('success', tp('jobDetailDeleted'));
-      router.push('/jobs/my');
-    } catch (err: any) {
-      addToast('error', err?.message || tp('jobDetailDeleteFail'));
-    }
-  }
-
-  if (isLoading) {
-    return (
-      <>
-        <Navbar />
-        <div className="min-h-screen bg-background">
-          <div className="h-40 bg-gradient-to-bl from-[#004ac6] via-[#2563eb] to-[#0B2447]" />
-          <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-16">
-            <div className="animate-pulse space-y-6">
-              <div className="h-8 bg-surface-container-low rounded w-2/3" />
-              <div className="h-4 bg-surface-container-low rounded w-1/3" />
-              <div className="h-64 bg-surface-container-low rounded" />
-            </div>
-          </main>
-        </div>
-      </>
-    );
-  }
-
-  if (isError || !job) {
-    return (
-      <>
-        <Navbar />
-        <div className="min-h-screen bg-background pt-28">
-          <main className="max-w-5xl mx-auto px-4 md:px-8 text-center">
-            <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4 block">error</span>
-            <p className="text-xl font-bold mb-4">{tp('jobDetailNotFound')}</p>
-            <Link href="/jobs" className="bg-primary text-on-primary px-6 py-3 text-sm font-black hover:brightness-110 transition-colors">{tp('jobDetailBackToJobs')}</Link>
-          </main>
-        </div>
-      </>
-    );
-  }
-
-  const typeInfo = jobTypeLabels[job.jobType] ?? { label: job.jobType, color: 'bg-gray-100 text-gray-600' };
-
-  return (
-    <>
-      <Navbar />
-      <div className="min-h-screen bg-background">
-        <div className="h-40 md:h-48 bg-gradient-to-bl from-[#004ac6] via-[#2563eb] to-[#0B2447] relative overflow-hidden">
-          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
-        </div>
-
-        <main className="max-w-5xl mx-auto px-4 md:px-8 -mt-20 md:-mt-24 relative z-10 pb-16">
-          <nav className="flex items-center gap-2 text-sm text-white/70 mb-5">
-            <Link href="/" className="hover:text-white transition-colors">{tp('jobDetailHome')}</Link>
-            <span className="material-symbols-outlined icon-flip text-xs">chevron_left</span>
-            <Link href="/jobs" className="hover:text-white transition-colors flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm">work</span> {tp('jobDetailBreadcrumb')}
-            </Link>
-            <span className="material-symbols-outlined icon-flip text-xs">chevron_left</span>
-            <span className="text-white font-bold truncate max-w-xs">{job.title}</span>
-          </nav>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Title Card */}
-              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
-                <div className="p-6">
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className={`text-xs font-black px-3 py-1 ${typeInfo.color}`}>
-                      {typeInfo.label}
-                    </span>
-                    <span className="bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant text-xs font-black px-3 py-1">
-                      {employmentLabelsT(tj)[job.employmentType] ?? job.employmentType}
-                    </span>
-                    {job.status === 'CLOSED' && (
-                      <span className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-black px-3 py-1">{tp('jobDetailClosed')}</span>
-                    )}
-                    {job.status === 'EXPIRED' && (
-                      <span className="bg-gray-100 dark:bg-gray-800/30 text-gray-600 dark:text-gray-400 text-xs font-black px-3 py-1">{tp('jobDetailExpired') || 'منتهية'}</span>
-                    )}
-                  </div>
-                  <h1 className="text-2xl md:text-3xl font-black text-on-surface mb-3">{job.title}</h1>
-                  <div className="flex flex-wrap gap-4 text-sm text-on-surface-variant">
-                    <span className="flex items-center gap-1">
-                      <span className="material-symbols-outlined text-primary text-lg">location_on</span>
-                      {resolveLocationLabel(job.governorate, locale) || job.governorate}{job.city ? ` - ${resolveCityLabel(job.city, locale)}` : ''}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="material-symbols-outlined text-lg">visibility</span>
-                      {job.viewCount} {tp('jobDetailViews')}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="material-symbols-outlined text-lg">schedule</span>
-                      {new Date(job.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-OM' : 'en-US')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Salary */}
-              {job.salary && (
-                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
-                  <div className="p-6">
-                    <p className="text-sm text-on-surface-variant mb-1">{tp('jobDetailSalary')}</p>
-                    <p className="text-3xl font-black text-primary">
-                      {Number(job.salary).toLocaleString('en-US')}{' '}
-                      <span className="text-base font-bold text-on-surface-variant">{tp('jobDetailCurrencyOMR')}{job.salaryPeriod ? salaryPeriodLabels[job.salaryPeriod] : ''}</span>
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Description */}
-              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
-                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">description</span>
-                  <h2 className="font-black text-on-surface">{tp('jobDetailDescription')}</h2>
-                </div>
-                <div className="p-6">
-                  <p className="text-on-surface-variant leading-relaxed whitespace-pre-wrap">{job.description}</p>
-                </div>
-              </div>
-
-              {/* Requirements */}
-              <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
-                <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">checklist</span>
-                  <h2 className="font-black text-on-surface">{tp('jobDetailRequirements')}</h2>
-                </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {job.licenseTypes.length > 0 && (
-                      <div className="flex items-start gap-3">
-                        <span className="material-symbols-outlined text-primary mt-0.5">badge</span>
-                        <div>
-                          <p className="text-xs text-on-surface-variant">{tp('jobDetailLicenseType')}</p>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {job.licenseTypes.map((lt) => (
-                              <span key={lt} className="bg-primary/10 dark:bg-primary/20 text-primary text-xs font-black px-2.5 py-0.5">
-                                {licenseLabels[lt] ?? lt}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    {job.experienceYears != null && (
-                      <div className="flex items-start gap-3">
-                        <span className="material-symbols-outlined text-primary mt-0.5">history</span>
-                        <div>
-                          <p className="text-xs text-on-surface-variant">{tp('jobDetailExperience')}</p>
-                          <p className="font-black text-on-surface">{tp('jobDetailExperienceYears', { years: job.experienceYears })}</p>
-                        </div>
-                      </div>
-                    )}
-                    {(job.minAge || job.maxAge) && (
-                      <div className="flex items-start gap-3">
-                        <span className="material-symbols-outlined text-primary mt-0.5">cake</span>
-                        <div>
-                          <p className="text-xs text-on-surface-variant">{tp('jobDetailAge')}</p>
-                          <p className="font-black text-on-surface">
-                            {job.minAge && job.maxAge ? tp('jobDetailAgeRange', { min: job.minAge, max: job.maxAge }) : job.minAge ? tp('jobDetailAgeMin', { min: job.minAge }) : tp('jobDetailAgeMax', { max: job.maxAge ?? 0 })}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    {job.languages.length > 0 && (
-                      <div className="flex items-start gap-3">
-                        <span className="material-symbols-outlined text-primary mt-0.5">translate</span>
-                        <div>
-                          <p className="text-xs text-on-surface-variant">{tp('jobDetailLanguages')}</p>
-                          <p className="font-black text-on-surface">{job.languages.join(locale === 'ar' ? '، ' : ', ')}</p>
-                        </div>
-                      </div>
-                    )}
-                    {job.nationality && (
-                      <div className="flex items-start gap-3">
-                        <span className="material-symbols-outlined text-primary mt-0.5">flag</span>
-                        <div>
-                          <p className="text-xs text-on-surface-variant">{tp('jobDetailNationality')}</p>
-                          <p className="font-black text-on-surface">{job.nationality}</p>
-                        </div>
-                      </div>
-                    )}
-                    {job.vehicleTypes.length > 0 && (
-                      <div className="flex items-start gap-3">
-                        <span className="material-symbols-outlined text-primary mt-0.5">directions_car</span>
-                        <div>
-                          <p className="text-xs text-on-surface-variant">{tp('jobDetailVehicleTypes')}</p>
-                          <p className="font-black text-on-surface">{job.vehicleTypes.join(locale === 'ar' ? '، ' : ', ')}</p>
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex items-start gap-3">
-                      <span className="material-symbols-outlined text-primary mt-0.5">garage</span>
-                      <div>
-                        <p className="text-xs text-on-surface-variant">{tp('jobDetailHasOwnVehicle')}</p>
-                        <p className="font-black text-on-surface">{job.hasOwnVehicle ? tp('jobDetailYes') : tp('jobDetailNo')}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* User Card */}
-              <SellerCard
-                title={tp('jobDetailSeller')}
-                name={job.user.displayName || job.user.username}
-                avatarUrl={job.user.avatarUrl}
-                location={job.user.governorate}
-                phone={job.contactPhone}
-                memberSince={job.user.createdAt}
-                onShare={() => {
-                  const url = window.location.href;
-                  if (navigator.share) navigator.share({ title: job.title, url });
-                  else navigator.clipboard.writeText(url);
-                }}
-              />
-
-              {/* Contact Info */}
-              {(job.contactPhone || job.contactEmail || job.whatsapp) && (
-                <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/10 dark:border-outline-variant/20 overflow-hidden shadow-sm">
-                  <div className="px-6 py-4 border-b border-outline-variant/10 dark:border-outline-variant/20 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">contact_phone</span>
-                    <h3 className="font-black text-on-surface text-sm">{tp('jobDetailContactInfo')}</h3>
-                  </div>
-                  <div className="p-6 space-y-3">
-                    {job.contactPhone && (
-                      <a href={`tel:${job.contactPhone}`} className="flex items-center gap-2 w-full py-3 bg-primary text-on-primary font-black text-sm justify-center hover:brightness-110 transition-all">
-                        <span className="material-symbols-outlined text-lg">call</span>
-                        {job.contactPhone}
-                      </a>
-                    )}
-                    {job.whatsapp && (
-                      <a
-                        href={`https://wa.me/${job.whatsapp.replace(/\D/g, '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 w-full py-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-black text-sm justify-center hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-lg">chat</span>
-                        {tp('jobDetailWhatsapp')}
-                      </a>
-                    )}
-                    {job.contactEmail && (
-                      <a href={`mailto:${job.contactEmail}`} className="flex items-center gap-2 w-full py-3 bg-surface-container-low dark:bg-surface-container-high text-on-surface font-black text-sm justify-center hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors">
-                        <span className="material-symbols-outlined text-lg">mail</span>
-                        {job.contactEmail}
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="space-y-3">
-                {isOwner ? (
-                  <>
-                    <Link href={`/jobs/my`} className="bg-primary text-on-primary w-full py-3.5 text-sm text-center block font-black hover:brightness-110 transition-colors flex items-center justify-center gap-2">
-                      <span className="material-symbols-outlined text-lg">edit</span>
-                      {tp('jobDetailManageListings')}
-                    </Link>
-                    <button onClick={handleDelete} className="w-full bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 py-3.5 text-sm font-black hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors flex items-center justify-center gap-2">
-                      <span className="material-symbols-outlined text-lg">delete</span>
-                      {tp('jobDetailDelete')}
-                    </button>
-                  </>
-                ) : job.status === 'ACTIVE' ? (
-                  <>
-                    <button
-                      onClick={() => requireProfile('driver', () => setShowApplyModal(true))}
-                      className="bg-primary text-on-primary w-full py-3.5 text-sm font-black hover:brightness-110 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <span className="material-symbols-outlined text-lg">send</span>
-                      {tp('jobDetailApply')}
-                    </button>
-                    <button onClick={handleMessage} disabled={createConv.isPending}
-                      className="bg-on-surface text-surface w-full py-3.5 text-sm font-black hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
-                      <span className="material-symbols-outlined text-lg">chat</span>
-                      {createConv.isPending ? tp('jobDetailChatPending') : tp('jobDetailChat')}
-                    </button>
-                  </>
-                ) : (
-                  <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-center py-3.5 text-sm font-black">
-                    {tp('jobDetailClosedAd')}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-
-      {/* Apply Modal */}
-      {showApplyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/20 p-6 w-full max-w-md shadow-xl">
-            <h3 className="text-lg font-black mb-4 text-on-surface">{tp('jobDetailApplyModalTitle')}</h3>
-            <textarea
-              value={applyMessage}
-              onChange={(e) => setApplyMessage(e.target.value)}
-              placeholder={tp('jobDetailApplyPlaceholder')}
-              className="w-full bg-surface-container-lowest dark:bg-surface-container border border-outline-variant/30 dark:border-outline-variant/40 p-4 focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none text-sm min-h-[120px] resize-none"
-            />
-            <div className="flex gap-3 mt-4">
-              <button
-                onClick={handleApply}
-                disabled={applyMutation.isPending}
-                className="bg-primary text-on-primary hover:brightness-110 flex-1 py-3 text-sm font-black disabled:opacity-50 transition-all"
-              >
-                {applyMutation.isPending ? tp('jobDetailApplySending') : tp('jobDetailApplySend')}
-              </button>
-              <button
-                onClick={() => setShowApplyModal(false)}
-                className="bg-surface-container-low dark:bg-surface-container-high text-on-surface-variant px-6 py-3 text-sm font-black hover:text-primary transition-colors"
-              >
-                {tp('jobDetailApplyCancel')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <Footer />
-    </>
-  );
+  return <JobDetailClient />;
 }

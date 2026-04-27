@@ -13,7 +13,8 @@ import { useParts } from '@/lib/api/parts';
 import { useCarServices } from '@/lib/api/services';
 import { useTranslations } from 'next-intl';
 import type { SaleEntityType } from '../types/unified.types';
-import { SaleCard } from './SaleCard';
+import { VehicleCard } from '@/features/ads/components/vehicle-card';
+import { mapSaleItemToVehicleCard } from '@/features/ads/utils/vehicle-card-adapter';
 
 interface SimilarItemsProps {
   type: SaleEntityType;
@@ -92,7 +93,7 @@ export const SimilarItems = memo(function SimilarItems({
       <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide -mx-4 px-4">
         {items.map((item) => (
           <div key={item.id} className="w-56 flex-shrink-0">
-            <SaleCard type={type} item={item as Parameters<typeof SaleCard>[0]['item']} />
+            <VehicleCard {...mapSaleItemToVehicleCard(item as any, type)} />
           </div>
         ))}
       </div>

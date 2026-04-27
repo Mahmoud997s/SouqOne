@@ -1,7 +1,7 @@
 import type { ListingCategory } from './category.types'
 
 /**
- * Normalized shape for any listing item across all 7 categories.
+ * Normalized shape for any listing item across all 6 categories.
  * Raw API responses are transformed into this via normalizer functions
  * defined in features/listings/config/categories.config.ts
  */
@@ -54,8 +54,7 @@ export interface UnifiedListingItem {
    * Equipment: equipmentType, condition, hoursUsed
    * Parts: partCategory, condition, compatibleMakes[0]
    * Services: serviceType, providerType, workingDays count
-   * Transport: transportType, coverageAreas[0], pricingType
-   * Trips: routeFrom→routeTo, tripType, scheduleType
+   * Jobs: jobType, employmentType, experienceYears
    */
   details: DetailItem[]
 

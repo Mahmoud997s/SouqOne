@@ -30,6 +30,73 @@ interface FieldButtonProps {
   ref?: React.Ref<HTMLButtonElement>
 }
 
+// ── Range Fields (extracted to comply with rules-of-hooks) ──────────────────
+
+function RangeFields({
+  field,
+  value,
+  onSelect,
+}: {
+  field: FilterBarFieldConfig
+  value: string | null
+  onSelect: (value: string | null) => void
+}) {
+  const [min, max] = value?.split('|') || ['', '']
+  const [localMin, setLocalMin] = useState(min)
+  const [localMax, setLocalMax] = useState(max)
+
+  return (
+    <div className="p-4 space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-bold text-on-surface-variant mb-2">من</label>
+          <input
+            type="number"
+            value={localMin}
+            onChange={(e) => setLocalMin(e.target.value)}
+            placeholder={field.min?.toString()}
+            className={clsx(
+              'w-full h-11 px-4 rounded-lg text-sm text-right',
+              'bg-surface-container border border-outline-variant/20',
+              'outline-none transition-all duration-200',
+              'focus:border-primary focus:ring-1 focus:ring-primary/30',
+              'hover:border-outline-variant/40'
+            )}
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-on-surface-variant mb-2">إلى</label>
+          <input
+            type="number"
+            value={localMax}
+            onChange={(e) => setLocalMax(e.target.value)}
+            placeholder={field.max?.toString()}
+            className={clsx(
+              'w-full h-11 px-4 rounded-lg text-sm text-right',
+              'bg-surface-container border border-outline-variant/20',
+              'outline-none transition-all duration-200',
+              'focus:border-primary focus:ring-1 focus:ring-primary/30',
+              'hover:border-outline-variant/40'
+            )}
+          />
+        </div>
+      </div>
+      {field.unit && (
+        <p className="text-xs text-on-surface-variant/70 text-center">{field.unit}</p>
+      )}
+      <Button
+        onClick={() => {
+          const val = localMin || localMax ? `${localMin}|${localMax}` : null
+          onSelect(val)
+        }}
+        className="w-full h-11"
+      >
+        تطبيق
+      </Button>
+    </div>
+  )
+}
+
 // ── Dropdown Component ───────────────────────────────────────────────────────
 
 function Dropdown({ field, value, onSelect, onClose, triggerRect }: DropdownProps) {
@@ -105,66 +172,8 @@ function Dropdown({ field, value, onSelect, onClose, triggerRect }: DropdownProp
           </div>
         )
 
-      case 'range': {
-        const [min, max] = value?.split('|') || ['', '']
-        const [localMin, setLocalMin] = useState(min)
-        const [localMax, setLocalMax] = useState(max)
-
-        return (
-          <div className="p-4 space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-on-surface-variant mb-2">
-                  من
-                </label>
-                <input
-                  type="number"
-                  value={localMin}
-                  onChange={(e) => setLocalMin(e.target.value)}
-                  placeholder={field.min?.toString()}
-                  className={clsx(
-                    'w-full h-11 px-4 rounded-lg text-sm text-right',
-                    'bg-surface-container border border-outline-variant/20',
-                    'outline-none transition-all duration-200',
-                    'focus:border-primary focus:ring-1 focus:ring-primary/30',
-                    'hover:border-outline-variant/40'
-                  )}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-on-surface-variant mb-2">
-                  إلى
-                </label>
-                <input
-                  type="number"
-                  value={localMax}
-                  onChange={(e) => setLocalMax(e.target.value)}
-                  placeholder={field.max?.toString()}
-                  className={clsx(
-                    'w-full h-11 px-4 rounded-lg text-sm text-right',
-                    'bg-surface-container border border-outline-variant/20',
-                    'outline-none transition-all duration-200',
-                    'focus:border-primary focus:ring-1 focus:ring-primary/30',
-                    'hover:border-outline-variant/40'
-                  )}
-                />
-              </div>
-            </div>
-            {field.unit && (
-              <p className="text-xs text-on-surface-variant/70 text-center">{field.unit}</p>
-            )}
-            <Button
-              onClick={() => {
-                const val = localMin || localMax ? `${localMin}|${localMax}` : null
-                onSelect(val)
-              }}
-              className="w-full h-11"
-            >
-              تطبيق
-            </Button>
-          </div>
-        )
-      }
+      case 'range':
+        return <RangeFields field={field} value={value} onSelect={onSelect} />
 
       default:
         return null

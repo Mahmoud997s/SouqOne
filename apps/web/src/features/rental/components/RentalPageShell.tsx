@@ -306,16 +306,19 @@ export function RentalPageShell({ listing, config, unavailableDates, onBook, isB
       <main className="max-w-5xl mx-auto px-4 md:px-8 pt-4 pb-16">
 
         {/* ══ A — TOP BAR ══ */}
-        <div className="flex items-center justify-between mb-5">
-          <nav className="flex items-center gap-1 text-[12px] text-on-surface-variant flex-wrap">
-            <Link href="/" className="text-primary hover:underline cursor-pointer">{tr('breadcrumbHome')}</Link>
-            <span className="mx-0.5">›</span>
-            <Link href={listPaths[listing.type]} className="text-primary hover:underline cursor-pointer">{tr('breadcrumbList', { type: config.displayName })}</Link>
-            <span className="mx-0.5">›</span>
-            <span className="truncate max-w-[160px] sm:max-w-xs">{listing.title}</span>
+        <div className="flex items-center justify-between mb-8 bg-surface-container-lowest/60 backdrop-blur-md p-3 px-5 rounded-2xl border border-outline-variant/20 shadow-sm">
+          <nav className="flex items-center gap-2 text-[13px] font-medium text-on-surface-variant flex-wrap">
+            <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1">
+              <span className="material-symbols-outlined text-[16px]">home</span>
+              {tr('breadcrumbHome')}
+            </Link>
+            <span className="material-symbols-outlined text-[14px] opacity-50">chevron_left</span>
+            <Link href={listPaths[listing.type]} className="hover:text-primary transition-colors">{tr('breadcrumbList', { type: config.displayName })}</Link>
+            <span className="material-symbols-outlined text-[14px] opacity-50">chevron_left</span>
+            <span className="text-on-surface truncate max-w-[140px] sm:max-w-[200px]">{listing.title}</span>
           </nav>
           <div className="flex items-center gap-2 shrink-0">
-            <button onClick={handleShare} className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-outline-variant/40 text-[12px] text-on-surface hover:border-primary hover:text-primary hover:bg-primary/5 transition-all duration-150 cursor-pointer">
+            <button onClick={handleShare} className="flex items-center gap-2 h-9 px-4 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-[13px] font-bold text-on-surface transition-all duration-200 active:scale-95">
               <Share2 size={16} />
               <span className="hidden sm:inline">{tr('share')}</span>
             </button>
@@ -328,7 +331,7 @@ export function RentalPageShell({ listing, config, unavailableDates, onBook, isB
                   addToast('error', tr('errorConversation'));
                 }
               }, tr('loginToContact'));
-            }} className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full border text-[12px] transition-all duration-150 cursor-pointer ${saved ? 'bg-primary/10 border-primary text-primary' : 'border-outline-variant/40 text-on-surface hover:border-primary hover:text-primary hover:bg-primary/5'}`}>
+            }} className={`flex items-center gap-2 h-9 px-4 rounded-xl border text-[13px] font-bold transition-all duration-200 active:scale-95 ${saved ? 'bg-primary/10 border-primary text-primary' : 'bg-surface-container hover:bg-surface-container-high border-outline-variant/30 text-on-surface'}`}>
               <Heart size={16} fill={saved ? 'currentColor' : 'none'} />
               <span className="hidden sm:inline">{saved ? tr('saved') : tr('save')}</span>
             </button>

@@ -19,6 +19,13 @@ const nextConfig = {
       { protocol: 'https', hostname: '**' },
     ],
   },
+  async redirects() {
+    return [
+      // Legacy /search routes → unified /browse
+      { source: '/:locale/search', destination: '/:locale/browse', permanent: true },
+      { source: '/:locale/search/:path*', destination: '/:locale/browse', permanent: true },
+    ];
+  },
 };
 
 module.exports = withNextIntl(nextConfig);

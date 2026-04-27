@@ -11,7 +11,6 @@ export interface SearchHit {
   price?: number;
   basePrice?: number;
   priceFrom?: number;
-  pricePerTrip?: number;
   currency?: string;
   governorate?: string;
   city?: string;
