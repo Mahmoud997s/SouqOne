@@ -29,7 +29,6 @@ import { FilterSheet } from './FilterSheet'
 import { ActiveFilters } from './ActiveFilters'
 import { ListingCard } from './ListingCard'
 import { ListingCardSkeleton } from './ListingCardSkeleton'
-import { QuickFiltersBar } from './QuickFiltersBar'
 import { VehicleCard } from '@/features/ads/components/vehicle-card'
 import { mapUnifiedToVehicleCard } from '@/features/ads/utils/vehicle-card-adapter'
 import { CardSkeleton } from '@/components/loading-skeleton'
@@ -594,15 +593,6 @@ function ShellContent({ category }: { category: ListingCategory }) {
 
         {/* Content Area */}
         <main className="flex-1 min-w-0 pb-16">
-
-          {/* ── 0) Quick Filters Chips Bar ── */}
-          <div className="mb-3">
-            <QuickFiltersBar
-              category={category}
-              filters={filters}
-              onToggle={handleFilterChange}
-            />
-          </div>
 
           {/* ── A) Sort Bar ── */}
           <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 mb-3">
