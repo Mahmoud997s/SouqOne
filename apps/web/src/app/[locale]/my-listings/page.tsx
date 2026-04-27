@@ -12,8 +12,6 @@ import { useMyEquipmentListings, useDeleteEquipmentListing, useMyOperatorListing
 import { useMyParts, useDeletePart } from '@/lib/api/parts';
 import { useMyCarServices, useDeleteCarService } from '@/lib/api/services';
 import { useMyJobs, useDeleteJob } from '@/lib/api/jobs';
-import { useMyTransportServices, useDeleteTransportService } from '@/lib/api/transport';
-import { useMyTrips, useDeleteTrip } from '@/lib/api/trips';
 import { useCreateFeaturedPayment } from '@/lib/api/payments';
 import { getImageUrl } from '@/lib/image-utils';
 import { relativeTimeT } from '@/lib/time-utils';
@@ -31,8 +29,6 @@ const SECTION_TABS = [
   { key: 'operators', icon: 'engineering', labelKey: 'sectionOperators' },
   { key: 'parts', icon: 'build', labelKey: 'sectionParts' },
   { key: 'services', icon: 'car_repair', labelKey: 'sectionServices' },
-  { key: 'transport', icon: 'local_shipping', labelKey: 'sectionTransport' },
-  { key: 'trips', icon: 'route', labelKey: 'sectionTrips' },
   { key: 'jobs', icon: 'work', labelKey: 'sectionJobs' },
 ] as const;
 
@@ -41,7 +37,7 @@ type SectionKey = typeof SECTION_TABS[number]['key'];
 const SECTION_LABEL_MAP: Record<SectionKey, string> = {
   cars: 'sectionCars', buses: 'sectionBuses', equipment: 'sectionEquipment',
   operators: 'sectionOperators', parts: 'sectionParts', services: 'sectionServices',
-  transport: 'sectionTransport', trips: 'sectionTrips', jobs: 'sectionJobs',
+  jobs: 'sectionJobs',
 };
 
 // ─── Dropdown menu component ───
@@ -137,10 +133,6 @@ export default function MyListingsPage() {
   const deleteService = useDeleteCarService();
   const jobs = useMyJobs();
   const deleteJob = useDeleteJob();
-  const transport = useMyTransportServices();
-  const deleteTransport = useDeleteTransportService();
-  const trips = useMyTrips();
-  const deleteTrip = useDeleteTrip();
   const featureMut = useCreateFeaturedPayment();
 
   const statusFilters: { key: StatusFilter; label: string }[] = [
@@ -169,8 +161,6 @@ export default function MyListingsPage() {
       case 'parts': return { items: parts.data ?? [], isLoading: parts.isLoading, refetch: parts.refetch };
       case 'services': return { items: services.data ?? [], isLoading: services.isLoading, refetch: services.refetch };
       case 'jobs': return { items: jobs.data?.items ?? [], isLoading: jobs.isLoading, refetch: jobs.refetch };
-      case 'transport': return { items: transport.data?.items ?? [], isLoading: transport.isLoading, refetch: transport.refetch };
-      case 'trips': return { items: trips.data?.items ?? [], isLoading: trips.isLoading, refetch: trips.refetch };
       default: return { items: [], isLoading: false, refetch: () => {} };
     }
   }
@@ -184,8 +174,6 @@ export default function MyListingsPage() {
       case 'parts': return (id, opts) => deleteParts.mutate(id, opts);
       case 'services': return (id, opts) => deleteService.mutate(id, opts);
       case 'jobs': return (id, opts) => deleteJob.mutate(id, opts);
-      case 'transport': return (id, opts) => deleteTransport.mutate(id, opts);
-      case 'trips': return (id, opts) => deleteTrip.mutate(id, opts);
       default: return null;
     }
   }
@@ -199,8 +187,6 @@ export default function MyListingsPage() {
       case 'parts': return `/edit-listing/parts/${id}`;
       case 'services': return `/edit-listing/service/${id}`;
       case 'jobs': return `/edit-listing/job/${id}`;
-      case 'transport': return `/edit-listing/transport/${id}`;
-      case 'trips': return `/edit-listing/trip/${id}`;
       default: return `/edit-listing/${id}`;
     }
   }
@@ -208,7 +194,7 @@ export default function MyListingsPage() {
   const ENTITY_TYPE_MAP: Record<SectionKey, string> = {
     cars: 'LISTING', buses: 'BUS_LISTING', equipment: 'EQUIPMENT_LISTING',
     operators: 'OPERATOR_LISTING', parts: 'SPARE_PART', services: 'CAR_SERVICE',
-    transport: 'TRANSPORT', trips: 'TRIP', jobs: 'JOB',
+    jobs: 'JOB',
   };
 
   const sectionData = getSectionData();
@@ -240,7 +226,7 @@ export default function MyListingsPage() {
   }
 
   function getItemPrice(item: any): string | null {
-    const p = item.price || item.salary || item.priceFrom || item.basePrice || item.pricePerTrip || item.dailyPrice;
+    const p = item.price || item.salary || item.priceFrom || item.basePrice || item.dailyPrice;
     if (!p) return null;
     return `${Number(p).toLocaleString('en-US')} ${item.currency || 'OMR'}`;
   }

@@ -158,12 +158,15 @@ const SERVICES_CONFIG: FilterBarConfig = [
 
 // ── Main Export ───────────────────────────────────────────────────────────────
 
+const JOBS_CONFIG: FilterBarConfig = [GOVERNORATE_FIELD]
+
 export const FILTER_BAR_CONFIG: Record<ListingCategory, FilterBarConfig> = {
   cars: CARS_CONFIG,
   buses: BUSES_CONFIG,
   equipment: EQUIPMENT_CONFIG,
   parts: PARTS_CONFIG,
   services: SERVICES_CONFIG,
+  jobs: JOBS_CONFIG,
 }
 
 // ── Helper Functions ──────────────────────────────────────────────────────────

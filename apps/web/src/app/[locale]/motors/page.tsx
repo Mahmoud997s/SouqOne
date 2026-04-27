@@ -1,0 +1,60 @@
+import { Navbar } from '@/components/layout/navbar';
+import { Footer } from '@/components/layout/footer';
+import { serverFetch } from '@/lib/server-fetch';
+import type { ListingsResponse } from '@/lib/api/listings';
+import type { Metadata } from 'next';
+import { MotorsShell } from './motors-shell';
+
+interface ServiceItem {
+  id: string;
+  title: string;
+  slug: string;
+  serviceType: string;
+  providerType: string;
+  providerName: string;
+  priceFrom?: string;
+  priceTo?: string;
+  currency: string;
+  isHomeService: boolean;
+  governorate: string;
+  city?: string;
+  viewCount: number;
+  images: { id: string; url: string; isPrimary: boolean; order: number }[];
+  createdAt: string;
+  user: { id: string; username: string; displayName?: string; avatarUrl?: string; isVerified?: boolean };
+}
+
+interface PaginatedServices {
+  items: ServiceItem[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+export const metadata: Metadata = {
+  title: 'السيارات وخدماتها | سوق ون',
+  description: 'تصفح السيارات للبيع والإيجار وخدمات السيارات في عُمان — صيانة، تنظيف، تعديل، فحص، سمكرة وأكثر.',
+};
+
+async function getMotorsData() {
+  const [saleCars, rentalCars, services] = await Promise.all([
+    serverFetch<ListingsResponse>('/listings?page=1&limit=8&listingType=SALE', { revalidate: 60, tags: ['listings'] }).catch(() => null),
+    serverFetch<ListingsResponse>('/listings?page=1&limit=4&listingType=RENTAL', { revalidate: 60, tags: ['listings'] }).catch(() => null),
+    serverFetch<PaginatedServices>('/services?page=1&limit=6', { revalidate: 60, tags: ['services'] }).catch(() => null),
+  ]);
+  return { saleCars, rentalCars, services };
+}
+
+export default async function MotorsPage() {
+  const { saleCars, rentalCars, services } = await getMotorsData();
+
+  return (
+    <>
+      <Navbar />
+      <MotorsShell
+        saleCars={saleCars?.items ?? []}
+        rentalCars={rentalCars?.items ?? []}
+        services={services?.items ?? []}
+      />
+      <Footer />
+    </>
+  );
+}

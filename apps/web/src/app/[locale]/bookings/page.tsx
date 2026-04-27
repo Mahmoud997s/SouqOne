@@ -306,7 +306,7 @@ function BookingsContent() {
 
   const data = activeTab === 'my' ? myData : receivedData;
   const isLoading = activeTab === 'my' ? myLoading : receivedLoading;
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data]);
 
   const groups = useMemo(() => groupBookings(items), [items]);
 

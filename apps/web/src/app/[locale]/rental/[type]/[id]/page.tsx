@@ -1,86 +1,93 @@
-'use client';
+﻿/**
+ * Rental Detail Page - Server Component
+ * Provides OG metadata for WhatsApp / social sharing.
+ */
 
-import { useParams } from 'next/navigation';
-import { notFound, redirect } from 'next/navigation';
-import { Navbar } from '@/components/layout/navbar';
-import { Footer } from '@/components/layout/footer';
-import { useUnifiedRentalListing } from '@/features/rental/hooks/useUnifiedRentalListing';
-import { useUnifiedAvailability } from '@/features/rental/hooks/useUnifiedAvailability';
-import { useUnifiedBooking } from '@/features/rental/hooks/useUnifiedBooking';
-import { RentalPageShell } from '@/features/rental/components/RentalPageShell';
-import { getRentalConfig } from '@/features/rental/config/rental.config';
-import type { RentalEntityType } from '@/features/rental/types/unified-rental.types';
-import { useTranslations } from 'next-intl';
-import { useEnumTranslations } from '@/lib/enum-translations';
+import type { Metadata } from 'next';
+import { serverFetch } from '@/lib/server-fetch';
+import { getImageUrl } from '@/lib/image-utils';
+import RentalDetailClient from './rental-detail-client';
 
-const VALID_TYPES: RentalEntityType[] = ['car', 'bus', 'equipment'];
+const API_PATHS: Record<string, string> = {
+  car: '/listings',
+  bus: '/buses',
+  equipment: '/equipment',
+};
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
+const TYPE_LABELS: Record<string, string> = {
+  car: 'سيارة للإيجار',
+  bus: 'باص للإيجار',
+  equipment: 'معدات للإيجار',
+};
 
-function RentalPageSkeleton() {
-  return (
-    <>
-      <Navbar />
-      <div className="max-w-5xl mx-auto px-4 py-6 animate-pulse pt-4">
-        <div className="h-4 w-48 bg-surface-container-high rounded mb-6" />
-        <div className="h-7 w-96 bg-surface-container-high rounded mb-3" />
-        <div
-          className="grid gap-1 rounded-2xl overflow-hidden mb-8"
-          style={{ gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: '185px 185px' }}
-        >
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className={`bg-surface-container-high ${i === 0 ? 'row-span-2' : ''}`} />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
-          <div className="space-y-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-4 bg-surface-container-high rounded" style={{ width: `${80 - i * 5}%` }} />
-            ))}
-          </div>
-          <div className="h-[500px] bg-surface-container-high rounded-2xl" />
-        </div>
-      </div>
-    </>
-  );
+interface RentalOgData {
+  title?: string;
+  description?: string;
+  price?: string | number;
+  dailyPrice?: string | number;
+  monthlyPrice?: string | number;
+  currency?: string;
+  governorate?: string;
+  images?: { url: string; isPrimary?: boolean }[];
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+function getPrimaryImage(images?: { url: string; isPrimary?: boolean }[]): string | null {
+  if (!images || images.length === 0) return null;
+  const primary = images.find((img) => img.isPrimary) ?? images[0];
+  return getImageUrl(primary?.url) ?? null;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; type: string; id: string }>;
+}): Promise<Metadata> {
+  const { locale, type, id } = await params;
+  const apiPath = API_PATHS[type];
+
+  if (!apiPath) {
+    return { title: 'غير موجود | سوق ون' };
+  }
+
+  try {
+    const data = await serverFetch<RentalOgData>(`${apiPath}/${id}`, { revalidate: 60 });
+
+    const title = data.title || TYPE_LABELS[type] || 'إيجار';
+    const daily = data.dailyPrice ? `${Number(data.dailyPrice).toLocaleString()} ${data.currency || 'OMR'}/يوم` : '';
+    const monthly = data.monthlyPrice ? `${Number(data.monthlyPrice).toLocaleString()} ${data.currency || 'OMR'}/شهر` : '';
+    const location = data.governorate || '';
+    const priceInfo = daily || monthly || (data.price ? `${Number(data.price).toLocaleString()} ${data.currency || 'OMR'}` : '');
+    const descParts = [priceInfo, location, TYPE_LABELS[type]].filter(Boolean);
+    const description = descParts.join(' · ') || title;
+    const image = getPrimaryImage(data.images);
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://souqone.com';
+    const pageUrl = `${appUrl}/${locale}/rental/${type}/${id}`;
+
+    return {
+      title: `${title} | سوق ون`,
+      description,
+      openGraph: {
+        type: 'article',
+        title,
+        description,
+        url: pageUrl,
+        siteName: 'سوق ون - SouqOne',
+        locale: locale === 'ar' ? 'ar_OM' : 'en_OM',
+        ...(image ? { images: [{ url: image, width: 800, height: 600, alt: title }] } : {}),
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        ...(image ? { images: [image] } : {}),
+      },
+    };
+  } catch {
+    return { title: `${TYPE_LABELS[type] || 'إيجار'} | سوق ون` };
+  }
+}
 
 export default function RentalPage() {
-  const params = useParams<{ type: string; id: string }>();
-
-  // Validate type — hooks must be called unconditionally
-  const isValidType = VALID_TYPES.includes(params.type as RentalEntityType);
-  const type = isValidType ? (params.type as RentalEntityType) : 'car';
-
-  const { listing, isLoading, error, redirectTo } = useUnifiedRentalListing(type, params.id);
-  const { unavailableDates } = useUnifiedAvailability(type, params.id);
-  const { book, isPending } = useUnifiedBooking(type);
-  const t = useTranslations('rental');
-  const enumT = useEnumTranslations();
-
-  // Guards (after hooks to respect Rules of Hooks)
-  if (!isValidType) notFound();
-  if (redirectTo) redirect(redirectTo);
-  if (isLoading) return <RentalPageSkeleton />;
-  if (error || !listing) notFound();
-
-  const config = getRentalConfig(t, enumT)[type];
-
-  return (
-    <>
-      <Navbar />
-      <div className="pt-2">
-        <RentalPageShell
-          listing={listing}
-          config={config}
-          unavailableDates={unavailableDates}
-          onBook={(start: string, end: string) => book(listing.id, start, end)}
-          isBookingPending={isPending}
-        />
-      </div>
-      <Footer />
-    </>
-  );
+  return <RentalDetailClient />;
 }

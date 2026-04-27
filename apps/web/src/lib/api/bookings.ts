@@ -3,10 +3,8 @@ import { apiRequest } from '../auth';
 import type { ListingItem } from './listings';
 import type { BusListingItem } from './buses';
 import type { EquipmentListingItem } from './equipment';
-import type { TransportItem } from './transport';
-import type { TripItem } from './trips';
 
-export type BookingEntityType = 'CAR' | 'BUS' | 'EQUIPMENT' | 'TRANSPORT' | 'TRIP';
+export type BookingEntityType = 'CAR' | 'BUS' | 'EQUIPMENT';
 
 interface BookingUser { id: string; username: string; displayName: string | null; avatarUrl: string | null; phone: string | null }
 
@@ -16,8 +14,6 @@ export interface BookingItem {
   listingId: string | null;
   busListingId: string | null;
   equipmentListingId: string | null;
-  transportServiceId: string | null;
-  tripServiceId: string | null;
   renterId: string;
   ownerId: string;
   startDate: string;
@@ -40,8 +36,6 @@ export interface BookingItem {
   listing?: ListingItem;
   busListing?: BusListingItem;
   equipmentListing?: EquipmentListingItem;
-  transportService?: TransportItem;
-  tripService?: TripItem;
   renter?: BookingUser;
   owner?: BookingUser;
 }
@@ -51,8 +45,6 @@ export interface BookingItem {
 export function getBookingEntity(b: BookingItem) {
   if (b.entityType === 'BUS' && b.busListing) return { title: b.busListing.title, images: b.busListing.images, entityId: b.busListingId!, detailPath: `/rental/bus/${b.busListingId}` };
   if (b.entityType === 'EQUIPMENT' && b.equipmentListing) return { title: b.equipmentListing.title, images: b.equipmentListing.images, entityId: b.equipmentListingId!, detailPath: `/rental/equipment/${b.equipmentListingId}` };
-  if (b.entityType === 'TRANSPORT' && b.transportService) return { title: b.transportService.title, images: b.transportService.images, entityId: b.transportServiceId!, detailPath: `/transport/${b.transportServiceId}` };
-  if (b.entityType === 'TRIP' && b.tripService) return { title: b.tripService.title, images: b.tripService.images, entityId: b.tripServiceId!, detailPath: `/trips/${b.tripServiceId}` };
   // Default: CAR rental
   return { title: b.listing?.title ?? '', images: b.listing?.images ?? [], entityId: b.listingId ?? '', detailPath: `/rental/car/${b.listingId}` };
 }

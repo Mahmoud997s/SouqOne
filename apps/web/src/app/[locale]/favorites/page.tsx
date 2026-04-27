@@ -1,25 +1,20 @@
 'use client';
 
 import { Link } from '@/i18n/navigation';
-import Image from 'next/image';
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { AuthGuard } from '@/components/auth-guard';
 import { VehicleCard } from '@/features/ads/components/vehicle-card';
+import { mapSaleItemToVehicleCard } from '@/features/ads/utils/vehicle-card-adapter';
+import type { ListingCategory } from '@/features/listings/types/category.types';
 import { ErrorState } from '@/components/error-state';
 import { Heart } from 'lucide-react';
-import { useFavorites, useToggleFavorite, type EntityType, type FavoriteItem } from '@/lib/api';
-import { getImageUrl } from '@/lib/image-utils';
+import { useFavorites, type EntityType } from '@/lib/api';
 import { useTranslations } from 'next-intl';
 
 // ── Types ──
 type SortOption = 'newest' | 'price' | 'oldest';
-
-interface UndoState {
-  item: FavoriteItem;
-  timeoutId: NodeJS.Timeout;
-}
 
 // ── Category Tabs Config ──
 const CATEGORY_TABS: { value: EntityType; labelKey: string; icon: string }[] = [
@@ -29,8 +24,6 @@ const CATEGORY_TABS: { value: EntityType; labelKey: string; icon: string }[] = [
   { value: 'SPARE_PART', labelKey: 'catParts', icon: 'settings' },
   { value: 'CAR_SERVICE', labelKey: 'catServices', icon: 'build' },
   { value: 'JOB', labelKey: 'catJobs', icon: 'work' },
-  { value: 'TRANSPORT', labelKey: 'catTransport', icon: 'local_shipping' },
-  { value: 'TRIP', labelKey: 'catTrips', icon: 'flight' },
   { value: 'INSURANCE', labelKey: 'catInsurance', icon: 'shield' },
   { value: 'OPERATOR_LISTING', labelKey: 'catOperators', icon: 'engineering' },
 ];
@@ -42,8 +35,6 @@ const ENTITY_ROUTES: Record<string, string> = {
   CAR_SERVICE: '/sale/service',
   BUS_LISTING: '/sale/bus',
   EQUIPMENT_LISTING: '/sale/equipment',
-  TRANSPORT: '/transport',
-  TRIP: '/trips',
   INSURANCE: '/insurance',
   OPERATOR_LISTING: '/equipment/operators',
 };
@@ -55,120 +46,16 @@ const SORT_KEYS: { value: SortOption; labelKey: string }[] = [
   { value: 'oldest', labelKey: 'sortOldest' },
 ];
 
-// ── Generic Fav Card for non-vehicle entities ──
-function GenericFavCard({
-  item,
-  onRemove,
-  t,
-}: {
-  item: FavoriteItem;
-  onRemove: (item: FavoriteItem) => void;
-  t: (key: string) => string;
-}) {
-  const route = ENTITY_ROUTES[item.entityType] || '/';
-  const tabConfig = CATEGORY_TABS.find(tab => tab.value === item.entityType);
-
-  return (
-    <Link
-      href={`${route}/${item.entityId}`}
-      className="group relative h-full rounded-xl overflow-hidden bg-surface-container-lowest border border-outline-variant/10 hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.06)] transition-all duration-300 flex flex-col"
-    >
-      <div className="relative aspect-[16/10] overflow-hidden bg-surface-container-low">
-        {item.entity?.image ? (
-          <Image
-            src={getImageUrl(item.entity.image) || ''}
-            alt={item.entity?.title || ''}
-            fill
-            sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-700"
-          />
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-on-surface-variant/25">
-            <span className="material-symbols-outlined text-3xl sm:text-4xl">{tabConfig?.icon || 'bookmark'}</span>
-          </div>
-        )}
-
-        {/* Gradient overlay */}
-        <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-
-        {/* Heart remove button */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onRemove(item);
-          }}
-          className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 z-10 w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center"
-          aria-label={t('removeFromFav')}
-        >
-          <span
-            className="material-symbols-outlined text-[18px] sm:text-[20px] drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] text-red-500"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            favorite
-          </span>
-        </button>
-
-        {/* Category badge */}
-        <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
-          {t(tabConfig?.labelKey || 'catCars')}
-        </span>
-      </div>
-      <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1">
-        <h3 dir="auto" className="text-[10px] sm:text-[13px] font-black leading-snug line-clamp-2 sm:line-clamp-1 text-on-surface">
-          {item.entity?.title || t('deletedItem')}
-        </h3>
-      </div>
-    </Link>
-  );
-}
-
-// ── Undo Toast Component ──
-function UndoToast({
-  visible,
-  onUndo,
-  onDismiss,
-  t,
-}: {
-  visible: boolean;
-  onUndo: () => void;
-  onDismiss: () => void;
-  t: (key: string) => string;
-}) {
-  useEffect(() => {
-    if (!visible) return;
-    const timer = setTimeout(onDismiss, 4000);
-    return () => clearTimeout(timer);
-  }, [visible, onDismiss]);
-
-  if (!visible) return null;
-
-  return (
-    <div className="fixed bottom-20 right-4 left-4 lg:right-8 lg:left-auto lg:w-80 bg-foreground text-background rounded-2xl px-4 py-3 flex items-center justify-between z-50 shadow-lg animate-in slide-in-from-bottom-2 fade-in duration-200">
-      <span className="text-sm">{t('undoRemoved')}</span>
-      <button
-        onClick={onUndo}
-        className="text-primary font-medium text-sm hover:underline px-2 py-1 rounded"
-      >
-        {t('undo')}
-      </button>
-    </div>
-  );
-}
-
 // ── Main Page ──
 export default function FavoritesPage() {
   const t = useTranslations('favorites');
   const [activeTab, setActiveTab] = useState<EntityType | 'ALL'>('ALL');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
-  const [undoState, setUndoState] = useState<UndoState | null>(null);
-  const [showUndo, setShowUndo] = useState(false);
 
   const filterType = activeTab === 'ALL' ? undefined : activeTab;
   const { data, isLoading, isError, refetch } = useFavorites(filterType);
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data]);
   const totalCount = data?.meta?.total ?? 0;
-  const toggleFav = useToggleFavorite();
 
   // Compute available tabs based on all favorites (not filtered)
   const { data: allFavs } = useFavorites(undefined);
@@ -197,35 +84,8 @@ export default function FavoritesPage() {
     }
   }, [items, sortBy]);
 
-  // Handle remove with undo
-  const handleRemove = useCallback((item: FavoriteItem) => {
-    if (undoState) clearTimeout(undoState.timeoutId);
-    toggleFav.mutate({ entityType: item.entityType, entityId: item.entityId });
-    setShowUndo(true);
-    const timeoutId = setTimeout(() => {
-      setShowUndo(false);
-      setUndoState(null);
-    }, 4000);
-    setUndoState({ item, timeoutId });
-  }, [toggleFav, undoState]);
-
-  // Handle undo
-  const handleUndo = useCallback(() => {
-    if (undoState) {
-      clearTimeout(undoState.timeoutId);
-      toggleFav.mutate({
-        entityType: undoState.item.entityType,
-        entityId: undoState.item.entityId,
-      });
-      setShowUndo(false);
-      setUndoState(null);
-    }
-  }, [undoState, toggleFav]);
-
-  const handleDismissUndo = useCallback(() => {
-    setShowUndo(false);
-    setUndoState(null);
-  }, []);
+  // Note: VehicleCard handles its own favorite toggle now (built-in heart button).
+  // Undo affordance is dropped here for simplicity.
 
   return (
     <AuthGuard>
@@ -320,41 +180,39 @@ export default function FavoritesPage() {
           ) : sortedItems.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {sortedItems.map((fav) => {
-                // LISTING type → VehicleCard (has built-in fav button)
+                // LISTING type → use full mapping from listing payload
                 if (fav.entityType === 'LISTING' && fav.listing) {
-                  const listing = fav.listing;
-                  const img = listing.images?.find((i: any) => i.isPrimary) ?? listing.images?.[0];
                   return (
                     <VehicleCard
                       key={fav.id}
-                      id={listing.id}
-                      title={listing.title}
-                      make={listing.make}
-                      model={listing.model}
-                      year={listing.year}
-                      price={listing.price}
-                      currency={listing.currency}
-                      mileage={listing.mileage}
-                      fuelType={listing.fuelType}
-                      transmission={listing.transmission}
-                      condition={listing.condition}
-                      governorate={listing.governorate}
-                      imageUrl={getImageUrl(img?.url)}
-                      listingType={listing.listingType}
-                      dailyPrice={listing.dailyPrice}
-                      createdAt={listing.createdAt}
-                      href={listing.listingType === 'RENTAL' ? `/rental/car/${listing.id}` : `/sale/car/${listing.id}`}
+                      {...mapSaleItemToVehicleCard(fav.listing as any, 'car')}
                     />
                   );
                 }
 
-                // Non-vehicle entity → GenericFavCard
+                // Other entity types: minimal VehicleCard from fav.entity
+                const entityToCategory: Record<string, ListingCategory> = {
+                  BUS_LISTING: 'buses',
+                  EQUIPMENT_LISTING: 'equipment',
+                  SPARE_PART: 'parts',
+                  CAR_SERVICE: 'services',
+                  JOB: 'jobs',
+                  OPERATOR_LISTING: 'equipment',
+                  INSURANCE: 'services',
+                };
+                const category = entityToCategory[fav.entityType] ?? 'cars';
+                const route = ENTITY_ROUTES[fav.entityType] || '/';
                 return (
-                  <GenericFavCard
+                  <VehicleCard
                     key={fav.id}
-                    item={fav}
-                    onRemove={handleRemove}
-                    t={t}
+                    id={fav.entityId}
+                    title={fav.entity?.title || t('deletedItem')}
+                    price={null}
+                    currency="OMR"
+                    imageUrl={fav.entity?.image || null}
+                    category={category}
+                    entityType={fav.entityType}
+                    href={`${route}/${fav.entityId}`}
                   />
                 );
               })}
@@ -380,13 +238,6 @@ export default function FavoritesPage() {
           )}
         </div>
 
-        {/* ── Undo Toast ── */}
-        <UndoToast
-          visible={showUndo}
-          onUndo={handleUndo}
-          onDismiss={handleDismissUndo}
-          t={t}
-        />
       </div>
       <Footer />
     </AuthGuard>

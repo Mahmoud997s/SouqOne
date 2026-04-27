@@ -7,7 +7,7 @@ import { useRouter } from '@/i18n/navigation';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { VehicleCard } from '@/features/ads/components/vehicle-card';
-import { GenericListingCard } from '@/components/generic-listing-card';
+import { mapSaleItemToVehicleCard, mapJobToVehicleCard, type SaleEntity } from '@/features/ads/utils/vehicle-card-adapter';
 import { ListingSkeleton } from '@/components/loading-skeleton';
 import { ErrorState } from '@/components/error-state';
 import { usePublicProfile, useListings, useCreateConversation } from '@/lib/api';
@@ -16,8 +16,6 @@ import { useEquipmentListings, useOperatorListings } from '@/lib/api/equipment';
 import { useParts } from '@/lib/api/parts';
 import { useCarServices } from '@/lib/api/services';
 import { useJobs } from '@/lib/api/jobs';
-import { useTransportServices } from '@/lib/api/transport';
-import { useTrips } from '@/lib/api/trips';
 import { useReviews, useReviewSummary } from '@/lib/api/reviews';
 import { useRequireAuth } from '@/hooks/use-require-auth';
 import { useToast } from '@/components/toast';
@@ -34,8 +32,6 @@ const TABS = [
   { key: 'operators', labelKey: 'sectionOperators', entityType: 'OPERATOR_LISTING' },
   { key: 'parts', labelKey: 'sectionParts', entityType: 'SPARE_PART' },
   { key: 'services', labelKey: 'sectionServices', entityType: 'CAR_SERVICE' },
-  { key: 'transport', labelKey: 'sectionTransport', entityType: 'TRANSPORT' },
-  { key: 'trips', labelKey: 'sectionTrips', entityType: 'TRIP' },
   { key: 'jobs', labelKey: 'sectionJobs', entityType: 'JOB' },
 ] as const;
 
@@ -55,8 +51,6 @@ export default function SellerPage() {
   const operators = useOperatorListings(sid ? { userId: sid, limit: '50' } : undefined);
   const parts = useParts(sid ? { sellerId: sid, limit: '50' } : undefined);
   const services = useCarServices(sid ? { userId: sid, limit: '50' } : undefined);
-  const transport = useTransportServices(sid ? { userId: sid, limit: '50' } : undefined);
-  const trips = useTrips(sid ? { userId: sid, limit: '50' } : undefined);
   const jobs = useJobs(sid ? { userId: sid, limit: '50' } : {});
 
   const createConv = useCreateConversation();
@@ -69,7 +63,7 @@ export default function SellerPage() {
   const { data: reviews } = useReviews(seller ? { userId: seller.id, limit: '10' } : undefined);
 
   function getData(k: TabKey) {
-    const map: Record<TabKey, any> = { cars, buses, equipment, operators, parts, services, transport, trips, jobs };
+    const map: Record<TabKey, any> = { cars, buses, equipment, operators, parts, services, jobs };
     return { items: map[k]?.data?.items ?? [], loading: map[k]?.isLoading };
   }
 
@@ -109,7 +103,6 @@ export default function SellerPage() {
   }
 
   const { items: activeItems, loading: tabLoading } = getData(tab);
-  const currentTab = TABS.find(t => t.key === tab)!;
   const year = new Date(seller.createdAt).getFullYear();
   const gov = seller.governorate ? resolveLocationLabel(seller.governorate, locale) : '';
   const total = seller.totalListings || 0;
@@ -289,27 +282,15 @@ export default function SellerPage() {
                 ) : activeItems.length > 0 ? (
                   <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-5">
                     {activeItems.map((item: any) => {
-                      if (tab === 'cars') {
-                        const img = item.images?.find((i: any) => i.isPrimary) ?? item.images?.[0];
-                        return (
-                          <VehicleCard
-                            key={item.id} id={item.id} title={item.title} make={item.make}
-                            model={item.model} year={item.year} price={item.price} currency={item.currency}
-                            mileage={item.mileage} fuelType={item.fuelType} transmission={item.transmission}
-                            condition={item.condition} governorate={item.governorate}
-                            imageUrl={getImageUrl(img?.url)} listingType={item.listingType} dailyPrice={item.dailyPrice}
-                          />
-                        );
+                      if (tab === 'jobs') {
+                        return <VehicleCard key={item.id} {...mapJobToVehicleCard(item)} />;
                       }
-                      return (
-                        <GenericListingCard
-                          key={item.id} id={item.id} title={item.title} sectionType={currentTab.entityType}
-                          price={item.price || item.salary || item.priceFrom || item.basePrice || item.pricePerTrip}
-                          currency={item.currency || 'OMR'} governorate={item.governorate}
-                          imageUrl={item.images?.[0]?.url || item.imageUrl || null}
-                          createdAt={item.createdAt} description={item.description}
-                        />
-                      );
+                      const saleEntityMap: Record<string, SaleEntity> = {
+                        cars: 'car', buses: 'bus', equipment: 'equipment',
+                        operators: 'equipment', parts: 'part', services: 'service',
+                      };
+                      const saleEntity = saleEntityMap[tab] ?? 'car';
+                      return <VehicleCard key={item.id} {...mapSaleItemToVehicleCard(item, saleEntity)} />;
                     })}
                   </div>
                 ) : (

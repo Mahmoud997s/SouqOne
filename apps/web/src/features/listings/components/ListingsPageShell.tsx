@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { 
   SlidersHorizontal, ChevronLeft, Search, Plus, X, 
-  List, LayoutGrid, Loader2, SearchX,
-  Car, Bus, Wrench, Settings, Briefcase, Clock
+  List, LayoutGrid, Loader2, SearchX, Clock,
+  Car, Bus, Wrench, Settings, Briefcase
 } from 'lucide-react'
 import { clsx } from 'clsx'
 
@@ -17,6 +17,7 @@ import { useUnifiedListings } from '../hooks/useUnifiedListings'
 import { useFilterState } from '../hooks/useFilterState'
 import { useRecentSearches } from '../hooks/useRecentSearches'
 import { getAddListingHref } from '../utils/filter-helpers'
+import { CATEGORY_SLIDER_MAP, type SliderItem } from '../data'
 import { useDebounce } from '@/hooks/useDebounce'
 import { useSuggestions } from '@/lib/api/listings'
 
@@ -28,7 +29,9 @@ import { FilterSheet } from './FilterSheet'
 import { ActiveFilters } from './ActiveFilters'
 import { ListingCard } from './ListingCard'
 import { ListingCardSkeleton } from './ListingCardSkeleton'
+import { QuickFiltersBar } from './QuickFiltersBar'
 import { VehicleCard } from '@/features/ads/components/vehicle-card'
+import { mapUnifiedToVehicleCard } from '@/features/ads/utils/vehicle-card-adapter'
 import { CardSkeleton } from '@/components/loading-skeleton'
 
 // ── Icons ────────────────────────────────────────────────────────────────────
@@ -36,7 +39,7 @@ import { CardSkeleton } from '@/components/loading-skeleton'
 type LucideIcon = React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>
 const CATEGORY_ICON: Record<ListingCategory, LucideIcon> = {
   cars: Car, buses: Bus, equipment: Wrench,
-  parts: Settings, services: Briefcase,
+  parts: Settings, services: Briefcase, jobs: Briefcase,
 }
 
 function CategoryBar({ currentCategory }: { currentCategory: ListingCategory }) {
@@ -91,99 +94,210 @@ function CategoryBar({ currentCategory }: { currentCategory: ListingCategory }) 
   )
 }
 
-import { BRAND_LOGOS } from '../config/brand-logos.config'
+// ── Reusable Category Slider Component ───────────────────────────────────────
+function CategorySlider({
+  items, title, defaultFilterKey, filters, onFilterChange, page, setPage,
+}: {
+  items: SliderItem[]
+  title: string
+  defaultFilterKey: string
+  filters: Record<string, unknown>
+  onFilterChange: (key: string, value: string | boolean | null) => void
+  page: number
+  setPage: React.Dispatch<React.SetStateAction<number>>
+}) {
+  const ITEMS_PER_PAGE = 10
+  const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE)
 
-// ── Popular Makes (Cars Only) ────────────────────────────────────────────────
+  return (
+    <div className="bg-surface-container-lowest border-b border-outline-variant/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 relative group">
 
-const POPULAR_MAKES = [
-  { name: 'تويوتا', value: 'Toyota', logo: BRAND_LOGOS['toyota'] },
-  { name: 'نيسان', value: 'Nissan', logo: BRAND_LOGOS['nissan'] },
-  { name: 'هيونداي', value: 'Hyundai', logo: BRAND_LOGOS['hyundai'] },
-  { name: 'لكزس', value: 'Lexus', logo: BRAND_LOGOS['lexus'] },
-  { name: 'كيا', value: 'Kia', logo: BRAND_LOGOS['kia'] },
-  { name: 'مرسيدس', value: 'Mercedes-Benz', logo: BRAND_LOGOS['mercedes-benz'] },
-  { name: 'بي إم دبليو', value: 'BMW', logo: BRAND_LOGOS['bmw'] },
-  { name: 'فورد', value: 'Ford', logo: BRAND_LOGOS['ford'] },
-  { name: 'شفروليه', value: 'Chevrolet', logo: BRAND_LOGOS['chevrolet'] },
-  { name: 'هوندا', value: 'Honda', logo: BRAND_LOGOS['honda'] },
-  { name: 'لاند روفر', value: 'Land Rover', logo: BRAND_LOGOS['land-rover'] },
-  { name: 'جيب', value: 'Jeep', logo: BRAND_LOGOS['jeep'] },
-  { name: 'جي إم سي', value: 'GMC', logo: BRAND_LOGOS['gmc'] },
-  { name: 'أودي', value: 'Audi', logo: BRAND_LOGOS['audi'] },
-  { name: 'بورش', value: 'Porsche', logo: BRAND_LOGOS['porsche'] },
-  { name: 'ميتسوبيشي', value: 'Mitsubishi', logo: BRAND_LOGOS['mitsubishi'] },
-  { name: 'فولكس فاجن', value: 'Volkswagen', logo: BRAND_LOGOS['volkswagen'] },
-  { name: 'مازدا', value: 'Mazda', logo: BRAND_LOGOS['mazda'] },
-  { name: 'دودج', value: 'Dodge', logo: BRAND_LOGOS['dodge'] },
-  { name: 'سوزوكي', value: 'Suzuki', logo: BRAND_LOGOS['suzuki'] },
-  { name: 'بي واي دي', value: 'BYD', logo: BRAND_LOGOS['byd'] },
-  { name: 'شانجان', value: 'Changan', logo: BRAND_LOGOS['changan'] },
-  { name: 'جيلي', value: 'Geely', logo: BRAND_LOGOS['geely'] },
-  { name: 'شيري', value: 'Chery', logo: BRAND_LOGOS['chery'] },
-  { name: 'هافال', value: 'Haval', logo: BRAND_LOGOS['haval'] },
-  { name: 'إم جي', value: 'MG', logo: BRAND_LOGOS['mg'] },
-  { name: 'جي أيه سي', value: 'GAC', logo: BRAND_LOGOS['gac'] },
-  { name: 'جيتور', value: 'Jetour', logo: BRAND_LOGOS['jetour'] },
-  { name: 'تانك', value: 'Tank', logo: BRAND_LOGOS['tank'] },
-  { name: 'بايك', value: 'BAIC', logo: BRAND_LOGOS['baic'] },
-  { name: 'هونشي', value: 'Hongqi', logo: BRAND_LOGOS['hongqi'] },
-  { name: 'بيستون', value: 'Bestune', logo: BRAND_LOGOS['bestune'] },
-  { name: 'إكسيد', value: 'Exeed', logo: BRAND_LOGOS['exeed'] },
-  { name: 'فولفو', value: 'Volvo', logo: BRAND_LOGOS['volvo'] },
-  { name: 'جاكوار', value: 'Jaguar', logo: BRAND_LOGOS['jaguar'] },
-  { name: 'مازيراتي', value: 'Maserati', logo: BRAND_LOGOS['maserati'] },
-  { name: 'فيراري', value: 'Ferrari', logo: BRAND_LOGOS['ferrari'] },
-  { name: 'لامبورغيني', value: 'Lamborghini', logo: BRAND_LOGOS['lamborghini'] },
-  { name: 'بنتلي', value: 'Bentley', logo: BRAND_LOGOS['bentley'] },
-  { name: 'رولز رويس', value: 'Rolls-Royce', logo: BRAND_LOGOS['rolls-royce'] },
-  { name: 'أستون مارتن', value: 'Aston Martin', logo: BRAND_LOGOS['aston-martin'] },
-  { name: 'ماكلارين', value: 'McLaren', logo: BRAND_LOGOS['mclaren'] },
-  { name: 'جينيسيس', value: 'Genesis', logo: BRAND_LOGOS['genesis'] },
-  { name: 'بيجو', value: 'Peugeot', logo: BRAND_LOGOS['peugeot'] },
-  { name: 'رينو', value: 'Renault', logo: BRAND_LOGOS['renault'] },
-  { name: 'سيتروين', value: 'Citroen', logo: BRAND_LOGOS['citroen'] },
-  { name: 'سكودا', value: 'Skoda', logo: BRAND_LOGOS['skoda'] },
-  { name: 'ميني', value: 'Mini', logo: BRAND_LOGOS['mini'] },
-  { name: 'فيات', value: 'Fiat', logo: BRAND_LOGOS['fiat'] },
-  { name: 'ألفا روميو', value: 'Alfa Romeo', logo: BRAND_LOGOS['alfa-romeo'] },
-  { name: 'تسلا', value: 'Tesla', logo: BRAND_LOGOS['tesla'] },
-  { name: 'سوبارو', value: 'Subaru', logo: BRAND_LOGOS['subaru'] },
-  { name: 'كاديلاك', value: 'Cadillac', logo: BRAND_LOGOS['cadillac'] },
-  { name: 'لينكولن', value: 'Lincoln', logo: BRAND_LOGOS['lincoln'] },
-  { name: 'إنفينيتي', value: 'Infiniti', logo: BRAND_LOGOS['infiniti'] },
-  { name: 'أكورا', value: 'Acura', logo: BRAND_LOGOS['acura'] },
-  { name: 'أوبل', value: 'Opel', logo: BRAND_LOGOS['opel'] },
-  { name: 'رام', value: 'RAM', logo: BRAND_LOGOS['ram'] },
-  { name: 'ايسوزو', value: 'Isuzu', logo: BRAND_LOGOS['isuzu'] },
-  { name: 'ديهاتسو', value: 'Daihatsu', logo: BRAND_LOGOS['daihatsu'] },
-  { name: 'بروتون', value: 'Proton', logo: BRAND_LOGOS['proton'] },
-  { name: 'داسيا', value: 'Dacia', logo: BRAND_LOGOS['dacia'] },
-  { name: 'سمارت', value: 'Smart', logo: BRAND_LOGOS['smart'] },
-  { name: 'سانغ يونغ', value: 'SsangYong', logo: BRAND_LOGOS['ssangyong'] },
-  { name: 'لوتس', value: 'Lotus', logo: BRAND_LOGOS['lotus'] },
-  { name: 'كوبرا', value: 'Cupra', logo: BRAND_LOGOS['cupra'] },
-  { name: 'بولستار', value: 'Polestar', logo: BRAND_LOGOS['polestar'] },
-  { name: 'لوسيد', value: 'Lucid', logo: BRAND_LOGOS['lucid'] },
-  { name: 'ريفيان', value: 'Rivian', logo: BRAND_LOGOS['rivian'] },
-  { name: 'فين فاست', value: 'VinFast', logo: BRAND_LOGOS['vinfast'] },
-  { name: 'ماهيندرا', value: 'Mahindra', logo: BRAND_LOGOS['mahindra'] },
-  { name: 'تاتا', value: 'Tata', logo: BRAND_LOGOS['tata'] },
-  { name: 'هامر', value: 'Hummer', logo: BRAND_LOGOS['hummer'] },
-  { name: 'بونتياك', value: 'Pontiac', logo: BRAND_LOGOS['pontiac'] },
-  { name: 'ساب', value: 'Saab', logo: BRAND_LOGOS['saab'] },
-  { name: 'لانشيا', value: 'Lancia', logo: BRAND_LOGOS['lancia'] },
-  { name: 'سيات', value: 'Seat', logo: BRAND_LOGOS['seat'] },
-  { name: 'مايباخ', value: 'Maybach', logo: BRAND_LOGOS['maybach'] },
-  { name: 'بوغاتي', value: 'Bugatti', logo: BRAND_LOGOS['bugatti'] },
-  { name: 'باجاني', value: 'Pagani', logo: BRAND_LOGOS['pagani'] },
-  { name: 'كونيغسيغ', value: 'Koenigsegg', logo: BRAND_LOGOS['koenigsegg'] },
-  { name: 'ألبين', value: 'Alpine', logo: BRAND_LOGOS['alpine'] },
-  { name: 'إيفيكو', value: 'Iveco', logo: BRAND_LOGOS['iveco'] },
-  { name: 'مان', value: 'MAN', logo: BRAND_LOGOS['man'] },
-  { name: 'سكانيا', value: 'Scania', logo: BRAND_LOGOS['scania'] },
-  { name: 'هينو', value: 'Hino', logo: BRAND_LOGOS['hino'] },
-  { name: 'فوزو', value: 'Fuso', logo: BRAND_LOGOS['fuso'] },
-]
+        {/* Section Header */}
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-6 bg-primary rounded-full" />
+            <h2 className="text-sm font-bold text-on-surface tracking-wide">{title}</h2>
+          </div>
+          {totalPages > 1 && (
+            <span className="text-xs text-on-surface-variant font-medium">
+              {page + 1} / {totalPages}
+            </span>
+          )}
+        </div>
+
+        {/* Navigation Arrow — Left (Next in RTL) */}
+        {totalPages > 1 && (
+          <div className="absolute inset-y-0 -left-1 hidden sm:flex items-center z-20">
+            <button
+              onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+              disabled={page >= totalPages - 1}
+              className={clsx(
+                "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
+                "bg-surface-container-high border border-outline-variant/30 shadow-md text-on-surface-variant",
+                page >= totalPages - 1
+                  ? "opacity-0 scale-90 pointer-events-none"
+                  : "hover:bg-primary hover:text-on-primary hover:border-primary hover:shadow-lg opacity-0 group-hover:opacity-100"
+              )}
+            >
+              <span className="material-symbols-outlined text-xl">chevron_left</span>
+            </button>
+          </div>
+        )}
+
+        {/* Navigation Arrow — Right (Prev in RTL) */}
+        {totalPages > 1 && (
+          <div className="absolute inset-y-0 -right-1 hidden sm:flex items-center z-20">
+            <button
+              onClick={() => setPage(p => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className={clsx(
+                "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
+                "bg-surface-container-high border border-outline-variant/30 shadow-md text-on-surface-variant",
+                page === 0
+                  ? "opacity-0 scale-90 pointer-events-none"
+                  : "hover:bg-primary hover:text-on-primary hover:border-primary hover:shadow-lg opacity-0 group-hover:opacity-100"
+              )}
+            >
+              <span className="material-symbols-outlined text-xl">chevron_right</span>
+            </button>
+          </div>
+        )}
+
+        {/* Slider Content — touch swipeable */}
+        <div
+          className="overflow-hidden rounded-2xl touch-pan-y"
+          onTouchStart={(e) => {
+            const touch = e.touches[0]
+            ;(e.currentTarget as any)._touchStartX = touch.clientX
+            ;(e.currentTarget as any)._touchStartY = touch.clientY
+          }}
+          onTouchEnd={(e) => {
+            const startX = (e.currentTarget as any)._touchStartX
+            const startY = (e.currentTarget as any)._touchStartY
+            if (startX == null) return
+            const endX = e.changedTouches[0].clientX
+            const endY = e.changedTouches[0].clientY
+            const diffX = startX - endX
+            const diffY = Math.abs(startY - endY)
+            if (Math.abs(diffX) > 50 && Math.abs(diffX) > diffY) {
+              if (diffX > 0) setPage(p => Math.min(totalPages - 1, p + 1))
+              else setPage(p => Math.max(0, p - 1))
+            }
+          }}
+        >
+          <div
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(${page * 100}%)` }}
+          >
+            {Array.from({ length: totalPages }).map((_, pageIdx) => (
+              <div key={pageIdx} className="w-full flex-shrink-0 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 grid-rows-2 gap-2 sm:gap-4 px-1 sm:px-6">
+                {items.slice(pageIdx * ITEMS_PER_PAGE, (pageIdx + 1) * ITEMS_PER_PAGE).map((item, idx) => {
+                  const fKey = item.filterKey || defaultFilterKey
+                  const isActive = item.isBoolean
+                    ? filters[fKey] === true || filters[fKey] === 'true'
+                    : filters[fKey] === item.value
+
+                  return (
+                    <button
+                      key={item.value + fKey}
+                      onClick={() => {
+                        if (item.isBoolean) onFilterChange(fKey, isActive ? null : true)
+                        else onFilterChange(fKey, isActive ? null : item.value)
+                      }}
+                      className={clsx(
+                        "flex flex-col items-center gap-2 sm:gap-2.5 py-3 sm:py-4 px-1 sm:px-2 rounded-xl transition-all duration-300",
+                        idx >= 6 && "hidden sm:flex",
+                        idx >= 8 && "sm:hidden lg:flex",
+                        isActive
+                          ? "bg-primary-fixed/60 ring-1 ring-primary/30 shadow-sm"
+                          : "hover:bg-surface-container hover:shadow-sm"
+                      )}
+                    >
+                      {/* Visual — logo / img / icon */}
+                      {item.logo ? (
+                        <div className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={item.logo}
+                            alt={item.name}
+                            className={clsx(
+                              "w-9 h-9 sm:w-12 sm:h-12 object-contain transition-all duration-300",
+                              isActive ? "scale-110" : "opacity-75"
+                            )}
+                            loading="lazy"
+                            onError={(e) => {
+                              const target = e.currentTarget
+                              target.style.display = 'none'
+                              const fallback = target.nextElementSibling as HTMLElement
+                              if (fallback) fallback.style.display = 'flex'
+                            }}
+                          />
+                          <span
+                            style={{ display: 'none' }}
+                            className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl bg-primary-fixed items-center justify-center text-primary font-bold text-base sm:text-lg"
+                          >
+                            {item.name.charAt(0)}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className={clsx(
+                          "w-11 h-11 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm overflow-hidden",
+                          item.img
+                            ? "bg-surface-container"
+                            : isActive
+                              ? `bg-gradient-to-br ${item.gradient} scale-110 shadow-md`
+                              : `bg-gradient-to-br ${item.gradient} opacity-75`,
+                          isActive && item.img && "ring-2 ring-primary/30 shadow-md scale-105"
+                        )}>
+                          {item.img ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={item.img} alt={item.name} className={clsx(
+                              "w-full h-full object-cover transition-all duration-300",
+                              isActive ? "scale-110" : "opacity-90"
+                            )} />
+                          ) : (
+                            <span className="material-symbols-outlined text-white text-xl sm:text-2xl">{item.icon}</span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Label */}
+                      <span className={clsx(
+                        "text-[10px] sm:text-[11px] text-center font-bold tracking-tight truncate w-full leading-tight",
+                        isActive ? "text-primary" : "text-on-surface-variant"
+                      )}>
+                        {item.name}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Pagination Dots */}
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-1.5 mt-4 sm:mt-5">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i)}
+                className={clsx(
+                  "h-1.5 rounded-full transition-all duration-300 cursor-pointer",
+                  page === i
+                    ? "w-8 bg-primary"
+                    : "w-2 bg-outline-variant/40 hover:bg-outline-variant"
+                )}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 // ── Main Shell Export ────────────────────────────────────────────────────────
 
@@ -235,7 +349,7 @@ function ShellContent({ category }: { category: ListingCategory }) {
   const [fabSheetOpen, setFabSheetOpen] = useState(false)
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
   const [searchQuery, setSearchQuery] = useState((filters['q'] as string) || '')
-  const [brandPage, setBrandPage] = useState(0)
+  const [sliderPage, setSliderPage] = useState(0)
   const debouncedSearch = useDebounce(searchQuery, 300)
   
   const { recentSearches, addSearch, removeSearch, clearSearches } = useRecentSearches()
@@ -452,170 +566,18 @@ function ShellContent({ category }: { category: ListingCategory }) {
         </div>
       </div>
 
-      {/* ── 0. Popular Brands (Responsive Swipeable Slider) ────────────────── */}
-      {category === 'cars' && (() => {
-        // Responsive: 3 cols on mobile (6/page), 4 cols on md (8/page), 5 cols on lg (10/page)
-        // We compute per page count from CSS breakpoints but for pagination use 6 (mobile-first)
-        const ITEMS_PER_PAGE_LG = 10 // 5x2
-        // Use the largest (10) for page slicing — smaller screens just hide extras via CSS
-        const totalPages = Math.ceil(POPULAR_MAKES.length / ITEMS_PER_PAGE_LG)
-        
-        return (
-        <div className="bg-surface-container-lowest border-b border-outline-variant/20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 relative group">
-            
-            {/* Section Header */}
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-1 h-6 bg-primary rounded-full" />
-                <h2 className="text-sm font-bold text-on-surface tracking-wide">تصفح حسب الماركة</h2>
-              </div>
-              <span className="text-xs text-on-surface-variant font-medium">
-                {brandPage + 1} / {totalPages}
-              </span>
-            </div>
-
-            {/* Navigation Arrow — Left (Next in RTL) — hidden on mobile */}
-            <div className="absolute inset-y-0 -left-1 hidden sm:flex items-center z-20">
-              <button 
-                onClick={() => setBrandPage(p => Math.min(totalPages - 1, p + 1))}
-                disabled={brandPage >= totalPages - 1}
-                className={clsx(
-                  "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
-                  "bg-surface-container-high border border-outline-variant/30 shadow-md text-on-surface-variant",
-                  brandPage >= totalPages - 1 
-                    ? "opacity-0 scale-90 pointer-events-none" 
-                    : "hover:bg-primary hover:text-on-primary hover:border-primary hover:shadow-lg opacity-0 group-hover:opacity-100"
-                )}
-              >
-                <span className="material-symbols-outlined text-xl">chevron_left</span>
-              </button>
-            </div>
-            
-            {/* Navigation Arrow — Right (Prev in RTL) — hidden on mobile */}
-            <div className="absolute inset-y-0 -right-1 hidden sm:flex items-center z-20">
-              <button 
-                onClick={() => setBrandPage(p => Math.max(0, p - 1))}
-                disabled={brandPage === 0}
-                className={clsx(
-                  "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
-                  "bg-surface-container-high border border-outline-variant/30 shadow-md text-on-surface-variant",
-                  brandPage === 0 
-                    ? "opacity-0 scale-90 pointer-events-none" 
-                    : "hover:bg-primary hover:text-on-primary hover:border-primary hover:shadow-lg opacity-0 group-hover:opacity-100"
-                )}
-              >
-                <span className="material-symbols-outlined text-xl">chevron_right</span>
-              </button>
-            </div>
-
-            {/* Slider Content — touch swipeable */}
-            <div 
-              className="overflow-hidden rounded-2xl touch-pan-y"
-              onTouchStart={(e) => {
-                const touch = e.touches[0]
-                ;(e.currentTarget as any)._touchStartX = touch.clientX
-                ;(e.currentTarget as any)._touchStartY = touch.clientY
-              }}
-              onTouchEnd={(e) => {
-                const startX = (e.currentTarget as any)._touchStartX
-                const startY = (e.currentTarget as any)._touchStartY
-                if (startX == null) return
-                const endX = e.changedTouches[0].clientX
-                const endY = e.changedTouches[0].clientY
-                const diffX = startX - endX
-                const diffY = Math.abs(startY - endY)
-                // Only swipe if horizontal movement > 50px and more horizontal than vertical
-                if (Math.abs(diffX) > 50 && Math.abs(diffX) > diffY) {
-                  if (diffX > 0) {
-                    // Swiped left → in RTL = next page
-                    setBrandPage(p => Math.min(totalPages - 1, p + 1))
-                  } else {
-                    // Swiped right → in RTL = prev page
-                    setBrandPage(p => Math.max(0, p - 1))
-                  }
-                }
-              }}
-            >
-              <div 
-                className="flex transition-transform duration-500 ease-in-out"
-                style={{ transform: `translateX(${brandPage * 100}%)` }}
-              >
-                {Array.from({ length: totalPages }).map((_, pageIdx) => (
-                  <div key={pageIdx} className="w-full flex-shrink-0 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 grid-rows-2 gap-2 sm:gap-4 px-1 sm:px-6">
-                    {POPULAR_MAKES.slice(pageIdx * ITEMS_PER_PAGE_LG, (pageIdx + 1) * ITEMS_PER_PAGE_LG).map((make, makeIdx) => {
-                      const isActive = filters['make'] === make.value;
-                      return (
-                        <button
-                          key={make.value}
-                          onClick={() => handleFilterChange('make', isActive ? null : make.value)}
-                          className={clsx(
-                            "flex flex-col items-center gap-1.5 sm:gap-2.5 py-3 sm:py-4 px-1 sm:px-2 rounded-xl transition-all duration-300",
-                            // Hide 9th & 10th items on md (4-col shows 8), hide 7th-10th on mobile (3-col shows 6)
-                            makeIdx >= 6 && "hidden sm:flex",
-                            makeIdx >= 8 && "sm:hidden lg:flex",
-                            isActive 
-                              ? "bg-primary-fixed/60 ring-1 ring-primary/30 shadow-sm" 
-                              : "hover:bg-surface-container hover:shadow-sm"
-                          )}
-                        >
-                          <div className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img 
-                              src={make.logo} 
-                              alt={make.name} 
-                              className={clsx(
-                                "w-9 h-9 sm:w-12 sm:h-12 object-contain transition-all duration-300",
-                                isActive ? "scale-110" : "opacity-75 group-hover/brand:opacity-100"
-                              )} 
-                              loading="lazy"
-                              onError={(e) => {
-                                const target = e.currentTarget
-                                target.style.display = 'none'
-                                const fallback = target.nextElementSibling as HTMLElement
-                                if (fallback) fallback.style.display = 'flex'
-                              }}
-                            />
-                            <span 
-                              style={{ display: 'none' }}
-                              className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl bg-primary-fixed items-center justify-center text-primary font-bold text-base sm:text-lg"
-                            >
-                              {make.name.charAt(0)}
-                            </span>
-                          </div>
-                          <span className={clsx(
-                            "text-[10px] sm:text-[11px] text-center font-bold tracking-tight truncate w-full leading-tight",
-                            isActive ? "text-primary" : "text-on-surface-variant"
-                          )}>
-                            {make.name}
-                          </span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Pagination Dots */}
-            <div className="flex justify-center gap-1.5 mt-4 sm:mt-5">
-              {Array.from({ length: totalPages }).map((_, i) => (
-                <button 
-                  key={i}
-                  onClick={() => setBrandPage(i)}
-                  className={clsx(
-                    "h-1.5 rounded-full transition-all duration-300 cursor-pointer",
-                    brandPage === i 
-                      ? "w-8 bg-primary" 
-                      : "w-2 bg-outline-variant/40 hover:bg-outline-variant"
-                  )} 
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-        )
-      })()}
+      {/* ── 0. Category Slider (All Categories) ────────────────────────── */}
+      {CATEGORY_SLIDER_MAP[category] && (
+        <CategorySlider
+          items={CATEGORY_SLIDER_MAP[category]!.items}
+          title={CATEGORY_SLIDER_MAP[category]!.title}
+          defaultFilterKey={CATEGORY_SLIDER_MAP[category]!.defaultFilterKey}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          page={sliderPage}
+          setPage={setSliderPage}
+        />
+      )}
 
 
       {/* ── 3. Main Body ──────────────────────────────────────────────────── */}
@@ -632,7 +594,16 @@ function ShellContent({ category }: { category: ListingCategory }) {
 
         {/* Content Area */}
         <main className="flex-1 min-w-0 pb-16">
-          
+
+          {/* ── 0) Quick Filters Chips Bar ── */}
+          <div className="mb-3">
+            <QuickFiltersBar
+              category={category}
+              filters={filters}
+              onToggle={handleFilterChange}
+            />
+          </div>
+
           {/* ── A) Sort Bar ── */}
           <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 mb-3">
             <span className="text-[13px] text-on-surface-variant">
@@ -778,29 +749,7 @@ function ShellContent({ category }: { category: ListingCategory }) {
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
                   {items.map(item => (
-                    <VehicleCard
-                      key={item.id}
-                      id={item.id}
-                      title={item.title}
-                      make={item.attributes?.make || ''}
-                      model={item.attributes?.model || ''}
-                      year={item.attributes?.year || 0}
-                      price={item.price || 0}
-                      currency={item.currency}
-                      mileage={item.attributes?.mileage}
-                      fuelType={item.attributes?.fuelType}
-                      transmission={item.attributes?.transmission}
-                      condition={item.attributes?.condition}
-                      governorate={item.governorate}
-                      imageUrl={item.images[0]}
-                      createdAt={item.createdAt}
-                      isVerified={item.sellerVerified}
-                      isPriceNegotiable={item.isPriceNegotiable}
-                      listingType={item.attributes?.listingType}
-                      dailyPrice={item.attributes?.dailyPrice}
-                      monthlyPrice={item.attributes?.monthlyPrice}
-                      href={item.href}
-                    />
+                    <VehicleCard key={item.id} {...mapUnifiedToVehicleCard(item)} />
                   ))}
                 </div>
               )}

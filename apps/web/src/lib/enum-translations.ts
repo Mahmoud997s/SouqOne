@@ -172,42 +172,6 @@ export function useEnumTranslations() {
       MAINTENANCE: t('enumOperatorMaintenance'),
     },
 
-    // ─── Transport Type ───────────────────────────────────────
-    transportType: {
-      CARGO:           t('enumCargo'),
-      FURNITURE:       t('enumFurniture'),
-      DELIVERY:        t('enumDelivery'),
-      HEAVY_TRANSPORT: t('enumHeavyTransport'),
-      TRUCK_RENTAL:    t('enumTruckRental'),
-      OTHER_TRANSPORT: t('enumOtherTransport'),
-    },
-
-    // ─── Pricing Type ─────────────────────────────────────────
-    pricingType: {
-      FIXED:            t('pricingFixed'),
-      PER_KM:           t('pricingPerKm'),
-      PER_TRIP:         t('pricingPerTrip'),
-      HOURLY:           t('pricingHourly'),
-      NEGOTIABLE_PRICE: t('pricingNegotiable'),
-    },
-
-    // ─── Trip Type ────────────────────────────────────────────
-    tripType: {
-      BUS_SUBSCRIPTION:  t('enumBusSubscription'),
-      SCHOOL_TRANSPORT:  t('enumSchoolTransport'),
-      TOURISM:           t('enumTripTourism'),
-      CORPORATE:         t('enumCorporate'),
-      CARPOOLING:        t('enumCarpooling'),
-    },
-
-    // ─── Schedule Type ────────────────────────────────────────
-    scheduleType: {
-      SCHEDULE_DAILY:   t('enumSchedDaily'),
-      SCHEDULE_WEEKLY:  t('enumSchedWeekly'),
-      SCHEDULE_MONTHLY: t('enumSchedMonthly'),
-      ONE_TIME:         t('enumOneTime'),
-    },
-
     // ─── Job Type ─────────────────────────────────────────────
     jobType: {
       OFFERING: t('enumOffering'),
