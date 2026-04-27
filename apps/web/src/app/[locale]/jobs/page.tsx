@@ -10,7 +10,7 @@ import { ListingSkeleton } from '@/components/loading-skeleton';
 import { useJobs, useRecommendedJobs } from '@/lib/api';
 import { useRequireJobProfile } from '@/hooks/use-require-job-profile';
 import { useAuth } from '@/providers/auth-provider';
-import { getGovernorates } from '@/lib/location-data';
+import { getGovernorates, resolveLocationLabel } from '@/lib/location-data';
 import { employmentOptionsT } from '@/lib/constants/jobs';
 import { useTranslations, useLocale } from 'next-intl';
 
@@ -430,6 +430,7 @@ function JobsContent() {
 }
 
 function RecommendedJobsSection() {
+  const locale = useLocale();
   const { user } = useAuth();
   const { data: jobs, isLoading } = useRecommendedJobs();
 
@@ -449,7 +450,7 @@ function RecommendedJobsSection() {
             <p className="text-xs text-on-surface-variant line-clamp-2 mb-2">{job.description}</p>
             <div className="flex items-center gap-2 text-xs text-on-surface-variant">
               <span className="material-symbols-outlined text-xs">location_on</span>
-              {job.governorate}
+              {resolveLocationLabel(job.governorate, locale) || job.governorate}
               {job.salary && (
                 <>
                   <span>·</span>

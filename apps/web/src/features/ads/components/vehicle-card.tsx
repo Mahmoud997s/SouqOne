@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/image-utils';
-import { conditionBadge } from '@/lib/constants/mappings';
 import { useFavContext } from '@/providers/favorites-provider';
 import { useAuth } from '@/providers/auth-provider';
 import { useTranslations, useLocale } from 'next-intl';
 import { relativeTimeT } from '@/lib/time-utils';
+import { resolveLocationLabel } from '@/lib/location-data';
+import { useEnumTranslations } from '@/lib/enum-translations';
+import { translateEnum } from '@/lib/translate-enum';
 
 const CONDITION_DOT: Record<string, string> = {
   NEW: 'bg-emerald-500', LIKE_NEW: 'bg-teal-500', USED: 'bg-slate-400',
@@ -49,12 +51,13 @@ function formatPrice(price: string | number, currencyLabel: string, suffix?: str
 
 export function VehicleCard(props: VehicleCardProps) {
   const t = useTranslations('listings');
-  const tm = useTranslations('mappings');
+  const enums = useEnumTranslations();
   const tt = useTranslations('time');
   const locale = useLocale();
   const imgSrc = getImageUrl(props.imageUrl);
-  const badges = conditionBadge(tm);
-  const badge = props.condition ? badges[props.condition] : null;
+  // Use central hook for condition badge label
+  const conditionLabel = props.condition ? translateEnum(enums.condition, props.condition) : null;
+  const badgeCls = props.condition ? CONDITION_DOT[props.condition] : null;
   const { isAuthenticated } = useAuth();
   const { isFav: checkFav, toggleFav } = useFavContext();
   const serverFav = checkFav(`LISTING:${props.id}`);
@@ -132,10 +135,10 @@ export function VehicleCard(props: VehicleCardProps) {
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0" />
               {t('wanted')}
             </span>
-          ) : badge && (
+          ) : conditionLabel && badgeCls && (
             <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 inline-flex items-center gap-0.5 sm:gap-1 px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
-              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${CONDITION_DOT[props.condition!] || 'bg-slate-400'}`} />
-              {badge.label}
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${badgeCls}`} />
+              {conditionLabel}
             </span>
           )}
 
@@ -177,7 +180,7 @@ export function VehicleCard(props: VehicleCardProps) {
             {props.governorate && (
               <span className="flex items-center gap-px shrink-0">
                 <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
-                {props.governorate}
+                {resolveLocationLabel(props.governorate, locale)}
               </span>
             )}
           </div>

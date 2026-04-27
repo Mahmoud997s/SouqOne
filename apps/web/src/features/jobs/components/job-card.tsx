@@ -2,9 +2,10 @@
 
 import { Link } from '@/i18n/navigation';
 import type { JobItem } from '@/lib/api';
-import { employmentLabelsT } from '@/lib/constants/jobs';
 import { relativeTimeT } from '@/lib/time-utils';
 import { useTranslations, useLocale } from 'next-intl';
+import { useEnumTranslations } from '@/lib/enum-translations';
+import { translateEnum } from '@/lib/translate-enum';
 
 const TYPE_STYLES = {
   OFFERING: {
@@ -40,20 +41,14 @@ export function JobCard({ job }: { job: JobItem }) {
   const tl = useTranslations('listings');
   const tt = useTranslations('time');
   const locale = useLocale();
+  const enums = useEnumTranslations();
   const s = TYPE_STYLES[job.jobType] ?? TYPE_STYLES.OFFERING;
-  const empLabels = employmentLabelsT(t);
-  const salaryPeriodLabels: Record<string, string> = {
-    DAILY: t('perDay'), MONTHLY: t('perMonth'), YEARLY: t('perYear'), NEGOTIABLE: t('salaryNegotiable'),
-  };
-  const licenseLabels: Record<string, string> = {
-    LIGHT: t('licenseLight'), HEAVY: t('licenseHeavy'), TRANSPORT: t('licenseTransport'), BUS: t('licenseBus'), MOTORCYCLE: t('licenseMotorcycle'),
-  };
   const posterName = job.user?.displayName || job.user?.username || t('user');
   const city = job.city || job.governorate || '';
 
   const tags: { icon: string; text: string }[] = [];
 
-  tags.push({ icon: 'work', text: empLabels[job.employmentType] ?? job.employmentType });
+  tags.push({ icon: 'work', text: translateEnum(enums.employmentType, job.employmentType) });
 
   if (job.experienceYears != null) {
     tags.push({ icon: 'schedule', text: t('yearsExperience', { count: job.experienceYears }) });
@@ -64,7 +59,7 @@ export function JobCard({ job }: { job: JobItem }) {
   }
 
   if (job.licenseTypes.length > 0) {
-    const first = licenseLabels[job.licenseTypes[0]] ?? job.licenseTypes[0];
+    const first = translateEnum(enums.licenseType, job.licenseTypes[0]);
     tags.push({ icon: 'badge', text: job.licenseTypes.length > 1 ? `${first} +${job.licenseTypes.length - 1}` : first });
   }
 
@@ -111,7 +106,7 @@ export function JobCard({ job }: { job: JobItem }) {
                 {Number(job.salary).toLocaleString('en-US')}
               </span>
               <span className="text-[10px] sm:text-xs text-on-surface-variant">
-                {tl('currency')}{job.salaryPeriod ? ` / ${salaryPeriodLabels[job.salaryPeriod]}` : ''}
+                {tl('currency')}{job.salaryPeriod ? ` / ${translateEnum(enums.salaryPeriod, job.salaryPeriod)}` : ''}
               </span>
             </>
           ) : (

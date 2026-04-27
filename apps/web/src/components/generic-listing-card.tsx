@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { getImageUrl } from '@/lib/image-utils';
 import { relativeTimeT } from '@/lib/time-utils';
 import { useTranslations, useLocale } from 'next-intl';
+import { resolveLocationLabel } from '@/lib/location-data';
 
 const SECTION_ROUTES: Record<string, string> = {
   LISTING: '/sale/car',
@@ -131,7 +132,7 @@ export function GenericListingCard(props: GenericListingCardProps) {
             {props.governorate && (
               <span className="flex items-center gap-px shrink-0">
                 <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
-                {props.governorate}
+                {resolveLocationLabel(props.governorate, locale)}
               </span>
             )}
           </div>

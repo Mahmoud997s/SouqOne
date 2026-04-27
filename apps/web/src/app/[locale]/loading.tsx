@@ -7,23 +7,73 @@ export default function Loading() {
   const tp = useTranslations('pages');
   const locale = useLocale();
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-5">
+    <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden">
+      {/* Ambient gradient blobs */}
+      <div className="absolute top-[-30%] right-[-20%] w-[500px] h-[500px] rounded-full bg-primary/[0.04] blur-[100px] animate-pulse" />
+      <div className="absolute bottom-[-20%] left-[-15%] w-[400px] h-[400px] rounded-full bg-primary/[0.03] blur-[80px] animate-pulse" style={{ animationDelay: '1s' }} />
+
+      <div className="flex flex-col items-center gap-7 relative z-10">
+        {/* Logo */}
         {locale === 'ar' && (
-          // <Image src="/souq-one-ar.svg" alt="سوق وان" width={140} height={28} className="h-[28px] w-auto" />
-          <LogoArIcon className='w-35 h-7'/>
+          <div className="animate-fade-in">
+            <LogoArIcon className="w-36 h-7" />
+          </div>
         )}
-        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center animate-pulse">
-          <span className="material-symbols-outlined text-primary text-2xl">directions_car</span>
+
+        {/* Animated icon */}
+        <div className="relative">
+          {/* Outer ring pulse */}
+          <div className="absolute inset-0 rounded-3xl bg-primary/10 animate-ping" style={{ animationDuration: '2s' }} />
+          {/* Middle ring */}
+          <div className="absolute -inset-2 rounded-[22px] border border-primary/10 animate-pulse" style={{ animationDuration: '2.5s' }} />
+          {/* Icon container */}
+          <div className="relative w-16 h-16 rounded-3xl bg-gradient-to-br from-primary/15 to-primary/5 backdrop-blur-sm border border-primary/10 flex items-center justify-center shadow-lg shadow-primary/5">
+            <span className="material-symbols-outlined text-primary text-[28px] animate-bounce" style={{ animationDuration: '2s', animationTimingFunction: 'ease-in-out' }}>
+              directions_car
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-on-surface-variant/50 text-sm">
-          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          <span>{tp('loadingText')}</span>
+
+        {/* Loading indicator */}
+        <div className="flex flex-col items-center gap-3">
+          {/* Custom spinner */}
+          <div className="relative w-8 h-8">
+            <div
+              className="absolute inset-0 rounded-full border-2 border-primary/10"
+            />
+            <div
+              className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin"
+              style={{ animationDuration: '0.8s' }}
+            />
+          </div>
+          {/* Text */}
+          <span className="text-sm font-medium text-on-surface-variant/60 tracking-wide">
+            {tp('loadingText')}
+          </span>
+        </div>
+
+        {/* Subtle progress dots */}
+        <div className="flex items-center gap-1.5">
+          {[0, 1, 2].map(i => (
+            <div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-primary/30 animate-pulse"
+              style={{ animationDelay: `${i * 0.3}s`, animationDuration: '1.2s' }}
+            />
+          ))}
         </div>
       </div>
+
+      {/* Inline keyframes for fade-in */}
+      <style jsx>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.6s ease-out both;
+        }
+      `}</style>
     </div>
   );
 }

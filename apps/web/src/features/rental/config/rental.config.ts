@@ -1,5 +1,6 @@
 import type { RentalEntityType, UnifiedRentalListing } from '../types/unified-rental.types';
 import type { RentalSectionConfig } from '../types/config.types';
+import type { EnumTranslations } from '@/lib/enum-translations';
 
 /** Extract nested values via dot notation (e.g., 'carData.year') */
 export function getNestedValue(obj: UnifiedRentalListing, key: string): unknown {
@@ -14,7 +15,10 @@ export function getNestedValue(obj: UnifiedRentalListing, key: string): unknown 
 /** Translation-aware function type */
 type T = (key: string, params?: Record<string, string | number>) => string;
 
-export function getRentalConfig(t: T): Record<RentalEntityType, RentalSectionConfig> {
+export function getRentalConfig(
+  t: T,
+  enumT?: EnumTranslations
+): Record<RentalEntityType, RentalSectionConfig> {
   return {
     car: {
       type: 'car',
@@ -23,29 +27,29 @@ export function getRentalConfig(t: T): Record<RentalEntityType, RentalSectionCon
       specsFields: [
         { key: 'carData.year', label: t('specYear'), icon: 'Calendar', format: 'year' },
         { key: 'carData.mileage', label: t('specMileage'), icon: 'Gauge', format: 'km', unit: t('unitKm'), hideIfEmpty: true },
-        { key: 'carData.fuelType', label: t('specEngine'), icon: 'Cog', format: 'text', hideIfEmpty: true },
+        { key: 'carData.fuelType', label: t('specEngine'), icon: 'Cog', format: 'enum', enumKey: 'fuelType', hideIfEmpty: true },
         { key: 'carData.seats', label: t('specSeats'), icon: 'Users', format: 'number', hideIfEmpty: true },
         { key: 'carData.horsepower', label: t('specPower'), icon: 'Zap', format: 'number', unit: t('unitHp'), hideIfEmpty: true },
         { key: 'carData.doors', label: t('specDoors'), icon: 'DoorOpen', format: 'number', hideIfEmpty: true },
       ],
       tableFields: [
-        { key: 'carData.fuelType', label: t('specFuelType'), icon: 'Fuel', hideIfEmpty: true },
-        { key: 'carData.transmission', label: t('specTransmission'), icon: 'Settings', hideIfEmpty: true },
-        { key: 'carData.bodyType', label: t('specBodyType'), icon: 'Car', hideIfEmpty: true },
+        { key: 'carData.fuelType', label: t('specFuelType'), icon: 'Fuel', format: 'enum', enumKey: 'fuelType', hideIfEmpty: true },
+        { key: 'carData.transmission', label: t('specTransmission'), icon: 'Settings', format: 'enum', enumKey: 'transmission', hideIfEmpty: true },
+        { key: 'carData.bodyType', label: t('specBodyType'), icon: 'Car', format: 'enum', enumKey: 'bodyType', hideIfEmpty: true },
         { key: 'carData.engineSize', label: t('specEngineSize'), icon: 'Cog', hideIfEmpty: true },
-        { key: 'carData.driveType', label: t('specDriveType'), icon: 'CircleDot', hideIfEmpty: true },
+        { key: 'carData.driveType', label: t('specDriveType'), icon: 'CircleDot', format: 'enum', enumKey: 'driveType', hideIfEmpty: true },
         { key: 'carData.exteriorColor', label: t('specExteriorColor'), icon: 'Palette', hideIfEmpty: true },
         { key: 'governorate', label: t('specGovernorate'), icon: 'MapPin' },
       ],
       highlightFields: [
         {
           icon: 'Car',
-          getTitle: (d) => t('conditionCar', { condition: d.condition }),
+          getTitle: (d) => t('conditionCar', { condition: enumT?.condition?.[d.condition as keyof typeof enumT.condition] ?? d.condition }),
           getSub: () => t('highlightCarReady'),
         },
         {
           icon: 'Shield',
-          getTitle: (d) => d.cancellationPolicy ? d.cancellationPolicy : t('highlightCancelDefault'),
+          getTitle: (d) => d.cancellationPolicy ? (enumT?.cancellationPolicy?.[d.cancellationPolicy as keyof typeof enumT.cancellationPolicy] ?? d.cancellationPolicy) : t('highlightCancelDefault'),
           getSub: () => t('highlightCancelPolicy'),
         },
         {
@@ -81,25 +85,25 @@ export function getRentalConfig(t: T): Record<RentalEntityType, RentalSectionCon
       icon: 'Bus',
       specsFields: [
         { key: 'busData.capacity', label: t('specCapacity'), icon: 'Users', format: 'number', unit: t('unitPassenger') },
-        { key: 'busData.busType', label: t('specBusType'), icon: 'Bus', format: 'text' },
+        { key: 'busData.busType', label: t('specBusType'), icon: 'Bus', format: 'enum', enumKey: 'busType' },
         { key: 'busData.brand', label: t('specBrand'), icon: 'Tag', format: 'text', hideIfEmpty: true },
         { key: 'busData.year', label: t('specYear'), icon: 'Calendar', format: 'year', hideIfEmpty: true },
         { key: 'busData.mileage', label: t('specMileage'), icon: 'Gauge', format: 'km', unit: t('unitKm'), hideIfEmpty: true },
-        { key: 'busData.fuelType', label: t('specFuel'), icon: 'Fuel', format: 'text', hideIfEmpty: true },
+        { key: 'busData.fuelType', label: t('specFuel'), icon: 'Fuel', format: 'enum', enumKey: 'fuelType', hideIfEmpty: true },
       ],
       tableFields: [
         { key: 'busData.brand', label: t('specBrand'), icon: 'Tag', hideIfEmpty: true },
         { key: 'busData.model', label: t('specModel'), icon: 'Box', hideIfEmpty: true },
         { key: 'busData.year', label: t('specYear'), icon: 'Calendar', hideIfEmpty: true },
-        { key: 'busData.fuelType', label: t('specFuelType'), icon: 'Fuel', hideIfEmpty: true },
-        { key: 'busData.transmission', label: t('specTransmission'), icon: 'Settings', hideIfEmpty: true },
-        { key: 'condition', label: t('specCondition'), icon: 'Star' },
+        { key: 'busData.fuelType', label: t('specFuelType'), icon: 'Fuel', format: 'enum', enumKey: 'fuelType', hideIfEmpty: true },
+        { key: 'busData.transmission', label: t('specTransmission'), icon: 'Settings', format: 'enum', enumKey: 'transmission', hideIfEmpty: true },
+        { key: 'condition', label: t('specCondition'), icon: 'Star', format: 'enum', enumKey: 'condition' },
         { key: 'governorate', label: t('specGovernorate'), icon: 'MapPin' },
       ],
       highlightFields: [
         {
           icon: 'Bus',
-          getTitle: (d) => t('conditionBus', { condition: d.condition }),
+          getTitle: (d) => t('conditionBus', { condition: enumT?.condition?.[d.condition as keyof typeof enumT.condition] ?? d.condition }),
           getSub: () => t('highlightBusInspected'),
         },
         {
@@ -109,7 +113,7 @@ export function getRentalConfig(t: T): Record<RentalEntityType, RentalSectionCon
         },
         {
           icon: 'Shield',
-          getTitle: (d) => d.cancellationPolicy ? d.cancellationPolicy : t('highlightCancelContact'),
+          getTitle: (d) => d.cancellationPolicy ? (enumT?.cancellationPolicy?.[d.cancellationPolicy as keyof typeof enumT.cancellationPolicy] ?? d.cancellationPolicy) : t('highlightCancelContact'),
           getSub: () => t('highlightCancelPolicy'),
         },
         {
@@ -139,27 +143,27 @@ export function getRentalConfig(t: T): Record<RentalEntityType, RentalSectionCon
       displayName: t('configEquipment'),
       icon: 'Wrench',
       specsFields: [
-        { key: 'equipmentData.category', label: t('specCategory'), icon: 'Grid', format: 'text' },
+        { key: 'equipmentData.category', label: t('specCategory'), icon: 'Grid', format: 'enum', enumKey: 'equipmentType' },
         { key: 'equipmentData.brand', label: t('specBrand'), icon: 'Tag', format: 'text', hideIfEmpty: true },
         { key: 'equipmentData.model', label: t('specModel'), icon: 'Box', format: 'text', hideIfEmpty: true },
-        { key: 'condition', label: t('specCondition'), icon: 'Star', format: 'text' },
+        { key: 'condition', label: t('specCondition'), icon: 'Star', format: 'enum', enumKey: 'condition' },
       ],
       tableFields: [
-        { key: 'equipmentData.category', label: t('specCategory'), icon: 'Grid' },
+        { key: 'equipmentData.category', label: t('specCategory'), icon: 'Grid', format: 'enum', enumKey: 'equipmentType' },
         { key: 'equipmentData.brand', label: t('specBrand'), icon: 'Tag', hideIfEmpty: true },
         { key: 'equipmentData.model', label: t('specModel'), icon: 'Box', hideIfEmpty: true },
-        { key: 'condition', label: t('specCondition'), icon: 'Star' },
+        { key: 'condition', label: t('specCondition'), icon: 'Star', format: 'enum', enumKey: 'condition' },
         { key: 'governorate', label: t('specGovernorate'), icon: 'MapPin' },
       ],
       highlightFields: [
         {
           icon: 'Wrench',
-          getTitle: (d) => t('conditionEquipment', { condition: d.condition }),
+          getTitle: (d) => t('conditionEquipment', { condition: enumT?.condition?.[d.condition as keyof typeof enumT.condition] ?? d.condition }),
           getSub: () => t('highlightEquipmentVerified'),
         },
         {
           icon: 'Shield',
-          getTitle: (d) => d.cancellationPolicy ? d.cancellationPolicy : t('highlightCancelContactShort'),
+          getTitle: (d) => d.cancellationPolicy ? (enumT?.cancellationPolicy?.[d.cancellationPolicy as keyof typeof enumT.cancellationPolicy] ?? d.cancellationPolicy) : t('highlightCancelContactShort'),
           getSub: () => t('highlightCancelPolicy'),
         },
         {

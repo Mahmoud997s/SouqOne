@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { useListings } from '@/lib/api/listings'
 import type { ListingItem } from '@/lib/api/listings'
 import { useBusListings } from '@/lib/api/buses'
@@ -13,6 +13,7 @@ import type { SparePartItem } from '@/lib/api/parts'
 import { useCarServices } from '@/lib/api/services'
 import type { CarServiceItem } from '@/lib/api/services'
 import { getImageUrl } from '@/lib/image-utils'
+import { resolveLocationLabel } from '@/lib/location-data'
 
 import type { ListingCategory } from '../types/category.types'
 import type { UnifiedListingItem, Badge, DetailItem } from '../types/unified-item.types'
@@ -48,6 +49,7 @@ export function useUnifiedListings(
   page = 1,
 ): UseUnifiedListingsReturn {
   const t = useTranslations('listings')
+  const locale = useLocale()
   const p = toParams(filters, category, page)
 
   const carsQuery      = useListings(p,    category === 'cars')
@@ -90,8 +92,8 @@ export function useUnifiedListings(
 
   const items = useMemo<UnifiedListingItem[]>(() => {
     const list = (raw as any)?.items ?? []
-    return list.map((item: unknown) => transformToUnified(category, item, t))
-  }, [raw, category, t])
+    return list.map((item: unknown) => transformToUnified(category, item, t, locale))
+  }, [raw, category, t, locale])
 
   return {
     items,
@@ -106,13 +108,13 @@ export function useUnifiedListings(
 
 // ─── Transformer dispatcher ───────────────────────────────────────────────────
 
-function transformToUnified(category: ListingCategory, item: unknown, t: T): UnifiedListingItem {
+function transformToUnified(category: ListingCategory, item: unknown, t: T, locale: string): UnifiedListingItem {
   switch (category) {
     case 'cars':      return transformCar(item as ListingItem, t)
     case 'buses':     return transformBus(item as BusListingItem, t)
     case 'equipment': return transformEquipment(item as EquipmentListingItem, t)
-    case 'parts':     return transformPart(item as SparePartItem, t)
-    case 'services':  return transformService(item as CarServiceItem, t)
+    case 'parts':     return transformPart(item as SparePartItem, t, locale)
+    case 'services':  return transformService(item as CarServiceItem, t, locale)
   }
 }
 
@@ -471,14 +473,14 @@ function transformEquipment(raw: EquipmentListingItem, t: T): UnifiedListingItem
   }
 }
 
-function transformPart(raw: SparePartItem, t: T): UnifiedListingItem {
+function transformPart(raw: SparePartItem, t: T, locale: string): UnifiedListingItem {
   const details: DetailItem[] = [
     raw.partCategory            ? { icon: 'Settings',  value: translatePartCategory(raw.partCategory, t) }          : null,
     raw.compatibleMakes?.length ? { icon: 'Car',       value: raw.compatibleMakes.slice(0, 2).join('، ') }          : null,
     raw.condition               ? { icon: 'Tag',       value: getConditionBadge(raw.condition, t).label }            : null,
     raw.yearFrom && raw.yearTo
       ? { icon: 'Calendar', value: `${raw.yearFrom}–${raw.yearTo}` }                                       : null,
-    raw.governorate             ? { icon: 'MapPin',    value: raw.governorate }                             : null,
+    raw.governorate             ? { icon: 'MapPin',    value: resolveLocationLabel(raw.governorate, locale) ?? raw.governorate } : null,
   ].filter(Boolean) as DetailItem[]
 
   return {
@@ -523,12 +525,12 @@ function transformPart(raw: SparePartItem, t: T): UnifiedListingItem {
   }
 }
 
-function transformService(raw: CarServiceItem, t: T): UnifiedListingItem {
+function transformService(raw: CarServiceItem, t: T, locale: string): UnifiedListingItem {
   const details: DetailItem[] = [
     raw.serviceType   ? { icon: 'Wrench',    value: translateServiceType(raw.serviceType, t) } : null,
     raw.providerType  ? { icon: 'Building2', value: translateProvider(raw.providerType, t) }   : null,
     raw.isHomeService ? { icon: 'MapPin',    value: t('homeService') }   : null,
-    raw.governorate   ? { icon: 'MapPin',    value: raw.governorate }    : null,
+    raw.governorate   ? { icon: 'MapPin',    value: resolveLocationLabel(raw.governorate, locale) ?? raw.governorate } : null,
     raw.priceFrom && raw.priceTo
       ? { icon: 'Tag', value: `${Number(raw.priceFrom).toLocaleString('en-US')}–${Number(raw.priceTo).toLocaleString('en-US')}` } : null,
   ].filter(Boolean) as DetailItem[]

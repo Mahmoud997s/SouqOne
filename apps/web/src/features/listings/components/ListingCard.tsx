@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { useRouter } from '@/i18n/navigation'
 import { MapPin, Heart, MessageCircle, Phone, BadgeCheck, Tag as TagIcon, Star } from 'lucide-react'
@@ -10,7 +10,8 @@ import {
   Calendar, Gauge, Settings2, Users, Building2,
   CalendarDays, Route, Tag, Fuel,
 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { resolveLocationLabel } from '@/lib/location-data'
 import { useFavContext } from '@/providers/favorites-provider'
 import { useAuth } from '@/providers/auth-provider'
 import type { UnifiedListingItem, BadgeColor } from '../types/unified-item.types'
@@ -62,6 +63,7 @@ interface ListingCardProps {
 
 export function ListingCard({ item }: ListingCardProps) {
   const t = useTranslations('listings')
+  const locale = useLocale()
   const router = useRouter()
   const { isAuthenticated } = useAuth()
   const { isFav: checkFav, toggleFav } = useFavContext()
@@ -85,20 +87,59 @@ export function ListingCard({ item }: ListingCardProps) {
   const CategoryIcon = CATEGORY_ICON[item.category]
   const thumbnails = item.images.length >= 3 ? item.images.slice(1, 4) : []
 
+  // ── Mobile scale: render card at fixed desktop width, then scale to fit ──
+  const CARD_FIXED_W = 600
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const [mobileScale, setMobileScale] = useState(1)
+  const [cardHeight, setCardHeight] = useState(217) // Fallback estimated height
+
+  useEffect(() => {
+    const update = () => {
+      if (window.innerWidth < 640 && wrapperRef.current) {
+        const parentW = wrapperRef.current.parentElement?.clientWidth ?? window.innerWidth
+        setMobileScale(parentW / CARD_FIXED_W)
+        // Measure actual card height (the inner article)
+        const articleElement = wrapperRef.current.querySelector('article')
+        if (articleElement) {
+          setCardHeight(articleElement.offsetHeight)
+        }
+      } else {
+        setMobileScale(1)
+      }
+    }
+    update()
+    // Small timeout to ensure fonts/images are calculated
+    const timer = setTimeout(update, 100)
+    window.addEventListener('resize', update)
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('resize', update)
+    }
+  }, [])
+
   return (
-    <article
-      onClick={() => router.push(item.href)}
-      className={clsx(
-        "flex bg-background border border-outline-variant/30 rounded-xl overflow-hidden",
-        "cursor-pointer hover:border-red-400/50 hover:shadow-[0_2px_16px_rgba(0,0,0,0.09)]",
-        "transition-all duration-200 group"
-      )}
-    >
+    <div ref={wrapperRef} className="w-full">
+      <div 
+        style={mobileScale < 1 ? {
+          transform: `scale(${mobileScale})`,
+          transformOrigin: 'top right',
+          width: `${CARD_FIXED_W}px`,
+          marginBottom: `${-(1 - mobileScale) * cardHeight}px`,
+        } : undefined}
+      >
+        <article
+          onClick={() => router.push(item.href)}
+          className={clsx(
+            "flex bg-background border border-outline-variant/30 rounded-xl overflow-hidden",
+            "cursor-pointer hover:border-red-400/50 hover:shadow-[0_2px_16px_rgba(0,0,0,0.09)]",
+            "transition-all duration-200 group"
+          )}
+        >
       {/* ── Image Section (RIGHT in RTL = first in DOM) ── */}
-      <div className="relative flex-shrink-0 w-[200px] sm:w-[240px] md:w-[280px] flex flex-col bg-surface-container">
+      <div className="relative flex-shrink-0 w-[280px] flex flex-col bg-surface-container">
 
         {/* Main image */}
-        <div className="relative flex-1 min-h-[140px] sm:min-h-[165px] overflow-hidden">
+        <div className="relative flex-1 min-h-[165px] overflow-hidden">
           {item.images[0] ? (
             <Image
               src={item.images[0]}
@@ -227,7 +268,7 @@ export function ListingCard({ item }: ListingCardProps) {
         {/* Location + time */}
         <div className="flex items-center gap-1 text-[11px] text-on-surface-variant">
           <MapPin size={11} className="text-on-surface-variant/50 flex-shrink-0" />
-          <span className="truncate">{item.governorate ?? t('unknownLocation')}</span>
+          <span className="truncate">{resolveLocationLabel(item.governorate, locale) ?? t('unknownLocation')}</span>
           <span className="mx-1 text-outline-variant/40">·</span>
           <span className="flex-shrink-0 text-[10px] text-on-surface-variant/50">
             {formatRelativeTime(item.createdAt)}
@@ -271,6 +312,9 @@ export function ListingCard({ item }: ListingCardProps) {
           )}
         </div>
       </div>
-    </article>
+        </article>
+      </div>
+    </div>
   )
 }
+

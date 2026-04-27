@@ -10,6 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Phone, MessageCircle, Trash2 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+import { resolveLocationLabel } from '@/lib/location-data';
 import type { UnifiedListing } from '../types/unified.types';
 
 interface PriceCardProps {
@@ -85,7 +86,7 @@ export const PriceCard = memo(function PriceCard({
               </p>
               <p className="text-[11px] text-on-surface-variant mt-0.5">
                 {seller.verified ? ts('verifiedSeller') : ts('seller')}
-                {seller.governorate ? ` · ${seller.governorate}` : ''}
+                {seller.governorate ? ` · ${resolveLocationLabel(seller.governorate, locale)}` : ''}
               </p>
               {seller.listingCount !== undefined && (
                 <p className="text-[10px] text-on-surface-variant/70 mt-0.5">

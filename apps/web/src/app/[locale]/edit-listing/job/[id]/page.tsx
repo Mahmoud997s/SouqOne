@@ -170,13 +170,17 @@ export default function EditJobPage() {
   return (
     <AuthGuard>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-3xl mx-auto px-4 md:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold mb-2 flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-3xl">edit</span>
-            {tp('editListingTitle')}
-          </h1>
-          <p className="text-on-surface-variant">{job.title}</p>
+      <main className="pt-[75px] pb-16 max-w-3xl mx-auto px-4 md:px-8">
+        {/* ── Premium Hero Header ── */}
+        <div className="relative overflow-hidden rounded-2xl mb-8">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#004ac6] via-[#2563eb] to-[#0B2447]" />
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20v20H0zm20 20h20v20H20z\' fill=\'%23fff\' fill-opacity=\'.4\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
+          <div className="absolute top-[-50%] left-[-10%] w-[300px] h-[300px] rounded-full bg-white/[0.04] blur-3xl" />
+
+          <div className="relative z-10 px-4 sm:px-6 md:px-8 py-8 sm:py-10 text-center">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-2 drop-shadow-sm">{tp('editListingTitle')}</h1>
+            <p className="text-white/60 text-xs sm:text-sm max-w-md mx-auto">{job.title}</p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

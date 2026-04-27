@@ -11,6 +11,7 @@ import { RentalPageShell } from '@/features/rental/components/RentalPageShell';
 import { getRentalConfig } from '@/features/rental/config/rental.config';
 import type { RentalEntityType } from '@/features/rental/types/unified-rental.types';
 import { useTranslations } from 'next-intl';
+import { useEnumTranslations } from '@/lib/enum-translations';
 
 const VALID_TYPES: RentalEntityType[] = ['car', 'bus', 'equipment'];
 
@@ -57,6 +58,7 @@ export default function RentalPage() {
   const { unavailableDates } = useUnifiedAvailability(type, params.id);
   const { book, isPending } = useUnifiedBooking(type);
   const t = useTranslations('rental');
+  const enumT = useEnumTranslations();
 
   // Guards (after hooks to respect Rules of Hooks)
   if (!isValidType) notFound();
@@ -64,7 +66,7 @@ export default function RentalPage() {
   if (isLoading) return <RentalPageSkeleton />;
   if (error || !listing) notFound();
 
-  const config = getRentalConfig(t)[type];
+  const config = getRentalConfig(t, enumT)[type];
 
   return (
     <>

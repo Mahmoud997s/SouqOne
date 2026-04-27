@@ -12,6 +12,8 @@ import { Heart } from 'lucide-react';
 import { useFavContext } from '@/providers/favorites-provider';
 import { useAuth } from '@/providers/auth-provider';
 import { useTranslations } from 'next-intl';
+import { useEnumTranslations } from '@/lib/enum-translations';
+import { translateEnum } from '@/lib/translate-enum';
 import type { SaleEntityType } from '../types/unified.types';
 
 // Type for API item (simplified union)
@@ -51,18 +53,26 @@ function formatPrice(price: string | number | undefined): string {
   return num.toLocaleString('en-US');
 }
 
-function getSubtitle(item: SaleItem, type: SaleEntityType): string {
+function getSubtitle(item: SaleItem, type: SaleEntityType, enums: ReturnType<typeof useEnumTranslations>): string {
   switch (type) {
     case 'car':
       return item.make && item.model ? `${item.make} ${item.model} ${item.year || ''}`.trim() : item.title;
     case 'bus':
-      return item.busType && item.capacity ? `${item.busType} · ${item.capacity}` : item.title;
+      return item.busType
+        ? `${translateEnum(enums.busType, item.busType)}${item.capacity ? ` · ${item.capacity}` : ''}`
+        : item.title;
     case 'equipment':
-      return item.equipmentType || item.title;
+      return item.equipmentType
+        ? translateEnum(enums.equipmentType, item.equipmentType)
+        : item.title;
     case 'part':
-      return item.partCategory || item.title;
+      return item.partCategory
+        ? translateEnum(enums.partCategory, item.partCategory)
+        : item.title;
     case 'service':
-      return item.serviceType || item.title;
+      return item.serviceType
+        ? translateEnum(enums.serviceType, item.serviceType)
+        : item.title;
     default:
       return item.title;
   }
@@ -75,13 +85,14 @@ function getImageUrl(item: SaleItem): string | undefined {
 
 export const SaleCard = memo(function SaleCard({ type, item }: SaleCardProps) {
   const ts = useTranslations('sale');
+  const enums = useEnumTranslations();
   const { isAuthenticated } = useAuth();
   const { isFav: checkFav, toggleFav } = useFavContext();
 
   const isFav = checkFav(`${type.toUpperCase()}:${item.id}`);
 
   const priceFormatted = formatPrice(item.price);
-  const subtitle = getSubtitle(item, type);
+  const subtitle = getSubtitle(item, type, enums);
   const imageUrl = getImageUrl(item);
   const isVerified = item.seller?.isVerified ?? false;
 

@@ -7,7 +7,8 @@ import L from 'leaflet';
 import { Link } from '@/i18n/navigation';
 import { useLeafletCSS } from '@/hooks/use-leaflet-css';
 import { getImageUrl } from '@/lib/image-utils';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { resolveLocationLabel } from '@/lib/location-data';
 
 // Fix Leaflet default marker icon
 const DefaultIcon = L.icon({
@@ -83,6 +84,7 @@ function FitBounds({ listings }: { listings: ListingMarker[] }) {
 export default function ListingsMap({ listings, height = 'h-[500px]', userLocation }: ListingsMapProps) {
   useLeafletCSS();
   const tp = useTranslations('pages');
+  const locale = useLocale();
   const markersWithLocation = listings.filter(l => l.latitude && l.longitude);
 
   // Default center: Muscat or user location
@@ -169,7 +171,7 @@ export default function ListingsMap({ listings, height = 'h-[500px]', userLocati
                   {listing.governorate && (
                     <p className="text-[11px] text-on-surface-variant mt-1.5 flex items-center gap-1">
                       <span className="material-symbols-outlined text-[12px]">location_on</span>
-                      {listing.governorate}
+                      {resolveLocationLabel(listing.governorate, locale) ?? listing.governorate}
                     </p>
                   )}
                 </div>

@@ -12,7 +12,7 @@ import { useCreateBusListing } from '@/lib/api/buses';
 import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
-import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
+import { getGovernorates, getCities } from '@/lib/location-data';
 import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls, checkboxLabelCls, checkboxCls, checkboxTextCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
 import { useTranslations, useLocale } from 'next-intl';
@@ -126,10 +126,9 @@ function AddBusContent() {
     whatsapp: '',
   });
 
-  const [selectedCountry, setSelectedCountry] = useState('OM');
   const [selectedGov, setSelectedGov] = useState('');
-  const governorateOptions = getGovernorates(selectedCountry, locale);
-  const cityOptions = getCities(selectedCountry, selectedGov, locale);
+  const governorateOptions = getGovernorates('OM', locale);
+  const cityOptions = getCities('OM', selectedGov, locale);
 
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -513,13 +512,7 @@ function AddBusContent() {
             <div className="space-y-8">
               <section className={sectionCls}>
                 <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>{tp('busLabelLocation')}</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <label className={labelCls}>{tp('busLabelCountry')}</label>
-                    <select className={inputCls} value={selectedCountry} onChange={e => { setSelectedCountry(e.target.value); setSelectedGov(''); set('governorate', ''); set('city', ''); }}>
-                      {getCountries(locale).map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                    </select>
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>{tp('busLabelGovernorate')}</label>
                     <select className={inputCls} value={selectedGov} onChange={e => { setSelectedGov(e.target.value); set('governorate', e.target.value); set('city', ''); }}>

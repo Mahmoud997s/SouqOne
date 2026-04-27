@@ -12,6 +12,7 @@ import { useCreateConversation } from '@/lib/api/chat';
 import { useAuth } from '@/providers/auth-provider';
 import { useToast } from '@/components/toast';
 import { useTranslations, useLocale } from 'next-intl';
+import { resolveLocationLabel } from '@/lib/location-data';
 
 const STATUS_COLORS: Record<string, string> = { OPEN: 'bg-emerald-600', IN_PROGRESS: 'bg-amber-600', CLOSED: 'bg-gray-500', CANCELLED: 'bg-red-600' };
 const BID_STATUS_COLORS: Record<string, string> = { PENDING: 'bg-amber-500', ACCEPTED: 'bg-emerald-600', REJECTED: 'bg-red-500', WITHDRAWN: 'bg-gray-500' };
@@ -116,7 +117,7 @@ export default function EquipmentRequestDetailPage() {
                       {EQUIP_TYPE_LABELS[req.equipmentType]}
                       <span>·</span>
                       <span>{tp('eqReqDetailQuantity', { qty: req.quantity })}</span>
-                      {req.governorate && <><span>·</span><span className="material-symbols-outlined text-xs">location_on</span>{req.governorate}</>}
+                      {req.governorate && <><span>·</span><span className="material-symbols-outlined text-xs">location_on</span>{resolveLocationLabel(req.governorate, locale) || req.governorate}</>}
                     </div>
                   </div>
                   <span className={`text-white text-[10px] font-black px-2.5 py-1 rounded-lg ${STATUS_COLORS[req.requestStatus]}`}>{STATUS_LABELS[req.requestStatus]}</span>
@@ -231,7 +232,7 @@ export default function EquipmentRequestDetailPage() {
                   </div>
                   <div>
                     <p className="font-bold text-sm text-on-surface">{req.user.displayName || req.user.username}</p>
-                    {req.user.governorate && <p className="text-[11px] text-on-surface-variant">{req.user.governorate}</p>}
+                    {req.user.governorate && <p className="text-[11px] text-on-surface-variant">{resolveLocationLabel(req.user.governorate, locale) || req.user.governorate}</p>}
                   </div>
                   {req.user.isVerified && <span className="material-symbols-outlined text-primary text-base me-auto">verified</span>}
                 </div>

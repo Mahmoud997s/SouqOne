@@ -11,6 +11,7 @@ import type { JobItem } from '@/lib/api';
 import { useToast } from '@/components/toast';
 import { getImageUrl } from '@/lib/image-utils';
 import { useTranslations, useLocale } from 'next-intl';
+import { resolveLocationLabel } from '@/lib/location-data';
 
 export default function MyJobsPage() {
   return (
@@ -121,7 +122,7 @@ function MyJobsContent() {
                         <div className="flex items-center gap-4 mt-1 text-xs text-on-surface-variant">
                           <span className="flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">location_on</span>
-                            {job.governorate}
+                            {resolveLocationLabel(job.governorate, locale) || job.governorate}
                           </span>
                           <span className="flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">visibility</span>
@@ -241,7 +242,7 @@ function ApplicationsList({ jobId }: { jobId: string }) {
               <div>
                 <p className="font-bold text-sm">{app.applicant.displayName || app.applicant.username}</p>
                 {app.applicant.governorate && (
-                  <p className="text-xs text-on-surface-variant">{app.applicant.governorate}</p>
+                  <p className="text-xs text-on-surface-variant">{resolveLocationLabel(app.applicant.governorate, locale) || app.applicant.governorate}</p>
                 )}
                 {app.message && (
                   <p className="text-xs text-on-surface-variant mt-1 line-clamp-2">&ldquo;{app.message}&rdquo;</p>

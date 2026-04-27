@@ -148,7 +148,7 @@ export function Navbar() {
             dir="ltr"
             style={{ height: TOP_H }}
           >
-            {/* Physical LEFT: Drawer, Language, Theme */}
+            {/* Physical LEFT: Drawer */}
             <div className="flex items-center gap-0.5">
               <button
                 onClick={() => setMobileOpen(true)}
@@ -156,8 +156,6 @@ export function Navbar() {
               >
                 <span className="material-symbols-outlined text-[20px]">menu</span>
               </button>
-              <LanguageSwitcher />
-              <ThemeToggle />
             </div>
 
             {/* CENTER: Logo */}
@@ -180,9 +178,6 @@ export function Navbar() {
                 <Link href="/notifications" className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all relative">
                   <span className="material-symbols-outlined text-[20px]">notifications</span>
                   {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />}
-                </Link>
-                <Link href="/messages" className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all">
-                  <span className="material-symbols-outlined text-[20px]">chat</span>
                 </Link>
                 <Link href="/favorites" className="w-9 h-9 rounded-xl flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-all">
                   <span className="material-symbols-outlined text-[20px]">favorite</span>

@@ -4,6 +4,7 @@
  */
 
 import type { SaleEntityType, UnifiedListing } from './unified.types';
+import type { EnumTranslations } from '@/lib/enum-translations';
 
 /** Field specification for spec cards and detail tables */
 export interface SpecField {
@@ -14,7 +15,9 @@ export interface SpecField {
   /** Lucide icon name */
   icon: string;
   /** Value formatting type */
-  format?: 'number' | 'text' | 'boolean' | 'km' | 'year' | 'array' | 'link';
+  format?: 'number' | 'text' | 'boolean' | 'km' | 'year' | 'array' | 'link' | 'enum';
+  /** Enum category key (required when format: 'enum') */
+  enumKey?: keyof EnumTranslations;
   /** Unit suffix (e.g., 'كم', 'حصان', 'راكب') */
   unit?: string;
   /** Whether to hide this field if the value is null/undefined/empty */

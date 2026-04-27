@@ -3,11 +3,14 @@
  * Maps directly to which UI component renders the filter.
  */
 export type FilterType =
-  | 'select'       // single-value dropdown with predefined options
-  | 'multiselect'  // checkbox list, value = comma-separated string
-  | 'range'        // dual number inputs: key_min / key_max (appended to `key`)
-  | 'toggle'       // boolean switch, value = "true" | "false"
-  | 'search'       // free text input
+  | 'select'              // single-value dropdown with predefined options
+  | 'multiselect'         // checkbox list, value = comma-separated string
+  | 'range'               // dual number inputs via slider
+  | 'range_select'        // dual dropdown selects for range (from/to)
+  | 'toggle'              // boolean switch, value = "true" | "false"
+  | 'search'              // free text input
+  | 'governorate_wilayat' // cascaded: governorate chips → wilayat dropdown
+  | 'make_model'          // cascaded: make dropdown → model dropdown
 
 export interface FilterOption {
   value: string

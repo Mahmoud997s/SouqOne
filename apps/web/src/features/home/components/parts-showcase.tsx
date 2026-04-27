@@ -2,7 +2,8 @@
 
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { resolveLocationLabel } from '@/lib/location-data';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
 import { useFavContext } from '@/providers/favorites-provider';
@@ -40,6 +41,7 @@ export function PartsShowcase({ items, isLoading }: PartsShowcaseProps) {
   const t = useTranslations('home');
   const tl = useTranslations('listings');
   const tm = useTranslations('mappings');
+  const locale = useLocale();
 
   function condLabel(c: string) {
     if (c === 'NEW') return tm('conditionNew');
@@ -126,7 +128,7 @@ export function PartsShowcase({ items, isLoading }: PartsShowcaseProps) {
                       {part.governorate && (
                         <span className="flex items-center gap-px shrink-0">
                           <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
-                          {part.governorate}
+                          {resolveLocationLabel(part.governorate, locale)}
                         </span>
                       )}
                     </div>

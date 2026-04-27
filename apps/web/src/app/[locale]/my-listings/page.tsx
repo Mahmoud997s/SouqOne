@@ -17,6 +17,7 @@ import { useMyTrips, useDeleteTrip } from '@/lib/api/trips';
 import { useCreateFeaturedPayment } from '@/lib/api/payments';
 import { getImageUrl } from '@/lib/image-utils';
 import { relativeTimeT } from '@/lib/time-utils';
+import { resolveLocationLabel } from '@/lib/location-data';
 import { useToast } from '@/components/toast';
 import { useTranslations, useLocale } from 'next-intl';
 import { MoreVertical, Plus, PlusCircle, Pencil, RefreshCw, Pause, Trash2 } from 'lucide-react';
@@ -191,7 +192,7 @@ export default function MyListingsPage() {
 
   function getEditRoute(id: string): string {
     switch (activeSection) {
-      case 'cars': return `/edit-listing/${id}`;
+      case 'cars': return `/edit-listing/car/${id}`;
       case 'buses': return `/edit-listing/bus/${id}`;
       case 'equipment': return `/edit-listing/equipment/${id}`;
       case 'operators': return `/edit-listing/operator/${id}`;
@@ -247,7 +248,7 @@ export default function MyListingsPage() {
   function getItemMeta(item: any): string {
     const parts: string[] = [];
     parts.push(tp(SECTION_LABEL_MAP[activeSection]));
-    if (item.governorate) parts.push(item.governorate);
+    if (item.governorate) parts.push(resolveLocationLabel(item.governorate, locale) ?? item.governorate);
     if (item.createdAt) parts.push(relativeTimeT(item.createdAt, tt, locale));
     return parts.join(' · ');
   }

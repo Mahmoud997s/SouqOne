@@ -11,6 +11,7 @@ import { FILTERS_CONFIG } from '../config/filters.config'
 interface UseFilterStateReturn {
   filters: ActiveFilters
   setFilter: (key: string, value: string | string[] | boolean | null) => void
+  setFilters: (updates: Record<string, string | string[] | boolean | null>) => void
   clearAll: () => void
   activeCount: number
   hasActiveFilters: boolean
@@ -42,12 +43,26 @@ export function useFilterState(category: ListingCategory): UseFilterStateReturn 
     [searchParams, pathname, router],
   )
 
+  const setFilters = useCallback(
+    (updates: Record<string, string | string[] | boolean | null>) => {
+      const params = new URLSearchParams(searchParams.toString())
+      Object.entries(updates).forEach(([k, v]) => {
+        if (v === null || v === '' || v === false) params.delete(k)
+        else params.set(k, String(v))
+      })
+      params.delete('page')
+      router.push(`${pathname}?${params.toString()}`)
+    },
+    [searchParams, pathname, router]
+  )
+
   const clearAll = useCallback(() => {
     router.push(pathname)
   }, [pathname, router])
 
-  const activeCount = Object.keys(filters).length
+  const SYSTEM_KEYS = ['sort', 'page', 'q']
+  const activeCount = Object.keys(filters).filter(k => !SYSTEM_KEYS.includes(k)).length
   const hasActiveFilters = activeCount > 0
 
-  return { filters, setFilter, clearAll, activeCount, hasActiveFilters }
+  return { filters, setFilter, setFilters, clearAll, activeCount, hasActiveFilters }
 }

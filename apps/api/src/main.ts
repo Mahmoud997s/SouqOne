@@ -39,7 +39,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new SanitizeInterceptor(), new NormalizeImagesInterceptor());
 
   // Serve uploaded files statically at /uploads/*
-  app.useStaticAssets(path.join(process.cwd(), 'uploads'), {
+  app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
   });
 
