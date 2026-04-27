@@ -5,6 +5,7 @@ import {
   type RefObject,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslations } from 'next-intl'
 import { Check, Search } from 'lucide-react'
 import type { FilterField } from '../types/filters.types'
 
@@ -44,6 +45,7 @@ function calcPos(trigger: HTMLElement): Pos {
 //  Component 
 
 export function FilterDropdown({ field, value, onChange, triggerRef, onClose }: FilterDropdownProps) {
+  const t = useTranslations('pages')
   const [pos, setPos] = useState<Pos>({ top: 0, right: 0, openUp: false })
   const [search, setSearch] = useState('')
   const [rangeMin, setRangeMin] = useState('')
@@ -104,7 +106,7 @@ export function FilterDropdown({ field, value, onChange, triggerRef, onClose }: 
                 autoFocus
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="بحث..."
+                placeholder={t('sfSearchPlaceholder')}
                 className="w-full h-8 rounded-lg border border-border text-[12px] pr-8 pl-3 outline-none focus:border-primary"
               />
             </div>
@@ -149,7 +151,7 @@ export function FilterDropdown({ field, value, onChange, triggerRef, onClose }: 
               autoFocus
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="بحث..."
+              placeholder={t('sfSearchPlaceholder')}
               className="w-full h-8 rounded-lg border border-border text-[12px] px-3 outline-none focus:border-primary"
             />
           </div>

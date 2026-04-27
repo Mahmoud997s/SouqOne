@@ -2,10 +2,11 @@
 
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
 import { conditionBadge } from '@/lib/constants/mappings';
+import { getCityLabel, getGovernorateLabel } from '@/lib/location-data';
 import { useFavContext } from '@/providers/favorites-provider';
 import { useAuth } from '@/providers/auth-provider';
 import type { BusListingItem } from '@/lib/api/buses';
@@ -39,9 +40,11 @@ function BusFavButton({ id }: { id: string }) {
 }
 
 export function BusesShowcase({ items, isLoading }: BusesShowcaseProps) {
+  const locale = useLocale();
   const t = useTranslations('home');
   const tl = useTranslations('listings');
   const tp = useTranslations('pages');
+  const tc = useTranslations('common');
   const tm = useTranslations('mappings');
   const badges = conditionBadge(tm);
 
@@ -51,6 +54,60 @@ export function BusesShowcase({ items, isLoading }: BusesShowcaseProps) {
     BUS_RENT: tp('busesTypeRent'),
     BUS_CONTRACT: tp('busesTypeContract'),
     BUS_REQUEST: tp('busesTypeRequest'),
+    SALE: tp('busesTypeSale'),
+    SALE_WITH_CONTRACT: tp('busesTypeSaleContract'),
+    RENT: tp('busesTypeRent'),
+    CONTRACT: tp('busesTypeContract'),
+    REQUEST: tp('busesTypeRequest'),
+  };
+
+  const getBusTypeLabel = (value: string | null | undefined) => {
+    if (!value) return '';
+    const normalized = value.trim().toUpperCase().replace(/[-\s]/g, '_');
+    return TYPE_LABELS[normalized] || value;
+  };
+
+  const getBusCardTitle = (bus: BusListingItem) => {
+    const rawTitle = (bus.title || '').trim();
+    const normalizedTitle = rawTitle.toUpperCase().replace(/[-\s]/g, '_');
+    const genericTitleTokens = new Set([
+      'SALE',
+      'RENT',
+      'CONTRACT',
+      'REQUEST',
+      'BUS',
+      'BUS_SALE',
+      'BUS_RENT',
+      'BUS_CONTRACT',
+      'BUS_REQUEST',
+      'BUS_SALE_WITH_CONTRACT',
+    ]);
+
+    if (!rawTitle || genericTitleTokens.has(normalizedTitle)) {
+      const typeLabel = getBusTypeLabel(bus.busListingType);
+      return typeLabel ? `${tc('buses')} ${typeLabel}` : tc('buses');
+    }
+
+    return rawTitle;
+  };
+
+  const getBusLocationLabel = (bus: BusListingItem) => {
+    const governorateCode = bus.governorate?.trim();
+    const cityValue = bus.city?.trim();
+
+    const governorateLabel = governorateCode
+      ? getGovernorateLabel('OM', governorateCode, locale)
+      : '';
+
+    const cityLabel = cityValue
+      ? getCityLabel('OM', governorateCode || '', cityValue, locale)
+      : '';
+
+    if (cityLabel && governorateLabel && cityLabel !== governorateLabel) {
+      return `${cityLabel}، ${governorateLabel}`;
+    }
+
+    return cityLabel || governorateLabel;
   };
 
   function priceText(bus: BusListingItem) {
@@ -113,7 +170,7 @@ export function BusesShowcase({ items, isLoading }: BusesShowcaseProps) {
                         </span>
                       )}
                       <span className="px-1 sm:px-2 py-px sm:py-0.5 rounded text-[7px] sm:text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
-                        {TYPE_LABELS[bus.busListingType] || bus.busListingType}
+                        {getBusTypeLabel(bus.busListingType)}
                       </span>
                     </div>
 
@@ -136,12 +193,12 @@ export function BusesShowcase({ items, isLoading }: BusesShowcaseProps) {
 
                   {/* ── Body ── */}
                   <div className="p-2.5 sm:p-3 flex-1 flex flex-col gap-1.5">
-                    <h3 dir="auto" className="text-[10px] sm:text-[13px] font-black leading-snug line-clamp-2 sm:line-clamp-1">{bus.title}</h3>
+                    <h3 dir="auto" className="text-[10px] sm:text-[13px] font-black leading-snug line-clamp-2 sm:line-clamp-1">{getBusCardTitle(bus)}</h3>
                     <div className="flex items-center gap-1 flex-wrap text-[8px] sm:text-[10px] text-on-surface-variant">
-                      {bus.governorate && (
+                      {getBusLocationLabel(bus) && (
                         <span className="flex items-center gap-px shrink-0">
                           <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
-                          {bus.governorate}
+                          {getBusLocationLabel(bus)}
                         </span>
                       )}
                     </div>

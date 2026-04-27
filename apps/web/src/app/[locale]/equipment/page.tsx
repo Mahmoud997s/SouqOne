@@ -7,7 +7,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { useEquipmentListings, useEquipmentRequests, useOperatorListings } from '@/lib/api/equipment';
 import type { EquipmentListingItem, EquipmentRequestItem, OperatorListingItem } from '@/lib/api/equipment';
-import { getGovernorates, type LocationOption } from '@/lib/location-data';
+import { getGovernorates, resolveLocationLabel, type LocationOption } from '@/lib/location-data';
 import { relativeTimeT } from '@/lib/time-utils';
 import { useTranslations, useLocale } from 'next-intl';
 import { useFavContext } from '@/providers/favorites-provider';
@@ -91,7 +91,7 @@ function EquipmentCard({ item }: { item: EquipmentListingItem }) {
             {item.governorate && (
               <span className="flex items-center gap-px shrink-0">
                 <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
-                {item.governorate}
+                {resolveLocationLabel(item.governorate, locale)}
               </span>
             )}
           </div>
@@ -127,7 +127,7 @@ function RequestCard({ item }: { item: EquipmentRequestItem }) {
       <p className="text-xs text-on-surface-variant line-clamp-2">{item.description}</p>
       <div className="flex items-center gap-3 text-[11px] text-on-surface-variant">
         {item.budgetMax && <span className="flex items-center gap-0.5"><span className="material-symbols-outlined text-xs">payments</span>{tp('equipUpTo', { amount: Number(item.budgetMax).toLocaleString(), currency: item.currency })}</span>}
-        {item.governorate && <span className="flex items-center gap-0.5"><span className="material-symbols-outlined text-xs">location_on</span>{item.governorate}</span>}
+        {item.governorate && <span className="flex items-center gap-0.5"><span className="material-symbols-outlined text-xs">location_on</span>{resolveLocationLabel(item.governorate, locale)}</span>}
       </div>
       <div className="flex items-center justify-between text-[10px] text-on-surface-variant/60 pt-2 border-t border-outline-variant/5">
         <span>{relativeTimeT(item.createdAt, tt, locale)}</span>
@@ -139,6 +139,7 @@ function RequestCard({ item }: { item: EquipmentRequestItem }) {
 
 function OperatorCard({ item }: { item: OperatorListingItem }) {
   const tp = useTranslations('pages');
+  const locale = useLocale();
 
   const OPERATOR_TYPE_LABELS: Record<string, string> = {
     DRIVER: tp('equipDriverType'), OPERATOR: tp('equipOperatorType'), TECHNICIAN: tp('equipTechnicianType'), MAINTENANCE: tp('equipMaintenanceType'),
@@ -163,7 +164,7 @@ function OperatorCard({ item }: { item: OperatorListingItem }) {
       )}
       <div className="flex items-center justify-between pt-2 border-t border-outline-variant/5">
         <p className="text-primary font-black text-sm">{rate}</p>
-        {item.governorate && <span className="text-[11px] text-on-surface-variant flex items-center gap-0.5"><span className="material-symbols-outlined text-xs">location_on</span>{item.governorate}</span>}
+        {item.governorate && <span className="text-[11px] text-on-surface-variant flex items-center gap-0.5"><span className="material-symbols-outlined text-xs">location_on</span>{resolveLocationLabel(item.governorate, locale)}</span>}
       </div>
     </Link>
   );

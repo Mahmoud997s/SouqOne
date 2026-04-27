@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { haversineDistance } from '@/lib/geo-utils';
+import { resolveLocationLabel } from '@/lib/location-data';
 import {
   useCreateConversation,
   useReviewSummary,
@@ -334,27 +335,37 @@ export function RentalPageShell({ listing, config, unavailableDates, onBook, isB
           </div>
         </div>
 
-        {/* ══ B — TITLE ══ */}
-        <div className="mb-4">
-          <div className="flex items-center gap-2 mb-1">
-            <span className={`px-3 py-0.5 rounded-full text-[11px] font-medium border ${BADGE_COLORS[config.badgeColor]}`}>{tr('badgeLabel', { type: config.displayName })}</span>
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <h1 className="text-[24px] md:text-[28px] font-black text-on-surface leading-tight tracking-tight">
+              {listing.title}
+            </h1>
           </div>
-          <h1 className="text-[24px] font-bold text-on-surface mb-2 leading-tight tracking-tight">
-            {listing.title}
-          </h1>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className={`px-3 py-1 rounded-full text-[11px] font-bold border uppercase tracking-wider ${BADGE_COLORS[config.badgeColor]}`}>
+              {tr('badgeLabel', { type: config.displayName })}
+            </span>
+
             {reviewSummary && reviewSummary.reviewCount > 0 && (
               <>
-                <span className="flex items-center gap-1 font-semibold text-on-surface text-[13px]">
-                  <span className="text-amber-400">★</span>
-                  {reviewSummary.averageRating.toFixed(1)}
-                </span>
-                <span className="w-1 h-1 rounded-full bg-outline-variant inline-block" />
-                <span className="text-[12px] text-on-surface-variant">{reviewSummary.reviewCount} {tr('reviewCount')}</span>
-                <span className="w-1 h-1 rounded-full bg-outline-variant inline-block" />
+                <span className="w-1 h-1 rounded-full bg-outline-variant/40" />
+                <div className="flex items-center gap-1">
+                  <span className="text-amber-400 text-lg leading-none">★</span>
+                  <span className="font-bold text-on-surface text-[13px]">{reviewSummary.averageRating.toFixed(1)}</span>
+                  <span className="text-[11px] text-on-surface-variant ml-1">({reviewSummary.reviewCount})</span>
+                </div>
               </>
             )}
-            {listing.governorate && <span className="text-[12px] text-on-surface-variant">{listing.governorate}، {tr('country')}</span>}
+
+            {listing.governorate && (
+              <>
+                <span className="w-1 h-1 rounded-full bg-outline-variant/40" />
+                <div className="flex items-center gap-1.5 text-[12px] text-on-surface-variant font-medium">
+                  <span className="material-symbols-outlined text-[18px] text-primary/70">location_on</span>
+                  <span>{resolveLocationLabel(listing.governorate, locale)}، {tr('country')}</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -605,7 +616,7 @@ export function RentalPageShell({ listing, config, unavailableDates, onBook, isB
                   <SectionTitle>{tr('locationTitle')}</SectionTitle>
                   <p className="text-[12px] text-on-surface-variant mb-3 flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-sm text-primary">location_on</span>
-                    {listing.governorate}، {tr('country')}
+                    {resolveLocationLabel(listing.governorate, locale)}، {tr('country')}
                     {distance !== null && (
                       <span className="flex items-center gap-1.5 mt-0 text-[11px] text-on-surface-variant ms-1">
                         {distance < 1 ? tr('distanceMeters', { distance: Math.round(distance * 1000) }) : tr('distanceKm', { distance: distance.toFixed(1) })}

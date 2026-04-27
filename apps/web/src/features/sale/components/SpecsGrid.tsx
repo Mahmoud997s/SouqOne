@@ -6,11 +6,14 @@
 'use client';
 
 import { memo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import type { UnifiedListing } from '../types/unified.types';
 import type { SpecField } from '../types/config.types';
 import { getNestedValue } from '../config/specs.config';
+import { useEnumTranslations } from '@/lib/enum-translations';
+import { translateEnum } from '@/lib/translate-enum';
 import * as Icons from 'lucide-react';
+import { resolveLocationLabel, resolveCityLabel } from '@/lib/location-data';
 
 interface SpecsGridProps {
   listing: UnifiedListing;
@@ -49,6 +52,8 @@ function formatValue(value: unknown, format?: string, unit?: string, boolYes?: s
 
 export const SpecsGrid = memo(function SpecsGrid({ listing, fields }: SpecsGridProps) {
   const ts = useTranslations('sale');
+  const enums = useEnumTranslations();
+  const locale = useLocale();
   // Filter out empty fields if hideIfEmpty is true
   const visibleFields = fields.filter((field) => {
     const value = getNestedValue(listing, field.key);
@@ -64,7 +69,15 @@ export const SpecsGrid = memo(function SpecsGrid({ listing, fields }: SpecsGridP
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {visibleFields.map((field) => {
         const value = getNestedValue(listing, field.key);
-        const formatted = formatValue(value, field.format, field.unit, ts('boolYes'), ts('boolNo'));
+        const resolvedValue =
+          field.key === 'governorate'
+            ? (resolveLocationLabel(value as string, locale) ?? value)
+            : field.key === 'city'
+              ? (resolveCityLabel(value as string, locale) ?? value)
+              : field.format === 'enum' && field.enumKey
+                ? translateEnum(enums[field.enumKey], value as string)
+                : value;
+        const formatted = formatValue(resolvedValue, field.format, field.unit, ts('boolYes'), ts('boolNo'));
 
         // Get icon component dynamically
         const IconComponent = (Icons[field.icon as keyof typeof Icons] as React.ComponentType<{ size?: number; className?: string }>) || Icons.Circle;

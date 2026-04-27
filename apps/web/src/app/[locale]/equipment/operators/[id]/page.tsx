@@ -10,6 +10,7 @@ import { useCreateConversation } from '@/lib/api/chat';
 import { useAuth } from '@/providers/auth-provider';
 import { useToast } from '@/components/toast';
 import { useTranslations, useLocale } from 'next-intl';
+import { resolveLocationLabel, resolveCityLabel } from '@/lib/location-data';
 
 export default function OperatorDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -112,7 +113,7 @@ export default function OperatorDetailPage() {
               {op.governorate && (
                 <div className="bg-surface-container-lowest dark:bg-surface-container rounded-2xl p-5 border border-outline-variant/10">
                   <h2 className="font-black text-base text-on-surface mb-3 flex items-center gap-2"><span className="material-symbols-outlined text-primary">location_on</span>{tp('opDetailLocation')}</h2>
-                  <p className="text-sm text-on-surface-variant">{op.governorate}{op.city ? ` - ${op.city}` : ''}</p>
+                  <p className="text-sm text-on-surface-variant">{resolveLocationLabel(op.governorate, locale) || op.governorate}{op.city ? ` - ${resolveCityLabel(op.city, locale)}` : ''}</p>
                 </div>
               )}
             </div>

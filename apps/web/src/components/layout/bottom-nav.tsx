@@ -28,12 +28,13 @@ export function BottomNav() {
   return (
     <>
     {/* Blur gap between bars */}
-    <div className="fixed bottom-[53px] inset-x-0 h-1 z-40 lg:hidden backdrop-blur-3xl" />
+    <div className="fixed inset-x-0 h-1 z-40 lg:hidden backdrop-blur-3xl" style={{ bottom: 'calc(53px + env(safe-area-inset-bottom, 0px))' }} />
 
-    {/* CTA circle — centered between both bars: (64+8+64)/2=68px center, 68-26.5=41.5≈42 */}
+    {/* CTA circle */}
     <Link
       href="/add-listing"
-      className="fixed z-[51] bottom-[24px] left-1/2 -translate-x-1/2 lg:hidden"
+      className="fixed z-[51] left-1/2 -translate-x-1/2 lg:hidden"
+      style={{ bottom: 'calc(24px + env(safe-area-inset-bottom, 0px))' }}
     >
       <div className="relative w-[63px] h-[63px] rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30 pulse-ring">
         <span className="material-symbols-outlined text-on-primary text-2xl">add_circle</span>
@@ -41,8 +42,14 @@ export function BottomNav() {
     </Link>
 
     <nav
-      className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-gradient-to-r from-primary/[0.05] via-surface-container-lowest/95 to-brand-amber/[0.05] dark:from-primary/[0.08] dark:via-surface-container/95 dark:to-brand-amber/[0.06] backdrop-blur-xl safe-area-bottom"
-      style={{ maskImage: 'radial-gradient(circle 38px at 50% -4px, transparent 98%, black 100%)', WebkitMaskImage: 'radial-gradient(circle 38px at 50% -4px, transparent 98%, black 100%)' }}
+      className="fixed inset-x-0 z-50 lg:hidden bg-gradient-to-r from-primary/[0.05] via-surface-container-lowest/95 to-brand-amber/[0.05] dark:from-primary/[0.08] dark:via-surface-container/95 dark:to-brand-amber/[0.06] backdrop-blur-xl"
+      style={{ 
+        bottom: '0px',
+        height: 'calc(53px + env(safe-area-inset-bottom, 0px))',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        maskImage: 'radial-gradient(circle 38px at 50% -4px, transparent 98%, black 100%)', 
+        WebkitMaskImage: 'radial-gradient(circle 38px at 50% -4px, transparent 98%, black 100%)' 
+      }}
     >
       <div className="flex items-center justify-around h-[53px] max-w-lg mx-auto px-2">
         {NAV_ITEMS.map((item) => {

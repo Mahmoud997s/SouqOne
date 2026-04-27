@@ -8,6 +8,8 @@ import {
   Calendar, Gauge, Settings2, Users, Building2,
   CalendarDays, Route, Tag, Fuel,
 } from 'lucide-react'
+import { useLocale } from 'next-intl'
+import { resolveLocationLabel } from '@/lib/location-data'
 import type { UnifiedListingItem } from '../types/unified-item.types'
 import type { ListingCategory } from '../types/category.types'
 
@@ -58,6 +60,7 @@ interface UnifiedCardProps {
 
 export function UnifiedCard({ item, onSave, isSaved = false }: UnifiedCardProps) {
   const router = useRouter()
+  const locale = useLocale()
   const CategoryIcon = CATEGORY_ICON[item.category]
   const visibleDetails = item.details.slice(0, 3)
 
@@ -153,7 +156,7 @@ export function UnifiedCard({ item, onSave, isSaved = false }: UnifiedCardProps)
         <div className="flex items-center gap-1 mb-2">
           <MapPin size={10} className="text-on-surface-variant/40 flex-shrink-0" />
           <span className="text-[11px] text-on-surface-variant/70 truncate">
-            {item.governorate ?? 'غير محدد'}
+            {resolveLocationLabel(item.governorate, locale) ?? 'غير محدد'}
           </span>
         </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import clsx from 'clsx';
 import { useModels, useRecentFilters, type RecentFilterEntry } from './useFilterIntelligence';
 import { useDropdownPortal, DropdownPortal } from './DropdownPortal';
@@ -80,6 +81,7 @@ function SearchableSelect({
 
   const handleClose = useCallback(() => { setOpen(false); setSearch(''); }, []);
   const { triggerRef, pos } = useDropdownPortal(open && !dark, handleClose);
+  const t = useTranslations('pages');
 
   // ── shared option list content ──
   function OptionList() {
@@ -90,7 +92,7 @@ function SearchableSelect({
             autoFocus
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="بحث..."
+            placeholder={t('sfSearchPlaceholder')}
             className={clsx(
               'w-full text-xs px-2 py-1.5 rounded-lg outline-none',
               dark
@@ -197,19 +199,14 @@ function SearchableSelect({
 
 /** Number range — two inputs side by side */
 function RangeInputs({
-  minVal, maxVal,
-  onMinChange, onMaxChange,
-  onBlur,
-  unit,
-  dark = false,
+  minVal, maxVal, onMinChange, onMaxChange, onBlur, unit, dark = false,
 }: {
-  minVal: string; maxVal: string;
-  onMinChange: (v: string) => void;
-  onMaxChange: (v: string) => void;
+  minVal: string; maxVal: string; onMinChange: (v: string) => void; onMaxChange: (v: string) => void;
   onBlur: () => void;
   unit?: string;
   dark?: boolean;
 }) {
+  const t = useTranslations('pages');
   const base = clsx(
     'flex-1 min-w-0 text-xs font-bold px-3 py-2 rounded-xl border outline-none filter-input-focus',
     dark
@@ -219,10 +216,10 @@ function RangeInputs({
   return (
     <div className="flex items-center gap-2">
       <input type="number" min="0" value={minVal} onChange={e => onMinChange(e.target.value)} onBlur={onBlur}
-        placeholder="من" className={base} />
+        placeholder={t('sfPlaceholderFrom')} className={base} />
       <span className={clsx('text-xs shrink-0', dark ? 'text-white/40' : 'text-on-surface-variant/50')}>—</span>
       <input type="number" min="0" value={maxVal} onChange={e => onMaxChange(e.target.value)} onBlur={onBlur}
-        placeholder="إلى" className={base} />
+        placeholder={t('sfPlaceholderTo')} className={base} />
       {unit && <span className={clsx('text-xs font-bold shrink-0', dark ? 'text-white/60' : 'text-on-surface-variant')}>{unit}</span>}
     </div>
   );
@@ -313,13 +310,13 @@ function ModelSelect({
 }: {
   brand: string; value: string; onChange: (v: string) => void; dark?: boolean;
 }) {
-  const { models, loading } = useModels(brand);
-  const opts = models.map(m => ({ value: m, label: m }));
+  const t = useTranslations('pages');
+  const { models: opts, loading } = useModels(brand);
 
   if (!brand) {
     return (
       <p className={clsx('text-[11px] italic', dark ? 'text-white/40' : 'text-on-surface-variant/50')}>
-        اختر الماركة أولاً
+        {t('sfRowModel')}
       </p>
     );
   }
@@ -334,7 +331,7 @@ function ModelSelect({
           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3"/>
           <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
         </svg>
-        جارٍ التحميل...
+        {t('sfLoading')}
       </div>
     );
   }
@@ -342,17 +339,17 @@ function ModelSelect({
   if (opts.length === 0) {
     return (
       <p className={clsx('text-[11px] italic', dark ? 'text-white/40' : 'text-on-surface-variant/50')}>
-        لا موديلات متاحة
+        {t('sfNoModels')}
       </p>
     );
   }
 
   return (
     <SearchableSelect
-      options={opts}
+      options={opts.map(m => ({ value: m, label: m }))}
       value={value}
       onChange={onChange}
-      placeholder="كل الموديلات"
+      placeholder={t('sfPlaceholderAllModels')}
       dark={dark}
     />
   );
@@ -366,11 +363,12 @@ function RecentFiltersRow({
   onApply: (params: Record<string, string>) => void;
   dark?: boolean;
 }) {
+  const t = useTranslations('pages');
   if (recents.length === 0) return null;
   return (
     <div className="space-y-1.5">
       <p className={clsx('text-[10px] font-bold uppercase tracking-wide',
-        dark ? 'text-white/40' : 'text-on-surface-variant/50')}>بحث سابق</p>
+        dark ? 'text-white/40' : 'text-on-surface-variant/50')}>{t('sfRecentSearchLabel')}</p>
       <div className="flex flex-col gap-1.5">
         {recents.map((r, i) => (
           <button
@@ -459,104 +457,105 @@ interface SearchFiltersProps {
   dark?: boolean;
 }
 
-const LISTING_TYPES = [
-  { value: 'SALE',   label: 'للبيع' },
-  { value: 'RENTAL', label: 'إيجار' },
-  { value: 'WANTED', label: 'مطلوب' },
-];
-const SORT_OPTS = [
-  { value: '',           label: 'الأحدث' },
-  { value: 'price:asc',  label: 'الأقل سعراً' },
-  { value: 'price:desc', label: 'الأعلى سعراً' },
-];
-const BUS_TYPES = [
-  { value: 'MINI_BUS',   label: 'ميني باص' },
-  { value: 'MEDIUM_BUS', label: 'متوسط' },
-  { value: 'LARGE_BUS',  label: 'كبير' },
-  { value: 'COASTER',    label: 'كوستر' },
-  { value: 'SCHOOL_BUS', label: 'مدرسية' },
-];
-const BUS_LT = [
-  { value: 'BUS_SALE',              label: 'بيع' },
-  { value: 'BUS_SALE_WITH_CONTRACT',label: 'بيع مع عقد' },
-  { value: 'BUS_CONTRACT',          label: 'تعاقد' },
-  { value: 'BUS_RENT',              label: 'إيجار' },
-  { value: 'BUS_REQUEST',           label: 'طلب' },
-];
-const PART_CATS = [
-  { value: 'ENGINE',      label: 'محرك' },
-  { value: 'BODY',        label: 'هيكل' },
-  { value: 'ELECTRICAL',  label: 'كهربائيات' },
-  { value: 'SUSPENSION',  label: 'تعليق' },
-  { value: 'BRAKES',      label: 'فرامل' },
-  { value: 'INTERIOR',    label: 'داخلية' },
-  { value: 'TIRES',       label: 'إطارات' },
-  { value: 'BATTERIES',   label: 'بطاريات' },
-  { value: 'OILS',        label: 'زيوت' },
-  { value: 'ACCESSORIES', label: 'إكسسوارات' },
-  { value: 'OTHER',       label: 'أخرى' },
-];
-const SVC_TYPES = [
-  { value: 'MAINTENANCE',         label: 'صيانة' },
-  { value: 'CLEANING',            label: 'تنظيف' },
-  { value: 'MODIFICATION',        label: 'تعديل' },
-  { value: 'INSPECTION',          label: 'فحص' },
-  { value: 'BODYWORK',            label: 'هيكل وطلاء' },
-  { value: 'ACCESSORIES_INSTALL', label: 'تركيب إكسسوارات' },
-  { value: 'KEYS_LOCKS',          label: 'مفاتيح وأقفال' },
-  { value: 'TOWING',              label: 'سحب' },
-  { value: 'OTHER_SERVICE',       label: 'أخرى' },
-];
-const PROV_TYPES = [
-  { value: 'WORKSHOP',   label: 'ورشة' },
-  { value: 'INDIVIDUAL', label: 'فرد' },
-  { value: 'MOBILE',     label: 'متنقل' },
-  { value: 'COMPANY',    label: 'شركة' },
-];
-const JOB_TYPES = [
-  { value: 'OFFERING', label: 'عرض عمل' },
-  { value: 'HIRING',   label: 'طلب توظيف' },
-];
-const EMP_TYPES = [
-  { value: 'FULL_TIME',  label: 'دوام كامل' },
-  { value: 'PART_TIME',  label: 'جزئي' },
-  { value: 'TEMPORARY',  label: 'مؤقت' },
-  { value: 'CONTRACT',   label: 'عقد' },
-];
-const LIC_TYPES = [
-  { value: 'LIGHT',      label: 'خفيفة' },
-  { value: 'HEAVY',      label: 'ثقيلة' },
-  { value: 'TRANSPORT',  label: 'نقل' },
-  { value: 'BUS',        label: 'باص' },
-  { value: 'MOTORCYCLE', label: 'دراجة' },
-];
-const TR_TYPES = [
-  { value: 'CARGO',           label: 'شحن' },
-  { value: 'FURNITURE',       label: 'أثاث' },
-  { value: 'DELIVERY',        label: 'توصيل' },
-  { value: 'HEAVY_TRANSPORT', label: 'نقل ثقيل' },
-  { value: 'TRUCK_RENTAL',    label: 'تأجير شاحنة' },
-  { value: 'OTHER_TRANSPORT', label: 'أخرى' },
-];
-const TRIP_TYPES = [
-  { value: 'BUS_SUBSCRIPTION', label: 'اشتراك باص' },
-  { value: 'SCHOOL_TRANSPORT', label: 'نقل مدرسي' },
-  { value: 'TOURISM',          label: 'سياحة' },
-  { value: 'CORPORATE',        label: 'شركات' },
-  { value: 'CARPOOLING',       label: 'مشاركة سيارة' },
-];
-const SCHED_TYPES = [
-  { value: 'SCHEDULE_DAILY',   label: 'يومي' },
-  { value: 'SCHEDULE_WEEKLY',  label: 'أسبوعي' },
-  { value: 'SCHEDULE_MONTHLY', label: 'شهري' },
-  { value: 'ONE_TIME',         label: 'مرة واحدة' },
-];
-
 export function SearchFilters({
   activeTab, state, setters, govOpts, condOpts, fuelOpts, transOpts, years,
   CAR_MAKES, applyFilters, applyNow, activeFilterCount, clearAllFilters, dark = false,
 }: SearchFiltersProps) {
   const d = dark;
+  const t = useTranslations('pages');
+
+  const LISTING_TYPES = [
+    { value: 'SALE',   label: t('sfListSale') },
+    { value: 'RENTAL', label: t('sfListRental') },
+    { value: 'WANTED', label: t('sfListWanted') },
+  ];
+  const SORT_OPTS = [
+    { value: '',           label: t('sfSortNewest') },
+    { value: 'price:asc',  label: t('sfSortLowest') },
+    { value: 'price:desc', label: t('sfSortHighest') },
+  ];
+  const BUS_TYPES = [
+    { value: 'MINI_BUS',   label: t('sfBusMini') },
+    { value: 'MEDIUM_BUS', label: t('sfBusMedium') },
+    { value: 'LARGE_BUS',  label: t('sfBusLarge') },
+    { value: 'COASTER',    label: t('sfBusCoaster') },
+    { value: 'SCHOOL_BUS', label: t('sfBusSchool') },
+  ];
+  const BUS_LT = [
+    { value: 'BUS_SALE',               label: t('sfBusLtSale') },
+    { value: 'BUS_SALE_WITH_CONTRACT', label: t('sfBusLtSaleContract') },
+    { value: 'BUS_CONTRACT',           label: t('sfBusLtContract') },
+    { value: 'BUS_RENT',               label: t('sfBusLtRent') },
+    { value: 'BUS_REQUEST',            label: t('sfBusLtRequest') },
+  ];
+  const PART_CATS = [
+    { value: 'ENGINE',      label: t('sfPartEngine') },
+    { value: 'BODY',        label: t('sfPartBody') },
+    { value: 'ELECTRICAL',  label: t('sfPartElectrical') },
+    { value: 'SUSPENSION',  label: t('sfPartSuspension') },
+    { value: 'BRAKES',      label: t('sfPartBrakes') },
+    { value: 'INTERIOR',    label: t('sfPartInterior') },
+    { value: 'TIRES',       label: t('sfPartTires') },
+    { value: 'BATTERIES',   label: t('sfPartBatteries') },
+    { value: 'OILS',        label: t('sfPartOils') },
+    { value: 'ACCESSORIES', label: t('sfPartAccessories') },
+    { value: 'OTHER',       label: t('sfPartOther') },
+  ];
+  const SVC_TYPES = [
+    { value: 'MAINTENANCE',         label: t('sfSvcMaintenance') },
+    { value: 'CLEANING',            label: t('sfSvcCleaning') },
+    { value: 'MODIFICATION',        label: t('sfSvcModification') },
+    { value: 'INSPECTION',          label: t('sfSvcInspection') },
+    { value: 'BODYWORK',            label: t('sfSvcBodywork') },
+    { value: 'ACCESSORIES_INSTALL', label: t('sfSvcAccessories') },
+    { value: 'KEYS_LOCKS',          label: t('sfSvcKeys') },
+    { value: 'TOWING',              label: t('sfSvcTowing') },
+    { value: 'OTHER_SERVICE',       label: t('sfSvcOther') },
+  ];
+  const PROV_TYPES = [
+    { value: 'WORKSHOP',   label: t('sfProvWorkshop') },
+    { value: 'INDIVIDUAL', label: t('sfProvIndividual') },
+    { value: 'MOBILE',     label: t('sfProvMobile') },
+    { value: 'COMPANY',    label: t('sfProvCompany') },
+  ];
+  const JOB_TYPES = [
+    { value: 'OFFERING', label: t('sfJobOffering') },
+    { value: 'HIRING',   label: t('sfJobHiring') },
+  ];
+  const EMP_TYPES = [
+    { value: 'FULL_TIME',  label: t('sfEmpFullTime') },
+    { value: 'PART_TIME',  label: t('sfEmpPartTime') },
+    { value: 'TEMPORARY',  label: t('sfEmpTemporary') },
+    { value: 'CONTRACT',   label: t('sfEmpContract') },
+  ];
+  const LIC_TYPES = [
+    { value: 'LIGHT',      label: t('sfLicLight') },
+    { value: 'HEAVY',      label: t('sfLicHeavy') },
+    { value: 'TRANSPORT',  label: t('sfLicTransport') },
+    { value: 'BUS',        label: t('sfLicBus') },
+    { value: 'MOTORCYCLE', label: t('sfLicMotorcycle') },
+  ];
+  const TR_TYPES = [
+    { value: 'CARGO',           label: t('sfTrCargo') },
+    { value: 'FURNITURE',       label: t('sfTrFurniture') },
+    { value: 'DELIVERY',        label: t('sfTrDelivery') },
+    { value: 'HEAVY_TRANSPORT', label: t('sfTrHeavy') },
+    { value: 'TRUCK_RENTAL',    label: t('sfTrTruckRental') },
+    { value: 'OTHER_TRANSPORT', label: t('sfTrOther') },
+  ];
+  const TRIP_TYPES = [
+    { value: 'BUS_SUBSCRIPTION', label: t('sfTripBusSub') },
+    { value: 'SCHOOL_TRANSPORT', label: t('sfTripSchool') },
+    { value: 'TOURISM',          label: t('sfTripTourism') },
+    { value: 'CORPORATE',        label: t('sfTripCorporate') },
+    { value: 'CARPOOLING',       label: t('sfTripCarpooling') },
+  ];
+  const SCHED_TYPES = [
+    { value: 'SCHEDULE_DAILY',   label: t('sfSchedDaily') },
+    { value: 'SCHEDULE_WEEKLY',  label: t('sfSchedWeekly') },
+    { value: 'SCHEDULE_MONTHLY', label: t('sfSchedMonthly') },
+    { value: 'ONE_TIME',         label: t('sfSchedOneTime') },
+  ];
   const isAll      = activeTab === '';
   const isListings = activeTab === 'listings';
   const isParts    = activeTab === 'parts';
@@ -613,28 +612,28 @@ export function SearchFilters({
       {activeFilterCount > 0 && (
         <div className="flex items-center justify-between pb-1">
           <span className={clsx('text-xs font-bold', d ? 'text-white/60' : 'text-on-surface-variant')}>
-            {activeFilterCount} فلتر مفعّل
+            {t('sfActiveFilters', { count: activeFilterCount })}
           </span>
           <button type="button" onClick={clearAllFilters}
             className={clsx('flex items-center gap-1 text-xs font-black transition-colors',
               d ? 'text-white/80 hover:text-white' : 'text-primary hover:text-primary/70')}>
             <span className="material-symbols-outlined text-sm">filter_list_off</span>
-            مسح الكل
+            {t('sfClearAll')}
           </button>
         </div>
       )}
 
       {/* ══ GROUP 1: الترتيب والموقع (all tabs) ══ */}
       {/* API param: sort, governorate */}
-      <FilterGroup icon="sort" label="الترتيب والموقع" activeCount={cShared} defaultOpen dark={d} onClear={cShared > 0 ? clearShared : undefined}>
-        <FilterRow label="ترتيب النتائج" dark={d}>
+      <FilterGroup icon="sort" label={t('sfGrpSortLoc')} activeCount={cShared} defaultOpen dark={d} onClear={cShared > 0 ? clearShared : undefined}>
+        <FilterRow label={t('sfRowSort')} dark={d}>
           {/* 3 values → PillGroup */}
           <PillGroup options={SORT_OPTS} value={state.sort}
             onChange={v => { setters.setSort(v); applyNow('sort', v); }} dark={d} />
         </FilterRow>
-        <FilterRow label="المحافظة" dark={d}>
+        <FilterRow label={t('sfRowGov')} dark={d}>
           {/* 12+ values → SearchableSelect */}
-          <SearchableSelect options={govOpts} value={state.gov} placeholder="كل المحافظات"
+          <SearchableSelect options={govOpts} value={state.gov} placeholder={t('sfPlaceholderAllGov')}
             onChange={v => { setters.setGov(v); applyNow('governorate', v); }} dark={d} />
         </FilterRow>
       </FilterGroup>
@@ -642,18 +641,18 @@ export function SearchFilters({
       {/* ══ GROUP 2: السيارة — listings + isAll ══ */}
       {/* API /api/listings → make, model, listingType, condition, fuelType, transmission */}
       {(isListings || isAll) && (
-        <FilterGroup icon="directions_car" label="السيارة" activeCount={cCar} dark={d} onClear={cCar > 0 ? clearCar : undefined}>
-          <FilterRow label="نوع الإعلان" dark={d}>
+        <FilterGroup icon="directions_car" label={t('sfGrpCar')} activeCount={cCar} dark={d} onClear={cCar > 0 ? clearCar : undefined}>
+          <FilterRow label={t('sfRowListType')} dark={d}>
             {/* 3 values → PillGroup */}
             <PillGroup options={LISTING_TYPES} value={state.lt}
               onChange={v => { setters.setLt(v); applyNow('listingType', v); }} dark={d} />
           </FilterRow>
-          <FilterRow label="الماركة" dark={d}>
-            <SearchableSelect options={makeOpts} value={state.make} placeholder="كل الماركات"
+          <FilterRow label={t('sfRowMake')} dark={d}>
+            <SearchableSelect options={makeOpts} value={state.make} placeholder={t('sfPlaceholderAllMakes')}
               onChange={v => { setters.setMake(v); applyNow('make', v); }} dark={d} />
           </FilterRow>
           {isListings && (
-            <FilterRow label="الموديل" dark={d}>
+            <FilterRow label={t('sfRowModel')} dark={d}>
               <ModelSelect
                 brand={state.make}
                 value={state.model}
@@ -662,27 +661,27 @@ export function SearchFilters({
               />
             </FilterRow>
           )}
-          <FilterRow label="الحالة" dark={d}>
+          <FilterRow label={t('sfRowCond')} dark={d}>
             {/* 3 values → PillGroup */}
             <PillGroup options={condOpts} value={state.cond}
               onChange={v => { setters.setCond(v); applyNow('condition', v); }} dark={d} />
           </FilterRow>
           {isListings && (<>
-            <FilterRow label="نوع الوقود" dark={d}>
-              <SearchableSelect options={fuelOpts} value={state.fuel} placeholder="كل أنواع الوقود"
+            <FilterRow label={t('sfRowFuel')} dark={d}>
+              <SearchableSelect options={fuelOpts} value={state.fuel} placeholder={t('sfPlaceholderAllFuels')}
                 onChange={v => { setters.setFuel(v); applyNow('fuelType', v); }} dark={d} />
             </FilterRow>
-            <FilterRow label="ناقل الحركة" dark={d}>
+            <FilterRow label={t('sfRowTrans')} dark={d}>
               {/* 2 values → PillGroup */}
               <PillGroup options={transOpts} value={state.trans}
                 onChange={v => { setters.setTrans(v); applyNow('transmission', v); }} dark={d} />
             </FilterRow>
-            <FilterRow label="سنة الصنع" dark={d}>
+            <FilterRow label={t('sfRowYear')} dark={d}>
               <div className="flex items-center gap-2">
-                <SearchableSelect options={yearOpts} value={state.yearMin} placeholder="من"
+                <SearchableSelect options={yearOpts} value={state.yearMin} placeholder={t('sfPlaceholderFrom')}
                   onChange={v => { setters.setYearMin(v); applyNow('yearMin', v); }} dark={d} />
                 <span className={clsx('text-xs shrink-0', d ? 'text-white/40' : 'text-on-surface-variant/50')}>—</span>
-                <SearchableSelect options={yearOpts} value={state.yearMax} placeholder="إلى"
+                <SearchableSelect options={yearOpts} value={state.yearMax} placeholder={t('sfPlaceholderTo')}
                   onChange={v => { setters.setYearMax(v); applyNow('yearMax', v); }} dark={d} />
               </div>
             </FilterRow>
@@ -693,7 +692,7 @@ export function SearchFilters({
       {/* ══ GROUP 3: السعر — listings, parts, buses, isAll ══ */}
       {/* API: listings→priceMin/priceMax, parts/buses→minPrice/maxPrice */}
       {(isAll || isListings || isParts || isBuses) && (
-        <FilterGroup icon="payments" label="نطاق السعر" activeCount={cPrice} dark={d} onClear={cPrice > 0 ? clearPrice : undefined}>
+        <FilterGroup icon="payments" label={t('sfGrpPrice')} activeCount={cPrice} dark={d} onClear={cPrice > 0 ? clearPrice : undefined}>
           <RangeInputs minVal={state.minP} maxVal={state.maxP}
             onMinChange={setters.setMinP} onMaxChange={setters.setMaxP}
             onBlur={() => applyFilters()} unit="OMR" dark={d} />
@@ -703,19 +702,19 @@ export function SearchFilters({
       {/* ══ GROUP 4: قطع الغيار — parts ══ */}
       {/* API /api/parts → partCategory, condition, make */}
       {isParts && (
-        <FilterGroup icon="settings" label="قطع الغيار" activeCount={cPartSpec} dark={d} onClear={cPartSpec > 0 ? clearPartSpec : undefined}>
-          <FilterRow label="الفئة" dark={d}>
+        <FilterGroup icon="settings" label={t('sfGrpParts')} activeCount={cPartSpec} dark={d} onClear={cPartSpec > 0 ? clearPartSpec : undefined}>
+          <FilterRow label={t('sfRowCat')} dark={d}>
             {/* 11 values → SearchableSelect */}
-            <SearchableSelect options={PART_CATS} value={state.partCat} placeholder="كل الفئات"
+            <SearchableSelect options={PART_CATS} value={state.partCat} placeholder={t('sfPlaceholderAllCats')}
               onChange={v => { setters.setPartCat(v); applyNow('partCategory', v); }} dark={d} />
           </FilterRow>
-          <FilterRow label="الماركة" dark={d}>
-            <SearchableSelect options={makeOpts} value={state.make} placeholder="كل الماركات"
+          <FilterRow label={t('sfRowMake')} dark={d}>
+            <SearchableSelect options={makeOpts} value={state.make} placeholder={t('sfPlaceholderAllMakes')}
               onChange={v => { setters.setMake(v); applyNow('make', v); }} dark={d} />
           </FilterRow>
-          <FilterRow label="الحالة" dark={d}>
+          <FilterRow label={t('sfRowCond')} dark={d}>
             <PillGroup
-              options={[{ value: 'NEW', label: 'جديد' }, { value: 'USED', label: 'مستعمل' }, { value: 'REFURBISHED', label: 'مجدد' }]}
+              options={[{ value: 'NEW', label: t('sfCondNew') }, { value: 'USED', label: t('sfCondUsed') }, { value: 'REFURBISHED', label: t('sfCondRefurbished') }]}
               value={state.cond}
               onChange={v => { setters.setCond(v); applyNow('condition', v); }} dark={d} />
           </FilterRow>
@@ -725,25 +724,25 @@ export function SearchFilters({
       {/* ══ GROUP 5: الباصات — buses ══ */}
       {/* API /api/buses → busListingType, busType, make, minCapacity, maxCapacity */}
       {isBuses && (
-        <FilterGroup icon="directions_bus" label="الباصات" activeCount={cBusSpec} dark={d} onClear={cBusSpec > 0 ? clearBusSpec : undefined}>
-          <FilterRow label="نوع الإعلان" dark={d}>
+        <FilterGroup icon="directions_bus" label={t('sfGrpBus')} activeCount={cBusSpec} dark={d} onClear={cBusSpec > 0 ? clearBusSpec : undefined}>
+          <FilterRow label={t('sfRowBusListType')} dark={d}>
             {/* 5 values → SearchableSelect */}
-            <SearchableSelect options={BUS_LT} value={state.busLT} placeholder="كل الإعلانات"
+            <SearchableSelect options={BUS_LT} value={state.busLT} placeholder={t('sfPlaceholderAllListings')}
               onChange={v => { setters.setBusLT(v); applyNow('busListingType', v); }} dark={d} />
           </FilterRow>
-          <FilterRow label="نوع الباص" dark={d}>
+          <FilterRow label={t('sfRowBusType')} dark={d}>
             {/* 5 values → SearchableSelect */}
-            <SearchableSelect options={BUS_TYPES} value={state.busType} placeholder="كل الأنواع"
+            <SearchableSelect options={BUS_TYPES} value={state.busType} placeholder={t('sfPlaceholderAllTypes')}
               onChange={v => { setters.setBusType(v); applyNow('busType', v); }} dark={d} />
           </FilterRow>
-          <FilterRow label="الماركة" dark={d}>
-            <SearchableSelect options={makeOpts} value={state.make} placeholder="كل الماركات"
+          <FilterRow label={t('sfRowMake')} dark={d}>
+            <SearchableSelect options={makeOpts} value={state.make} placeholder={t('sfPlaceholderAllMakes')}
               onChange={v => { setters.setMake(v); applyNow('make', v); }} dark={d} />
           </FilterRow>
-          <FilterRow label="السعة (عدد الركاب)" dark={d}>
+          <FilterRow label={t('sfRowCapacity')} dark={d}>
             <RangeInputs minVal={state.capMin} maxVal={state.capMax}
               onMinChange={setters.setCapMin} onMaxChange={setters.setCapMax}
-              onBlur={() => applyFilters()} unit="راكب" dark={d} />
+              onBlur={() => applyFilters()} unit={t('sfUnitPassenger')} dark={d} />
           </FilterRow>
         </FilterGroup>
       )}
@@ -751,18 +750,18 @@ export function SearchFilters({
       {/* ══ GROUP 6: الخدمات — services ══ */}
       {/* API /api/services → serviceType, providerType, isHomeService */}
       {isServices && (
-        <FilterGroup icon="home_repair_service" label="الخدمات" activeCount={cSvcSpec} dark={d} onClear={cSvcSpec > 0 ? clearSvcSpec : undefined}>
-          <FilterRow label="نوع الخدمة" dark={d}>
+        <FilterGroup icon="home_repair_service" label={t('sfGrpServices')} activeCount={cSvcSpec} dark={d} onClear={cSvcSpec > 0 ? clearSvcSpec : undefined}>
+          <FilterRow label={t('sfRowSvcType')} dark={d}>
             {/* 9 values → SearchableSelect */}
-            <SearchableSelect options={SVC_TYPES} value={state.svcType} placeholder="كل الخدمات"
+            <SearchableSelect options={SVC_TYPES} value={state.svcType} placeholder={t('sfPlaceholderAllServices')}
               onChange={v => { setters.setSvcType(v); applyNow('serviceType', v); }} dark={d} />
           </FilterRow>
-          <FilterRow label="نوع المزود" dark={d}>
+          <FilterRow label={t('sfRowProvType')} dark={d}>
             {/* 4 values → PillGroup */}
             <PillGroup options={PROV_TYPES} value={state.provType}
               onChange={v => { setters.setProvType(v); applyNow('providerType', v); }} dark={d} />
           </FilterRow>
-          <Toggle value={state.homeServ} label="خدمة منزلية فقط" dark={d}
+          <Toggle value={state.homeServ} label={t('sfToggleHome')} dark={d}
             onChange={v => { setters.setHomeServ(v); applyFilters({ isHomeService: v ? 'true' : '' }); }} />
         </FilterGroup>
       )}
@@ -770,20 +769,20 @@ export function SearchFilters({
       {/* ══ GROUP 7: الوظائف — jobs ══ */}
       {/* API /api/jobs → jobType, employmentType, licenseType */}
       {isJobs && (
-        <FilterGroup icon="work" label="الوظائف" activeCount={cJobSpec} dark={d} onClear={cJobSpec > 0 ? clearJobSpec : undefined}>
-          <FilterRow label="نوع الوظيفة" dark={d}>
+        <FilterGroup icon="work" label={t('sfGrpJobs')} activeCount={cJobSpec} dark={d} onClear={cJobSpec > 0 ? clearJobSpec : undefined}>
+          <FilterRow label={t('sfRowJobType')} dark={d}>
             {/* 2 values → PillGroup */}
             <PillGroup options={JOB_TYPES} value={state.jobType}
               onChange={v => { setters.setJobType(v); applyNow('jobType', v); }} dark={d} />
           </FilterRow>
-          <FilterRow label="نوع التوظيف" dark={d}>
+          <FilterRow label={t('sfRowEmpType')} dark={d}>
             {/* 4 values → PillGroup */}
             <PillGroup options={EMP_TYPES} value={state.empType}
               onChange={v => { setters.setEmpType(v); applyNow('employmentType', v); }} dark={d} />
           </FilterRow>
-          <FilterRow label="نوع الرخصة" dark={d}>
+          <FilterRow label={t('sfRowLic')} dark={d}>
             {/* 5 values → SearchableSelect */}
-            <SearchableSelect options={LIC_TYPES} value={state.lic} placeholder="أي رخصة"
+            <SearchableSelect options={LIC_TYPES} value={state.lic} placeholder={t('sfPlaceholderAnyLic')}
               onChange={v => { setters.setLic(v); applyNow('licenseType', v); }} dark={d} />
           </FilterRow>
         </FilterGroup>
@@ -792,13 +791,13 @@ export function SearchFilters({
       {/* ══ GROUP 8: النقل — transport ══ */}
       {/* API /api/transport → transportType, providerType */}
       {isTransport && (
-        <FilterGroup icon="local_shipping" label="النقل" activeCount={cTrSpec} dark={d} onClear={cTrSpec > 0 ? clearTrSpec : undefined}>
-          <FilterRow label="نوع النقل" dark={d}>
+        <FilterGroup icon="local_shipping" label={t('sfGrpTransport')} activeCount={cTrSpec} dark={d} onClear={cTrSpec > 0 ? clearTrSpec : undefined}>
+          <FilterRow label={t('sfRowTrType')} dark={d}>
             {/* 6 values → SearchableSelect */}
-            <SearchableSelect options={TR_TYPES} value={state.trType} placeholder="كل أنواع النقل"
+            <SearchableSelect options={TR_TYPES} value={state.trType} placeholder={t('sfPlaceholderAllTrTypes')}
               onChange={v => { setters.setTrType(v); applyNow('transportType', v); }} dark={d} />
           </FilterRow>
-          <FilterRow label="نوع المزود" dark={d}>
+          <FilterRow label={t('sfRowProvType')} dark={d}>
             <PillGroup options={PROV_TYPES} value={state.provType}
               onChange={v => { setters.setProvType(v); applyNow('providerType', v); }} dark={d} />
           </FilterRow>
@@ -808,13 +807,13 @@ export function SearchFilters({
       {/* ══ GROUP 9: الرحلات — trips ══ */}
       {/* API /api/trips → tripType, scheduleType */}
       {isTrips && (
-        <FilterGroup icon="route" label="الرحلات" activeCount={cTripSpec} dark={d} onClear={cTripSpec > 0 ? clearTripSpec : undefined}>
-          <FilterRow label="نوع الرحلة" dark={d}>
+        <FilterGroup icon="route" label={t('sfGrpTrips')} activeCount={cTripSpec} dark={d} onClear={cTripSpec > 0 ? clearTripSpec : undefined}>
+          <FilterRow label={t('sfRowTripType')} dark={d}>
             {/* 5 values → SearchableSelect */}
-            <SearchableSelect options={TRIP_TYPES} value={state.tripType} placeholder="كل الرحلات"
+            <SearchableSelect options={TRIP_TYPES} value={state.tripType} placeholder={t('sfPlaceholderAllTrips')}
               onChange={v => { setters.setTripType(v); applyNow('tripType', v); }} dark={d} />
           </FilterRow>
-          <FilterRow label="الجدول الزمني" dark={d}>
+          <FilterRow label={t('sfRowSched')} dark={d}>
             {/* 4 values → PillGroup */}
             <PillGroup options={SCHED_TYPES} value={state.sched}
               onChange={v => { setters.setSched(v); applyNow('scheduleType', v); }} dark={d} />

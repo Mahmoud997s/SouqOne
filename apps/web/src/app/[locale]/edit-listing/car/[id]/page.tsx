@@ -154,11 +154,7 @@ export default function EditCarListingPage() {
   return (
     <AuthGuard>
       <Navbar />
-      <main className="pt-28 pb-16 max-w-[900px] mx-auto px-4 md:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-extrabold mb-2">{tp('editListingTitle')}</h1>
-          <p className="text-on-surface-variant">{tp('editListingDesc')}</p>
-        </div>
+      <main className="pt-[75px] pb-16 max-w-[900px] mx-auto px-4 md:px-8">
 
         <ListingForm
           initialData={initialData}
@@ -168,6 +164,7 @@ export default function EditCarListingPage() {
           errorMessages={errorMessages}
           onClearErrors={() => setErrorMessages([])}
           submitLabel={uploading ? tp('editListingUploading') : tp('editListingSave')}
+          title={tp('editListingTitle')}
         />
       </main>
       <Footer />

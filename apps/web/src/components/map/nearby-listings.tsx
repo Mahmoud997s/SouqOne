@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { haversineDistance } from '@/lib/geo-utils';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { resolveLocationLabel } from '@/lib/location-data';
 
 interface NearbyListing {
   id: string;
@@ -28,6 +29,7 @@ interface NearbyListingsProps {
 
 export default function NearbyListings({ listings, maxItems = 6 }: NearbyListingsProps) {
   const tp = useTranslations('pages');
+  const locale = useLocale();
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
   const [permissionState, setPermissionState] = useState<'prompt' | 'granted' | 'denied' | 'loading'>('prompt');
@@ -181,7 +183,7 @@ export default function NearbyListings({ listings, maxItems = 6 }: NearbyListing
                 {item.governorate && (
                   <span className="text-[11px] text-on-surface-variant flex items-center gap-0.5">
                     <span className="material-symbols-outlined text-[12px]">location_on</span>
-                    {item.governorate}
+                    {resolveLocationLabel(item.governorate, locale) ?? item.governorate}
                   </span>
                 )}
               </div>

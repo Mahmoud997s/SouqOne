@@ -7,6 +7,8 @@ import { AuthGuard } from '@/components/auth-guard';
 import { useAdminJobs, useAdminJobStats, useAdminUpdateJob, useAdminDeleteJob } from '@/lib/api/admin-jobs';
 import { useAdminVerifications, useAdminReviewVerification } from '@/lib/api';
 import { useToast } from '@/components/toast';
+import { useLocale } from 'next-intl';
+import { resolveLocationLabel } from '@/lib/location-data';
 
 export default function AdminJobsPage() {
   return (
@@ -17,6 +19,7 @@ export default function AdminJobsPage() {
 }
 
 function AdminJobsContent() {
+  const locale = useLocale();
   const { addToast } = useToast();
   const [tab, setTab] = useState<'stats' | 'jobs' | 'verifications'>('stats');
   const [page, setPage] = useState(1);
@@ -131,7 +134,7 @@ function AdminJobsContent() {
                       <div>
                         <p className="font-bold text-sm">{job.title}</p>
                         <p className="text-xs text-on-surface-variant">
-                          {job.user.displayName || job.user.username} · {job.governorate} · {job._count.applications} طلب
+                          {job.user.displayName || job.user.username} · {resolveLocationLabel(job.governorate, locale) || job.governorate} · {job._count.applications} طلب
                         </p>
                       </div>
                       <div className="flex items-center gap-2">

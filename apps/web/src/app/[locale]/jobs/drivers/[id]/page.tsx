@@ -9,6 +9,8 @@ import { useAuth } from '@/providers/auth-provider';
 import { useRequireJobProfile } from '@/hooks/use-require-job-profile';
 import { useToast } from '@/components/toast';
 import { getImageUrl } from '@/lib/image-utils';
+import { useLocale } from 'next-intl';
+import { resolveLocationLabel, resolveCityLabel } from '@/lib/location-data';
 import Image from 'next/image';
 
 const LICENSE_LABELS: Record<string, string> = {
@@ -29,6 +31,7 @@ export default function DriverProfilePage() {
   const { user } = useAuth();
   const { requireProfile } = useRequireJobProfile();
   const { addToast } = useToast();
+  const locale = useLocale();
   const { data: driver, isLoading, isError } = useDriver(id);
   const createConv = useCreateConversation();
   const inviteDriver = useInviteDriver();
@@ -140,7 +143,7 @@ export default function DriverProfilePage() {
                 </div>
                 <p className="text-on-surface-variant flex items-center gap-1 mb-2">
                   <span className="material-symbols-outlined text-sm">location_on</span>
-                  {driver.governorate}{driver.city ? ` - ${driver.city}` : ''}
+                  {resolveLocationLabel(driver.governorate, locale) || driver.governorate}{driver.city ? ` - ${resolveCityLabel(driver.city, locale)}` : ''}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {driver.isAvailable ? (

@@ -6,12 +6,15 @@
 'use client';
 
 import { memo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import * as Icons from 'lucide-react';
 import { ExternalLink } from 'lucide-react';
 import type { UnifiedListing } from '../types/unified.types';
 import type { SpecField } from '../types/config.types';
 import { getNestedValue } from '../config/specs.config';
+import { useEnumTranslations } from '@/lib/enum-translations';
+import { translateEnum } from '@/lib/translate-enum';
+import { resolveLocationLabel, resolveCityLabel } from '@/lib/location-data';
 
 interface DetailsTableProps {
   listing: UnifiedListing;
@@ -57,6 +60,8 @@ function formatTableValue(value: unknown, format?: string, boolYes?: string, boo
 
 export const DetailsTable = memo(function DetailsTable({ listing, fields }: DetailsTableProps) {
   const ts = useTranslations('sale');
+  const enums = useEnumTranslations();
+  const locale = useLocale();
   // Filter out empty fields if hideIfEmpty is true
   const visibleFields = fields.filter((field) => {
     const value = getNestedValue(listing, field.key);
@@ -72,7 +77,15 @@ export const DetailsTable = memo(function DetailsTable({ listing, fields }: Deta
     <div className="border border-outline-variant/15 rounded-xl overflow-hidden text-[12px]">
       {visibleFields.map((field, index, arr) => {
         const value = getNestedValue(listing, field.key);
-        const formatted = formatTableValue(value, field.format, ts('boolYes'), ts('boolNo'));
+        const resolvedValue =
+          field.key === 'governorate'
+            ? (resolveLocationLabel(value as string, locale) ?? value)
+            : field.key === 'city'
+              ? (resolveCityLabel(value as string, locale) ?? value)
+              : field.format === 'enum' && field.enumKey
+                ? translateEnum(enums[field.enumKey], value as string)
+                : value;
+        const formatted = formatTableValue(resolvedValue, field.format, ts('boolYes'), ts('boolNo'));
         const isLast = index === arr.length - 1;
 
         // Get icon component dynamically

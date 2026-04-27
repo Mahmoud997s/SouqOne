@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Search, MapPin, Tag, Banknote, X, Check } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
@@ -217,6 +218,7 @@ const FieldButton = ({ config, value, isActive, onClick, onClear, ref }: FieldBu
 // ── Main SearchBar Component ───────────────────────────────────────────────
 
 export function SearchBar({ category, filters, onFilterChange, onSearch }: SearchBarProps) {
+  const t = useTranslations('pages')
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null)
@@ -346,7 +348,7 @@ export function SearchBar({ category, filters, onFilterChange, onSearch }: Searc
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="ابحث عن سيارة، منزل، خدمة..."
+                placeholder={t('sfSearchBarPlaceholder')}
                 className="w-full bg-transparent text-sm text-on-surface placeholder:text-on-surface-variant/50 outline-none text-right transition-all duration-150"
               />
             </div>

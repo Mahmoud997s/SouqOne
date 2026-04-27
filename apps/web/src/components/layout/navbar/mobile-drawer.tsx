@@ -7,6 +7,8 @@ import { Link } from '@/i18n/navigation';
 import type { NavLinkItem } from '../navbar';
 import { getImageUrl } from '@/lib/image-utils';
 import { useAuthModal } from '@/providers/auth-modal-provider';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 interface MobileDrawerProps {
   open: boolean;
@@ -178,6 +180,17 @@ export function MobileDrawer({ open, close, navLinks, flatNavLinks: _flatNavLink
               </button>
             </div>
           )}
+        </div>
+
+        {/* Bottom Actions: Theme & Language */}
+        <div className="px-5 py-4 border-t border-outline-variant/20 bg-surface-container-low/30">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">{t('settings')}</span>
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
+              <ThemeToggle />
+            </div>
+          </div>
         </div>
 
         <div className="px-5 py-3 border-t border-outline-variant/20">

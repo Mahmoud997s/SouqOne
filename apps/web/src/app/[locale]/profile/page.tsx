@@ -8,7 +8,7 @@ import { Footer } from '@/components/layout/footer';
 import { AuthGuard } from '@/components/auth-guard';
 import { ErrorState } from '@/components/error-state';
 import { useMe, useListings, useFavorites, useUpdateProfile, useChangePassword, useDeleteListing, useUploadImage } from '@/lib/api';
-import { getGovernorates } from '@/lib/location-data';
+import { getGovernorates, resolveLocationLabel } from '@/lib/location-data';
 import { inputCls, labelCls } from '@/lib/constants/form-styles';
 import { getImageUrl } from '@/lib/image-utils';
 import { VerifiedBadge } from '@/components/verified-badge';
@@ -243,7 +243,7 @@ export default function ProfilePage() {
               {user.governorate && (
                 <p className="flex items-center gap-1 text-[11px] text-on-surface-variant mt-1">
                   <span className="material-symbols-outlined text-xs">location_on</span>
-                  {user.governorate}
+                  {resolveLocationLabel(user.governorate, locale)}
                 </p>
               )}
             </div>
@@ -310,7 +310,7 @@ export default function ProfilePage() {
           {user.governorate && (
             <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200 text-[11px] font-medium dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
               <span className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-              {user.governorate}
+              {resolveLocationLabel(user.governorate, locale)}
             </span>
           )}
         </div>
@@ -376,7 +376,7 @@ export default function ProfilePage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
-                        <Link href={`/edit-listing/${item.id}`}
+                        <Link href={`/edit-listing/car/${item.id}`}
                           className="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/8 transition-all">
                           <span className="material-symbols-outlined text-base">edit</span>
                         </Link>
@@ -497,7 +497,7 @@ export default function ProfilePage() {
                       <label className={labelCls}>{tp('profileGovernorateLabel')}</label>
                       <select value={governorate} onChange={e => setGovernorate(e.target.value)} className={inputCls}>
                         <option value="">{tp('profileGovernoratePlaceholder')}</option>
-                        {govOptions.map(g => <option key={g.value} value={g.label}>{g.label}</option>)}
+                        {govOptions.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
                       </select>
                     </div>
                     <div>
@@ -525,7 +525,7 @@ export default function ProfilePage() {
                     {[
                       { label: tp('profileInfoName'), value: user.displayName || '—' },
                       { label: 'اسم المستخدم', value: `@${user.username}` },
-                      { label: tp('profileInfoGovernorate'), value: user.governorate || '—' },
+                      { label: tp('profileInfoGovernorate'), value: resolveLocationLabel(user.governorate, locale) || '—' },
                     ].map(row => (
                       <div key={row.label} className="flex justify-between items-center py-1 border-b border-outline-variant/10 last:border-0">
                         <span className="text-[12px] text-on-surface-variant">{row.label}</span>

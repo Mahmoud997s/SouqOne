@@ -2,7 +2,8 @@
 
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { resolveLocationLabel } from '@/lib/location-data';
 import { CardSkeleton } from '@/components/loading-skeleton';
 import { getImageUrl } from '@/lib/image-utils';
 import { useFavContext } from '@/providers/favorites-provider';
@@ -41,6 +42,7 @@ export function EquipmentShowcase({ items, isLoading }: EquipmentShowcaseProps) 
   const tl = useTranslations('listings');
   const tc = useTranslations('categories');
   const tm = useTranslations('mappings');
+  const locale = useLocale();
 
   const TYPE_LABELS: Record<string, string> = {
     EQUIPMENT_SALE: tc('equipmentSale'),
@@ -138,7 +140,7 @@ export function EquipmentShowcase({ items, isLoading }: EquipmentShowcaseProps) 
                       {eq.governorate && (
                         <span className="flex items-center gap-px shrink-0">
                           <span className="material-symbols-outlined text-[9px] sm:text-[11px]">location_on</span>
-                          {eq.governorate}
+                          {resolveLocationLabel(eq.governorate, locale)}
                         </span>
                       )}
                     </div>

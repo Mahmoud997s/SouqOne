@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { apiRequest } from '../auth';
 
 export interface ListingItem {
@@ -65,7 +66,7 @@ export interface ListingsResponse {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
-export function useListings(params: Record<string, string> = {}, enabled = true) {
+export function useListings(params: Record<string, string> = {}, enabled = true): UseQueryResult<ListingsResponse, Error> {
   const searchParams = new URLSearchParams(params);
   return useQuery<ListingsResponse>({
     queryKey: ['listings', params],
@@ -74,7 +75,7 @@ export function useListings(params: Record<string, string> = {}, enabled = true)
   });
 }
 
-export function useMyListings(params: Record<string, string> = {}) {
+export function useMyListings(params: Record<string, string> = {}): UseQueryResult<ListingsResponse, Error> {
   const searchParams = new URLSearchParams(params);
   return useQuery<ListingsResponse>({
     queryKey: ['my-listings', params],
@@ -82,7 +83,7 @@ export function useMyListings(params: Record<string, string> = {}) {
   });
 }
 
-export function useListing(id: string) {
+export function useListing(id: string): UseQueryResult<ListingItem, Error> {
   return useQuery<ListingItem>({
     queryKey: ['listing', id],
     queryFn: () => apiRequest<ListingItem>(`/listings/${id}`),
@@ -90,7 +91,7 @@ export function useListing(id: string) {
   });
 }
 
-export function useListingBySlug(slug: string) {
+export function useListingBySlug(slug: string): UseQueryResult<ListingItem, Error> {
   return useQuery<ListingItem>({
     queryKey: ['listing', 'slug', slug],
     queryFn: () => apiRequest<ListingItem>(`/listings/slug/${slug}`),
@@ -98,7 +99,7 @@ export function useListingBySlug(slug: string) {
   });
 }
 
-export function useCreateListing() {
+export function useCreateListing(): UseMutationResult<ListingItem, Error, Record<string, unknown>> {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Record<string, unknown>) =>
@@ -107,7 +108,7 @@ export function useCreateListing() {
   });
 }
 
-export function useUpdateListing(id: string) {
+export function useUpdateListing(id: string): UseMutationResult<ListingItem, Error, Record<string, unknown>> {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Record<string, unknown>) =>
@@ -119,11 +120,20 @@ export function useUpdateListing(id: string) {
   });
 }
 
-export function useDeleteListing() {
+export function useDeleteListing(): UseMutationResult<unknown, Error, string> {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
       apiRequest(`/listings/${id}`, { method: 'DELETE' }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['listings'] }),
+  });
+}
+
+export function useSuggestions(query: string): UseQueryResult<string[], Error> {
+  return useQuery({
+    queryKey: ['listings', 'suggestions', query],
+    queryFn: () => apiRequest<string[]>(`/listings/search/suggestions?q=${encodeURIComponent(query)}`),
+    enabled: query.length >= 2,
+    staleTime: 1000 * 60 * 5, // Cache for 5 mins
   });
 }

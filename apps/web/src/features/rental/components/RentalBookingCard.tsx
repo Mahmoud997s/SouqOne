@@ -164,7 +164,7 @@ export function RentalBookingCard({
         <div className="mt-4">
           {isOwner ? (
             <a
-              href={`/edit-listing/${listing.id}`}
+              href={`/edit-listing/car/${listing.id}`}
               className="block w-full h-12 rounded-xl bg-primary text-on-primary text-[14px] font-medium text-center leading-[48px] hover:bg-primary/90 active:scale-[0.98] transition-all shadow-sm"
             >
               {tr('editListing')}

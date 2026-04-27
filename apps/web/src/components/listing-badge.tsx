@@ -16,7 +16,7 @@ export const ListingBadge = memo(function ListingBadge({ type }: ListingBadgePro
   if (type === 'RENTAL') {
     return (
       <span className={baseClass}>
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mr-1" />
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block me-1.5" />
         إيجار
       </span>
     );
@@ -25,7 +25,7 @@ export const ListingBadge = memo(function ListingBadge({ type }: ListingBadgePro
   if (type === 'WANTED') {
     return (
       <span className={baseClass}>
-        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block mr-1" />
+        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block me-1.5" />
         مطلوب
       </span>
     );
@@ -34,7 +34,7 @@ export const ListingBadge = memo(function ListingBadge({ type }: ListingBadgePro
   // SALE/Price badge - blue like other cards
   return (
     <span className="px-3 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
-      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block mr-1" />
+      <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block me-1.5" />
       للبيع
     </span>
   );

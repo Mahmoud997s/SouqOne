@@ -659,3 +659,30 @@
 @media (max-width: 1023px) {
   main:not(.no-bottom-pad) { padding-bottom: 80px; }
 }
+
+/* ──────────────────────────────────────
+   Marquee Slider
+   ────────────────────────────────────── */
+
+@keyframes marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+[dir="rtl"] @keyframes marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(50%, 0, 0); }
+}
+
+@utility animate-marquee {
+  display: flex;
+  width: max-content;
+  flex-wrap: nowrap;
+  animation: marquee 60s linear infinite;
+}
+
+@utility pause-on-hover {
+  &:hover {
+    animation-play-state: paused;
+  }
+}

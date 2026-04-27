@@ -12,6 +12,7 @@ import { useToast } from '@/components/toast';
 import { SellerCard } from '@/components/seller-card';
 import { employmentLabelsT } from '@/lib/constants/jobs';
 import { useTranslations, useLocale } from 'next-intl';
+import { resolveLocationLabel, resolveCityLabel } from '@/lib/location-data';
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -158,7 +159,7 @@ export default function JobDetailPage() {
                   <div className="flex flex-wrap gap-4 text-sm text-on-surface-variant">
                     <span className="flex items-center gap-1">
                       <span className="material-symbols-outlined text-primary text-lg">location_on</span>
-                      {job.governorate}{job.city ? ` - ${job.city}` : ''}
+                      {resolveLocationLabel(job.governorate, locale) || job.governorate}{job.city ? ` - ${resolveCityLabel(job.city, locale)}` : ''}
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="material-symbols-outlined text-lg">visibility</span>

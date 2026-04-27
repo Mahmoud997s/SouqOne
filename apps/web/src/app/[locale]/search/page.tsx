@@ -15,7 +15,7 @@ import { useJobs } from '@/lib/api/jobs';
 import { useTransportServices } from '@/lib/api/transport';
 import { useTrips } from '@/lib/api/trips';
 import { conditionOptions as conditionOptionsFn, fuelOptions as fuelOptionsFn, transmissionOptions as transmissionOptionsFn } from '@/lib/constants/mappings';
-import { getGovernorates } from '@/lib/location-data';
+import { getGovernorates, resolveLocationLabel } from '@/lib/location-data';
 import { getImageUrl } from '@/lib/image-utils';
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
@@ -664,7 +664,7 @@ function SearchContent() {
                       {item.governorate && (
                         <span className="absolute bottom-2 start-2 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 backdrop-blur-sm">
                           <span className="material-symbols-outlined text-[11px]">location_on</span>
-                          {item.governorate}
+                          {resolveLocationLabel(item.governorate, locale)}
                         </span>
                       )}
                     </div>

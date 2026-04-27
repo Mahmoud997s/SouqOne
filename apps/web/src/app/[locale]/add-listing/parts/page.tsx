@@ -12,7 +12,7 @@ import { useCreatePart, useBrands } from '@/lib/api';
 import { getAuthToken } from '@/lib/auth';
 import { useToast } from '@/components/toast';
 import { API_BASE } from '@/lib/config';
-import { getGovernorates, getCities, getCountries } from '@/lib/location-data';
+import { getGovernorates, getCities } from '@/lib/location-data';
 import { inputCls, labelCls, sectionCls, sectionTitleCls, chipCls, checkboxLabelCls, checkboxCls, checkboxTextCls } from '@/lib/constants/form-styles';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
 import { useTranslations, useLocale } from 'next-intl';
@@ -82,10 +82,9 @@ function AddPartContent() {
     whatsapp: '',
   });
 
-  const [selectedCountry, setSelectedCountry] = useState('OM');
   const [selectedGov, setSelectedGov] = useState('');
-  const governorateOptions = getGovernorates(selectedCountry, locale);
-  const cityOptions = getCities(selectedCountry, selectedGov, locale);
+  const governorateOptions = getGovernorates('OM', locale);
+  const cityOptions = getCities('OM', selectedGov, locale);
 
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -277,17 +276,10 @@ function AddPartContent() {
               <section className={sectionCls}>
                 <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>{tp('partLabelLocationContact')}</h2>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className={labelCls}>{tp('partLabelCountry')}</label>
-                      <select value={selectedCountry} onChange={e => { setSelectedCountry(e.target.value); setSelectedGov(''); set('governorate', ''); set('city', ''); }} className={inputCls}>
-                        <option value="">{tp('partSelect')}</option>
-                        {getCountries(locale).map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                      </select>
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelCls}>{tp('partLabelGov')}</label>
-                      <select value={selectedGov} onChange={e => { setSelectedGov(e.target.value); const g = governorateOptions.find(x => x.value === e.target.value); set('governorate', g?.label ?? ''); set('city', ''); }} className={inputCls} disabled={!selectedCountry}>
+                      <select value={selectedGov} onChange={e => { setSelectedGov(e.target.value); set('governorate', e.target.value); set('city', ''); }} className={inputCls}>
                         <option value="">{tp('partSelect')}</option>
                         {governorateOptions.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
                       </select>

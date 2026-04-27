@@ -6,7 +6,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { useDrivers } from '@/lib/api';
 import type { DriverProfileItem } from '@/lib/api';
-import { getGovernorates } from '@/lib/location-data';
+import { getGovernorates, resolveLocationLabel, resolveCityLabel } from '@/lib/location-data';
 import { getImageUrl } from '@/lib/image-utils';
 import { useLocale } from 'next-intl';
 import Image from 'next/image';
@@ -106,6 +106,7 @@ export default function DriversPage() {
 }
 
 function DriverCard({ driver }: { driver: DriverProfileItem }) {
+  const locale = useLocale();
   return (
     <Link href={`/jobs/drivers/${driver.id}`} className="glass-card rounded-xl p-6 hover:shadow-md transition-shadow block">
       <div className="flex items-start gap-4">
@@ -127,7 +128,7 @@ function DriverCard({ driver }: { driver: DriverProfileItem }) {
           <h3 className="font-extrabold text-on-surface truncate">{driver.user.displayName || driver.user.username}</h3>
           <p className="text-sm text-on-surface-variant flex items-center gap-1">
             <span className="material-symbols-outlined text-sm">location_on</span>
-            {driver.governorate}{driver.city ? ` - ${driver.city}` : ''}
+            {resolveLocationLabel(driver.governorate, locale) || driver.governorate}{driver.city ? ` - ${resolveCityLabel(driver.city, locale)}` : ''}
           </p>
         </div>
       </div>

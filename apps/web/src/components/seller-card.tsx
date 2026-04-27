@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { getImageUrl } from '@/lib/image-utils';
 import { useTranslations, useLocale } from 'next-intl';
+import { resolveLocationLabel } from '@/lib/location-data';
 
 interface SellerCardProps {
   title?: string;
@@ -62,7 +63,7 @@ export function SellerCard({
       )}
       {location && (
         <p className="text-[11px] text-on-surface-variant mt-0.5 flex items-center gap-0.5">
-          <span className="material-symbols-outlined text-[11px] text-primary">location_on</span>{location}
+          <span className="material-symbols-outlined text-[11px] text-primary">location_on</span>{resolveLocationLabel(location, locale) ?? location}
         </p>
       )}
     </div>

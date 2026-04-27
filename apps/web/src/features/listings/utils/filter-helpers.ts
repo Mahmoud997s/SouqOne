@@ -1,4 +1,4 @@
-﻿import type { ActiveFilters, FilterField } from '../types/filters.types'
+import type { ActiveFilters, FilterField } from '../types/filters.types'
 import type { ListingCategory } from '../types/category.types'
 
 export function parseRangeKey(key: string): [string, string] | null {
@@ -17,6 +17,29 @@ export function buildQueryParams(
 
   for (const [key, value] of Object.entries(filters)) {
     if (!value) continue
+
+    // Pass-through secondary/child filter keys directly
+    if (key === 'city' || key === 'model') {
+      params[key] = value as string
+      continue
+    }
+
+    // Pass-through system keys (map 'q' to 'search' for backend)
+    if (key === 'q') {
+      params['search'] = value as string
+      continue
+    }
+    if (key === 'sort') {
+      const val = value as string
+      if (val.includes('_')) {
+        const [sortBy, sortDir] = val.split('_')
+        params['sortBy'] = sortBy
+        params['sortOrder'] = sortDir
+      } else {
+        params['sortBy'] = val
+      }
+      continue
+    }
 
     const field = config.find(f => f.key === key)
     if (!field) continue
@@ -61,11 +84,30 @@ export function parseUrlFilters(
     } else if (field.type === 'multiselect') {
       const val = searchParams.get(field.key)
       if (val) filters[field.key] = val.split(',')
+    } else if (field.type === 'governorate_wilayat') {
+      const val = searchParams.get(field.key)
+      if (val) filters[field.key] = val
+    } else if (field.type === 'make_model') {
+      const val = searchParams.get(field.key)
+      if (val) filters[field.key] = val
     } else {
       const val = searchParams.get(field.key)
       if (val) filters[field.key] = val
     }
   }
+
+  // Always read child and system keys directly from URL
+  const city = searchParams.get('city')
+  if (city) filters['city'] = city
+
+  const model = searchParams.get('model')
+  if (model) filters['model'] = model
+
+  const q = searchParams.get('q')
+  if (q) filters['q'] = q
+
+  const sort = searchParams.get('sort')
+  if (sort) filters['sort'] = sort
 
   return filters
 }

@@ -17,6 +17,7 @@ import { getSaleConfig } from '@/features/sale/config/specs.config';
 import { SalePageShell } from '@/features/sale/components/SalePageShell';
 import type { SaleEntityType } from '@/features/sale/types/unified.types';
 import { useTranslations } from 'next-intl';
+import { useEnumTranslations } from '@/lib/enum-translations';
 
 const VALID_TYPES: SaleEntityType[] = ['car', 'bus', 'equipment', 'part', 'service'];
 
@@ -109,6 +110,7 @@ export default function SalePage() {
 
   const router = useRouter();
   const ts = useTranslations('sale');
+  const enumT = useEnumTranslations();
 
   // Fetch unified listing data
   const { listing, isLoading, isError, error, refetch, redirectTo } = useUnifiedListing(type, id);
@@ -140,7 +142,7 @@ export default function SalePage() {
     );
   }
 
-  const config = getSaleConfig(ts)[type];
+  const config = getSaleConfig(ts, enumT)[type];
 
   return (
     <>

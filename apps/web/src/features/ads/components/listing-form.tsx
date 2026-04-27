@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { ImageUploader, type UploadedImage } from './image-uploader';
 import { useBrands, useCarModels, useCarYears } from '@/lib/api';
-import { getCountries, getGovernorates, getCities } from '@/lib/location-data';
+import { getGovernorates, getCities } from '@/lib/location-data';
 import { fuelLabels as fuelLabelsT, transmissionLabels as transLabelsT, conditionLabels as condLabelsT, cancelLabels as cancelLabelsT, exteriorColors as exteriorColorsT, interiorColors as interiorColorsT, BODY_OPTIONS, DRIVE_OPTIONS, CANCEL_OPTIONS } from '@/lib/constants/mappings';
 import { MultiStepForm } from '@/components/ui/multi-step-form';
 import { FormErrorOverlay } from '@/components/form-error-overlay';
@@ -99,6 +99,7 @@ interface ListingFormProps {
   errorMessages: string[];
   onClearErrors: () => void;
   submitLabel: string;
+  title?: string;
 }
 
 const CAR_FEATURE_KEYS = [
@@ -119,7 +120,7 @@ const driveOptions = [...DRIVE_OPTIONS];
 
 const cancelOptions = [...CANCEL_OPTIONS];
 
-export function ListingForm({ initialData, initialImages, onSubmit, isLoading, errorMessages, onClearErrors, submitLabel }: ListingFormProps) {
+export function ListingForm({ initialData, initialImages, onSubmit, isLoading, errorMessages, onClearErrors, submitLabel, title: customTitle }: ListingFormProps) {
   const tp = useTranslations('pages');
   const tm = useTranslations('mappings');
   const tc = useTranslations('colors');
@@ -139,10 +140,9 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
   const { data: models = [] } = useCarModels(selectedBrandId);
   const { data: years = [] } = useCarYears(selectedModelId);
 
-  const [selectedCountry, setSelectedCountry] = useState('OM');
   const [selectedGov, setSelectedGov] = useState('');
-  const governorateOptions = getGovernorates(selectedCountry, locale);
-  const cityOptions = getCities(selectedCountry, selectedGov, locale);
+  const governorateOptions = getGovernorates('OM', locale);
+  const cityOptions = getCities('OM', selectedGov, locale);
 
   useEffect(() => {
     if (initialData) setForm((prev) => ({ ...prev, ...initialData }));
@@ -250,7 +250,7 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
       isLoading={isLoading}
       submitLabel={submitLabel}
       canProceed={canProceed}
-      title={form.listingType === 'RENTAL' ? tp('lfTitleRental') : form.listingType === 'WANTED' ? tp('lfTitleWanted') : tp('lfTitleSale')}
+      title={customTitle || (form.listingType === 'RENTAL' ? tp('lfTitleRental') : form.listingType === 'WANTED' ? tp('lfTitleWanted') : tp('lfTitleSale'))}
     >
       {/* ═══ Step 1: البيانات الأساسية ═══ */}
       {step === 0 && (
@@ -580,35 +580,22 @@ export function ListingForm({ initialData, initialImages, onSubmit, isLoading, e
           {/* Location */}
           <section className={sectionCls}>
             <h2 className={sectionTitleCls}><span className="material-symbols-outlined text-primary text-lg">location_on</span>{tp('lfLocationTitle')}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className={labelCls}>{tp('lfCountry')}</label>
-                <select value={selectedCountry} onChange={(e) => {
-                  setSelectedCountry(e.target.value);
-                  setSelectedGov('');
-                  set('governorate', '');
-                  set('city', '');
-                }} className={inputCls}>
-                  <option value="">{tp('lfSelectCountry')}</option>
-                  {getCountries(locale).map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                </select>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>{tp('lfGovernorate')}</label>
                 <select value={selectedGov} onChange={(e) => {
                   setSelectedGov(e.target.value);
-                  const gov = governorateOptions.find(g => g.value === e.target.value);
-                  set('governorate', gov?.label ?? '');
+                  set('governorate', e.target.value);
                   set('city', '');
-                }} className={inputCls} disabled={!selectedCountry}>
-                  <option value="">{selectedCountry ? tp('lfSelectGovernorate') : tp('lfSelectCountryFirst')}</option>
+                }} className={inputCls}>
+                  <option value="">{tp('lfSelectGovernorate')}</option>
                   {governorateOptions.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
                 </select>
               </div>
               <div>
                 <label className={labelCls}>{tp('lfCity')}</label>
                 <select value={form.city} onChange={(e) => set('city', e.target.value)} className={inputCls} disabled={!selectedGov}>
-                  <option value="">{selectedGov ? tp('lfSelectCity') : tp('lfSelectGovernorateFirst')}</option>
+                  <option value="">{tp('lfSelectCity')}</option>
                   {cityOptions.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </select>
               </div>
