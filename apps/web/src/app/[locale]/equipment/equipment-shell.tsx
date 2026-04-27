@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
-import { Search, ArrowLeft, ArrowRight, ChevronLeft, Wrench, HardHat, Package, Users, Plus, Sparkles, Eye, MapPin } from 'lucide-react';
-import { getImageUrl } from '@/lib/image-utils';
+import { Search, ArrowLeft, ArrowRight, ChevronLeft, Wrench, HardHat, Package, Users, Plus, Sparkles, MapPin } from 'lucide-react';
 import type { EquipmentListingItem, EquipmentRequestItem, OperatorListingItem } from '@/lib/api/equipment';
+import { UnifiedCard } from '@/features/listings/components/UnifiedCard';
+import { normalizeEquipment } from '@/features/listings/config/categories.config';
 
 // ── Equipment Type Config ────────────────────────────────────────────────────
 
@@ -32,13 +32,6 @@ const QUICK_LINKS = [
   { title: 'طلبات المعدات', desc: 'انشر طلبك واحصل على عروض', icon: HardHat, href: '/equipment/requests/new', gradient: 'from-blue-600 to-indigo-700', count: 'عروض مباشرة' },
   { title: 'مشغلين معدات', desc: 'سائقين وفنيين محترفين', icon: Users, href: '/browse/equipment?tab=operators', gradient: 'from-purple-600 to-pink-600', count: 'خبرة عالية' },
 ];
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function getImg(item: EquipmentListingItem) {
-  const img = item.images?.find((i) => i.isPrimary) ?? item.images?.[0];
-  return getImageUrl(img?.url) ?? null;
-}
 
 // ── Props ────────────────────────────────────────────────────────────────────
 
@@ -225,7 +218,7 @@ export function EquipmentShell({ saleEquipment, rentalEquipment, operators, requ
           {saleEquipment.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               {saleEquipment.map((item) => (
-                <EquipmentCard key={item.id} item={item} />
+                <UnifiedCard key={item.id} item={normalizeEquipment(item)} />
               ))}
             </div>
           ) : (
@@ -259,7 +252,7 @@ export function EquipmentShell({ saleEquipment, rentalEquipment, operators, requ
           {rentalEquipment.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               {rentalEquipment.map((item) => (
-                <EquipmentCard key={item.id} item={item} />
+                <UnifiedCard key={item.id} item={normalizeEquipment(item)} />
               ))}
             </div>
           ) : (
@@ -460,73 +453,3 @@ export function EquipmentShell({ saleEquipment, rentalEquipment, operators, requ
   );
 }
 
-// ── Equipment Card Component ────────────────────────────────────────────────
-
-function EquipmentCard({ item }: { item: EquipmentListingItem }) {
-  const img = getImg(item);
-  const isRental = item.listingType === 'EQUIPMENT_RENT';
-  const priceText = isRental
-    ? (item.dailyPrice ? `${Number(item.dailyPrice).toLocaleString()} ${item.currency}/يوم` : item.monthlyPrice ? `${Number(item.monthlyPrice).toLocaleString()} ${item.currency}/شهر` : null)
-    : (item.price ? `${Number(item.price).toLocaleString()} ${item.currency}` : null);
-
-  const EQUIP_ICONS: Record<string, string> = {
-    EXCAVATOR: 'precision_manufacturing', CRANE: 'crane', LOADER: 'front_loader', BULLDOZER: 'agriculture',
-    FORKLIFT: 'forklift', CONCRETE_MIXER: 'concrete', GENERATOR: 'bolt', COMPRESSOR: 'air',
-    SCAFFOLDING: 'construction', TRUCK: 'local_shipping', DUMP_TRUCK: 'local_shipping', WATER_TANKER: 'water_drop',
-  };
-
-  return (
-    <Link
-      href={`/sale/equipment/${item.id}`}
-      className="group relative overflow-hidden rounded-2xl bg-white dark:bg-surface-container border border-outline-variant/20 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
-    >
-      {/* Image */}
-      <div className="relative aspect-[16/10] bg-surface-container-high overflow-hidden">
-        {img ? (
-          <Image
-            src={img}
-            alt={item.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width:640px) 100vw, (max-width:768px) 50vw, 25vw"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="material-symbols-outlined text-4xl text-on-surface-variant/20">{EQUIP_ICONS[item.equipmentType] || 'construction'}</span>
-          </div>
-        )}
-        <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
-        <span className="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-black/60 backdrop-blur-sm text-white">
-          {isRental ? 'إيجار' : 'للبيع'}
-        </span>
-        {priceText && (
-          <div className="absolute bottom-2 right-2">
-            <span className="px-2 py-0.5 rounded-lg text-[11px] font-black bg-amber-600 text-white shadow-sm">{priceText}</span>
-          </div>
-        )}
-        {item.user?.isVerified && (
-          <span className="absolute bottom-2 left-2 text-blue-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
-            <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-          </span>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-3">
-        <h3 className="text-[13px] font-bold text-on-surface line-clamp-1 mb-1">{item.title}</h3>
-        <div className="flex items-center gap-2 text-[10px] text-on-surface-variant">
-          {item.governorate && (
-            <span className="flex items-center gap-0.5">
-              <MapPin size={10} />
-              {item.governorate}
-            </span>
-          )}
-          <span className="flex items-center gap-0.5">
-            <Eye size={10} />
-            {item.viewCount}
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
-}

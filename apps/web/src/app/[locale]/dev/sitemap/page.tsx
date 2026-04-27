@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Link } from '@/i18n/navigation';
 
 // ══════════════════════════════════════════════════════════════════════════════
 // DATA: All routes in the application
@@ -279,10 +278,10 @@ const GROUP_ICONS: Record<string, string> = {
 // COMPONENT
 // ══════════════════════════════════════════════════════════════════════════════
 
-type ViewMode = 'routes' | 'cards' | 'diagram';
+type ViewMode = 'routes' | 'cards' | 'diagram' | 'gallery';
 
 export default function SitemapPage() {
-  const [view, setView] = useState<ViewMode>('diagram');
+  const [view, setView] = useState<ViewMode>('gallery');
   const [search, setSearch] = useState('');
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
 
@@ -333,13 +332,13 @@ export default function SitemapPage() {
               />
             </div>
             <div className="flex bg-white/5 rounded-xl p-1 border border-white/10">
-              {(['diagram', 'routes', 'cards'] as ViewMode[]).map(v => (
+              {(['gallery', 'diagram', 'routes', 'cards'] as ViewMode[]).map(v => (
                 <button
                   key={v}
                   onClick={() => setView(v)}
                   className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${view === v ? 'bg-blue-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
                 >
-                  {v === 'diagram' ? 'Card Map' : v === 'routes' ? 'All Routes' : 'All Cards'}
+                  {v === 'gallery' ? 'Card Gallery' : v === 'diagram' ? 'Card Map' : v === 'routes' ? 'All Routes' : 'All Cards'}
                 </button>
               ))}
             </div>
@@ -573,6 +572,520 @@ export default function SitemapPage() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════════════════════════════════
+            VIEW: Card Gallery — Pixel-perfect static mockups
+        ════════════════════════════════════════════════════════════════════ */}
+        {view === 'gallery' && (
+          <div>
+            <h2 className="text-xl font-black mb-2 flex items-center gap-2">
+              <span className="material-symbols-outlined text-pink-400">palette</span>
+              Card Gallery — Visual Comparison
+            </h2>
+            <p className="text-sm text-gray-400 mb-8">Static replicas of every card design in the codebase. Compare shapes, sizes, and layouts side by side.</p>
+
+            {/* ── 1. VehicleCard ── */}
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-3 h-3 rounded-full bg-blue-500" />
+                <h3 className="text-lg font-black">VehicleCard</h3>
+                <code className="text-[10px] text-gray-500 font-mono">features/ads/components/vehicle-card.tsx</code>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">ACTIVE</span>
+              </div>
+              <p className="text-[12px] text-gray-400 mb-4">Vertical card — صورة 16:10 مع gradient overlay، badge شرط أعلى-يمين، سعر أسفل-يمين، عنوان + metadata أسفل. مستخدم في الهوم + لاندنج السيارات + المفضلة + البائع.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" dir="rtl">
+                {/* Sale car */}
+                <div className="rounded-xl overflow-hidden bg-white border border-gray-200 group hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
+                  <div className="relative" style={{ aspectRatio: '16/10' }}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-sky-100 to-blue-200 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-4xl text-blue-400/50">directions_car</span>
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent" />
+                    <button className="absolute top-1.5 left-1.5 w-7 h-7 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-[20px] text-white drop-shadow">favorite</span>
+                    </button>
+                    <span className="absolute top-1.5 right-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      جديدة
+                    </span>
+                    <span className="absolute bottom-1.5 left-1.5 text-blue-500 drop-shadow">
+                      <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                    </span>
+                    <div className="absolute bottom-1.5 right-1.5">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-black bg-black/55 backdrop-blur-sm text-white">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        12,500 ر.ع
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-3 flex flex-col gap-1.5">
+                    <h3 className="text-[13px] font-black leading-snug text-gray-900 line-clamp-1">تويوتا كامري 2024 GL</h3>
+                    <div className="flex items-center gap-1 flex-wrap text-[10px] text-gray-500">
+                      <span className="font-bold text-blue-600">للبيع</span>
+                      <span className="text-gray-300">·</span>
+                      <span>منذ 3 ساعات</span>
+                      <span className="text-gray-300">·</span>
+                      <span className="flex items-center gap-px"><span className="material-symbols-outlined text-[11px]">location_on</span>مسقط</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rental car */}
+                <div className="rounded-xl overflow-hidden bg-white border border-gray-200 group hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
+                  <div className="relative" style={{ aspectRatio: '16/10' }}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-teal-100 to-emerald-200 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-4xl text-teal-400/50">car_rental</span>
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent" />
+                    <span className="absolute top-1.5 right-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+                      <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                      مستعملة
+                    </span>
+                    <div className="absolute bottom-1.5 right-1.5">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-black bg-black/55 backdrop-blur-sm text-white">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        15 ر.ع/يوم
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-3 flex flex-col gap-1.5">
+                    <h3 className="text-[13px] font-black leading-snug text-gray-900 line-clamp-1">هيونداي أكسنت 2023 إيجار يومي</h3>
+                    <div className="flex items-center gap-1 flex-wrap text-[10px] text-gray-500">
+                      <span className="font-bold text-teal-500">إيجار</span>
+                      <span className="text-gray-300">·</span>
+                      <span>منذ يوم</span>
+                      <span className="text-gray-300">·</span>
+                      <span className="flex items-center gap-px"><span className="material-symbols-outlined text-[11px]">location_on</span>صلالة</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Parts */}
+                <div className="rounded-xl overflow-hidden bg-white border border-gray-200 group hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
+                  <div className="relative" style={{ aspectRatio: '16/10' }}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-amber-200 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-4xl text-orange-400/50">settings</span>
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent" />
+                    <span className="absolute top-1.5 right-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      أصلي
+                    </span>
+                    <div className="absolute bottom-1.5 right-1.5">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-black bg-black/55 backdrop-blur-sm text-white">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        45 ر.ع
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-3 flex flex-col gap-1.5">
+                    <h3 className="text-[13px] font-black leading-snug text-gray-900 line-clamp-1">فلتر زيت تويوتا أصلي</h3>
+                    <div className="flex items-center gap-1 flex-wrap text-[10px] text-gray-500">
+                      <span className="font-bold text-orange-500">قطعة</span>
+                      <span className="text-gray-300">·</span>
+                      <span>منذ 5 أيام</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Job */}
+                <div className="rounded-xl overflow-hidden bg-white border border-gray-200 group hover:-translate-y-0.5 hover:shadow-lg transition-all duration-300">
+                  <div className="relative" style={{ aspectRatio: '16/10' }}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-rose-100 to-pink-200 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-4xl text-rose-400/50">work</span>
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent" />
+                    <span className="absolute top-1.5 right-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-black/55 backdrop-blur-sm text-white">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      مطلوب موظف
+                    </span>
+                    <div className="absolute bottom-1.5 right-1.5">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-black bg-black/55 backdrop-blur-sm text-white">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        350 ر.ع/شهر
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-3 flex flex-col gap-1.5">
+                    <h3 className="text-[13px] font-black leading-snug text-gray-900 line-clamp-1">مطلوب سائق نقل ثقيل</h3>
+                    <div className="flex items-center gap-1 flex-wrap text-[10px] text-gray-500">
+                      <span className="font-bold text-rose-500">وظيفة</span>
+                      <span className="text-gray-300">·</span>
+                      <span>منذ ساعة</span>
+                      <span className="text-gray-300">·</span>
+                      <span className="flex items-center gap-px"><span className="material-symbols-outlined text-[11px]">location_on</span>صحار</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <hr className="border-white/5 mb-12" />
+
+            {/* ── 2. ListingCard ── */}
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-3 h-3 rounded-full bg-purple-500" />
+                <h3 className="text-lg font-black">ListingCard</h3>
+                <code className="text-[10px] text-gray-500 font-mono">features/listings/components/ListingCard.tsx</code>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">ACTIVE</span>
+              </div>
+              <p className="text-[12px] text-gray-400 mb-4">Horizontal card — صورة يمين 280px مع thumbnail strip + content يسار فيه سعر أحمر كبير + detail chips + أزرار (اتصال/شات/واتساب). مستخدم في كل صفحات Browse.</p>
+              <div className="flex flex-col gap-4" dir="rtl">
+                <div className="flex bg-white border border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:shadow-lg transition-all group max-w-[700px]">
+                  {/* Image */}
+                  <div className="relative flex-shrink-0 w-[280px] flex flex-col bg-gray-100">
+                    <div className="relative flex-1 min-h-[165px] overflow-hidden bg-gradient-to-br from-blue-50 to-sky-100 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-[1.25rem] bg-white shadow-sm flex items-center justify-center border border-gray-200">
+                        <span className="material-symbols-outlined text-[32px] text-blue-400/60">directions_car</span>
+                      </div>
+                      <span className="absolute top-0 start-0 flex items-center gap-1 px-2.5 py-1 bg-red-500 text-white text-[11px] font-bold rounded-ee-xl">
+                        ★ للبيع
+                      </span>
+                      <button className="absolute top-2 end-2 w-7 h-7 rounded-full bg-white/90 shadow-sm flex items-center justify-center">
+                        <span className="text-gray-400 text-xs">♡</span>
+                      </button>
+                    </div>
+                    {/* Thumbnails */}
+                    <div className="flex h-[50px] border-t border-gray-200">
+                      <div className="w-1/3 bg-gray-200 border-s border-gray-200" />
+                      <div className="w-1/3 bg-gray-300 border-s border-gray-200" />
+                      <div className="w-1/3 bg-gray-200 border-s border-gray-200 flex items-center justify-center">
+                        <span className="text-[11px] font-bold text-gray-500">+5</span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Content */}
+                  <div className="flex-1 min-w-0 flex flex-col p-3.5 gap-2 overflow-hidden">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-[20px] font-black text-red-500 leading-none">
+                        8,500
+                        <span className="text-[11px] font-normal text-gray-400 mr-1.5">ر.ع</span>
+                      </p>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-emerald-500">مستعملة</span>
+                    </div>
+                    <h2 className="text-[13px] font-semibold text-gray-900 line-clamp-1">نيسان باترول 2022 V6 فل كامل</h2>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {['2022', '45,000 كم', 'بنزين', 'أوتوماتيك'].map(d => (
+                        <span key={d} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 text-[11px] font-semibold text-gray-700">{d}</span>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-50 border border-sky-200 text-[10px] font-semibold text-sky-700">✓ موثق</span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[10px] font-semibold text-amber-700">قابل للتفاوض</span>
+                    </div>
+                    <div className="flex-1" />
+                    <hr className="border-gray-200" />
+                    <div className="flex items-center gap-1 text-[11px] text-gray-500">
+                      <span>📍</span>
+                      <span>مسقط</span>
+                      <span className="mx-1 text-gray-300">·</span>
+                      <span className="text-[10px] text-gray-400">منذ 3 ساعات</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-3 py-1.5 rounded-lg bg-sky-50 border border-sky-200 text-[12px] font-semibold text-sky-700">📞 اتصال</span>
+                      <span className="px-3 py-1.5 rounded-lg bg-orange-50 border border-orange-200 text-[12px] font-semibold text-orange-700">💬 محادثة</span>
+                      <span className="px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-[12px] font-semibold text-emerald-700">واتساب</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <hr className="border-white/5 mb-12" />
+
+            {/* ── 3. UnifiedCard ── */}
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-3 h-3 rounded-full bg-cyan-500" />
+                <h3 className="text-lg font-black">UnifiedCard</h3>
+                <code className="text-[10px] text-gray-500 font-mono">features/listings/components/UnifiedCard.tsx</code>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">ACTIVE</span>
+              </div>
+              <p className="text-[12px] text-gray-400 mb-4">Vertical card — شبيه بـ VehicleCard لكن ببنية مختلفة: badges مختلفة + details chips + location + سعر أسفل. مستخدم في البحث العام + مفضلة + بائع.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" dir="rtl">
+                <div className="rounded-xl overflow-hidden bg-white border border-gray-200 hover:shadow-md hover:-translate-y-px transition-all cursor-pointer group">
+                  <div className="relative bg-gray-100" style={{ aspectRatio: '16/10' }}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-violet-200 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-3xl text-purple-400/50">directions_car</span>
+                    </div>
+                    <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-black/55 backdrop-blur-sm text-white text-[10px] font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                      للبيع
+                    </span>
+                    <span className="absolute top-2 left-2 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-black/55 backdrop-blur-sm text-white text-[10px] font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      جديدة
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="text-[13px] font-medium text-gray-900 line-clamp-1 mb-1.5">تويوتا لاندكروزر 2024</h3>
+                    <div className="flex items-center gap-2 text-[11px] text-gray-500 mb-1.5">
+                      <span>2024</span>
+                      <span className="text-gray-300">·</span>
+                      <span>0 كم</span>
+                      <span className="text-gray-300">·</span>
+                      <span>بنزين</span>
+                    </div>
+                    <div className="flex items-center gap-1 mb-2">
+                      <span className="text-gray-400 text-[10px]">📍</span>
+                      <span className="text-[11px] text-gray-400">مسقط</span>
+                    </div>
+                    <hr className="border-gray-200 mb-2" />
+                    <span className="text-[14px] font-semibold text-gray-900">
+                      28,000 <span className="text-[11px] font-normal text-gray-400">ر.ع</span>
+                    </span>
+                  </div>
+                </div>
+                <div className="rounded-xl overflow-hidden bg-white border border-gray-200 hover:shadow-md hover:-translate-y-px transition-all cursor-pointer group">
+                  <div className="relative bg-gray-100" style={{ aspectRatio: '16/10' }}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-teal-100 to-cyan-200 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-3xl text-teal-400/50">construction</span>
+                    </div>
+                    <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-black/55 backdrop-blur-sm text-white text-[10px] font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                      إيجار
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="text-[13px] font-medium text-gray-900 line-clamp-1 mb-1.5">حفارة كاتربيلر 320</h3>
+                    <div className="flex items-center gap-2 text-[11px] text-gray-500 mb-1.5">
+                      <span>2020</span>
+                      <span className="text-gray-300">·</span>
+                      <span>3,200 ساعة</span>
+                    </div>
+                    <div className="flex items-center gap-1 mb-2">
+                      <span className="text-gray-400 text-[10px]">📍</span>
+                      <span className="text-[11px] text-gray-400">صحار</span>
+                    </div>
+                    <hr className="border-gray-200 mb-2" />
+                    <span className="text-[14px] font-semibold text-gray-900">
+                      85 <span className="text-[11px] font-normal text-gray-400">ر.ع / يوم</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <hr className="border-white/5 mb-12" />
+
+            {/* ── 4. EquipmentCard (inline) ── */}
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-3 h-3 rounded-full bg-red-500" />
+                <h3 className="text-lg font-black">EquipmentCard (inline)</h3>
+                <code className="text-[10px] text-gray-500 font-mono">equipment/equipment-shell.tsx (local fn)</code>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold">DUPLICATE</span>
+              </div>
+              <p className="text-[12px] text-gray-400 mb-4">Vertical card — مشابه لـ VehicleCard لكن بـ amber price badge + أيقونات مختلفة. في equipment landing فقط. مكرر ومحتاج يتوحد.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" dir="rtl">
+                <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-all hover:-translate-y-0.5 group">
+                  <div className="relative" style={{ aspectRatio: '16/10' }}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-amber-100 to-yellow-200 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-4xl text-amber-400/40">construction</span>
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/50 to-transparent" />
+                    <span className="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-black/60 backdrop-blur-sm text-white">للبيع</span>
+                    <div className="absolute bottom-2 right-2">
+                      <span className="px-2 py-0.5 rounded-lg text-[11px] font-black bg-amber-600 text-white shadow-sm">25,000 OMR</span>
+                    </div>
+                    <span className="absolute bottom-2 left-2 text-blue-500 drop-shadow">
+                      <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="text-[13px] font-bold text-gray-900 line-clamp-1 mb-1">رافعة تادانو 50 طن 2021</h3>
+                    <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                      <span className="flex items-center gap-0.5">📍 مسقط</span>
+                      <span className="flex items-center gap-0.5">👁 245</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-lg transition-all hover:-translate-y-0.5 group">
+                  <div className="relative" style={{ aspectRatio: '16/10' }}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 to-teal-200 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-4xl text-emerald-400/40">front_loader</span>
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/50 to-transparent" />
+                    <span className="absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-black/60 backdrop-blur-sm text-white">إيجار</span>
+                    <div className="absolute bottom-2 right-2">
+                      <span className="px-2 py-0.5 rounded-lg text-[11px] font-black bg-amber-600 text-white shadow-sm">120 OMR/يوم</span>
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="text-[13px] font-bold text-gray-900 line-clamp-1 mb-1">لودر كاتربيلر 950H</h3>
+                    <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                      <span className="flex items-center gap-0.5">📍 صلالة</span>
+                      <span className="flex items-center gap-0.5">👁 89</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <hr className="border-white/5 mb-12" />
+
+            {/* ── 5. SellerCard ── */}
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-3 h-3 rounded-full bg-pink-500" />
+                <h3 className="text-lg font-black">SellerCard</h3>
+                <code className="text-[10px] text-gray-500 font-mono">components/seller-card.tsx</code>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">ACTIVE</span>
+              </div>
+              <p className="text-[12px] text-gray-400 mb-4">بطاقة معلومات البائع — أفاتار + اسم + نجوم + تاريخ انضمام + أزرار تواصل. مستخدم في صفحات التفاصيل والحجوزات.</p>
+              <div className="max-w-sm" dir="rtl">
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-lg font-bold">م</div>
+                    <div>
+                      <div className="flex items-center gap-1">
+                        <h4 className="text-[14px] font-bold text-gray-900">محمد الهاشمي</h4>
+                        <span className="material-symbols-outlined text-blue-500 text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-[11px] text-gray-400">
+                        <span>⭐ 4.8</span>
+                        <span>(23 تقييم)</span>
+                        <span>·</span>
+                        <span>عضو منذ 2023</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="flex-1 text-center px-3 py-2 rounded-lg bg-blue-600 text-white text-[12px] font-bold">محادثة</span>
+                    <span className="flex-1 text-center px-3 py-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-[12px] font-bold">اتصال</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <hr className="border-white/5 mb-12" />
+
+            {/* ── 6. BookingCard ── */}
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-3 h-3 rounded-full bg-emerald-500" />
+                <h3 className="text-lg font-black">BookingCard</h3>
+                <code className="text-[10px] text-gray-500 font-mono">components/booking-card.tsx</code>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">ACTIVE</span>
+              </div>
+              <p className="text-[12px] text-gray-400 mb-4">كارت الحجز — يعرض نوع المركبة + التواريخ + الحالة + السعر. مستخدم في صفحات الحجوزات.</p>
+              <div className="max-w-md" dir="rtl">
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-blue-600 text-lg">directions_car</span>
+                      </div>
+                      <div>
+                        <h4 className="text-[13px] font-bold text-gray-900">تويوتا كامري 2024</h4>
+                        <p className="text-[11px] text-gray-400">حجز #BK-2847</p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">مؤكد</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-[11px] text-gray-500 mb-3">
+                    <span>📅 15 أبريل → 20 أبريل</span>
+                    <span>5 أيام</span>
+                  </div>
+                  <hr className="border-gray-200 mb-3" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-[14px] font-bold text-gray-900">75 ر.ع</span>
+                    <span className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-[11px] font-bold">عرض التفاصيل</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <hr className="border-white/5 mb-12" />
+
+            {/* ── 7. ReviewCard ── */}
+            <section className="mb-12">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-3 h-3 rounded-full bg-orange-500" />
+                <h3 className="text-lg font-black">ReviewCard</h3>
+                <code className="text-[10px] text-gray-500 font-mono">components/reviews/review-card.tsx</code>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">ACTIVE</span>
+              </div>
+              <div className="max-w-md" dir="rtl">
+                <div className="rounded-xl border border-gray-200 bg-white p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white text-sm font-bold">أ</div>
+                    <div>
+                      <h4 className="text-[13px] font-bold text-gray-900">أحمد السعيدي</h4>
+                      <div className="flex items-center gap-1 text-[11px]">
+                        {'⭐'.repeat(5)}
+                        <span className="text-gray-400 mr-1">منذ أسبوع</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[12px] text-gray-600 leading-relaxed">تجربة ممتازة مع البائع، السيارة كانت بالضبط كما في الوصف والصور. التسليم كان سريع والتعامل راقي جداً. أنصح بالتعامل معه.</p>
+                </div>
+              </div>
+            </section>
+
+            <hr className="border-white/5 mb-12" />
+
+            {/* ── Summary comparison ── */}
+            <section className="mb-12">
+              <h3 className="text-lg font-black mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-400">compare</span>
+                Visual Comparison — Listing Cards
+              </h3>
+              <p className="text-sm text-gray-400 mb-6">The 3 main listing cards side by side. Notice the inconsistencies in layout, badges, pricing, and typography.</p>
+
+              <div className="overflow-x-auto pb-4">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="px-4 py-3 text-left text-[11px] text-gray-400 font-bold uppercase w-[180px]">Property</th>
+                      <th className="px-4 py-3 text-center text-[11px] font-bold uppercase" style={{ color: '#3b82f6' }}>VehicleCard</th>
+                      <th className="px-4 py-3 text-center text-[11px] font-bold uppercase" style={{ color: '#8b5cf6' }}>ListingCard</th>
+                      <th className="px-4 py-3 text-center text-[11px] font-bold uppercase" style={{ color: '#06b6d4' }}>UnifiedCard</th>
+                      <th className="px-4 py-3 text-center text-[11px] font-bold uppercase" style={{ color: '#ef4444' }}>EquipmentCard</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {[
+                      ['Layout', 'Vertical', 'Horizontal', 'Vertical', 'Vertical'],
+                      ['Image Ratio', '16:10', '280px fixed', '16:10', '16:10'],
+                      ['Corner Radius', 'rounded-xl', 'rounded-xl', 'rounded-xl', 'rounded-2xl'],
+                      ['Price Position', 'Image overlay', 'Content area (red)', 'Below divider', 'Image overlay (amber)'],
+                      ['Badge System', 'Material dot + blur', 'Red ribbon + pills', 'Dual blur badges', 'Black blur badge'],
+                      ['Favorite', 'Material icon', 'Lucide Heart', 'Lucide Heart (hover)', 'None'],
+                      ['Thumbnails', 'None', '3 + overlay count', 'None', 'None'],
+                      ['Action Buttons', 'None', 'Call + Chat + WA', 'None', 'None'],
+                      ['Mobile Scaling', 'None', 'Transform scale', 'None', 'None'],
+                      ['Icons', 'Material Symbols', 'Lucide', 'Lucide', 'Material Symbols'],
+                    ].map(([prop, ...vals]) => (
+                      <tr key={prop} className="hover:bg-white/[0.02]">
+                        <td className="px-4 py-2 text-[12px] text-gray-400 font-semibold">{prop}</td>
+                        {vals.map((v, i) => (
+                          <td key={i} className="px-4 py-2 text-center text-[11px] text-gray-300">{v}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                <h4 className="text-[13px] font-bold text-amber-400 mb-2 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[16px]">warning</span>
+                  Key Inconsistencies
+                </h4>
+                <ul className="text-[12px] text-amber-300/80 space-y-1 list-disc list-inside">
+                  <li><strong>Icon system:</strong> VehicleCard + EquipmentCard use Material Symbols, while ListingCard + UnifiedCard use Lucide</li>
+                  <li><strong>Price styling:</strong> 4 different approaches — overlay badge, red text, below divider, amber badge</li>
+                  <li><strong>Favorite button:</strong> 3 different implementations — Material icon, Lucide filled, Lucide on-hover</li>
+                  <li><strong>Border radius:</strong> Mostly rounded-xl but EquipmentCard uses rounded-2xl</li>
+                  <li><strong>Layout:</strong> ListingCard is horizontal while all others are vertical</li>
+                </ul>
+              </div>
+            </section>
+
           </div>
         )}
 
