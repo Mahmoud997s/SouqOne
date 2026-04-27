@@ -477,7 +477,7 @@ function ShellContent({ category }: { category: ListingCategory }) {
               {searchQuery && (
                 <button
                   onClick={handleClearSearch}
-                  className="absolute left-[60px] top-[14px] text-on-surface-variant hover:text-on-surface hover:bg-surface-container p-1.5 rounded-full transition-colors z-10"
+                  className="absolute left-[60px] top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container p-1.5 rounded-full transition-colors z-10"
                 >
                   <X size={15} />
                 </button>
@@ -486,7 +486,7 @@ function ShellContent({ category }: { category: ListingCategory }) {
               {/* Primary Search Button (Like Airbnb) */}
               <button
                 onClick={() => submitSearch()}
-                className="absolute left-1.5 top-1.5 w-11 h-11 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-md shadow-primary/20 z-10"
+                className="absolute left-1.5 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shadow-md shadow-primary/20 z-10"
               >
                 <Search size={18} strokeWidth={2.5} />
               </button>
@@ -592,7 +592,7 @@ function ShellContent({ category }: { category: ListingCategory }) {
         />
 
         {/* Content Area */}
-        <main className="flex-1 min-w-0 pb-32 lg:pb-16">
+        <main className="flex-1 min-w-0 pb-40 lg:pb-16">
 
           {/* ── A) Sort Bar ── */}
           <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 mb-3">
