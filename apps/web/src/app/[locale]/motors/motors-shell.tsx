@@ -186,7 +186,7 @@ export function MotorsShell({ saleCars, rentalCars, services }: MotorsShellProps
           2. QUICK LINKS — Action cards
       ═══════════════════════════════════════════════════════════════════════ */}
       <section className="-mt-10 relative z-20 max-w-6xl mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {QUICK_LINKS.map((link) => (
             <Link
               key={link.title}
@@ -272,7 +272,7 @@ export function MotorsShell({ saleCars, rentalCars, services }: MotorsShellProps
           </div>
 
           {saleCars.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               {saleCars.map((item) => (
                 <VehicleCard
                   key={item.id}
@@ -326,7 +326,7 @@ export function MotorsShell({ saleCars, rentalCars, services }: MotorsShellProps
           </div>
 
           {rentalCars.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
               {rentalCars.map((item) => (
                 <VehicleCard
                   key={item.id}
