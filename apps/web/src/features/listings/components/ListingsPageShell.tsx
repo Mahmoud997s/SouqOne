@@ -43,8 +43,8 @@ const CATEGORY_ICON: Record<ListingCategory, LucideIcon> = {
 
 function CategoryBar({ currentCategory }: { currentCategory: ListingCategory }) {
   return (
-    <div className="bg-background/80 backdrop-blur-md border-b border-outline-variant/20 sticky top-0 z-30 pt-3 pb-3">
-      <div className="w-full px-2 sm:max-w-4xl sm:mx-auto sm:px-6">
+    <div className="bg-background/80 backdrop-blur-md border-b border-outline-variant/20 sticky top-0 z-30 pt-2 pb-2 sm:pt-3 sm:pb-3">
+      <div className="w-full px-2.5 sm:max-w-4xl sm:mx-auto sm:px-6">
         {/* The Premium Capsule */}
         <div className="flex items-center p-1 sm:p-1.5 bg-surface-container-lowest/80 backdrop-blur-xl border border-outline-variant/40 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.1)] transition-all duration-300">
           {VALID_CATEGORIES.map((cat, index) => {
@@ -419,8 +419,8 @@ function ShellContent({ category }: { category: ListingCategory }) {
       <CategoryBar currentCategory={category} />
 
       {/* ── 1. Premium Header (Breadcrumb + Search + Action) ──────────────── */}
-      <div className="bg-gradient-to-b from-surface-container-lowest to-background border-b border-outline-variant/30 pb-5 pt-3">
-        <div className="max-w-7xl mx-auto px-6">
+      <div className="bg-gradient-to-b from-surface-container-lowest to-background border-b border-outline-variant/30 pb-4 sm:pb-5 pt-2 sm:pt-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6">
           
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-2">
             
@@ -435,7 +435,7 @@ function ShellContent({ category }: { category: ListingCategory }) {
                 </div>
                 
                 {/* Sharp, Heavy Typography */}
-                <h1 className="text-[26px] sm:text-[28px] font-bold tracking-tight text-on-surface leading-none">
+                <h1 className="text-[22px] sm:text-[28px] font-bold tracking-tight text-on-surface leading-none">
                   {meta.labelAr}
                 </h1>
               </div>
@@ -466,7 +466,7 @@ function ShellContent({ category }: { category: ListingCategory }) {
                 onFocus={() => setIsSearchFocused(true)}
                 placeholder={t('searchIn', { category: meta.labelAr })}
                 className={clsx(
-                  "w-full h-14 border border-outline-variant/50 bg-surface-container-lowest/50 pr-6 pl-24 text-[14px] placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/50 focus:bg-background focus:ring-4 focus:ring-primary/10 shadow-sm transition-all text-right",
+                  "w-full h-12 sm:h-14 border border-outline-variant/50 bg-surface-container-lowest/50 pr-4 sm:pr-6 pl-20 sm:pl-24 text-[13px] sm:text-[14px] placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary/50 focus:bg-background focus:ring-4 focus:ring-primary/10 shadow-sm transition-all text-right",
                   isSearchFocused && (searchQuery ? suggestions.length > 0 : recentSearches.length > 0) 
                     ? "rounded-t-3xl rounded-b-none border-b-transparent shadow-md"
                     : "rounded-full hover:shadow-md"
@@ -580,7 +580,7 @@ function ShellContent({ category }: { category: ListingCategory }) {
 
 
       {/* ── 3. Main Body ──────────────────────────────────────────────────── */}
-      <div className="flex-1 max-w-7xl w-full mx-auto px-6 flex gap-6 items-start py-5">
+      <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 flex gap-4 sm:gap-6 items-start py-3 sm:py-5">
         
         {/* Sidebar */}
         <FilterSidebar
@@ -592,7 +592,7 @@ function ShellContent({ category }: { category: ListingCategory }) {
         />
 
         {/* Content Area */}
-        <main className="flex-1 min-w-0 pb-16">
+        <main className="flex-1 min-w-0 pb-32 lg:pb-16">
 
           {/* ── A) Sort Bar ── */}
           <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 mb-3">
@@ -774,7 +774,7 @@ function ShellContent({ category }: { category: ListingCategory }) {
       {/* ── Mobile FAB (lg:hidden) ────────────────────────────────── */}
       <div 
         className="lg:hidden fixed left-4 z-40 transition-all duration-300"
-        style={{ bottom: 'calc(75px + env(safe-area-inset-bottom, 0px))' }}
+        style={{ bottom: 'calc(90px + env(safe-area-inset-bottom, 0px))' }}
       >
         <button
           onClick={() => setFabSheetOpen(true)}
